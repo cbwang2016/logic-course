@@ -275,3 +275,17 @@ table.tt td.wrong { background: var(--false-soft) !important; animation: shake .
 .lesson:hover { transform: translateY(-3px); box-shadow: 0 10px 24px -14px rgba(0,0,0,.3); }
 .lesson .num { font-family: var(--mono); font-weight: 800; font-size: 13px; color: var(--accent); }
 .lesson .st { position: absolute; top: 12px; right: 14px; font-size: 12px; }
+
+/* ---------- LaTeX math (local KaTeX distribution) ---------- */
+.course-math { font-family: initial; }
+.course-math .katex { font-size: 1.05em; }
+.course-math-display { display: block; max-width: 100%; overflow-x: auto; }
+.course-math .katex-display { margin: .75em 0; }
+/* The global diagram rule must not turn KaTeX's inline SVG accents into blocks. */
+.katex svg { display: inline; max-width: none; }
+.course-math-source { fill-opacity: 0 !important; stroke-opacity: 0 !important; }
+.course-math-svg { overflow: visible; pointer-events: none; }
+.course-math-svg > span {
+  display: inline-block; position: absolute; white-space: nowrap;
+  line-height: 1.2; font-family: var(--sans);
+}

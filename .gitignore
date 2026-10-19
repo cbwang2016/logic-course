@@ -12,3 +12,4 @@ desktop.ini
 # Local tooling (not needed to build/run)
 node_modules/
 .python-version
+test-results/

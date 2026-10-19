@@ -1,0 +1,11 @@
+{
+  "name": "logic-course",
+  "private": true,
+  "scripts": {
+    "test": "node --test tests/math.test.cjs",
+    "test:browser": "node tests/browser.cjs"
+  },
+  "devDependencies": {
+    "playwright": "1.56.1"
+  }
+}
