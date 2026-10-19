@@ -1,0 +1,14 @@
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editors
+*.swp
+*~
+.vscode/
+.idea/
+
+# Local tooling (not needed to build/run)
+node_modules/
+.python-version
