@@ -1,0 +1,605 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 21 · Ordinal Notations &amp; Fast-Growing Hierarchies 序数记号与快速增长层级</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  .prereq { font-size: 13px; color: var(--muted); margin: -4px 0 10px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .prereq a { text-decoration: none; color: var(--accent); background: var(--accent-soft); border-radius: 999px; padding: 1px 10px; }
+  .prereq a:hover { background: #d6defc; }
+  .core { font-weight: 600; margin: 6px 0 12px; }
+  .core::before { content: "◆ "; color: var(--accent); }
+  .pit { border-left: 4px solid var(--false); background: #fff5f5; padding: 10px 14px; border-radius: 0 10px 10px 0; margin: 14px 0; }
+  .pit > b:first-child { color: var(--false); }
+  .intu { border-left: 4px solid var(--true); background: #f1fbf3; padding: 10px 14px; border-radius: 0 10px 10px 0; margin: 14px 0; }
+  .cy { border: 1.5px dashed var(--meta); background: var(--meta-soft); border-radius: 12px; padding: 10px 14px; margin: 16px 0 4px; }
+  .cy .cy-opts { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+  .cy .cy-opts .btn { font-family: var(--mono); }
+  .cy .cy-exp { display: none; margin-top: 6px; }
+  .cy.answered .cy-exp { display: block; animation: fadein .4s ease both; }
+  .cy .btn.right { border-color: var(--true); background: var(--true-soft); }
+  .cy .btn.wrongc { border-color: var(--false); background: var(--false-soft); }
+  .proof { margin: 12px 0; }
+  .proof .step { border-left: 3px solid var(--line); padding: 4px 12px; margin: 6px 0; }
+  .ordin { font-family: var(--mono); font-size: 17px; }
+  .ordin sup { font-size: 0.72em; }
+  .ordin sub { font-size: 0.7em; }
+  input.formula.narrow { min-width: 90px; width: 110px; }
+  table.gs { border-collapse: collapse; font-size: 14px; width: 100%; }
+  table.gs th, table.gs td { border-bottom: 1px solid var(--line); padding: 4px 8px; text-align: left; vertical-align: top; }
+  table.gs th { background: #f1efe7; position: sticky; top: 0; z-index: 1; }
+  table.gs td.m { white-space: nowrap; }
+  table.gs tr.newrow { animation: rowin .4s ease both; }
+  table.gs .bs { color: var(--gold); }
+  table.gs .down { color: var(--true); font-weight: 700; }
+  .scrollbox { max-height: 380px; overflow: auto; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+  .hy-head { cursor: pointer; }
+  .hy-head:hover circle { fill: var(--false); }
+  .gal-card { border: 2px solid var(--line); border-radius: 12px; padding: 10px 14px; background: #fff; min-height: 120px; }
+  .vgrid21 { border-collapse: separate; border-spacing: 5px; font-family: var(--mono); }
+  .vgrid21 td { min-width: 62px; height: 46px; text-align: center; border-radius: 10px; background: #fff; border: 2px solid var(--line); cursor: pointer; transition: all .2s; font-size: 16px; }
+  .vgrid21 td:hover { border-color: var(--accent); }
+  .vgrid21 td.hl { background: var(--accent-soft); border-color: var(--accent); }
+  .vgrid21 td.fx { background: var(--gold-soft); border-color: var(--gold); }
+  .vgrid21 td.diag { background: var(--meta-soft); border-color: var(--meta); }
+  .vgrid21 th { font-weight: 600; color: var(--muted); font-size: 13px; padding: 0 6px; }
+  .tbl21 { border-collapse: collapse; font-family: var(--mono); font-size: 14px; }
+  .tbl21 td, .tbl21 th { border: 1px solid var(--line); padding: 4px 10px; text-align: center; }
+  .tbl21 th { background: #f1efe7; }
+  .walk { font-family: var(--mono); font-size: 13px; line-height: 1.7; max-height: 220px; overflow: auto; background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; }
+  .walk:empty { display: none; }
+  .walk .lim { color: var(--accent); }
+  .walk span { white-space: nowrap; }
+  .tbl21 th { white-space: nowrap; }
+  .walk .suc { color: var(--true); }
+  .lad-label { font-family: var(--mono); }
+  .badge-th { display: inline-block; font-size: 11px; border-radius: 6px; padding: 0 6px; margin-left: 6px; color: #fff; background: var(--true); vertical-align: 2px; }
+  .badge-th.open { background: var(--gold); }
+  .badge-th.def { background: var(--accent); }
+  .ex .row-q { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; padding: 8px 0; border-bottom: 1px dashed var(--line); }
+  .ex .row-q .q { flex: 1 1 280px; }
+  .ex .row-q .q .ordin { font-size: 16px; }
+  .cmpbtns .btn { min-width: 40px; font-family: var(--mono); }
+  .cmpbtns .btn.right { border-color: var(--true); background: var(--true-soft); }
+  .cmpbtns .btn.wrongc { border-color: var(--false); background: var(--false-soft); }
+  .ok-mark { color: var(--true); font-weight: 700; }
+  .bad-mark { color: var(--false); font-weight: 700; }
+  .lang-both .cy .cy-opts .btn .zh { display: inline; }
+  .lang-both .cy .cy-opts .btn .zh::before { content: " · "; }
+</style>
+</head>
+<body class="lang-both">
+<header class="top">
+  <a class="home" href="index.html">∀∃ <span class="il"><span class="en">Logic &amp; Sets</span><span class="zh">逻辑与集合</span></span></a>
+  <span class="muted">/ L21</span>
+  <span class="spacer"></span>
+  <div class="lang-switch">
+    <button data-lang="en">EN</button><button data-lang="zh">中文</button><button data-lang="both">EN + 中</button>
+  </div>
+</header>
+
+<div class="layout">
+<nav class="side">
+  <div class="grp">Lesson 21</div>
+  <a href="index.html">← <span class="il"><span class="en">Course map</span><span class="zh">课程地图</span></span></a>
+  <a href="lesson20.html">← <span class="il"><span class="en">Lesson 20</span><span class="zh">第 20 课</span></span></a>
+  <a href="lesson22.html"><span class="il"><span class="en">Lesson 22</span><span class="zh">第 22 课</span></span> →</a>
+  <div class="grp"><span class="il"><span class="en">Steps</span><span class="zh">步骤</span></span></div>
+  <a href="#s1">1 · <span class="il"><span class="en">Why notations</span><span class="zh">为什么要记号</span></span></a>
+  <a href="#s2">2 · ε₀</a>
+  <a href="#s3">3 · <span class="il"><span class="en">Fundamental sequences</span><span class="zh">基本序列</span></span></a>
+  <a href="#s4">4 · <span class="il"><span class="en">Goodstein</span><span class="zh">古德斯坦序列</span></span></a>
+  <a href="#s5">5 · <span class="il"><span class="en">Hydra</span><span class="zh">九头蛇</span></span></a>
+  <a href="#s6">6 · <span class="il"><span class="en">Gentzen &amp; |PA|</span><span class="zh">根岑与 |PA|</span></span></a>
+  <a href="#s7">7 · <span class="il"><span class="en">Veblen &amp; Γ₀</span><span class="zh">维布伦与 Γ₀</span></span></a>
+  <a href="#s8">8 · <span class="il"><span class="en">Beyond Γ₀</span><span class="zh">Γ₀ 之上</span></span></a>
+  <a href="#s9">9 · <span class="il"><span class="en">Fast-growing f<sub>α</sub></span><span class="zh">快速增长 f<sub>α</sub></span></span></a>
+  <a href="#s10">10 · <span class="il"><span class="en">Summary ladder</span><span class="zh">总结阶梯</span></span></a>
+  <div class="grp"><span class="il"><span class="en">Exercises</span><span class="zh">练习</span></span></div>
+  <a href="#e1" data-prog="L21E1">E1 · α[n]</a>
+  <a href="#e2" data-prog="L21E2">E2 · Goodstein</a>
+  <a href="#e3" data-prog="L21E3">E3 · &lt; = &gt;</a>
+  <a href="#e4" data-prog="L21E4">E4 · f<sub>α</sub>(n)</a>
+  <a href="#e5" data-prog="L21E5">E5 · <span class="il"><span class="en">True/False</span><span class="zh">判断</span></span></a>
+  <a href="#e6" data-prog="L21E6">E6 · <span class="il"><span class="en">Hydra ordinal</span><span class="zh">九头蛇序数</span></span></a>
+</nav>
+
+<main>
+<div class="hero">
+  <div class="kicker">Part V · Lesson 21</div>
+  <h1><span class="en">Ordinal Notations &amp; Fast-Growing Hierarchies</span><span class="zh">序数记号与快速增长层级</span></h1>
+  <p><span class="en">Countable ordinals are infinite objects, but many of them have <b>finite names</b> that a computer can compare. With those names we can measure the strength of theories (PA ↦ ε₀), build functions that outgrow anything PA can prove total, and find true arithmetic statements PA cannot prove: Goodstein's theorem and the hydra.</span>
+     <span class="zh">可数序数是无穷对象，但其中许多都有计算机能比较大小的<b>有限名字</b>。借助这些名字，我们可以度量理论的强度（PA ↦ ε₀），构造出比 PA 能证明为全函数的任何函数都长得更快的函数，还能找到 PA 证明不了的真算术命题：古德斯坦定理和九头蛇游戏。</span></p>
+</div>
+
+<!-- ============ S1 ============ -->
+<section class="card" id="s1">
+  <div class="kicker"><span class="il"><span class="en">Step 1</span><span class="zh">第 1 步</span></span></div>
+  <h2><span class="en">Why notations: ordinals as finite trees</span><span class="zh">为什么要记号：把序数写成有限的树</span></h2>
+  <div class="prereq"><b><span class="il"><span class="en">Prerequisites</span><span class="zh">预备知识</span></span>:</b>
+    <a href="lesson8.html">L8 · <span class="il"><span class="en">ordinals, CNF</span><span class="zh">序数、康托尔范式</span></span></a>
+    <a href="lesson11.html">L11 · <span class="il"><span class="en">computability</span><span class="zh">可计算性</span></span></a>
+    <a href="lesson18.html">L18 · ω₁<sup>CK</sup></a></div>
+  <p class="core"><span class="en">A notation system turns (some) countable ordinals into finite terms that an algorithm can compare.</span><span class="zh">记号系统把（一部分）可数序数变成有限的项，并且有算法能比较它们的大小。</span></p>
+  <div class="def"><span class="en"><b>Definition (notation system).</b> A <b>notation system</b> is a pair <span class="m">(T, ≺)</span> where <span class="m">T ⊆ ℕ</span> (think: a set of finite terms, coded as numbers) is <b>recursive</b>, <span class="m">≺</span> is a <b>recursive</b> binary relation on <span class="m">T</span>, and <span class="m">(T, ≺)</span> is a <b>well-order</b>. Its order type is the ordinal it describes; the term in position α is “a notation for α”. In practice one also asks that basic operations (successor, +, fundamental sequences) be recursive, usually even primitive recursive.</span>
+    <span class="zh"><b>定义（记号系统）.</b> <b>记号系统</b>是一对 <span class="m">(T, ≺)</span>，其中 <span class="m">T ⊆ ℕ</span>（可理解为一族有限的项，编码成自然数）是<b>递归</b>集，<span class="m">≺</span> 是 <span class="m">T</span> 上的<b>递归</b>二元关系，且 <span class="m">(T, ≺)</span> 是<b>良序</b>。它的序型就是它所描述的序数；排在第 α 位的项称为“α 的记号”。实际使用时通常还要求基本运算（后继、加法、基本序列）递归，一般甚至是原始递归的。</span></div>
+  <div class="def"><span class="en"><b>Cantor normal form (L8).</b> Every ordinal <span class="m">α &gt; 0</span> can be written uniquely as <span class="m">α = ω<sup>β₁</sup>·c₁ + ω<sup>β₂</sup>·c₂ + … + ω<sup>βₖ</sup>·cₖ</span> with <span class="m">β₁ &gt; β₂ &gt; … &gt; βₖ</span> and positive integers <span class="m">cᵢ</span>. If <span class="m">α &lt; ε₀</span> (Step 2), every exponent satisfies <span class="m">βᵢ &lt; α</span>, so we may expand the exponents again and again; the process stops after finitely many rounds. The result is the <b>hereditary CNF</b>: a finite tree.</span>
+    <span class="zh"><b>康托尔范式（第 8 课）.</b> 每个序数 <span class="m">α &gt; 0</span> 都可以唯一地写成 <span class="m">α = ω<sup>β₁</sup>·c₁ + ω<sup>β₂</sup>·c₂ + … + ω<sup>βₖ</sup>·cₖ</span>，其中 <span class="m">β₁ &gt; β₂ &gt; … &gt; βₖ</span>，<span class="m">cᵢ</span> 为正整数。若 <span class="m">α &lt; ε₀</span>（见第 2 步），则每个指数都满足 <span class="m">βᵢ &lt; α</span>，于是可以对指数反复展开，有限轮后必然停止，得到<b>遗传康托尔范式</b>：一棵有限的树。</span></div>
+  <p><span class="en">Type an ordinal below ε₀ (use <span class="m">w</span> or <span class="m">ω</span>, <span class="m">^</span>, <span class="m">+</span>, <span class="m">*</span> or <span class="m">·</span>, parentheses). The tree is its hereditary CNF: each blue node is a term <span class="m">ω<sup>□</sup>·c</span>, whose child is the exponent; gold leaves are natural numbers. <b>Click a blue node</b> to fold or unfold its exponent.</span>
+     <span class="zh">输入一个小于 ε₀ 的序数（可用 <span class="m">w</span> 或 <span class="m">ω</span>、<span class="m">^</span>、<span class="m">+</span>、<span class="m">*</span> 或 <span class="m">·</span>、括号）。下面的树就是它的遗传康托尔范式：每个蓝色节点是一项 <span class="m">ω<sup>□</sup>·c</span>，它的子树是指数；金色叶子是自然数。<b>点击蓝色节点</b>可以折叠或展开它的指数。</span></p>
+  <div class="toolbar">
+    <input class="formula" id="cnfIn" value="ω^(ω^ω+1)+ω^2">
+    <button class="btn primary" id="cnfGo"><span class="en">Draw tree</span><span class="zh">画树</span></button>
+    <button class="btn small" data-cnf="ω^(ω^ω+1)+ω^2">ω^(ω^ω+1)+ω²</button>
+    <button class="btn small" data-cnf="ω^ω^ω">ω^ω^ω</button>
+    <button class="btn small" data-cnf="ω^(ω·2+3)·4+ω^ω+7">ω^(ω·2+3)·4+ω^ω+7</button>
+    <button class="btn small" data-cnf="3+ω^2+ω·5+ω^2">3+ω²+ω·5+ω²</button>
+  </div>
+  <div class="msg" id="cnfErr"></div>
+  <div class="ordin" id="cnfNorm" style="margin:6px 0"></div>
+  <div class="stage" id="cnfStage" style="min-height:120px"></div>
+
+  <h3><span class="en">The comparison algorithm</span><span class="zh">比较算法</span></h3>
+  <p><span class="en">Comparing two CNF terms is a recursive procedure: compare leading exponents (recursively!), then leading coefficients, then the rest. This is what makes <span class="m">≺</span> recursive, and it is exactly why CNF below ε₀ is a notation system.</span>
+     <span class="zh">比较两个康托尔范式是一个递归过程：先（递归地！）比较首项指数，再比较首项系数，然后比较剩下的部分。正因为如此 <span class="m">≺</span> 是递归的，这也正是 ε₀ 以下的康托尔范式构成记号系统的原因。</span></p>
+  <div class="toolbar">
+    <input class="formula" id="cmpA" value="ω^(ω^ω)+ω^5" style="min-width:200px">
+    <b class="m" id="cmpRel" style="font-size:22px;min-width:30px;text-align:center">?</b>
+    <input class="formula" id="cmpB" value="ω^(ω^3·2)·9" style="min-width:200px">
+    <button class="btn primary" id="cmpGo"><span class="en">Compare</span><span class="zh">比较</span></button>
+  </div>
+  <div class="msg" id="cmpOut"></div>
+
+  <div class="pit"><b>⚠ Common pitfall · 常见误区</b><br>
+    <span class="en">A notation system is <i>syntax</i>; its well-foundedness is a real mathematical theorem, not something you can check by running the comparison algorithm (being well-founded is a Π¹₁ property, L18). Also, there are only countably many finite terms, so only countably many ordinals can ever get notations; for recursive systems these are exactly the ordinals below ω₁<sup>CK</sup> (Step 8).</span>
+    <span class="zh">记号系统是<i>语法</i>；它是良基的，这是一个需要证明的数学定理，不是运行比较算法就能检验的（良基性是 Π¹₁ 性质，见第 18 课）。另外，有限的项只有可数多个，所以至多可数多个序数能拥有记号；对递归记号系统来说，能被表示的恰好是小于 ω₁<sup>CK</sup> 的序数（见第 8 步）。</span></div>
+
+  <div class="cy" data-ok="0">
+    <div><b><span class="il"><span class="en">Check yourself</span><span class="zh">自测</span></span>:</b> <span class="il"><span class="en">What is the CNF of</span><span class="zh">下式的康托尔范式是什么：</span></span> <span class="m">3 + ω² + ω·5 + ω²</span> ?</div>
+    <div class="cy-opts"><button class="btn small">ω²·2</button><button class="btn small">ω²·2 + ω·5 + 3</button><button class="btn small">3 + ω²·2 + ω·5</button></div>
+    <div class="cy-exp msg info"><span class="en"><b>ω²·2.</b> Ordinal addition absorbs smaller terms on the left: <span class="m">3 + ω² = ω²</span> and <span class="m">ω·5 + ω² = ω²</span>. So the sum is <span class="m">ω² + ω² = ω²·2</span>. Try it in the tree box above.</span>
+      <span class="zh"><b>ω²·2.</b> 序数加法中，左边较小的项会被吸收：<span class="m">3 + ω² = ω²</span>，<span class="m">ω·5 + ω² = ω²</span>。所以总和是 <span class="m">ω² + ω² = ω²·2</span>。可以在上面的画树框里验证。</span></div>
+    <button class="btn ghost small cy-show"><span class="en">Show answer</span><span class="zh">看答案</span></button>
+  </div>
+</section>
+
+<!-- ============ S2 ============ -->
+<section class="card" id="s2">
+  <div class="kicker"><span class="il"><span class="en">Step 2</span><span class="zh">第 2 步</span></span></div>
+  <h2><span class="en">ε₀: the limit of the ω-tower</span><span class="zh">ε₀：ω 塔的极限</span></h2>
+  <div class="prereq"><b><span class="il"><span class="en">Prerequisites</span><span class="zh">预备知识</span></span>:</b>
+    <a href="#s1"><span class="il"><span class="en">Step 1</span><span class="zh">第 1 步</span></span></a>
+    <a href="lesson8.html">L8 · <span class="il"><span class="en">ordinal exponentiation, sup</span><span class="zh">序数幂、上确界</span></span></a></div>
+  <p class="core"><span class="en">Stack ω's forever; the limit ε₀ is the first ordinal that CNF can no longer break into smaller pieces.</span><span class="zh">把 ω 无限地往上摞；极限 ε₀ 是康托尔范式第一次无法拆成更小部分的序数。</span></p>
+  <p><span class="en">The ruler below runs from 0 to ε₀ (not to scale: each new marker covers half the remaining distance). Press the button to add a storey to the tower. The curved arrows show the map <span class="m">α ↦ ω<sup>α</sup></span>: it sends each marker to the next. At ε₀ the arrow loops back to itself.</span>
+     <span class="zh">下面的标尺从 0 延伸到 ε₀（不按比例：每个新刻度占剩余距离的一半）。按按钮给塔加一层。弧形箭头表示映射 <span class="m">α ↦ ω<sup>α</sup></span>：它把每个刻度送到下一个刻度。到了 ε₀，箭头绕回自己。</span></p>
+  <div class="toolbar">
+    <button class="btn primary" id="towAdd"><span class="en">Add a storey ▲</span><span class="zh">加一层 ▲</span></button>
+    <button class="btn" id="towPlay"><span class="en">Play to the limit ▶</span><span class="zh">一路播放到极限 ▶</span></button>
+    <button class="btn ghost" id="towReset"><span class="en">Reset</span><span class="zh">重置</span></button>
+  </div>
+  <div class="stage"><svg id="towSvg" viewBox="0 0 900 250" width="900" height="250"></svg></div>
+  <div class="msg info" id="towMsg"></div>
+  <div class="def"><span class="en"><b>Definition &amp; Theorem.</b> Put <span class="m">ω₀ = 1</span>, <span class="m">ωₙ₊₁ = ω<sup>ωₙ</sup></span> (so ω₁ = ω, ω₂ = ω<sup>ω</sup>, …; in this lesson ωₙ always means a storey of this tower, so here ω₁ is <i>not</i> the first uncountable ordinal) and <span class="m">ε₀ = sup<sub>n</sub> ωₙ</span>. Then (a) <span class="m">ω<sup>ε₀</sup> = ε₀</span>; (b) ε₀ is the <b>least</b> ordinal α with <span class="m">ω<sup>α</sup> = α</span>; (c) ε₀ is countable. Consequently every α &lt; ε₀ has CNF exponents <span class="m">βᵢ &lt; α</span>, while the CNF of ε₀ itself is the useless <span class="m">ε₀ = ω<sup>ε₀</sup></span>.</span>
+    <span class="zh"><b>定义与定理.</b> 令 <span class="m">ω₀ = 1</span>，<span class="m">ωₙ₊₁ = ω<sup>ωₙ</sup></span>（于是 ω₁ = ω，ω₂ = ω<sup>ω</sup>，…；本课中 ωₙ 一律指这座塔的第 n 层，所以这里的 ω₁ <i>不是</i>第一个不可数序数），<span class="m">ε₀ = sup<sub>n</sub> ωₙ</span>。则 (a) <span class="m">ω<sup>ε₀</sup> = ε₀</span>；(b) ε₀ 是满足 <span class="m">ω<sup>α</sup> = α</span> 的<b>最小</b>序数 α；(c) ε₀ 可数。因此每个 α &lt; ε₀ 的康托尔范式指数都满足 <span class="m">βᵢ &lt; α</span>；而 ε₀ 本身的康托尔范式是毫无用处的 <span class="m">ε₀ = ω<sup>ε₀</sup></span>。</span></div>
+  <div class="proof">
+    <div class="steps">
+      <div class="step"><span class="en"><b>(a)</b> <span class="m">β ↦ ω<sup>β</sup></span> is continuous at limits (by the definition of ordinal exponentiation), so <span class="m">ω<sup>ε₀</sup> = sup<sub>n</sub> ω<sup>ωₙ</sup> = sup<sub>n</sub> ωₙ₊₁ = ε₀</span>.</span>
+        <span class="zh"><b>(a)</b> 由序数幂的定义，<span class="m">β ↦ ω<sup>β</sup></span> 在极限处连续，所以 <span class="m">ω<sup>ε₀</sup> = sup<sub>n</sub> ω<sup>ωₙ</sup> = sup<sub>n</sub> ωₙ₊₁ = ε₀</span>。</span></div>
+      <div class="step"><span class="en"><b>(b)</b> Let <span class="m">ω<sup>α</sup> = α</span>. Induction on n: <span class="m">ω₀ = 1 ≤ ω<sup>α</sup> = α</span>; and if <span class="m">ωₙ ≤ α</span> then <span class="m">ωₙ₊₁ = ω<sup>ωₙ</sup> ≤ ω<sup>α</sup> = α</span> (exponentiation is monotone). So every ωₙ ≤ α, hence <span class="m">ε₀ ≤ α</span>.</span>
+        <span class="zh"><b>(b)</b> 设 <span class="m">ω<sup>α</sup> = α</span>。对 n 归纳：<span class="m">ω₀ = 1 ≤ ω<sup>α</sup> = α</span>；若 <span class="m">ωₙ ≤ α</span>，则 <span class="m">ωₙ₊₁ = ω<sup>ωₙ</sup> ≤ ω<sup>α</sup> = α</span>（幂运算单调）。所以每个 ωₙ ≤ α，从而 <span class="m">ε₀ ≤ α</span>。</span></div>
+      <div class="step"><span class="en"><b>(c)</b> Each ωₙ is countable (by induction: ω<sup>β</sup> is countable for countable β), and a countable union of countable sets is countable. (This uses a little choice in general; here we can avoid it, because the CNF terms give explicit enumerations.)</span>
+        <span class="zh"><b>(c)</b> 每个 ωₙ 都可数（归纳：β 可数则 ω<sup>β</sup> 可数），可数个可数集之并仍可数。（一般情形要用到一点选择公理；这里可以避免，因为康托尔范式的项直接给出了枚举。）</span></div>
+      <div class="step"><span class="en"><b>Consequence.</b> If <span class="m">α &lt; ε₀</span> and <span class="m">α = ω<sup>β₁</sup>c₁ + …</span>, then <span class="m">β₁ ≤ ω<sup>β₁</sup> ≤ α</span>, and <span class="m">β₁ = α</span> would force <span class="m">ω<sup>α</sup> = α</span>, which by (b) is impossible below ε₀. So <span class="m">β₁ &lt; α</span>. ∎</span>
+        <span class="zh"><b>推论.</b> 若 <span class="m">α &lt; ε₀</span> 且 <span class="m">α = ω<sup>β₁</sup>c₁ + …</span>，则 <span class="m">β₁ ≤ ω<sup>β₁</sup> ≤ α</span>；若 <span class="m">β₁ = α</span>，则 <span class="m">ω<sup>α</sup> = α</span>，由 (b) 这在 ε₀ 以下不可能。所以 <span class="m">β₁ &lt; α</span>。∎</span></div>
+    </div>
+    <div class="toolbar"><button class="btn primary pf-next"><span class="en">Next step</span><span class="zh">下一步</span></button><button class="btn ghost pf-all"><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+  </div>
+  <div class="pit"><b>⚠ Common pitfall · 常见误区</b><br>
+    <span class="en">“ε₀ is so big it must be uncountable.” No: ε₀ is a countable ordinal, far below the first uncountable ordinal. Another slip: “<span class="m">ε₀ + 1 = ω<sup>ε₀+1</sup></span>”. In fact <span class="m">ω<sup>ε₀+1</sup> = ω<sup>ε₀</sup>·ω = ε₀·ω</span>, much bigger than ε₀ + 1.</span>
+    <span class="zh">“ε₀ 这么大，一定不可数吧。”错：ε₀ 是可数序数，远小于第一个不可数序数。另一个常见错误是“<span class="m">ε₀ + 1 = ω<sup>ε₀+1</sup></span>”。其实 <span class="m">ω<sup>ε₀+1</sup> = ω<sup>ε₀</sup>·ω = ε₀·ω</span>，比 ε₀ + 1 大得多。</span></div>
+  <div class="cy" data-ok="1">
+    <div><b><span class="il"><span class="en">Check yourself</span><span class="zh">自测</span></span>:</b> <span class="m">ω<sup>ε₀+1</sup> = ?</span></div>
+    <div class="cy-opts"><button class="btn small">ε₀ + 1</button><button class="btn small">ε₀·ω</button><button class="btn small">ε₀ + ω</button></div>
+    <div class="cy-exp msg info"><span class="en"><b>ε₀·ω</b>, since <span class="m">ω<sup>β+1</sup> = ω<sup>β</sup>·ω</span> and <span class="m">ω<sup>ε₀</sup> = ε₀</span>.</span><span class="zh"><b>ε₀·ω</b>，因为 <span class="m">ω<sup>β+1</sup> = ω<sup>β</sup>·ω</span>，而 <span class="m">ω<sup>ε₀</sup> = ε₀</span>。</span></div>
+    <button class="btn ghost small cy-show"><span class="en">Show answer</span><span class="zh">看答案</span></button>
+  </div>
+</section>
+
+<!-- ============ S3 ============ -->
+<section class="card" id="s3">
+  <div class="kicker"><span class="il"><span class="en">Step 3</span><span class="zh">第 3 步</span></span></div>
+  <h2><span class="en">Fundamental sequences: a ladder up to each limit</span><span class="zh">基本序列：通往每个极限序数的梯子</span></h2>
+  <div class="prereq"><b><span class="il"><span class="en">Prerequisites</span><span class="zh">预备知识</span></span>:</b> <a href="#s1"><span class="il"><span class="en">Step 1</span><span class="zh">第 1 步</span></span></a> <a href="#s2"><span class="il"><span class="en">Step 2</span><span class="zh">第 2 步</span></span></a></div>
+  <p class="core"><span class="en">To compute with a limit ordinal λ we fix, once and for all, a concrete increasing sequence λ[0] &lt; λ[1] &lt; … converging to λ.</span><span class="zh">要拿极限序数 λ 做计算，就一劳永逸地选定一个具体的递增序列 λ[0] &lt; λ[1] &lt; …，让它收敛到 λ。</span></p>
+  <div class="def"><span class="en"><b>Definition.</b> A <b>fundamental sequence</b> for a limit ordinal λ is a strictly increasing sequence <span class="m">(λ[n])<sub>n∈ℕ</sub></span> of ordinals with <span class="m">sup<sub>n</sub> λ[n] = λ</span>. <b>Standard assignment</b> used in this lesson (Wainer / Buchholz–Wainer style). Write a limit <span class="m">α &lt; ε₀</span> as <span class="m">α = β + ω<sup>γ</sup></span> in CNF (so γ &gt; 0 and the last exponent of β is ≥ γ):
+      <br>• if <span class="m">γ = δ + 1</span>: <span class="m">α[n] = β + ω<sup>δ</sup>·n</span>;
+      <br>• if γ is a limit: <span class="m">α[n] = β + ω<sup>γ[n]</sup></span>;
+      <br>• at ε₀: <span class="m">ε₀[n] = ωₙ</span>, i.e. <span class="m">ε₀[0] = 1</span>, <span class="m">ε₀[n+1] = ω<sup>ε₀[n]</sup></span>.
+      <br>Successor ordinals have no fundamental sequence.</span>
+    <span class="zh"><b>定义.</b> 极限序数 λ 的<b>基本序列</b>是一个严格递增的序数序列 <span class="m">(λ[n])<sub>n∈ℕ</sub></span>，满足 <span class="m">sup<sub>n</sub> λ[n] = λ</span>。本课采用的<b>标准指派</b>（Wainer / Buchholz–Wainer 风格）：把极限序数 <span class="m">α &lt; ε₀</span> 按康托尔范式写成 <span class="m">α = β + ω<sup>γ</sup></span>（γ &gt; 0，β 的最后一个指数 ≥ γ）：
+      <br>• 若 <span class="m">γ = δ + 1</span>：<span class="m">α[n] = β + ω<sup>δ</sup>·n</span>；
+      <br>• 若 γ 是极限序数：<span class="m">α[n] = β + ω<sup>γ[n]</sup></span>；
+      <br>• 在 ε₀ 处：<span class="m">ε₀[n] = ωₙ</span>，即 <span class="m">ε₀[0] = 1</span>，<span class="m">ε₀[n+1] = ω<sup>ε₀[n]</sup></span>。
+      <br>后继序数没有基本序列。</span></div>
+  <p><span class="en">Choose α and watch its ladder. The rungs <span class="m">α[0], α[1], …</span> climb towards α (dashed top) but never reach it. The slider picks which rung to highlight.</span>
+     <span class="zh">选一个 α，看它的梯子。梯级 <span class="m">α[0], α[1], …</span> 一步步逼近 α（顶端虚线），但永远到不了。滑块选择高亮哪一级。</span></p>
+  <div class="toolbar">
+    <input class="formula" id="fsIn" value="ω^(ω+1)">
+    <button class="btn primary" id="fsGo"><span class="en">Build ladder</span><span class="zh">搭梯子</span></button>
+    <button class="btn small" data-fs="ω">ω</button>
+    <button class="btn small" data-fs="ω^2">ω²</button>
+    <button class="btn small" data-fs="ω^2·2+ω">ω²·2+ω</button>
+    <button class="btn small" data-fs="ω^ω">ω^ω</button>
+    <button class="btn small" data-fs="ω^(ω+1)">ω^(ω+1)</button>
+    <button class="btn small" data-fs="ω^ω^ω">ω^ω^ω</button>
+    <button class="btn small" data-fs="ε0">ε₀</button>
+  </div>
+  <div class="toolbar">n = <input type="range" id="fsN" min="0" max="6" value="3"> <b class="m" id="fsNv">3</b></div>
+  <div class="msg" id="fsErr"></div>
+  <div class="row">
+    <div class="col" style="flex:0 1 560px"><div class="stage"><svg id="fsSvg" viewBox="0 0 540 380" width="540" height="380"></svg></div></div>
+    <div class="col"><div class="msg info" id="fsRule"></div>
+      <h3><span class="en">Every descent ends</span><span class="zh">每次下降都会结束</span></h3>
+      <p style="font-size:14px"><span class="en">Fix n. Starting from α, repeatedly replace a limit λ by λ[n] and a successor β+1 by β. Each move goes strictly down, so by well-foundedness you reach 0 after finitely many moves. With n fixed, the number of “−1” moves is exactly α with ω replaced by n (e.g. ω<sup>ω</sup> at n = 3 needs 3³ = 27 of them).</span>
+        <span class="zh">固定 n。从 α 出发，反复把极限 λ 换成 λ[n]、把后继 β+1 换成 β。每一步都严格下降，所以由良基性，有限步后必到 0。n 固定时，“减一”的步数恰好等于把 α 中的 ω 换成 n 所得的数（例如 ω<sup>ω</sup> 在 n = 3 时需要 3³ = 27 次）。</span></p>
+      <button class="btn" id="fsDesc"><span class="en">Descend from α with this n ▼</span><span class="zh">用这个 n 从 α 往下走 ▼</span></button>
+      <div class="walk" id="fsWalk" style="margin-top:8px"></div>
+    </div>
+  </div>
+  <div class="pit"><b>⚠ Common pitfall · 常见误区</b><br>
+    <span class="en">(1) The fundamental sequence is a <i>choice</i>, not something determined by λ. Other books use, e.g., <span class="m">ε₀[0] = 0</span> or <span class="m">ε₀[0] = ω</span>; all values computed from them shift. (2) <span class="m">λ[n]</span> is not “the n-th ordinal below λ”: between λ[n] and λ[n+1] there are infinitely many ordinals; the ladder only has to be cofinal.</span>
+    <span class="zh">(1) 基本序列是一种<i>选择</i>，并不由 λ 唯一确定。别的书可能用 <span class="m">ε₀[0] = 0</span> 或 <span class="m">ε₀[0] = ω</span> 等约定，由此算出的各种数值都会随之平移。(2) <span class="m">λ[n]</span> 不是“λ 以下第 n 个序数”：λ[n] 与 λ[n+1] 之间有无穷多个序数，梯子只需要共尾即可。</span></div>
+  <div class="cy" data-ok="0">
+    <div><b><span class="il"><span class="en">Check yourself</span><span class="zh">自测</span></span>:</b> <span class="m">(ω<sup>ω</sup>)[3] = ?</span></div>
+    <div class="cy-opts"><button class="btn small">ω³</button><button class="btn small">ω·3</button><button class="btn small">ω^ω·3</button></div>
+    <div class="cy-exp msg info"><span class="en"><b>ω³.</b> Here β = 0 and γ = ω is a limit, so <span class="m">(ω<sup>ω</sup>)[3] = ω<sup>ω[3]</sup> = ω³</span>. (ω<sup>ω</sup>·3 is even bigger than ω<sup>ω</sup>.)</span><span class="zh"><b>ω³.</b> 这里 β = 0，γ = ω 是极限，所以 <span class="m">(ω<sup>ω</sup>)[3] = ω<sup>ω[3]</sup> = ω³</span>。（ω<sup>ω</sup>·3 比 ω<sup>ω</sup> 还大。）</span></div>
+    <button class="btn ghost small cy-show"><span class="en">Show answer</span><span class="zh">看答案</span></button>
+  </div>
+</section>
+
+<!-- ============ S4 ============ -->
+<section class="card" id="s4">
+  <div class="kicker"><span class="il"><span class="en">Step 4</span><span class="zh">第 4 步</span></span></div>
+  <h2><span class="en">Goodstein sequences: huge growth, guaranteed death</span><span class="zh">古德斯坦序列：疯狂增长，却注定归零</span></h2>
+  <div class="prereq"><b><span class="il"><span class="en">Prerequisites</span><span class="zh">预备知识</span></span>:</b> <a href="#s1"><span class="il"><span class="en">Step 1</span><span class="zh">第 1 步</span></span></a> <a href="#s3"><span class="il"><span class="en">Step 3</span><span class="zh">第 3 步</span></span></a> <a href="lesson12.html">L12 · <span class="il"><span class="en">Gödel, unprovable truths</span><span class="zh">哥德尔、不可证的真命题</span></span></a></div>
+  <p class="core"><span class="en">The numbers explode, but the shadow ordinals (replace the base by ω) strictly decrease, so the sequence must hit 0.</span><span class="zh">数值爆炸式增长，但它们的“影子序数”（把底数换成 ω）严格递减，所以序列必然归零。</span></p>
+  <div class="def"><span class="en"><b>Definition.</b> The <b>hereditary base-b notation</b> of m writes <span class="m">m = Σ cᵢ·b<sup>eᵢ</sup></span> (0 &lt; cᵢ &lt; b, exponents decreasing) and then writes every exponent eᵢ in hereditary base-b notation again, until only numbers &lt; b appear. The <b>Goodstein sequence</b> of m: <span class="m">g₀ = m</span>; to get <span class="m">g<sub>k+1</sub></span> from <span class="m">g<sub>k</sub> &gt; 0</span>, write g<sub>k</sub> in hereditary base <span class="m">k+2</span>, replace every <span class="m">k+2</span> by <span class="m">k+3</span> (“bump the base”), then subtract 1. Stop when 0 is reached.</span>
+    <span class="zh"><b>定义.</b> m 的<b>遗传 b 进制表示</b>：先写 <span class="m">m = Σ cᵢ·b<sup>eᵢ</sup></span>（0 &lt; cᵢ &lt; b，指数递减），再把每个指数 eᵢ 也写成遗传 b 进制，如此反复，直到只剩小于 b 的数。m 的<b>古德斯坦序列</b>：<span class="m">g₀ = m</span>；若 <span class="m">g<sub>k</sub> &gt; 0</span>，把 g<sub>k</sub> 写成遗传 <span class="m">k+2</span> 进制，把其中每个 <span class="m">k+2</span> 换成 <span class="m">k+3</span>（“换底”），再减 1，得到 <span class="m">g<sub>k+1</sub></span>。到 0 为止。</span></div>
+  <div class="toolbar">
+    m = <input class="formula narrow" id="gsM" value="4">
+    <button class="btn primary" id="gsStart"><span class="en">Start</span><span class="zh">开始</span></button>
+    <button class="btn" id="gsStep"><span class="en">+1 step</span><span class="zh">走 1 步</span></button>
+    <button class="btn" id="gsStep10"><span class="en">+10 steps</span><span class="zh">走 10 步</span></button>
+    <button class="btn small" data-gs="3">m=3</button><button class="btn small" data-gs="4">m=4</button><button class="btn small" data-gs="5">m=5</button><button class="btn small" data-gs="16">m=16</button><button class="btn small" data-gs="19">m=19</button>
+  </div>
+  <div class="msg" id="gsMsg"></div>
+  <div class="row">
+    <div class="col" style="flex:1 1 560px"><div class="scrollbox"><table class="gs" id="gsTable"></table></div></div>
+    <div class="col" style="flex:0 1 330px"><div class="stage"><svg id="gsSvg" viewBox="0 0 320 300" width="320" height="300"></svg></div>
+      <p class="muted" style="font-size:13px"><span class="en">Bars: number of decimal digits of g<sub>k</sub> (log scale). The ordinal column on the left never goes up.</span><span class="zh">柱：g<sub>k</sub> 的十进制位数（对数刻度）。左边表格的序数列从不上升。</span></p></div>
+  </div>
+  <div class="def"><span class="en"><b>Goodstein's theorem</b> (Goodstein 1944). For every m, the Goodstein sequence of m reaches 0.<br>
+    <b>Kirby–Paris theorem</b> (1982). The arithmetic sentence “for every m, the Goodstein sequence of m reaches 0” (a Π⁰₂ sentence) is <b>not provable in PA</b>. It is provable in PA + TI(ε₀) (transfinite induction up to ε₀, Step 6), and of course in ZF.</span>
+    <span class="zh"><b>古德斯坦定理</b>（Goodstein 1944）. 对每个 m，m 的古德斯坦序列都会到达 0。<br>
+    <b>柯比–帕里斯定理</b>（1982）. 算术语句“对每个 m，m 的古德斯坦序列都到达 0”（一个 Π⁰₂ 语句）<b>在 PA 中不可证</b>。它在 PA + TI(ε₀)（直到 ε₀ 的超限归纳，见第 6 步）中可证，在 ZF 中当然也可证。</span></div>
+  <div class="proof">
+    <div class="steps">
+      <div class="step"><span class="en"><b>1. The shadow.</b> Let <span class="m">o<sub>k</sub></span> be the hereditary base-(k+2) form of g<sub>k</sub> with the base replaced by ω. Bumping the base does not change the shadow at all: the tree is the same, only the base label changes.</span>
+        <span class="zh"><b>1. 影子.</b> 把 g<sub>k</sub> 的遗传 k+2 进制表示中的底数换成 ω，记为 <span class="m">o<sub>k</sub></span>。换底完全不改变影子：树形不变，只是底数的标签变了。</span></div>
+      <div class="step"><span class="en"><b>2. Subtracting 1 lowers the shadow.</b> If the last term is a digit c &gt; 0, it becomes c − 1. Otherwise the last term <span class="m">c·b<sup>e</sup></span> becomes <span class="m">(c−1)·b<sup>e</sup> + Σ<sub>i&lt;e</sub>(b−1)·b<sup>i</sup></span>; in the shadow, <span class="m">ω<sup>o(e)</sup>·c</span> is replaced by <span class="m">ω<sup>o(e)</sup>·(c−1)</span> plus terms with exponents <span class="m">o(i) &lt; o(e)</span>. Either way the new ordinal is strictly smaller (CNF comparison of Step 1).</span>
+        <span class="zh"><b>2. 减 1 会让影子变小.</b> 若最后一项是数字 c &gt; 0，它变成 c − 1。否则最后一项 <span class="m">c·b<sup>e</sup></span> 变成 <span class="m">(c−1)·b<sup>e</sup> + Σ<sub>i&lt;e</sub>(b−1)·b<sup>i</sup></span>；在影子里，<span class="m">ω<sup>o(e)</sup>·c</span> 被换成 <span class="m">ω<sup>o(e)</sup>·(c−1)</span> 再加上指数 <span class="m">o(i) &lt; o(e)</span> 的若干项。两种情形下新序数都严格变小（用第 1 步的康托尔范式比较）。</span></div>
+      <div class="step"><span class="en"><b>3. Well-foundedness.</b> So <span class="m">o₀ &gt; o₁ &gt; o₂ &gt; …</span> is a strictly decreasing sequence of ordinals below ε₀. There is no infinite such sequence, so it stops, which happens only when g<sub>k</sub> = 0. ∎ <br>Note where the strength lies: step 3 uses that ε₀ is well-founded, exactly what PA cannot prove (Step 6).</span>
+        <span class="zh"><b>3. 良基性.</b> 于是 <span class="m">o₀ &gt; o₁ &gt; o₂ &gt; …</span> 是 ε₀ 以下严格递减的序数序列。这样的序列不可能无穷长，所以它会停下，而停下只能是因为 g<sub>k</sub> = 0。∎ <br>注意力量来自哪里：第 3 步用到了 ε₀ 的良基性，这恰恰是 PA 证明不了的（见第 6 步）。</span></div>
+    </div>
+    <div class="toolbar"><button class="btn primary pf-next"><span class="en">Next step</span><span class="zh">下一步</span></button><button class="btn ghost pf-all"><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+  </div>
+  <div class="pit"><b>⚠ Common pitfall · 常见误区</b><br>
+    <span class="en">“PA cannot prove that the sequence for m = 4 terminates.” Wrong: for each <i>fixed</i> m, “the sequence of m terminates” is a true Σ⁰₁ sentence, and PA proves every true Σ⁰₁ sentence (just by verifying the finite computation). What PA cannot prove is the single universal statement “for <b>all</b> m”. (For m = 4 the values reach their maximum at base 3·2<sup>402 653 209</sup>, and the sequence reaches 0 when the base is 3·2<sup>402 653 211</sup> − 1.)</span>
+    <span class="zh">“PA 证明不了 m = 4 时的序列会终止。”错：对每个<i>固定的</i> m，“m 的序列终止”是一个真的 Σ⁰₁ 语句，而 PA 能证明所有真的 Σ⁰₁ 语句（把有限的计算验证一遍即可）。PA 证明不了的是那一条全称语句“对<b>所有</b> m”。（m = 4 时，数值在底数为 3·2<sup>402 653 209</sup> 时达到最大，在底数为 3·2<sup>402 653 211</sup> − 1 时归零。）</span></div>
+  <div class="cy" data-ok="0">
+    <div><b><span class="il"><span class="en">Check yourself</span><span class="zh">自测</span></span>:</b> <span class="il"><span class="en">Which is the hereditary base-2 notation of 35?</span><span class="zh">35 的遗传二进制表示是哪个？</span></span></div>
+    <div class="cy-opts"><button class="btn small">2^(2^2+1) + 2 + 1</button><button class="btn small">2^5 + 2 + 1</button><button class="btn small">2^(2^2) + 2^(2^2) + 3</button></div>
+    <div class="cy-exp msg info"><span class="en"><b>2^(2²+1) + 2 + 1.</b> 35 = 2⁵ + 2 + 1, but the exponent 5 must itself be written in base 2: 5 = 2² + 1. The third option uses the digit 3 ≥ 2 and repeats a power.</span><span class="zh"><b>2^(2²+1) + 2 + 1.</b> 35 = 2⁵ + 2 + 1，但指数 5 本身也要写成二进制：5 = 2² + 1。第三个选项用了数字 3 ≥ 2，还重复了同一个幂。</span></div>
+    <button class="btn ghost small cy-show"><span class="en">Show answer</span><span class="zh">看答案</span></button>
+  </div>
+</section>
+
+<!-- ============ S5 ============ -->
+<section class="card" id="s5">
+  <div class="kicker"><span class="il"><span class="en">Step 5</span><span class="zh">第 5 步</span></span></div>
+  <h2><span class="en">The hydra game (Kirby–Paris)</span><span class="zh">九头蛇游戏（柯比–帕里斯）</span></h2>
+  <div class="prereq"><b><span class="il"><span class="en">Prerequisites</span><span class="zh">预备知识</span></span>:</b> <a href="#s1"><span class="il"><span class="en">Step 1</span><span class="zh">第 1 步</span></span></a> <a href="#s4"><span class="il"><span class="en">Step 4</span><span class="zh">第 4 步</span></span></a></div>
+  <p class="core"><span class="en">Each chop can grow many new heads, but the hydra's ordinal always drops, so Hercules always wins.</span><span class="zh">每砍一刀都可能长出许多新头，但九头蛇的序数总在下降，所以赫拉克勒斯必胜。</span></p>
+  <div class="def"><span class="en"><b>Rules.</b> A hydra is a finite rooted tree; its <b>heads</b> are the leaves other than the root. At step n = 1, 2, 3, … Hercules chops one head h. Let p be h's parent. If p is the root, h is simply removed. Otherwise let g be <b>p's parent</b> (h's grandparent). Remove h; then attach <b>n</b> new copies of the (already shrunk) subtree rooted at p as new children of g. Hercules wins when only the root is left.<br>
+    <b>Ordinal of a hydra.</b> <span class="m">o(leaf) = 0</span>, and for a node with children <span class="m">c₁,…,cₖ</span>: <span class="m">o = ω<sup>o(c₁)</sup> ⊕ … ⊕ ω<sup>o(cₖ)</sup></span>, where ⊕ is the <b>natural (Hessenberg) sum</b>: add the CNF terms and sort them, so the order of the children does not matter.</span>
+    <span class="zh"><b>规则.</b> 九头蛇是一棵有限有根树；除根以外的叶子是它的<b>头</b>。在第 n 步（n = 1, 2, 3, …），赫拉克勒斯砍掉一个头 h。设 p 是 h 的父节点。若 p 是根，就只把 h 去掉。否则设 g 为 <b>p 的父节点</b>（即 h 的祖父节点）：去掉 h，再把以 p 为根的（已经去掉 h 的）子树复制 <b>n</b> 份，作为 g 的新子节点接上。只剩根时赫拉克勒斯获胜。<br>
+    <b>九头蛇的序数.</b> <span class="m">o(叶) = 0</span>；对子节点为 <span class="m">c₁,…,cₖ</span> 的节点，<span class="m">o = ω<sup>o(c₁)</sup> ⊕ … ⊕ ω<sup>o(cₖ)</sup></span>，其中 ⊕ 是<b>自然和（黑森伯格和）</b>：把各项康托尔范式合并后重新排序，所以子节点的先后顺序无关紧要。</span></div>
+  <p><span class="en"><b>Click a red head to chop it.</b> The current step number n is the number of copies that regrow.</span>
+     <span class="zh"><b>点击红色的头把它砍掉。</b>当前步数 n 就是重新长出的副本数。</span></p>
+  <div class="toolbar">
+    <button class="btn small" data-hy="0"><span class="en">Small hydra</span><span class="zh">小九头蛇</span></button>
+    <button class="btn small" data-hy="1"><span class="en">Medium hydra</span><span class="zh">中九头蛇</span></button>
+    <button class="btn small" data-hy="2"><span class="en">Tall neck (path of 4)</span><span class="zh">长脖子（长 4 的链）</span></button>
+    <label class="m" style="font-size:14px"><span class="il"><span class="en">copies per chop</span><span class="zh">每次长出副本数</span></span>
+      <select id="hyMode"><option value="n">n (Kirby–Paris)</option><option value="1">1</option><option value="2">2</option></select></label>
+    <button class="btn" id="hyAuto"><span class="en">Auto-chop rightmost head ×20</span><span class="zh">自动砍最右边的头 ×20</span></button>
+  </div>
+  <div class="msg info" id="hyInfo"></div>
+  <div class="stage" style="min-height:300px"><svg id="hySvg" viewBox="0 0 900 320" width="900" height="320"></svg></div>
+  <div class="walk" id="hyHist" style="margin-top:8px"></div>
+  <div class="def"><span class="en"><b>Theorem</b> (Kirby–Paris 1982). Every strategy kills every hydra in finitely many steps: the ordinal strictly decreases with each chop and lies below ε₀. However, the arithmetized statement “every (recursive) strategy kills every hydra” is <b>not provable in PA</b>.</span>
+    <span class="zh"><b>定理</b>（柯比–帕里斯 1982）. 任何策略都能在有限步内杀死任何九头蛇：每砍一刀序数都严格下降，而且它小于 ε₀。然而，算术化的命题“每个（递归）策略都能杀死每条九头蛇”<b>在 PA 中不可证</b>。</span></div>
+  <div class="proof">
+    <div class="steps">
+      <div class="step"><span class="en"><b>Root case.</b> If p is the root, the root loses one summand <span class="m">ω⁰ = 1</span>, so its ordinal drops by 1.</span><span class="zh"><b>根的情形.</b> 若 p 是根，根少了一个加项 <span class="m">ω⁰ = 1</span>，序数减 1。</span></div>
+      <div class="step"><span class="en"><b>General case.</b> Before the chop, p has ordinal <span class="m">β ⊕ 1 = β + 1</span>, where β is p's ordinal after removing h. In g, the summand <span class="m">ω<sup>β+1</sup></span> is replaced by <span class="m">n + 1</span> summands <span class="m">ω<sup>β</sup></span>, i.e. by <span class="m">ω<sup>β</sup>·(n+1) &lt; ω<sup>β+1</sup></span>. So o(g) drops.</span>
+        <span class="zh"><b>一般情形.</b> 砍之前 p 的序数是 <span class="m">β ⊕ 1 = β + 1</span>，其中 β 是去掉 h 后 p 的序数。在 g 中，加项 <span class="m">ω<sup>β+1</sup></span> 被换成 <span class="m">n + 1</span> 个加项 <span class="m">ω<sup>β</sup></span>，即 <span class="m">ω<sup>β</sup>·(n+1) &lt; ω<sup>β+1</sup></span>。所以 o(g) 变小。</span></div>
+      <div class="step"><span class="en"><b>Propagation.</b> Natural sum is strictly increasing in each argument, and <span class="m">ξ ↦ ω<sup>ξ</sup></span> is strictly increasing, so the decrease at g propagates up to the root. A strictly decreasing sequence of ordinals is finite. ∎</span>
+        <span class="zh"><b>向上传递.</b> 自然和对每个自变量都严格递增，<span class="m">ξ ↦ ω<sup>ξ</sup></span> 也严格递增，所以 g 处的下降会一路传到根。严格递减的序数序列只能有限长。∎</span></div>
+    </div>
+    <div class="toolbar"><button class="btn primary pf-next"><span class="en">Next step</span><span class="zh">下一步</span></button><button class="btn ghost pf-all"><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+  </div>
+  <div class="pit"><b>⚠ Common pitfall · 常见误区</b><br>
+    <span class="en">Using ordinary (non-commutative) ordinal addition for the children would make the ordinal depend on how you draw the tree: <span class="m">1 + ω = ω ≠ ω + 1</span>. The natural sum ⊕ fixes this. Also, “the number of nodes decreases” is false; the node count can explode while the ordinal still drops.</span>
+    <span class="zh">如果对子节点用普通（不可交换的）序数加法，序数就会依赖于树的画法：<span class="m">1 + ω = ω ≠ ω + 1</span>。自然和 ⊕ 解决了这个问题。另外，“节点数在减少”是错的：节点数可以爆炸式增长，而序数照样下降。</span></div>
+  <div class="cy" data-ok="2">
+    <div><b><span class="il"><span class="en">Check yourself</span><span class="zh">自测</span></span>:</b> <span class="il"><span class="en">Root with one child, which has two heads. Its ordinal?</span><span class="zh">根只有一个子节点，该子节点有两个头。它的序数是？</span></span></div>
+    <div class="cy-opts"><button class="btn small">ω·2</button><button class="btn small">2</button><button class="btn small">ω²</button></div>
+    <div class="cy-exp msg info"><span class="en"><b>ω².</b> The child has ordinal <span class="m">ω⁰ ⊕ ω⁰ = 2</span>, so the root has <span class="m">ω²</span>. (Root with two separate heads would be 2; root with two children each having one head would be ω·2.)</span><span class="zh"><b>ω².</b> 子节点的序数是 <span class="m">ω⁰ ⊕ ω⁰ = 2</span>，所以根的序数是 <span class="m">ω²</span>。（根直接带两个头是 2；根带两个各有一个头的子节点是 ω·2。）</span></div>
+    <button class="btn ghost small cy-show"><span class="en">Show answer</span><span class="zh">看答案</span></button>
+  </div>
+</section>
+
+<!-- ============ S6 ============ -->
+<section class="card" id="s6">
+  <div class="kicker"><span class="il"><span class="en">Step 6</span><span class="zh">第 6 步</span></span></div>
+  <h2><span class="en">Gentzen: why PA's ordinal is exactly ε₀</span><span class="zh">根岑：为什么 PA 的序数恰好是 ε₀</span></h2>
+  <div class="prereq"><b><span class="il"><span class="en">Prerequisites</span><span class="zh">预备知识</span></span>:</b> <a href="lesson12.html">L12 · <span class="il"><span class="en">Gödel II</span><span class="zh">哥德尔第二定理</span></span></a> <a href="#s2"><span class="il"><span class="en">Step 2</span><span class="zh">第 2 步</span></span></a> <a href="#s4"><span class="il"><span class="en">Step 4</span><span class="zh">第 4 步</span></span></a></div>
+  <p class="core"><span class="en">PA can climb every finite ω-tower by transfinite induction, but not the limit ε₀; and induction up to ε₀ is exactly enough to prove PA consistent.</span><span class="zh">PA 能借超限归纳爬上每一座有限高的 ω 塔，却到不了极限 ε₀；而直到 ε₀ 的归纳恰好足以证明 PA 一致。</span></p>
+  <div class="def"><span class="en"><b>Definitions.</b> Fix the standard primitive recursive ordering <span class="m">≺</span> on codes of CNF terms (Step 1); its order type is ε₀. For a formula φ(x) and a term α:
+      <br><span class="m">TI(α, φ) :≡ ∀β≺α [ (∀γ≺β φ(γ)) → φ(β) ] → ∀β≺α φ(β)</span>
+      <br>(“if φ is progressive below α, then φ holds everywhere below α”). <b>TI(ε₀)</b> means TI along the whole ordering. <b>QF-TI(ε₀)</b> is the schema of TI(ε₀, φ) for quantifier-free (primitive recursive) φ only. <b>PRA</b> is primitive recursive arithmetic, a weak quantifier-free theory.</span>
+    <span class="zh"><b>定义.</b> 取康托尔范式编码上标准的原始递归序 <span class="m">≺</span>（第 1 步），其序型为 ε₀。对公式 φ(x) 与项 α：
+      <br><span class="m">TI(α, φ) :≡ ∀β≺α [ (∀γ≺β φ(γ)) → φ(β) ] → ∀β≺α φ(β)</span>
+      <br>（“若 φ 在 α 以下是累进的，则 φ 在 α 以下处处成立”）。<b>TI(ε₀)</b> 指沿整个序的超限归纳。<b>QF-TI(ε₀)</b> 是只对无量词（原始递归）公式 φ 的 TI(ε₀, φ) 模式。<b>PRA</b> 是原始递归算术，一个很弱的无量词理论。</span></div>
+  <div class="def"><span class="en"><b>Theorems.</b>
+      <br>(1) <b>Gentzen 1936/38:</b> <span class="m">PRA + QF-TI(ε₀) ⊢ Con(PA)</span>.
+      <br>(2) <b>Gentzen 1943:</b> for each α &lt; ε₀ (given as a CNF term) and each formula φ, <span class="m">PA ⊢ TI(α, φ)</span>.
+      <br>(3) PA does not prove TI(ε₀); indeed, if PA is consistent, PA does not even prove all instances of QF-TI(ε₀). (By (1), proving the instances used there would give PA ⊢ Con(PA), contradicting Gödel II. Gentzen 1943 also proved directly that PA ⊬ TI(ε₀).)
+      <br>(4) Hence the <b>proof-theoretic ordinal</b> <span class="m">|PA| = ε₀</span>, where |T| is the supremum of the order types of the (natural) primitive recursive well-orderings whose well-foundedness T proves.</span>
+    <span class="zh"><b>定理.</b>
+      <br>(1) <b>根岑 1936/38：</b><span class="m">PRA + QF-TI(ε₀) ⊢ Con(PA)</span>。
+      <br>(2) <b>根岑 1943：</b>对每个 α &lt; ε₀（以康托尔范式的项给出）和每个公式 φ，都有 <span class="m">PA ⊢ TI(α, φ)</span>。
+      <br>(3) PA 不能证明 TI(ε₀)；事实上，若 PA 一致，PA 连 QF-TI(ε₀) 的所有实例都证明不了。（由 (1)，若能证出那里用到的实例，就得到 PA ⊢ Con(PA)，与哥德尔第二定理矛盾。根岑 1943 也直接证明了 PA ⊬ TI(ε₀)。）
+      <br>(4) 因此 PA 的<b>证明论序数</b> <span class="m">|PA| = ε₀</span>；这里 |T| 定义为：T 能证明其良基性的（自然的）原始递归良序的序型的上确界。</span></div>
+  <p><span class="en">The staircase shows the fragments <span class="m">IΣₙ</span> of PA (induction only for Σₙ formulas). Drag the slider: each extra quantifier alternation buys exactly one more ω in the tower, <span class="m">|IΣₙ| = ωₙ₊₁</span> (n ≥ 1). PA is the union of all IΣₙ, so it reaches every storey below ε₀, but no single proof can use more than finitely many quantifier alternations.</span>
+     <span class="zh">阶梯显示 PA 的片段 <span class="m">IΣₙ</span>（只对 Σₙ 公式做归纳）。拖动滑块：每多一层量词交替，塔就恰好多一个 ω，<span class="m">|IΣₙ| = ωₙ₊₁</span>（n ≥ 1）。PA 是所有 IΣₙ 的并，所以 ε₀ 以下的每一层它都能到达；但任何一个证明只能用到有限层量词交替。</span></p>
+  <div class="toolbar">n = <input type="range" id="gnN" min="1" max="6" value="1"> <b class="m" id="gnNv">1</b>
+    <button class="btn" id="gnJump"><span class="en">Show Gentzen's jump</span><span class="zh">显示根岑跳跃</span></button></div>
+  <div class="stage"><svg id="gnSvg" viewBox="0 0 900 350" width="900" height="350"></svg></div>
+  <div class="msg info" id="gnMsg"></div>
+  <h3><span class="en">Proof sketch of (1)</span><span class="zh">(1) 的证明梗概</span></h3>
+  <div class="proof">
+    <div class="steps">
+      <div class="step"><span class="en"><b>1.</b> Formalize PA in a sequent calculus with an induction rule. Suppose, aiming for a contradiction, that d is a proof of the empty sequent (i.e. of 0 = 1).</span><span class="zh"><b>1.</b> 用带归纳规则的相继式演算形式化 PA。为导出矛盾，设 d 是空相继式（即 0 = 1）的一个证明。</span></div>
+      <div class="step"><span class="en"><b>2.</b> Assign to every proof d an ordinal notation <span class="m">o(d) ≺ ε₀</span>, computed primitive recursively from the shape of d (cut degrees and induction inferences push the ordinal up through ω-exponentials).</span><span class="zh"><b>2.</b> 给每个证明 d 指派一个序数记号 <span class="m">o(d) ≺ ε₀</span>，它由 d 的结构原始递归地算出（切的复杂度和归纳推理会通过 ω 的幂把序数抬高）。</span></div>
+      <div class="step"><span class="en"><b>3.</b> Give a primitive recursive reduction step r: from any proof d of the empty sequent, r(d) is another proof of the empty sequent with <span class="m">o(r(d)) ≺ o(d)</span> (unfold an induction, or reduce a cut).</span><span class="zh"><b>3.</b> 给出一个原始递归的约化步骤 r：对空相继式的任何证明 d，r(d) 仍是空相继式的证明，并且 <span class="m">o(r(d)) ≺ o(d)</span>（展开一次归纳，或约化一个切）。</span></div>
+      <div class="step"><span class="en"><b>4.</b> Then <span class="m">o(d) ≻ o(r(d)) ≻ o(r(r(d))) ≻ …</span> is a primitive recursive infinite descending sequence, which QF-TI(ε₀) forbids. Steps 1–4 are carried out inside PRA. So PRA + QF-TI(ε₀) ⊢ Con(PA). ∎</span><span class="zh"><b>4.</b> 于是 <span class="m">o(d) ≻ o(r(d)) ≻ o(r(r(d))) ≻ …</span> 是一个原始递归的无穷下降序列，这被 QF-TI(ε₀) 排除。第 1–4 步都可以在 PRA 中完成。所以 PRA + QF-TI(ε₀) ⊢ Con(PA)。∎</span></div>
+    </div>
+    <div class="toolbar"><button class="btn primary pf-next"><span class="en">Next step</span><span class="zh">下一步</span></button><button class="btn ghost pf-all"><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+  </div>
+  <div class="pit"><b>⚠ Common pitfall · 常见误区</b><br>
+    <span class="en">(1) Gentzen does <i>not</i> contradict Gödel II: he uses QF-TI(ε₀), which PA does not prove. (2) PRA + QF-TI(ε₀) is not simply “stronger than PA”: it proves Con(PA), but it does not prove all of PA's induction axioms. (3) “PA proves TI(α, φ) for every α &lt; ε₀” is a scheme of separate theorems, one per α. For a fixed φ, the single sentence “∀α ≺ ε₀ TI(α, φ)” is equivalent to TI(ε₀, φ), and PA does not prove it for every φ. (4) |T| is only meaningful for <i>natural</i> orderings: there are pathological primitive recursive orderings, e.g. of order type ω, whose well-foundedness is not provable in PA.</span>
+    <span class="zh">(1) 根岑<i>并不</i>与哥德尔第二定理矛盾：他用的是 QF-TI(ε₀)，而 PA 证明不了它。(2) PRA + QF-TI(ε₀) 并非简单地“比 PA 强”：它能证 Con(PA)，却证不出 PA 的全部归纳公理。(3) “对每个 α &lt; ε₀，PA ⊢ TI(α, φ)”是一族各自独立的定理，每个 α 一条。对固定的 φ，单独一条语句“∀α ≺ ε₀ TI(α, φ)”等价于 TI(ε₀, φ)，而 PA 并不能对所有 φ 都证明它。(4) |T| 只对<i>自然的</i>序有意义：存在病态的原始递归序，例如序型为 ω，但 PA 证明不了它良基。</span></div>
+  <div class="cy" data-ok="0">
+    <div><b><span class="il"><span class="en">Check yourself</span><span class="zh">自测</span></span>:</b> <span class="il"><span class="en">Does PA prove transfinite induction up to</span><span class="zh">PA 能证明直到下面这个序数的超限归纳吗：</span></span> <span class="m">ω<sup>ω<sup>ω<sup>ω</sup></sup></sup></span> ?</div>
+    <div class="cy-opts"><button class="btn small"><span class="en">Yes</span><span class="zh">能</span></button><button class="btn small"><span class="en">No</span><span class="zh">不能</span></button><button class="btn small"><span class="en">Open problem</span><span class="zh">未解决</span></button></div>
+    <div class="cy-exp msg info"><span class="en"><b>Yes.</b> It is ω₄ &lt; ε₀, so by Gentzen 1943, PA ⊢ TI(ω₄, φ) for every φ.</span><span class="zh"><b>能.</b> 它是 ω₄ &lt; ε₀，由根岑 1943，对每个 φ 都有 PA ⊢ TI(ω₄, φ)。</span></div>
+    <button class="btn ghost small cy-show"><span class="en">Show answer</span><span class="zh">看答案</span></button>
+  </div>
+</section>
+
+<!-- ============ S7 ============ -->
+<section class="card" id="s7">
+  <div class="kicker"><span class="il"><span class="en">Step 7</span><span class="zh">第 7 步</span></span></div>
+  <h2><span class="en">The Veblen hierarchy and Γ₀</span><span class="zh">维布伦层级与 Γ₀</span></h2>
+  <div class="prereq"><b><span class="il"><span class="en">Prerequisites</span><span class="zh">预备知识</span></span>:</b> <a href="#s2"><span class="il"><span class="en">Step 2</span><span class="zh">第 2 步</span></span></a> <a href="lesson8.html">L8 · <span class="il"><span class="en">normal functions, sup</span><span class="zh">正规函数、上确界</span></span></a></div>
+  <p class="core"><span class="en">To go past ε₀, keep taking fixed points of fixed points; Γ₀ is where even the index of the fixed-point operation catches up with the value.</span><span class="zh">要越过 ε₀，就不断取“不动点的不动点”；Γ₀ 是连不动点运算的下标都追上了函数值的地方。</span></p>
+  <div class="def"><span class="en"><b>Definition (Veblen).</b> A function on ordinals is <b>normal</b> if it is strictly increasing and continuous at limits.
+      <br>• <span class="m">φ₀(β) = ω<sup>β</sup></span>.
+      <br>• For <span class="m">α &gt; 0</span>, <span class="m">φ<sub>α</sub></span> is the function that enumerates, in increasing order, the class <span class="m">C<sub>α</sub> = {γ : φ<sub>δ</sub>(γ) = γ for all δ &lt; α}</span>.
+      <br>So <span class="m">φ<sub>α+1</sub></span> enumerates the fixed points of <span class="m">φ<sub>α</sub></span>, and for limit α, <span class="m">φ<sub>α</sub></span> enumerates the common fixed points of all <span class="m">φ<sub>δ</sub></span>, δ &lt; α. Each <span class="m">C<sub>α</sub></span> is closed and unbounded, so every <span class="m">φ<sub>α</sub></span> is normal and defined on all ordinals.
+      <br><b>Names:</b> <span class="m">ε<sub>β</sub> = φ₁(β)</span>, <span class="m">ζ<sub>β</sub> = φ₂(β)</span>, <span class="m">η<sub>β</sub> = φ₃(β)</span>. <span class="m">Γ₀</span> is the least α with <span class="m">φ<sub>α</sub>(0) = α</span>; equivalently <span class="m">Γ₀ = sup{γ₀, γ₁, …}</span> with <span class="m">γ₀ = 0</span>, <span class="m">γ<sub>n+1</sub> = φ<sub>γₙ</sub>(0)</span>.</span>
+    <span class="zh"><b>定义（维布伦）.</b> 序数上的函数若严格递增且在极限处连续，称为<b>正规函数</b>。
+      <br>• <span class="m">φ₀(β) = ω<sup>β</sup></span>。
+      <br>• 对 <span class="m">α &gt; 0</span>，<span class="m">φ<sub>α</sub></span> 是按递增顺序枚举类 <span class="m">C<sub>α</sub> = {γ : 对所有 δ &lt; α，φ<sub>δ</sub>(γ) = γ}</span> 的函数。
+      <br>于是 <span class="m">φ<sub>α+1</sub></span> 枚举 <span class="m">φ<sub>α</sub></span> 的不动点；α 为极限时，<span class="m">φ<sub>α</sub></span> 枚举所有 <span class="m">φ<sub>δ</sub></span>（δ &lt; α）的公共不动点。每个 <span class="m">C<sub>α</sub></span> 都是闭且无界的，所以每个 <span class="m">φ<sub>α</sub></span> 都是正规函数，在所有序数上有定义。
+      <br><b>记号：</b><span class="m">ε<sub>β</sub> = φ₁(β)</span>，<span class="m">ζ<sub>β</sub> = φ₂(β)</span>，<span class="m">η<sub>β</sub> = φ₃(β)</span>。<span class="m">Γ₀</span> 是满足 <span class="m">φ<sub>α</sub>(0) = α</span> 的最小 α；等价地，<span class="m">Γ₀ = sup{γ₀, γ₁, …}</span>，其中 <span class="m">γ₀ = 0</span>，<span class="m">γ<sub>n+1</sub> = φ<sub>γₙ</sub>(0)</span>。</span></div>
+  <p><span class="en">Click a cell. The rows turning gold are the functions that have the clicked value as a <b>fixed point</b>; the info box explains why. Then press “Run to Γ₀” to see the diagonal sequence that defines Γ₀.</span>
+     <span class="zh">点击一个格子。变成金色的那些行，就是以所点的值为<b>不动点</b>的函数；信息框解释原因。然后按“奔向 Γ₀”，看定义 Γ₀ 的对角序列。</span></p>
+  <div class="row">
+    <div class="col" style="flex:0 1 540px"><div class="stage"><table class="vgrid21" id="vgrid"></table></div>
+      <div class="toolbar"><button class="btn primary" id="vgRun"><span class="en">Run to Γ₀ ▶</span><span class="zh">奔向 Γ₀ ▶</span></button></div></div>
+    <div class="col"><div class="msg info" id="vgInfo"></div><div class="walk" id="vgDiag" style="min-height:120px"></div></div>
+  </div>
+  <div class="def"><span class="en"><b>Facts</b> (all theorems). (a) <b>Comparison:</b> <span class="m">φ<sub>α</sub>(β) &lt; φ<sub>γ</sub>(δ)</span> iff either α = γ and β &lt; δ; or α &lt; γ and β &lt; φ<sub>γ</sub>(δ); or α &gt; γ and φ<sub>α</sub>(β) &lt; δ. (b) <b>Normal form:</b> every additive principal ordinal γ (i.e. γ = ω<sup>ξ</sup>) with γ &lt; Γ₀ can be written uniquely as <span class="m">γ = φ<sub>α</sub>(β)</span> with <span class="m">α, β &lt; γ</span>. Together with CNF-style sums this gives a notation system for all ordinals below Γ₀. (c) <b>Γ₀</b> is the <b>Feferman–Schütte ordinal</b> and the proof-theoretic ordinal of <b>ATR₀</b> (Friedman–McAloon–Simpson 1982).</span>
+    <span class="zh"><b>事实</b>（均为定理）. (a) <b>比较：</b><span class="m">φ<sub>α</sub>(β) &lt; φ<sub>γ</sub>(δ)</span> 当且仅当：α = γ 且 β &lt; δ；或 α &lt; γ 且 β &lt; φ<sub>γ</sub>(δ)；或 α &gt; γ 且 φ<sub>α</sub>(β) &lt; δ。(b) <b>范式：</b>每个加法主序数 γ（即 γ = ω<sup>ξ</sup>）若 γ &lt; Γ₀，则可唯一地写成 <span class="m">γ = φ<sub>α</sub>(β)</span>，且 <span class="m">α, β &lt; γ</span>。配合康托尔范式那样的和，就得到 Γ₀ 以下所有序数的记号系统。(c) <b>Γ₀</b> 是<b>费弗曼–许特序数</b>，也是 <b>ATR₀</b> 的证明论序数（Friedman–McAloon–Simpson 1982）。</span></div>
+  <div class="intu"><span class="en"><b>Predicativity, stated carefully.</b> Feferman and Schütte (independently, 1964) showed that Γ₀ is the least ordinal not reachable by the autonomous progression of ramified analysis. On Feferman's analysis this makes Γ₀ the limit of <i>predicative</i> mathematics. That last step is a philosophical thesis, not a theorem: there is no universally accepted formal definition of “predicative”, and the thesis has been challenged (e.g. by Weaver).</span>
+    <span class="zh"><b>关于直谓性的谨慎说法.</b> 费弗曼和许特（1964 年各自独立）证明了：Γ₀ 是分歧分析的自主递进所达不到的最小序数。按费弗曼的分析，这使 Γ₀ 成为<i>直谓</i>数学的极限。最后这一步是哲学论点，不是定理：“直谓”并没有公认的形式定义，这个论点也受到过质疑（例如 Weaver）。</span></div>
+  <div class="pit"><b>⚠ Common pitfall · 常见误区</b><br>
+    <span class="en">ε₁ is not ε₀ + 1 and not ε₀·ω. It is the next fixed point of α ↦ ω<sup>α</sup> after ε₀: <span class="m">ε₁ = sup{ε₀+1, ω<sup>ε₀+1</sup>, ω<sup>ω<sup>ε₀+1</sup></sup>, …}</span>. Likewise φ₂(0) = ζ₀ is not “ε<sub>ω</sub>”; it is the first ε-number with <span class="m">ε<sub>ζ₀</sub> = ζ₀</span>.</span>
+    <span class="zh">ε₁ 既不是 ε₀ + 1，也不是 ε₀·ω，而是 ε₀ 之后 α ↦ ω<sup>α</sup> 的下一个不动点：<span class="m">ε₁ = sup{ε₀+1, ω<sup>ε₀+1</sup>, ω<sup>ω<sup>ε₀+1</sup></sup>, …}</span>。同样，φ₂(0) = ζ₀ 不是“ε<sub>ω</sub>”，而是第一个满足 <span class="m">ε<sub>ζ₀</sub> = ζ₀</span> 的 ε 数。</span></div>
+  <div class="cy" data-ok="0">
+    <div><b><span class="il"><span class="en">Check yourself</span><span class="zh">自测</span></span>:</b> <span class="il"><span class="en">Which ordinal equals ζ₀ = φ₂(0)?</span><span class="zh">哪个序数等于 ζ₀ = φ₂(0)？</span></span></div>
+    <div class="cy-opts"><button class="btn small">ε<sub>ζ₀</sub></button><button class="btn small">ε<sub>ε₀</sub></button><button class="btn small">ε<sub>ω</sub></button></div>
+    <div class="cy-exp msg info"><span class="en"><b>ε<sub>ζ₀</sub></b>: ζ₀ is a fixed point of φ₁, i.e. φ₁(ζ₀) = ζ₀. Both ε<sub>ω</sub> and ε<sub>ε₀</sub> are strictly smaller than ζ₀ (by (a): ω &lt; ζ₀ and ε₀ &lt; ζ₀).</span><span class="zh"><b>ε<sub>ζ₀</sub></b>：ζ₀ 是 φ₁ 的不动点，即 φ₁(ζ₀) = ζ₀。而 ε<sub>ω</sub> 和 ε<sub>ε₀</sub> 都严格小于 ζ₀（由 (a)：ω &lt; ζ₀，ε₀ &lt; ζ₀）。</span></div>
+    <button class="btn ghost small cy-show"><span class="en">Show answer</span><span class="zh">看答案</span></button>
+  </div>
+</section>
+
+<!-- ============ S8 ============ -->
+<section class="card" id="s8">
+  <div class="kicker"><span class="il"><span class="en">Step 8</span><span class="zh">第 8 步</span></span></div>
+  <h2><span class="en">Beyond Γ₀, up to ω₁<sup>CK</sup></span><span class="zh">Γ₀ 之上，直到 ω₁<sup>CK</sup></span></h2>
+  <div class="prereq"><b><span class="il"><span class="en">Prerequisites</span><span class="zh">预备知识</span></span>:</b> <a href="#s7"><span class="il"><span class="en">Step 7</span><span class="zh">第 7 步</span></span></a> <a href="lesson18.html">L18 · ω₁<sup>CK</sup>, <span class="il"><span class="en">Kleene's O</span><span class="zh">克莱尼 O</span></span></a></div>
+  <p class="core"><span class="en">Stronger notation systems reach further, but every recursive one stays below ω₁<sup>CK</sup>, which itself has no recursive notation.</span><span class="zh">更强的记号系统能走得更远，但每个递归记号系统都停在 ω₁<sup>CK</sup> 以下，而 ω₁<sup>CK</sup> 本身没有递归记号。</span></p>
+  <p><span class="en">Click a rung. The ladder is ordered correctly but not to scale (no picture of these ordinals can be).</span><span class="zh">点击某一级。梯子的先后顺序是对的，但不按比例（这些序数也不可能按比例画出来）。</span></p>
+  <div class="row">
+    <div class="col" style="flex:0 1 480px"><div class="stage"><svg id="galSvg" viewBox="0 0 460 470" width="460" height="470"></svg></div></div>
+    <div class="col"><div class="gal-card" id="galInfo"></div></div>
+  </div>
+  <div class="def"><span class="en"><b>Theorem (L18).</b> An ordinal is the order type of a recursive well-ordering of ℕ iff it is &lt; ω₁<sup>CK</sup> (these are the <b>recursive ordinals</b>). In particular every ordinal with a notation in a recursive notation system is &lt; ω₁<sup>CK</sup>, and ω₁<sup>CK</sup> itself is not the order type of any recursive well-ordering. Kleene's O provides notations for exactly the recursive ordinals, but O is Π¹₁-complete, not recursive.</span>
+    <span class="zh"><b>定理（第 18 课）.</b> 一个序数是 ℕ 上某个递归良序的序型，当且仅当它 &lt; ω₁<sup>CK</sup>（这些称为<b>递归序数</b>）。特别地，递归记号系统中有记号的序数都 &lt; ω₁<sup>CK</sup>，而 ω₁<sup>CK</sup> 本身不是任何递归良序的序型。克莱尼的 O 恰好给所有递归序数提供记号，但 O 是 Π¹₁ 完全的，不是递归集。</span></div>
+  <div class="pit"><b>⚠ Common pitfall · 常见误区</b><br>
+    <span class="en">The names ϑ(Ω<sup>ω</sup>), ψ(ε<sub>Ω+1</sub>) use “collapsing functions” that mention an uncountable Ω (or a recursive stand-in for it), but the ordinals they denote are <b>countable and recursive</b>. Also, different collapsing functions (ψ, ϑ, Buchholz's ψ₀) give different-looking names for the same ordinal.</span>
+    <span class="zh">ϑ(Ω<sup>ω</sup>)、ψ(ε<sub>Ω+1</sub>) 这类名字用到了提及不可数序数 Ω（或它的递归替身）的“坍缩函数”，但它们表示的序数是<b>可数的、递归的</b>。另外，不同的坍缩函数（ψ、ϑ、Buchholz 的 ψ₀）对同一个序数会给出看起来很不一样的名字。</span></div>
+  <div class="cy" data-ok="1">
+    <div><b><span class="il"><span class="en">Check yourself</span><span class="zh">自测</span></span>:</b> <span class="il"><span class="en">Is the Bachmann–Howard ordinal recursive?</span><span class="zh">巴赫曼–霍华德序数是递归序数吗？</span></span></div>
+    <div class="cy-opts"><button class="btn small"><span class="en">No, it is uncountable</span><span class="zh">不是，它不可数</span></button><button class="btn small"><span class="en">Yes, it is &lt; ω₁<sup>CK</sup></span><span class="zh">是，它 &lt; ω₁<sup>CK</sup></span></button><button class="btn small"><span class="en">It equals ω₁<sup>CK</sup></span><span class="zh">它等于 ω₁<sup>CK</sup></span></button></div>
+    <div class="cy-exp msg info"><span class="en"><b>Yes.</b> It has a primitive recursive notation system, so it is a recursive ordinal, far below ω₁<sup>CK</sup>.</span><span class="zh"><b>是.</b> 它有原始递归的记号系统，所以是递归序数，远小于 ω₁<sup>CK</sup>。</span></div>
+    <button class="btn ghost small cy-show"><span class="en">Show answer</span><span class="zh">看答案</span></button>
+  </div>
+</section>
+
+<!-- ============ S9 ============ -->
+<section class="card" id="s9">
+  <div class="kicker"><span class="il"><span class="en">Step 9</span><span class="zh">第 9 步</span></span></div>
+  <h2><span class="en">The fast-growing hierarchy f<sub>α</sub></span><span class="zh">快速增长层级 f<sub>α</sub></span></h2>
+  <div class="prereq"><b><span class="il"><span class="en">Prerequisites</span><span class="zh">预备知识</span></span>:</b> <a href="#s3"><span class="il"><span class="en">Step 3</span><span class="zh">第 3 步</span></span></a> <a href="lesson11.html">L11 · <span class="il"><span class="en">Ackermann, primitive recursion</span><span class="zh">阿克曼函数、原始递归</span></span></a> <a href="#s6"><span class="il"><span class="en">Step 6</span><span class="zh">第 6 步</span></span></a></div>
+  <p class="core"><span class="en">Iterate, then diagonalize along fundamental sequences: each ordinal gives a faster function, and f<sub>ε₀</sub> outgrows everything PA can prove total.</span><span class="zh">先迭代，再沿基本序列对角化：每个序数都给出一个更快的函数，而 f<sub>ε₀</sub> 超过了 PA 能证明为全函数的一切函数。</span></p>
+  <div class="def"><span class="en"><b>Definition.</b> With the fundamental sequences of Step 3:
+      <br><span class="m">f₀(n) = n + 1</span>, &nbsp; <span class="m">f<sub>α+1</sub>(n) = f<sub>α</sub><sup>n</sup>(n)</span> (n-fold iteration), &nbsp; <span class="m">f<sub>λ</sub>(n) = f<sub>λ[n]</sub>(n)</span> for limit λ.
+      <br><b>Hardy hierarchy:</b> <span class="m">H₀(n) = n</span>, <span class="m">H<sub>α+1</sub>(n) = H<sub>α</sub>(n+1)</span>, <span class="m">H<sub>λ</sub>(n) = H<sub>λ[n]</sub>(n)</span>. For α &lt; ε₀ (with these sequences) <span class="m">H<sub>ω<sup>α</sup></sub> = f<sub>α</sub></span>.</span>
+    <span class="zh"><b>定义.</b> 使用第 3 步的基本序列：
+      <br><span class="m">f₀(n) = n + 1</span>，&nbsp; <span class="m">f<sub>α+1</sub>(n) = f<sub>α</sub><sup>n</sup>(n)</span>（迭代 n 次），&nbsp; 对极限 λ，<span class="m">f<sub>λ</sub>(n) = f<sub>λ[n]</sub>(n)</span>。
+      <br><b>哈代层级：</b><span class="m">H₀(n) = n</span>，<span class="m">H<sub>α+1</sub>(n) = H<sub>α</sub>(n+1)</span>，<span class="m">H<sub>λ</sub>(n) = H<sub>λ[n]</sub>(n)</span>。对 α &lt; ε₀（在这些基本序列下）有 <span class="m">H<sub>ω<sup>α</sup></sub> = f<sub>α</sub></span>。</span></div>
+  <div class="row">
+    <div class="col">
+      <h3><span class="en">Calculator</span><span class="zh">计算器</span></h3>
+      <div class="toolbar">f<sub>α</sub>(n): α = <input class="formula" id="fgA" value="ω" style="min-width:140px;width:160px"> n = <input class="formula narrow" id="fgN" value="2" style="width:70px;min-width:60px">
+        <button class="btn primary" id="fgGo"><span class="en">Compute</span><span class="zh">计算</span></button></div>
+      <div class="toolbar">
+        <button class="btn small" data-fg="2,3">f₂(3)</button><button class="btn small" data-fg="3,2">f₃(2)</button><button class="btn small" data-fg="3,3">f₃(3)</button>
+        <button class="btn small" data-fg="ω,2">f<sub>ω</sub>(2)</button><button class="btn small" data-fg="ω,3">f<sub>ω</sub>(3)</button><button class="btn small" data-fg="ω+1,2">f<sub>ω+1</sub>(2)</button><button class="btn small" data-fg="ε0,1">f<sub>ε₀</sub>(1)</button><button class="btn small" data-fg="ε0,2">f<sub>ε₀</sub>(2)</button>
+      </div>
+      <div class="msg" id="fgOut"></div>
+      <div class="walk" id="fgTrace"></div>
+    </div>
+  </div>
+  <div>
+      <h3><span class="en">Growth table</span><span class="zh">增长表</span></h3>
+      <div class="stage" id="fgTable" style="overflow-x:auto"></div>
+      <p class="muted" style="font-size:13px"><span class="en">“≈10^…” entries are approximations; “too big” means this calculator cannot compute or describe the value (no claim beyond that).</span><span class="zh">“≈10^…”形式的条目是近似值；“太大”表示本计算器无法算出或描述这个值（除此之外不作任何断言）。</span></p>
+  </div>
+  <h3><span class="en">Hardy walk: watch H<sub>α</sub>(n) count</span><span class="zh">哈代行走：看 H<sub>α</sub>(n) 如何计数</span></h3>
+  <p><span class="en">Walk α down to 0: at a limit go to α[n] (blue), at a successor drop by one and add 1 to n (green). The final n is H<sub>α</sub>(n). This is the same kind of descent as in Goodstein's theorem, except that n grows.</span>
+     <span class="zh">把 α 一路走到 0：遇到极限走到 α[n]（蓝色），遇到后继减一并把 n 加 1（绿色）。最后的 n 就是 H<sub>α</sub>(n)。这与古德斯坦定理里的下降是同一类过程，只是 n 在增长。</span></p>
+  <div class="toolbar">α = <input class="formula" id="hwA" value="ω^2" style="min-width:120px;width:140px"> n = <input class="formula narrow" id="hwN" value="3" style="width:70px;min-width:60px">
+    <button class="btn primary" id="hwGo"><span class="en">Walk</span><span class="zh">走</span></button></div>
+  <div class="walk" id="hwOut"></div>
+  <div class="def"><span class="en"><b>Theorems.</b> (a) f₁(n) = 2n, f₂(n) = n·2<sup>n</sup>; f₃(n) ≥ 2↑↑n, a tower of n 2's. (b) Each f<sub>k</sub> (k &lt; ω) is primitive recursive, and every primitive recursive function is eventually dominated by some f<sub>k</sub>. Hence <span class="m">f<sub>ω</sub>(n) = f<sub>n</sub>(n)</span> eventually dominates every primitive recursive function and is not primitive recursive: the same growth level as the Ackermann function (L11). (c) <b>Wainer:</b> every f<sub>α</sub> with α &lt; ε₀ is provably total in PA, and every PA-provably total recursive function is eventually dominated by some f<sub>α</sub>, α &lt; ε₀. Therefore f<sub>ε₀</sub>, which eventually dominates every such f<sub>α</sub>, is recursive but <b>not provably total in PA</b>.</span>
+    <span class="zh"><b>定理.</b> (a) f₁(n) = 2n，f₂(n) = n·2<sup>n</sup>；f₃(n) ≥ 2↑↑n，即 n 个 2 叠成的幂塔。(b) 每个 f<sub>k</sub>（k &lt; ω）都是原始递归函数，而每个原始递归函数最终都被某个 f<sub>k</sub> 控制。因此 <span class="m">f<sub>ω</sub>(n) = f<sub>n</sub>(n)</span> 最终控制所有原始递归函数，且自身不是原始递归的：与阿克曼函数（第 11 课）处在同一增长级别。(c) <b>Wainer：</b>每个 α &lt; ε₀ 的 f<sub>α</sub> 都在 PA 中可证为全函数，而每个 PA 可证全的递归函数最终都被某个 α &lt; ε₀ 的 f<sub>α</sub> 控制。所以 f<sub>ε₀</sub> 最终控制所有这些 f<sub>α</sub>，它是递归函数，却<b>不能在 PA 中被证明为全函数</b>。</span></div>
+  <div class="pit"><b>⚠ Common pitfall · 常见误区</b><br>
+    <span class="en">(1) “α &lt; β implies f<sub>α</sub>(n) ≤ f<sub>β</sub>(n) for all n.” False: domination is only <i>eventual</i>. Example: 3 &lt; ω but <span class="m">f<sub>ω</sub>(2) = f₂(2) = 8 &lt; 2048 = f₃(2)</span>. (2) The hierarchy depends on the chosen fundamental sequences, not on α alone; the theorems above are stated for the standard choice. Natural choices give the same classification, but badly chosen sequences can change growth rates drastically.</span>
+    <span class="zh">(1) “α &lt; β 蕴涵对所有 n 都有 f<sub>α</sub>(n) ≤ f<sub>β</sub>(n)。”错：控制只是<i>最终</i>的。例：3 &lt; ω，但 <span class="m">f<sub>ω</sub>(2) = f₂(2) = 8 &lt; 2048 = f₃(2)</span>。(2) 这个层级依赖于所选的基本序列，而不只取决于 α；上面的定理都是针对标准选法陈述的。自然的选法给出同样的分类，但选得不好的序列可能让增长率面目全非。</span></div>
+  <div class="cy" data-ok="1">
+    <div><b><span class="il"><span class="en">Check yourself</span><span class="zh">自测</span></span>:</b> <span class="m">f₂(3) = ?</span></div>
+    <div class="cy-opts"><button class="btn small">8</button><button class="btn small">24</button><button class="btn small">2048</button></div>
+    <div class="cy-exp msg info"><span class="en"><b>24</b> = f₁(f₁(f₁(3))) = 3·2³.</span><span class="zh"><b>24</b> = f₁(f₁(f₁(3))) = 3·2³。</span></div>
+    <button class="btn ghost small cy-show"><span class="en">Show answer</span><span class="zh">看答案</span></button>
+  </div>
+</section>
+
+<!-- ============ S10 ============ -->
+<section class="card" id="s10">
+  <div class="kicker"><span class="il"><span class="en">Step 10</span><span class="zh">第 10 步</span></span></div>
+  <h2><span class="en">Summary: theories pinned to their ordinals</span><span class="zh">总结：把理论钉在各自的序数上</span></h2>
+  <div class="prereq"><b><span class="il"><span class="en">Prerequisites</span><span class="zh">预备知识</span></span>:</b> <a href="#s6"><span class="il"><span class="en">Step 6</span><span class="zh">第 6 步</span></span></a> <a href="#s7"><span class="il"><span class="en">Step 7</span><span class="zh">第 7 步</span></span></a> <a href="#s8"><span class="il"><span class="en">Step 8</span><span class="zh">第 8 步</span></span></a></div>
+  <p class="core"><span class="en">Proof-theoretic ordinals line theories up on one scale; each pin below is a theorem (for natural notation systems), except the one marked “open”.</span><span class="zh">证明论序数把各个理论排在同一把尺子上；下面每个钉子都是定理（针对自然的记号系统），只有标着“未解决”的那个除外。</span></p>
+  <div class="toolbar"><button class="btn primary" id="sumPlay"><span class="en">Climb the ladder ▶</span><span class="zh">爬梯子 ▶</span></button></div>
+  <div class="stage"><svg id="sumSvg" viewBox="0 0 900 420" width="900" height="420"></svg></div>
+  <div class="msg info" id="sumInfo"></div>
+  <div class="note"><span class="en"><b>Reading the ladder.</b> <span class="badge-th">theorem</span> = established ordinal analysis. <span class="badge-th open">open</span> = no accepted ordinal analysis is known. An equal ordinal does not mean equal theories: PA and ACA₀ both have ordinal ε₀ (ACA₀ is conservative over PA for arithmetic sentences), but ACA₀ is second-order.</span>
+    <span class="zh"><b>怎么读这个梯子.</b> <span class="badge-th">定理</span> = 已完成的序数分析。<span class="badge-th open">未解决</span> = 尚无公认的序数分析。序数相同不代表理论相同：PA 与 ACA₀ 的序数都是 ε₀（ACA₀ 对算术语句是 PA 的保守扩张），但 ACA₀ 是二阶理论。</span></div>
+  <div class="cy" data-ok="2">
+    <div><b><span class="il"><span class="en">Check yourself</span><span class="zh">自测</span></span>:</b> <span class="il"><span class="en">Which theory has proof-theoretic ordinal Γ₀?</span><span class="zh">哪个理论的证明论序数是 Γ₀？</span></span></div>
+    <div class="cy-opts"><button class="btn small">PA</button><button class="btn small">KP</button><button class="btn small">ATR₀</button></div>
+    <div class="cy-exp msg info"><span class="en"><b>ATR₀.</b> PA has ε₀; KP has the Bachmann–Howard ordinal.</span><span class="zh"><b>ATR₀.</b> PA 的是 ε₀；KP 的是巴赫曼–霍华德序数。</span></div>
+    <button class="btn ghost small cy-show"><span class="en">Show answer</span><span class="zh">看答案</span></button>
+  </div>
+</section>
+
+<!-- ============ EXERCISES ============ -->
+<section class="card" id="exercises">
+  <div class="kicker"><span class="il"><span class="en">Exercises</span><span class="zh">练习</span></span></div>
+  <h2><span class="en">Your turn</span><span class="zh">轮到你了</span></h2>
+  <p class="muted"><span class="en">Progress is saved in your browser. A sidebar ✓ means solved. Every exercise has a “Show answer” button; once you reveal an exercise, it is not marked as solved during this visit.</span><span class="zh">进度保存在浏览器中，侧栏出现 ✓ 表示已完成。每道题都有“看答案”按钮；一道题的答案一旦显示，本次访问中它就不会再被记为完成。</span></p>
+
+  <div class="ex" id="e1" data-prog="L21E1">
+    <h3><span class="tag">E1</span><span class="il"><span class="en">Compute α[n]</span><span class="zh">计算 α[n]</span></span></h3>
+    <p><span class="en">Use the standard fundamental sequences of Step 3. Type answers like <span class="m">w^2*2+3</span> or <span class="m">ω^ω·2</span>; the checker compares ordinals, so any correct way of writing is accepted.</span>
+       <span class="zh">用第 3 步的标准基本序列。答案可以写成 <span class="m">w^2*2+3</span> 或 <span class="m">ω^ω·2</span> 之类；检查器比较的是序数本身，所以任何正确写法都算对。</span></p>
+    <div id="e1List"></div>
+    <div class="toolbar"><button class="btn ghost" id="e1Show"><span class="en">Show answers</span><span class="zh">看答案</span></button></div>
+  </div>
+
+  <div class="ex" id="e2" data-prog="L21E2">
+    <h3><span class="tag">E2</span><span class="il"><span class="en">A Goodstein sequence by hand</span><span class="zh">手算古德斯坦序列</span></span></h3>
+    <p><span class="en">(a) Give the first five terms <span class="m">g₀, …, g₄</span> of the Goodstein sequence starting at <span class="m">m = 5</span>, separated by commas. (b) Give the shadow ordinal <span class="m">o₁</span> of g₁ (written in base 3, base replaced by ω).</span>
+       <span class="zh">(a) 写出从 <span class="m">m = 5</span> 开始的古德斯坦序列前五项 <span class="m">g₀, …, g₄</span>，用逗号隔开。(b) 写出 g₁ 的影子序数 <span class="m">o₁</span>（g₁ 用三进制写，底数换成 ω）。</span></p>
+    <div class="toolbar">(a) <input class="formula" id="e2a" placeholder="5, …" style="min-width:260px"> <button class="btn small" id="e2aGo"><span class="en">Check</span><span class="zh">检查</span></button></div>
+    <div class="msg" id="e2aMsg"></div>
+    <div class="toolbar">(b) o₁ = <input class="formula" id="e2b" placeholder="ω^…" style="min-width:200px"> <button class="btn small" id="e2bGo"><span class="en">Check</span><span class="zh">检查</span></button></div>
+    <div class="msg" id="e2bMsg"></div>
+    <div class="toolbar"><button class="btn ghost" id="e2Show"><span class="en">Show answer</span><span class="zh">看答案</span></button></div>
+  </div>
+
+  <div class="ex" id="e3" data-prog="L21E3">
+    <h3><span class="tag">E3</span><span class="il"><span class="en">Compare: &lt;, = or &gt;?</span><span class="zh">比较：&lt;、= 还是 &gt;？</span></span></h3>
+    <p class="muted"><span class="en">CNF items use Step 1; Veblen items use rule (a) of Step 7.</span><span class="zh">康托尔范式题用第 1 步；维布伦题用第 7 步的规则 (a)。</span></p>
+    <div id="e3List"></div>
+    <div class="toolbar"><button class="btn ghost" id="e3Show"><span class="en">Show answers</span><span class="zh">看答案</span></button></div>
+  </div>
+
+  <div class="ex" id="e4" data-prog="L21E4">
+    <h3><span class="tag">E4</span><span class="il"><span class="en">Small values of f<sub>α</sub></span><span class="zh">f<sub>α</sub> 的小值</span></span></h3>
+    <p><span class="en">Compute by hand (standard fundamental sequences, ω[n] = n). Then check with the calculator in Step 9 if you like.</span><span class="zh">手算（标准基本序列，ω[n] = n）。算完可以用第 9 步的计算器核对。</span></p>
+    <div id="e4List"></div>
+    <div class="toolbar"><button class="btn ghost" id="e4Show"><span class="en">Show answers</span><span class="zh">看答案</span></button></div>
+  </div>
+
+  <div class="ex" id="e5" data-prog="L21E5">
+    <h3><span class="tag">E5</span><span class="il"><span class="en">True or false?</span><span class="zh">判断对错</span></span></h3>
+    <div id="e5List"></div>
+    <div class="toolbar"><button class="btn ghost" id="e5Show"><span class="en">Show answers</span><span class="zh">看答案</span></button></div>
+  </div>
+
+  <div class="ex" id="e6" data-prog="L21E6">
+    <h3><span class="tag">E6</span><span class="il"><span class="en">The ordinal of a hydra</span><span class="zh">九头蛇的序数</span></span></h3>
+    <p><span class="en">(a) What is the ordinal of this hydra? (b) At step n = 2, Hercules chops the head marked ✂. What is the new ordinal?</span>
+       <span class="zh">(a) 这条九头蛇的序数是多少？(b) 在第 n = 2 步，赫拉克勒斯砍掉标有 ✂ 的头。新的序数是多少？</span></p>
+    <div class="stage"><svg id="e6Svg" viewBox="0 0 420 220" width="420" height="220"></svg></div>
+    <div class="toolbar">(a) <input class="formula" id="e6a" placeholder="ω^…" style="min-width:200px"> <button class="btn small" id="e6aGo"><span class="en">Check</span><span class="zh">检查</span></button></div>
+    <div class="msg" id="e6aMsg"></div>
+    <div class="toolbar">(b) <input class="formula" id="e6b" placeholder="ω^…" style="min-width:200px"> <button class="btn small" id="e6bGo"><span class="en">Check</span><span class="zh">检查</span></button></div>
+    <div class="msg" id="e6bMsg"></div>
+    <div class="toolbar"><button class="btn ghost" id="e6Show"><span class="en">Show answer</span><span class="zh">看答案</span></button></div>
+  </div>
+</section>
+
+<section class="card">
+  <div class="kicker"><span class="il"><span class="en">Next</span><span class="zh">下一课</span></span></div>
+  <h2><a href="lesson22.html" style="color:inherit"><span class="en">Lesson 22: Ordinal definable sets, OD &amp; HOD →</span><span class="zh">第 22 课：序数可定义集，OD 与 HOD →</span></a></h2>
+  <p><span class="en">Here ordinals measured the strength of theories from below. Next we use ordinals as <i>parameters for definitions</i> inside V, and meet HOD, the class of hereditarily ordinal definable sets, an inner model of ZFC.</span>
+     <span class="zh">本课中，序数从下方度量理论的强度。下一课我们在 V 内部把序数当作<i>定义的参数</i>，认识 HOD：遗传序数可定义集组成的类，它是 ZFC 的一个内模型。</span></p>
+</section>
+</main>
+</div>
+
+<script src="assets/logic.js"></script>
+<script src="assets/lesson21.js"></script>
+</body>
+</html>

@@ -1,0 +1,457 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 16 · Forcing 力迫法</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  /* ---- lesson 16 local styles ---- */
+  .svgw { width: 100%; height: auto; }
+  .tn circle { fill: #fff; stroke: #9aa0aa; stroke-width: 1.6; transition: fill .25s, stroke .25s; cursor: pointer; }
+  .tn text { font-size: 10px; text-anchor: middle; pointer-events: none; fill: #555; }
+  .tn:hover circle { stroke: var(--ink); stroke-width: 2.4; }
+  .tn.cone circle { fill: var(--accent-soft); stroke: var(--accent); }
+  .tn.sel circle { fill: var(--accent); stroke: var(--accent); }
+  .tn.sel2 circle { fill: var(--gold); stroke: var(--gold); }
+  .tn.meet circle { fill: var(--meta); stroke: var(--meta); }
+  .tn.inD circle { fill: var(--true-soft); stroke: var(--true); stroke-width: 2.2; }
+  .tn.fail circle { fill: var(--false); stroke: var(--false); }
+  .tn.yes circle { fill: var(--true); stroke: var(--true); }
+  .tn.no circle { fill: var(--false); stroke: var(--false); }
+  .tn.sel text, .tn.sel2 text, .tn.meet text, .tn.fail text, .tn.yes text, .tn.no text { fill: #fff; }
+  .ordchip.miss { border: 2px dashed var(--accent); }
+  .btn.right2 { border-color: var(--true) !important; background: var(--true-soft) !important; }
+  .btn.wrong2 { border-color: var(--false) !important; background: var(--false-soft) !important; }
+  .tn.und circle { fill: #e9e7e0; stroke: #b5b0a3; }
+  .tn.path circle { stroke: var(--ink); stroke-width: 3.2; }
+  .te { stroke: #d6d1c3; stroke-width: 1.5; transition: stroke .25s; }
+  .te.on { stroke: var(--accent); stroke-width: 3; }
+  .te.walk { stroke: var(--meta); stroke-width: 3.5; }
+  .te.path { stroke: var(--ink); stroke-width: 3; }
+  .elab { font-size: 9px; fill: #a29d90; text-anchor: middle; }
+
+  .cells { display: flex; gap: 3px; align-items: center; flex-wrap: wrap; font-family: var(--mono); margin: 4px 0; }
+  .cells .lab { width: 92px; font-weight: 700; font-size: 14px; }
+  .cell { width: 30px; height: 30px; border-radius: 7px; border: 1.5px dashed #cfc9b8; display: inline-flex; align-items: center; justify-content: center; font-weight: 700; cursor: pointer; background: #fff; user-select: none; font-size: 14px; transition: all .15s; }
+  .cell.b0 { background: var(--false-soft); border: 1.5px solid var(--false); color: #8a1c1c; }
+  .cell.b1 { background: var(--true-soft); border: 1.5px solid var(--true); color: #1b5e20; }
+  .cell.fixed { box-shadow: inset 0 0 0 2px rgba(0,0,0,.25); cursor: not-allowed; }
+  .cell.idx { border: 0; background: transparent; color: var(--muted); font-size: 11px; cursor: default; height: 16px; }
+  .cell.clash { outline: 3px solid var(--meta); outline-offset: 1px; }
+  .cell.ro { cursor: default; }
+
+  .req { display: flex; gap: 8px; align-items: center; padding: 5px 10px; border-radius: 10px; border: 1.5px solid var(--line); margin: 4px 0; background: #fff; font-size: 14px; transition: all .3s; }
+  .req.cur { border-color: var(--accent); background: var(--accent-soft); }
+  .req.met { border-color: var(--true); background: var(--true-soft); }
+  .req .ic { font-weight: 800; width: 20px; text-align: center; }
+
+  .tabs { display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 0; }
+  .tilegrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; margin: 10px 0; }
+  .flip { border: 2px solid var(--line); border-radius: 14px; background: #fff; padding: 12px; cursor: pointer; min-height: 92px; transition: all .3s; position: relative; }
+  .flip:hover { border-color: var(--accent); }
+  .flip .front { font-weight: 700; }
+  .flip .front .sym { font-family: var(--mono); font-size: 22px; color: var(--accent); display: block; }
+  .flip .back { display: none; font-size: 13.5px; }
+  .flip.open { border-color: var(--true); background: #fbfffb; grid-column: span 2; }
+  .flip.open .back { display: block; animation: fadein .4s ease both; }
+  .flip.open .front .sym { color: var(--true); }
+  .flip.open::after { content: "✓"; position: absolute; right: 10px; top: 6px; color: var(--true); font-weight: 800; }
+  .flip.gal.open { border-color: var(--meta); background: #fefaff; }
+  .flip.gal.open::after { content: ""; }
+  @media (max-width: 700px) { .flip.open { grid-column: span 1; } }
+
+  .chainbox { font-family: var(--mono); }
+  .ordchip { display: inline-block; padding: 6px 12px; margin: 3px; border-radius: 10px; border: 1.5px solid var(--line); cursor: pointer; background: #fff; font-family: var(--mono); user-select: none; }
+  .ordchip.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .ordchip.right { background: var(--true-soft); border-color: var(--true); color: #1b5e20; }
+  .ordchip.wrong { background: var(--false-soft); border-color: var(--false); color: #8a1c1c; }
+  .seq { min-height: 40px; border: 2px dashed var(--line); border-radius: 12px; padding: 8px; margin: 8px 0; }
+  .seq .chip, #e4Pool .chip { display: block; margin: 5px 0; }
+  .chip .num { font-weight: 800; color: var(--accent); margin-right: 6px; }
+  .bigval { font-family: var(--mono); font-size: 22px; font-weight: 700; color: var(--meta); }
+  .dsel { display: flex; flex-direction: column; gap: 6px; }
+  .dsel .btn { text-align: left; }
+  .lang-both .dsel .btn .zh { display: block; }
+  .dense-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; padding: 8px 0; border-bottom: 1px dashed var(--line); }
+  .dense-row .stmt { flex: 1 1 300px; }
+  .dense-row.right .stmt { color: #1b5e20; }
+  .dense-row.wrong .stmt { color: #8a1c1c; }
+  a.mapnode { cursor: pointer; }
+  .mapnode circle { transition: all .25s; }
+  .mapnode.dim { opacity: .22; }
+  .thread { transition: opacity .3s; }
+  .thread.dim { opacity: .08; }
+  .flowbox rect { transition: all .35s; }
+  .flowbox.off { opacity: .18; }
+  .flowarrow.off { opacity: .1; }
+  .flowbox.cur rect { stroke-width: 4; filter: drop-shadow(0 0 6px rgba(59,91,219,.5)); }
+</style>
+</head>
+<body class="lang-both">
+<header class="top">
+  <a class="home" href="index.html">∀∃ <span class="il"><span class="en">Logic &amp; Sets</span><span class="zh">逻辑与集合</span></span></a>
+  <span class="muted">/ L16</span>
+  <span class="spacer"></span>
+  <div class="lang-switch">
+    <button data-lang="en">EN</button><button data-lang="zh">中文</button><button data-lang="both">EN + 中</button>
+  </div>
+</header>
+
+<div class="layout">
+<nav class="side">
+  <div class="grp">Lesson 16</div>
+  <a href="index.html">← <span class="il"><span class="en">Course map</span><span class="zh">课程地图</span></span></a>
+  <a href="lesson15.html">← <span class="il"><span class="en">Lesson 15</span><span class="zh">第 15 课</span></span></a>
+  <a href="lesson17.html"><span class="il"><span class="en">Lesson 17</span><span class="zh">第 17 课</span></span> →</a>
+  <a href="#s1">1 · <span class="il"><span class="en">Big picture</span><span class="zh">全景图</span></span></a>
+  <a href="#s2">2 · <span class="il"><span class="en">Cohen poset</span><span class="zh">科恩力迫偏序</span></span></a>
+  <a href="#s3">3 · <span class="il"><span class="en">Dense sets</span><span class="zh">稠密集</span></span></a>
+  <a href="#s4">4 · <span class="il"><span class="en">Generic = diagonal</span><span class="zh">脱殊即对角线</span></span></a>
+  <a href="#s5">5 · <span class="il"><span class="en">Existence of G</span><span class="zh">脱殊滤子的存在</span></span></a>
+  <a href="#s6">6 · <span class="il"><span class="en">Names</span><span class="zh">名字</span></span></a>
+  <a href="#s7">7 · <span class="il"><span class="en">Forcing relation</span><span class="zh">力迫关系</span></span></a>
+  <a href="#s8">8 · <span class="il"><span class="en">M[G] ⊨ ZFC</span><span class="zh">M[G] ⊨ ZFC</span></span></a>
+  <a href="#s9">9 · <span class="il"><span class="en">ℵ₂ reals, ccc</span><span class="zh">ℵ₂ 个实数与 ccc</span></span></a>
+  <a href="#s10">10 · <span class="il"><span class="en">Independence</span><span class="zh">独立性</span></span></a>
+  <a href="#s11">11 · <span class="il"><span class="en">Epilogue</span><span class="zh">尾声</span></span></a>
+  <div class="grp"><span class="il"><span class="en">Exercises</span><span class="zh">练习</span></span></div>
+  <a href="#e1" data-prog="L16E1">E1 · <span class="il"><span class="en">Dense?</span><span class="zh">稠密吗</span></span></a>
+  <a href="#e2" data-prog="L16E2">E2 · <span class="il"><span class="en">Extend p</span><span class="zh">加细条件</span></span></a>
+  <a href="#e3" data-prog="L16E3">E3 · val(τ,G)</a>
+  <a href="#e4" data-prog="L16E4">E4 · ccc</a>
+  <a href="#e5" data-prog="L16E5">E5 · <span class="il"><span class="en">Why countable</span><span class="zh">为何可数</span></span></a>
+  <a href="#e6" data-prog="L16E6">E6 · 2^ℵ₀</a>
+  <div class="grp"><span class="il"><span class="en">Recap</span><span class="zh">回顾</span></span></div>
+  <a href="#recap"><span class="il"><span class="en">Parts I–IV map</span><span class="zh">第一至四部分总览</span></span></a>
+</nav>
+
+<main>
+<div class="hero">
+  <div class="kicker">Part IV · Lesson 16</div>
+  <h1><span class="en">Forcing, and why CH is independent</span><span class="zh">力迫法：连续统假设为何独立</span></h1>
+  <p><span class="en">Lesson 15 built a model of ZFC + CH. This lesson builds one of ZFC + ¬CH. The tool is Cohen's forcing (1963), and at its heart sits a familiar move: <b>Cantor's diagonal argument</b>, run against the countable list of reals of a countable model.</span>
+     <span class="zh">第 15 课造出了 ZFC + CH 的模型，这一课要造 ZFC + ¬CH 的模型。工具是科恩 1963 年发明的力迫法，而它的核心是一个老熟人：<b>康托尔对角线论证</b>，只不过这次是对一个可数模型里那份可数的实数清单下手。</span></p>
+</div>
+
+<!-- ============ S1 ============ -->
+<section class="card" id="s1">
+  <div class="kicker">§1</div>
+  <h2><span class="en">The big picture: same height, a little fatter</span><span class="zh">全景图：一样高，只是更“胖”一点</span></h2>
+  <p><span class="en">Start with a countable transitive model <span class="m">M</span> (the <b>ground model</b>). We will add one new set <span class="m">G</span> and get <span class="m">M[G] ⊇ M</span>. The new model has <b>exactly the same ordinals</b>, so it is not taller, but it contains new subsets of <span class="m">ω</span>, so it is fatter. Click the dots and use the buttons.</span>
+     <span class="zh">从一个可数传递模型 <span class="m">M</span>（<b>基础模型</b>）出发，往里添一个新集合 <span class="m">G</span>，得到 <span class="m">M[G] ⊇ M</span>。新模型的序数<b>与 M 完全相同</b>，所以并没有变高；但它含有 <span class="m">ω</span> 的新子集，所以变“胖”了。点一点图中的圆点，按一按按钮。</span></p>
+  <div class="toolbar">
+    <button class="btn primary" id="coneG"><span class="en">Adjoin G ▶</span><span class="zh">添加 G ▶</span></button>
+    <button class="btn" id="coneV"><span class="en">Show the universe V</span><span class="zh">显示全域 V</span></button>
+    <span class="m">α =</span> <input type="range" id="coneA" min="0" max="5" value="1"> <b class="m" id="coneAv">ω</b>
+  </div>
+  <div class="row">
+    <div class="col stage" style="flex:1 1 480px"><svg id="cones" class="svgw" viewBox="0 0 560 430" width="560" height="430"></svg></div>
+    <div class="col" style="flex:1 1 300px">
+      <div class="msg info" id="coneMsg"></div>
+      <div class="msg" id="coneSlice"></div>
+    </div>
+  </div>
+  <h3><span class="en">Three honest ways to do forcing</span><span class="zh">力迫法的三种“老实”做法</span></h3>
+  <p class="muted"><span class="en">The worry: by Gödel's second theorem (L12), ZFC cannot prove that a model of ZFC exists. Each approach sidesteps this differently. Click a tab.</span>
+     <span class="zh">问题在于：由哥德尔第二不完全性定理（第 12 课），ZFC 证明不了 ZFC 有模型。三种做法各有绕开的办法。点选项卡看看。</span></p>
+  <div class="tabs" id="metaTabs"></div>
+  <div class="stage" id="metaBox" style="min-height:150px"></div>
+</section>
+
+<!-- ============ S2 ============ -->
+<section class="card" id="s2">
+  <div class="kicker">§2</div>
+  <h2><span class="en">Cohen forcing: finite pieces of a real</span><span class="zh">科恩力迫：实数的有限碎片</span></h2>
+  <div class="def"><span class="en"><b>Definition.</b> A <b>forcing poset</b> is <span class="m">(P, ≤, 𝟙)</span> with a largest element <span class="m">𝟙</span>. Elements are <b>conditions</b>; <span class="m">q ≤ p</span> reads “<span class="m">q</span> is <b>stronger</b> than (extends, refines) <span class="m">p</span>”: it carries more information. <span class="m">p, q</span> are <b>compatible</b> if some <span class="m">r ≤ p, q</span>; otherwise <b>incompatible</b>, <span class="m">p ⊥ q</span>.<br>
+    <b>Cohen forcing</b> <span class="m">Fn(ω,2)</span>: the finite partial functions <span class="m">p : ω ⇀ 2</span>, with <span class="m">q ≤ p ⇔ q ⊇ p</span> and <span class="m">𝟙 = ∅</span>. Two conditions are compatible iff they agree on their common domain.</span>
+    <span class="zh"><b>定义.</b> <b>力迫偏序</b>是带最大元 <span class="m">𝟙</span> 的偏序 <span class="m">(P, ≤, 𝟙)</span>。其元素称为<b>条件</b>；<span class="m">q ≤ p</span> 读作“<span class="m">q</span> 比 <span class="m">p</span> <b>更强</b>”（<span class="m">q</span> 加细了 <span class="m">p</span>），即 <span class="m">q</span> 携带的信息更多。若存在 <span class="m">r ≤ p, q</span>，称 <span class="m">p, q</span> <b>相容</b>，否则称<b>不相容</b>，记作 <span class="m">p ⊥ q</span>。<br>
+    <b>科恩力迫</b> <span class="m">Fn(ω,2)</span>：由所有有限部分函数 <span class="m">p : ω ⇀ 2</span> 组成，<span class="m">q ≤ p ⇔ q ⊇ p</span>，<span class="m">𝟙 = ∅</span>。两个条件相容当且仅当它们在公共定义域上取值一致。</span></div>
+  <p><span class="en"><b>Picture 1: the tree.</b> The finite binary strings (conditions with domain an initial segment <span class="m">{0,…,n−1}</span>) are dense in <span class="m">Fn(ω,2)</span> and give an equivalent forcing, so we often draw the tree <span class="m">2<sup>&lt;ω</sup></span> (root <span class="m">𝟙 = ∅</span> on top, stronger = lower). Click a node to select <span class="m">p</span> (blue; its cone of extensions lights up), then another for <span class="m">q</span> (orange).</span>
+     <span class="zh"><b>图一：二叉树。</b>有限 0/1 串（定义域为前段 <span class="m">{0,…,n−1}</span> 的条件）在 <span class="m">Fn(ω,2)</span> 中稠密，给出等价的力迫，所以常画成树 <span class="m">2<sup>&lt;ω</sup></span>：树根 <span class="m">𝟙 = ∅</span> 在最上面，越往下越强。点一个节点选作 <span class="m">p</span>（蓝色，它的所有加细会亮起来），再点一个作为 <span class="m">q</span>（橙色）。</span></p>
+  <div class="stage"><svg id="tree2" class="svgw" viewBox="0 0 880 250" width="880" height="250"></svg></div>
+  <div class="msg info" id="tree2Msg"></div>
+  <p><span class="en"><b>Picture 2: partial functions.</b> Click cells to cycle blank → 0 → 1. The domain need not be an initial segment.</span>
+     <span class="zh"><b>图二：部分函数。</b>点格子循环切换：空 → 0 → 1。定义域不必是前段。</span></p>
+  <div class="stage" id="pfStage"></div>
+  <div class="msg" id="pfMsg"></div>
+</section>
+
+<!-- ============ S3 ============ -->
+<section class="card" id="s3">
+  <div class="kicker">§3</div>
+  <h2><span class="en">Dense sets and generic filters</span><span class="zh">稠密集与脱殊滤子</span></h2>
+  <div class="def"><span class="en"><b>Definitions.</b> <span class="m">D ⊆ P</span> is <b>dense</b> if <span class="m">∀p ∃q ≤ p (q ∈ D)</span>: no matter what you already know, you can still get into <span class="m">D</span>.
+    <span class="m">G ⊆ P</span> is a <b>filter</b> if <span class="m">𝟙 ∈ G</span>; <span class="m">p ∈ G, p ≤ q ⇒ q ∈ G</span>; and any two elements of <span class="m">G</span> have a common extension <b>in</b> <span class="m">G</span>.
+    <span class="m">G</span> is <b><span class="m">M</span>-generic</b> if it is a filter meeting every dense <span class="m">D ⊆ P</span> with <span class="m">D ∈ M</span>.</span>
+    <span class="zh"><b>定义.</b> 若 <span class="m">∀p ∃q ≤ p (q ∈ D)</span>，称 <span class="m">D ⊆ P</span> <b>稠密</b>：不管已经知道了什么，总还能加细进 <span class="m">D</span>。
+    若 <span class="m">𝟙 ∈ G</span>；<span class="m">p ∈ G, p ≤ q ⇒ q ∈ G</span>；且 <span class="m">G</span> 中任两个元素在 <span class="m">G</span> <b>内</b>有公共加细，则称 <span class="m">G ⊆ P</span> 为<b>滤子</b>。
+    若滤子 <span class="m">G</span> 与每个属于 <span class="m">M</span> 的稠密集 <span class="m">D ⊆ P</span> 都相交，称 <span class="m">G</span> 为 <b><span class="m">M</span>-脱殊滤子</b>。</span></div>
+  <p><span class="en">Two families of dense sets in <span class="m">M</span> matter most: <span class="m">D<sub>n</sub> = {p : n ∈ dom p}</span> (eventually every bit gets decided) and <span class="m">D<sub>x</sub> = {p : p ⊥ x}</span> for each real <span class="m">x ∈ M</span> (eventually we disagree with <span class="m">x</span>). Pick a set; green nodes are its members. Then <b>click any node</b> <span class="m">p</span>: the density machine walks down to some <span class="m">q ≤ p</span> in the set, or shows that none exists.</span>
+     <span class="zh"><span class="m">M</span> 中最重要的两族稠密集：<span class="m">D<sub>n</sub> = {p : n ∈ dom p}</span>（每一位迟早会被确定）和 <span class="m">D<sub>x</sub> = {p : p ⊥ x}</span>，其中 <span class="m">x ∈ M</span> 是任一实数（迟早会与 <span class="m">x</span> 分道扬镳）。选一个集合，绿色节点是它的元素。然后<b>点任意节点</b> <span class="m">p</span>：稠密性机器会往下走到集合中的某个 <span class="m">q ≤ p</span>，或者表明根本不存在这样的 <span class="m">q</span>。</span></p>
+  <div class="tabs" id="dSel"></div>
+  <div class="stage"><svg id="tree3" class="svgw" viewBox="0 0 880 250" width="880" height="250"></svg></div>
+  <div class="msg info" id="tree3Msg"></div>
+  <div class="note"><span class="en">A filter through Cohen forcing is a set of conditions that are all pieces of one (possibly partial) function. Meeting every <span class="m">D<sub>n</sub></span> makes <span class="m">g = ⋃G</span> a <b>total</b> function <span class="m">ω → 2</span>, a real. Meeting every <span class="m">D<sub>x</sub></span> makes <span class="m">g ≠ x</span> for every <span class="m">x ∈ M</span>, so <span class="m">g ∉ M</span>.</span>
+    <span class="zh">科恩力迫中的滤子，就是一族同属于某个（可能是部分的）函数的碎片。与每个 <span class="m">D<sub>n</sub></span> 相交，使 <span class="m">g = ⋃G</span> 成为<b>全</b>函数 <span class="m">ω → 2</span>，也就是一个实数；与每个 <span class="m">D<sub>x</sub></span> 相交，使 <span class="m">g</span> 不等于任何 <span class="m">x ∈ M</span>，从而 <span class="m">g ∉ M</span>。</span></div>
+</section>
+
+<!-- ============ S4 ============ -->
+<section class="card" id="s4">
+  <div class="kicker">§4</div>
+  <h2><span class="en">The generic game is Cantor's diagonal argument</span><span class="zh">脱殊游戏就是康托尔对角线论证</span></h2>
+  <p><span class="en">From outside, <span class="m">M</span> is countable, so its reals form a list <span class="m">x₀, x₁, x₂, …</span> and its dense sets form a list too. Your job: build a descending chain <span class="m">p₀ ≥ p₁ ≥ …</span> meeting the requirements in order. The current requirement is highlighted. Append bits yourself, or press <b>Cantor move</b>, which flips the diagonal bit <span class="m">xₖ(k)</span>.</span>
+     <span class="zh">从外面看 <span class="m">M</span> 是可数的，所以它的实数能排成一列 <span class="m">x₀, x₁, x₂, …</span>，它的稠密集也能排成一列。你的任务：造一条递降链 <span class="m">p₀ ≥ p₁ ≥ …</span>，依次满足清单上的要求。当前要求会高亮。你可以自己往后添位，也可以按<b>康托尔一步</b>，它把对角线上的 <span class="m">xₖ(k)</span> 翻转过来。</span></p>
+  <div class="toolbar">
+    <button class="btn" id="gm0"><span class="en">Append 0</span><span class="zh">添一个 0</span></button>
+    <button class="btn" id="gm1"><span class="en">Append 1</span><span class="zh">添一个 1</span></button>
+    <button class="btn primary" id="gmC"><span class="en">Cantor move</span><span class="zh">康托尔一步</span></button>
+    <button class="btn" id="gmAuto"><span class="en">Auto-play ▶</span><span class="zh">自动演示 ▶</span></button>
+    <button class="btn ghost" id="gmReset"><span class="en">New list</span><span class="zh">换一份清单</span></button>
+  </div>
+  <div class="row">
+    <div class="col stage" style="flex:1 1 560px"><svg id="game" class="svgw" viewBox="0 0 640 420" width="640" height="420"></svg></div>
+    <div class="col" style="flex:0 1 250px"><div id="gmReqs" style="max-height:420px;overflow:auto"></div></div>
+  </div>
+  <div class="msg info" id="gmMsg"></div>
+  <div class="note"><span class="en"><b>Compare with Cantor (L1 §8, L9):</b> Cantor's theorem says no list of reals is complete. The generic real is the same diagonal real, built against <i>M's</i> list. The twist: M cannot see the list (inside M, its reals are uncountable), so <span class="m">g</span> is a real that M “should have had” but doesn't.</span>
+    <span class="zh"><b>与康托尔对照（第 1 课 §8、第 9 课）：</b>康托尔定理说，任何实数清单都不完整。脱殊实数正是同一个对角线实数，只是针对的是 <i>M</i> 的清单。妙处在于：M 自己看不见这份清单（在 M 内部，它的实数是不可数的），所以 <span class="m">g</span> 是 M “本该有、却没有”的实数。</span></div>
+</section>
+
+<!-- ============ S5 ============ -->
+<section class="card" id="s5">
+  <div class="kicker">§5</div>
+  <h2><span class="en">Generic filters exist (Rasiowa–Sikorski), and are new</span><span class="zh">脱殊滤子存在（拉肖瓦–西科尔斯基引理），而且是新的</span></h2>
+  <div class="def"><span class="en"><b>Lemma (Rasiowa–Sikorski).</b> If <span class="m">𝒟</span> is a <b>countable</b> family of dense subsets of <span class="m">P</span> and <span class="m">p ∈ P</span>, there is a filter <span class="m">G ∋ p</span> meeting every <span class="m">D ∈ 𝒟</span>. In particular, for a countable transitive <span class="m">M</span> and <span class="m">P ∈ M</span>, an <span class="m">M</span>-generic <span class="m">G ∋ p</span> exists.</span>
+    <span class="zh"><b>引理（拉肖瓦–西科尔斯基）.</b> 若 <span class="m">𝒟</span> 是 <span class="m">P</span> 的<b>可数</b>个稠密子集组成的族，<span class="m">p ∈ P</span>，则存在滤子 <span class="m">G ∋ p</span> 与每个 <span class="m">D ∈ 𝒟</span> 相交。特别地，若 <span class="m">M</span> 是可数传递模型且 <span class="m">P ∈ M</span>，则存在 <span class="m">M</span>-脱殊滤子 <span class="m">G ∋ p</span>。</span></div>
+  <div class="row">
+    <div class="col" style="flex:1 1 380px">
+      <div class="steps" id="rsSteps">
+        <div class="step"><b>1.</b> <span class="en">Since <span class="m">M</span> is countable, so is <span class="m">{D ∈ M : D dense in P}</span>. List it: <span class="m">D₀, D₁, D₂, …</span></span><span class="zh">由于 <span class="m">M</span> 可数，<span class="m">{D ∈ M : D 在 P 中稠密}</span> 也可数，排成一列：<span class="m">D₀, D₁, D₂, …</span></span></div>
+        <div class="step"><b>2.</b> <span class="en">Let <span class="m">p₀ = p</span>. Given <span class="m">pₙ</span>, density of <span class="m">Dₙ</span> gives <span class="m">pₙ₊₁ ≤ pₙ</span> with <span class="m">pₙ₊₁ ∈ Dₙ</span>. (Countably many choices; DC suffices.)</span><span class="zh">令 <span class="m">p₀ = p</span>。已有 <span class="m">pₙ</span> 时，由 <span class="m">Dₙ</span> 的稠密性取 <span class="m">pₙ₊₁ ≤ pₙ</span> 且 <span class="m">pₙ₊₁ ∈ Dₙ</span>。（只做可数次选择，依赖选择公理 DC 即可。）</span></div>
+        <div class="step"><b>3.</b> <span class="en">Let <span class="m">G = {q ∈ P : ∃n pₙ ≤ q}</span>. It contains <span class="m">𝟙</span>, is upward closed, and any <span class="m">q, q′ ∈ G</span> lie above some common <span class="m">pₙ</span> (take the larger index), which is in <span class="m">G</span>. So <span class="m">G</span> is a filter.</span><span class="zh">令 <span class="m">G = {q ∈ P : ∃n pₙ ≤ q}</span>。它含 <span class="m">𝟙</span>、向上封闭；任意 <span class="m">q, q′ ∈ G</span> 都在某个共同的 <span class="m">pₙ</span> 之上（取较大的下标），而 <span class="m">pₙ ∈ G</span>。所以 <span class="m">G</span> 是滤子。</span></div>
+        <div class="step"><b>4.</b> <span class="en"><span class="m">pₙ₊₁ ∈ G ∩ Dₙ</span> for every <span class="m">n</span>. ∎</span><span class="zh">对每个 <span class="m">n</span>，<span class="m">pₙ₊₁ ∈ G ∩ Dₙ</span>。∎</span></div>
+        <div class="step"><b>5.</b> <span class="en"><b>Bonus: <span class="m">G ∉ M</span>.</b> In Cohen forcing every <span class="m">p</span> has two incompatible extensions <span class="m">p⌢0, p⌢1</span>. If <span class="m">G ∈ M</span>, then <span class="m">D = P ∖ G ∈ M</span>, and <span class="m">D</span> is dense (at most one of the two extensions lies in <span class="m">G</span>). Genericity gives <span class="m">G ∩ (P ∖ G) ≠ ∅</span>. Absurd.</span><span class="zh"><b>附赠：<span class="m">G ∉ M</span>。</b>在科恩力迫中，每个 <span class="m">p</span> 都有两个互不相容的加细 <span class="m">p⌢0, p⌢1</span>。若 <span class="m">G ∈ M</span>，则 <span class="m">D = P ∖ G ∈ M</span>，且 <span class="m">D</span> 稠密（两个加细至多一个在 <span class="m">G</span> 中）。由脱殊性 <span class="m">G ∩ (P ∖ G) ≠ ∅</span>，荒谬。</span></div>
+      </div>
+      <div class="toolbar"><button class="btn primary" id="rsNext"><span class="en">Next step ▶</span><span class="zh">下一步 ▶</span></button>
+        <button class="btn ghost" id="rsAll"><span class="en">Show all</span><span class="zh">全部显示</span></button>
+        <button class="btn ghost" id="rsReset"><span class="en">Reset</span><span class="zh">重来</span></button></div>
+    </div>
+    <div class="col stage" style="flex:1 1 380px"><svg id="rsSvg" class="svgw" viewBox="0 0 420 330" width="420" height="330"></svg></div>
+  </div>
+  <div class="note"><span class="en"><b>Why countability is essential:</b> over <span class="m">V</span> itself there is no generic. If <span class="m">G</span> met every dense set in <span class="m">V</span>, then for the real <span class="m">g = ⋃G</span>, the dense set <span class="m">D<sub>g</sub> ∈ V</span> would be met by some <span class="m">p ∈ G</span>, so <span class="m">p ⊥ g</span>, yet <span class="m">p ⊆ g</span>. (Exercise E5.)</span>
+    <span class="zh"><b>为什么必须可数：</b>对 <span class="m">V</span> 本身不存在脱殊滤子。假如 <span class="m">G</span> 与 <span class="m">V</span> 中每个稠密集都相交，取实数 <span class="m">g = ⋃G</span>，稠密集 <span class="m">D<sub>g</sub> ∈ V</span> 就会被某个 <span class="m">p ∈ G</span> 碰到，于是 <span class="m">p ⊥ g</span>，可是 <span class="m">p ⊆ g</span>。（见练习 E5。）</span></div>
+</section>
+
+<!-- ============ S6 ============ -->
+<section class="card" id="s6">
+  <div class="kicker">§6</div>
+  <h2><span class="en">Names: how M talks about sets it doesn't have yet</span><span class="zh">名字：M 如何谈论它还没有的集合</span></h2>
+  <div class="def"><span class="en"><b>Definition</b> (by ∈-recursion, inside <span class="m">M</span>). A <b><span class="m">P</span>-name</b> is a set <span class="m">τ</span> of pairs <span class="m">(σ, p)</span> where each <span class="m">σ</span> is a <span class="m">P</span>-name and <span class="m">p ∈ P</span>. Read <span class="m">(σ, p) ∈ τ</span> as “<span class="m">σ</span> will be in <span class="m">τ</span> if <span class="m">p</span> turns out true”. Its <b>value</b> under a filter <span class="m">G</span>:
+    <div class="m" style="text-align:center;font-size:17px;margin:6px 0">val(τ, G) = τ<sub>G</sub> = { val(σ, G) : ∃p ∈ G  (σ, p) ∈ τ }</div>
+    <span class="m">M[G] = {val(τ, G) : τ ∈ M is a P-name}</span>. Ground sets have <b>check names</b> <span class="m">x̌ = {(y̌, 𝟙) : y ∈ x}</span> with <span class="m">val(x̌, G) = x</span>, and <span class="m">Γ = {(p̌, p) : p ∈ P}</span> names <span class="m">G</span> itself.</span>
+    <span class="zh"><b>定义</b>（在 <span class="m">M</span> 内按 ∈-递归）. <b><span class="m">P</span>-名字</b>是由序对 <span class="m">(σ, p)</span> 组成的集合 <span class="m">τ</span>，其中每个 <span class="m">σ</span> 是 <span class="m">P</span>-名字，<span class="m">p ∈ P</span>。<span class="m">(σ, p) ∈ τ</span> 读作“如果 <span class="m">p</span> 成真，<span class="m">σ</span> 就进入 <span class="m">τ</span>”。它在滤子 <span class="m">G</span> 下的<b>取值</b>为
+    <div class="m" style="text-align:center;font-size:17px;margin:6px 0">val(τ, G) = τ<sub>G</sub> = { val(σ, G) : ∃p ∈ G  (σ, p) ∈ τ }</div>
+    <span class="m">M[G] = {val(τ, G) : τ ∈ M 是 P-名字}</span>。基础模型中的集合有<b>典范名字</b> <span class="m">x̌ = {(y̌, 𝟙) : y ∈ x}</span>，满足 <span class="m">val(x̌, G) = x</span>；而 <span class="m">Γ = {(p̌, p) : p ∈ P}</span> 是 <span class="m">G</span> 自身的名字。</span></div>
+  <p><span class="en">Below is a name drawn as a tree: each edge is a pair <span class="m">(σ, p)</span> labeled by its condition. Choose the first bits of the generic real; then <span class="m">G = {p : p ⊆ g}</span>. Edges whose condition is in <span class="m">G</span> light up, and values are computed from the leaves up. (Numbers are von Neumann ordinals: <span class="m">0 = ∅, 1 = {0}, 2 = {0,1}</span>.)</span>
+     <span class="zh">下面把一个名字画成树：每条边是一个序对 <span class="m">(σ, p)</span>，边上标着它的条件。选定脱殊实数的前几位，于是 <span class="m">G = {p : p ⊆ g}</span>。条件属于 <span class="m">G</span> 的边会亮起，取值从叶子往上计算。（数字是冯·诺伊曼序数：<span class="m">0 = ∅, 1 = {0}, 2 = {0,1}</span>。）</span></p>
+  <div class="toolbar"><span class="tabs" id="nmPick" style="margin:0"></span></div>
+  <div class="toolbar"><span class="m">g =</span> <span class="switches" id="nmSw" style="margin:0"></span><span class="m">…</span>
+    <span class="muted" style="font-size:13px" id="nmG"></span></div>
+  <div class="stage"><svg id="nmSvg" class="svgw" viewBox="0 0 860 340" width="860" height="340"></svg></div>
+  <div class="msg ok" id="nmOut"></div>
+</section>
+
+<!-- ============ S7 ============ -->
+<section class="card" id="s7">
+  <div class="kicker">§7</div>
+  <h2><span class="en">The forcing relation: conditions decide statements</span><span class="zh">力迫关系：条件“判定”命题</span></h2>
+  <div class="def"><span class="en"><b>Forcing.</b> <span class="m">p ⊩ φ(τ₁,…,τₙ)</span> means: for every <span class="m">M</span>-generic <span class="m">G ∋ p</span>, <span class="m">M[G] ⊨ φ(val(τ₁,G),…)</span>.<br>
+    <b>Forcing Theorem.</b> (1) <b>Definability:</b> for each formula φ there is a relation <span class="m">⊩*<sub>φ</sub></span>, defined in <span class="m">M</span> by recursion on φ, that coincides with <span class="m">⊩</span> on <span class="m">M</span>. (2) <b>Truth Lemma:</b> <span class="m">M[G] ⊨ φ(val(τ₁,G),…) ⇔ ∃p ∈ G  p ⊩ φ(τ₁,…,τₙ)</span>.</span>
+    <span class="zh"><b>力迫.</b> <span class="m">p ⊩ φ(τ₁,…,τₙ)</span> 的意思是：对每个含 <span class="m">p</span> 的 <span class="m">M</span>-脱殊滤子 <span class="m">G</span>，都有 <span class="m">M[G] ⊨ φ(val(τ₁,G),…)</span>。<br>
+    <b>力迫定理.</b> (1) <b>可定义性：</b>对每个公式 φ，有一个在 <span class="m">M</span> 中按 φ 的结构递归定义的关系 <span class="m">⊩*<sub>φ</sub></span>，它在 <span class="m">M</span> 上与 <span class="m">⊩</span> 一致。(2) <b>真值引理：</b><span class="m">M[G] ⊨ φ(val(τ₁,G),…) ⇔ ∃p ∈ G  p ⊩ φ(τ₁,…,τₙ)</span>。</span></div>
+  <p><span class="en">Pick a statement about the generic real <span class="m">ġ</span>. Each node is colored: <b style="color:var(--true)">green</b> = <span class="m">p ⊩ φ</span>, <b style="color:var(--false)">red</b> = <span class="m">p ⊩ ¬φ</span>, grey = <span class="m">p</span> doesn't decide. Then click a path downward, playing the generic: watch where it gets decided.</span>
+     <span class="zh">选一个关于脱殊实数 <span class="m">ġ</span> 的命题。节点着色：<b style="color:var(--true)">绿</b>＝<span class="m">p ⊩ φ</span>，<b style="color:var(--false)">红</b>＝<span class="m">p ⊩ ¬φ</span>，灰＝<span class="m">p</span> 尚未判定。然后扮演脱殊滤子，沿树往下点出一条路径，看看命题在哪一步被判定。</span></p>
+  <div class="tabs" id="fsPick"></div>
+  <div class="stage"><svg id="tree7" class="svgw" viewBox="0 0 880 250" width="880" height="250"></svg></div>
+  <div class="toolbar"><button class="btn small" id="fsReset"><span class="en">Restart path</span><span class="zh">重新走</span></button></div>
+  <div class="msg info" id="fsMsg"></div>
+  <div class="note"><span class="en">Two lessons. (1) For each φ, <span class="m">{p : p ⊩ φ or p ⊩ ¬φ}</span> is dense: any condition can be strengthened to decide φ. Since that set is in <span class="m">M</span> (definability!), the generic meets it; this is the engine of the Truth Lemma. (2) Forcing is <i>not</i> “the condition contains a witness”. <span class="m">∅ ⊩ ġ ≠ x̌</span> although <span class="m">∅</span> contains no bit at all: it is forced because the generic must meet the dense set <span class="m">D<sub>x</sub></span>.</span>
+    <span class="zh">两点体会。(1) 对每个 φ，集合 <span class="m">{p : p ⊩ φ 或 p ⊩ ¬φ}</span> 是稠密的：任何条件都能加细到判定 φ。又因为这个集合属于 <span class="m">M</span>（这就是可定义性的用处！），脱殊滤子一定碰到它。这正是真值引理的发动机。(2) 力迫<i>不是</i>“条件里含有证据”。<span class="m">∅ ⊩ ġ ≠ x̌</span>，可 <span class="m">∅</span> 一位都没确定：之所以被力迫，是因为脱殊滤子必然与稠密集 <span class="m">D<sub>x</sub></span> 相交。</span></div>
+</section>
+
+<!-- ============ S8 ============ -->
+<section class="card" id="s8">
+  <div class="kicker">§8</div>
+  <h2><span class="en">M[G] is a model of ZFC: the smallest one containing M and G</span><span class="zh">M[G] 是 ZFC 的模型：含 M 与 G 的最小模型</span></h2>
+  <div class="def"><span class="en"><b>Generic Model Theorem.</b> Let <span class="m">M</span> be a ctm of ZFC, <span class="m">P ∈ M</span>, <span class="m">G</span> <span class="m">M</span>-generic. Then <span class="m">M[G]</span> is a ctm of ZFC, <span class="m">M ⊆ M[G]</span>, <span class="m">G ∈ M[G]</span>, <span class="m">Ord ∩ M[G] = Ord ∩ M</span>, and <span class="m">M[G]</span> is the <b>smallest</b> transitive model <span class="m">N</span> of ZF with <span class="m">M ⊆ N</span> and <span class="m">G ∈ N</span>. (For a ctm of a sufficiently large finite fragment, the same holds for any prescribed finite fragment.)</span>
+    <span class="zh"><b>脱殊模型定理.</b> 设 <span class="m">M</span> 是 ZFC 的可数传递模型，<span class="m">P ∈ M</span>，<span class="m">G</span> 是 <span class="m">M</span>-脱殊滤子。则 <span class="m">M[G]</span> 是 ZFC 的可数传递模型，<span class="m">M ⊆ M[G]</span>，<span class="m">G ∈ M[G]</span>，<span class="m">Ord ∩ M[G] = Ord ∩ M</span>，而且 <span class="m">M[G]</span> 是满足 <span class="m">M ⊆ N</span>、<span class="m">G ∈ N</span> 的 ZF 传递模型 <span class="m">N</span> 中<b>最小</b>的一个。（若 <span class="m">M</span> 只是某个足够大的有限片段的模型，则对任意预先指定的有限片段同样成立。）</span></div>
+  <p><span class="en">Click each tile to open the proof idea. Notice which ones need the Forcing Theorem.</span>
+     <span class="zh">点开每张卡片看证明思路。留意哪些要用到力迫定理。</span></p>
+  <div class="toolbar"><button class="btn ghost small" id="axAll"><span class="en">Open all</span><span class="zh">全部展开</span></button>
+    <span class="m" id="axCount"></span></div>
+  <div class="tilegrid" id="axTiles"></div>
+</section>
+
+<!-- ============ S9 ============ -->
+<section class="card" id="s9">
+  <div class="kicker">§9</div>
+  <h2><span class="en">Getting ¬CH: ℵ₂ Cohen reals, and the ccc keeps ℵ₂ alive</span><span class="zh">得到 ¬CH：加入 ℵ₂ 个科恩实数，靠可数链条件保住 ℵ₂</span></h2>
+  <p><span class="en">In <span class="m">M</span>, let <span class="m">P = Fn(ω₂ × ω, 2)</span> (finite partial functions, <span class="m">ω₂ = ω₂^M</span>). A generic <span class="m">G</span> gives <span class="m">⋃G : ω₂ × ω → 2</span>: a grid with <span class="m">ω₂</span> columns, each column <span class="m">g<sub>α</sub>(n) = ⋃G(α, n)</span> a real. One condition fills only finitely many cells. Click two column headers to compare columns α and β.</span>
+     <span class="zh">在 <span class="m">M</span> 中取 <span class="m">P = Fn(ω₂ × ω, 2)</span>（有限部分函数，<span class="m">ω₂ = ω₂^M</span>）。脱殊滤子 <span class="m">G</span> 给出 <span class="m">⋃G : ω₂ × ω → 2</span>：一张有 <span class="m">ω₂</span> 列的格子图，每一列 <span class="m">g<sub>α</sub>(n) = ⋃G(α, n)</span> 都是一个实数。一个条件只填有限多个格。点两个列标题，比较第 α 列与第 β 列。</span></p>
+  <div class="toolbar">
+    <button class="btn" id="gridStep"><span class="en">Meet next dense set</span><span class="zh">碰下一个稠密集</span></button>
+    <button class="btn primary" id="gridRun"><span class="en">Run genericity ▶</span><span class="zh">跑完脱殊过程 ▶</span></button>
+    <button class="btn" id="gridSep" disabled><span class="en">Meet D<sub>αβ</sub> (separate α, β)</span><span class="zh">碰 D<sub>αβ</sub>（分开 α 与 β）</span></button>
+    <button class="btn ghost" id="gridReset"><span class="en">Reset</span><span class="zh">重来</span></button>
+  </div>
+  <div class="stage"><svg id="grid" class="svgw" viewBox="0 0 880 330" width="880" height="330"></svg></div>
+  <div class="msg info" id="gridMsg"></div>
+  <p><span class="en">So <span class="m">α ↦ g<sub>α</sub></span> is injective, by density of <span class="m">D<sub>αβ</sub> = {p : ∃n (p(α,n), p(β,n) defined and different)}</span>. Hence <span class="m">M[G] ⊨ 2^ℵ₀ ≥ |ω₂^M|</span>. But is <span class="m">ω₂^M</span> still <span class="m">ω₂</span> in <span class="m">M[G]</span>? A new set could be a collapsing bijection. The cure is a combinatorial property of <span class="m">P</span>.</span>
+     <span class="zh">由 <span class="m">D<sub>αβ</sub> = {p : ∃n (p(α,n), p(β,n) 均有定义且不等)}</span> 的稠密性，<span class="m">α ↦ g<sub>α</sub></span> 是单射，于是 <span class="m">M[G] ⊨ 2^ℵ₀ ≥ |ω₂^M|</span>。可是 <span class="m">ω₂^M</span> 在 <span class="m">M[G]</span> 中还是 <span class="m">ω₂</span> 吗？新加进来的集合可能恰好是一个把它“坍缩”掉的双射。解药是 <span class="m">P</span> 的一个组合性质。</span></p>
+  <div class="def"><span class="en"><b>ccc.</b> <span class="m">P</span> has the <b>countable chain condition</b> if every antichain (set of pairwise incompatible conditions) is countable.<br>
+    <b>Δ-system lemma.</b> Every uncountable family of finite sets has an uncountable subfamily <span class="m">{a<sub>ξ</sub>}</span> forming a Δ-system: there is a <b>root</b> <span class="m">r</span> with <span class="m">a<sub>ξ</sub> ∩ a<sub>η</sub> = r</span> for all <span class="m">ξ ≠ η</span>.<br>
+    <b>Hence <span class="m">Fn(I, 2)</span> is ccc</b> for every <span class="m">I</span>: given uncountably many conditions, their domains form an uncountable family (each finite domain carries only finitely many conditions); thin to a Δ-system of domains with root <span class="m">r</span>; only finitely many (<span class="m">2<sup>|r|</sup></span>) patterns on <span class="m">r</span>, so two conditions agree on <span class="m">r</span>, and their domains meet only in <span class="m">r</span>: they are compatible.</span>
+    <span class="zh"><b>可数链条件（ccc）.</b> 若 <span class="m">P</span> 的每个反链（两两不相容的条件之集）都可数，称 <span class="m">P</span> 满足<b>可数链条件</b>。<br>
+    <b>Δ-系统引理.</b> 任何不可数的有限集族都含有一个不可数子族 <span class="m">{a<sub>ξ</sub>}</span> 构成 Δ-系统：存在<b>根</b> <span class="m">r</span>，使得对所有 <span class="m">ξ ≠ η</span> 都有 <span class="m">a<sub>ξ</sub> ∩ a<sub>η</sub> = r</span>。<br>
+    <b>所以对任意 <span class="m">I</span>，<span class="m">Fn(I, 2)</span> 满足 ccc</b>：任给不可数多个条件，它们的定义域构成不可数族（每个有限定义域上只有有限多个条件）；先把定义域细化成根为 <span class="m">r</span> 的 Δ-系统；条件在 <span class="m">r</span> 上只有有限种（<span class="m">2<sup>|r|</sup></span> 种）取法，于是有两个条件在 <span class="m">r</span> 上取值相同，而它们的定义域只在 <span class="m">r</span> 处相交，故二者相容。</span></div>
+  <p><span class="en">A finite stand-in for the argument: rows are conditions, columns are coordinates. Find a Δ-system (gold = root), then let the pigeonhole find two that agree on the root.</span>
+     <span class="zh">用有限的例子演示这个论证：每行是一个条件，每列是一个坐标。先找出 Δ-系统（金色为根），再用抽屉原理找出在根上取值相同的两个条件。</span></p>
+  <div class="toolbar">
+    <button class="btn" id="dsNew"><span class="en">New family</span><span class="zh">换一族</span></button>
+    <button class="btn primary" id="dsFind"><span class="en">1 · Find a Δ-system</span><span class="zh">1 · 找 Δ-系统</span></button>
+    <button class="btn primary" id="dsPig"><span class="en">2 · Pigeonhole on the root</span><span class="zh">2 · 在根上用抽屉原理</span></button>
+  </div>
+  <div class="stage"><svg id="dsSvg" class="svgw" viewBox="0 0 880 330" width="880" height="330"></svg></div>
+  <div class="msg info" id="dsMsg"></div>
+  <div class="def"><span class="en"><b>Theorem.</b> If <span class="m">P ∈ M</span> is ccc in <span class="m">M</span>, then <span class="m">M</span> and <span class="m">M[G]</span> have the same cardinals (and cofinalities). <b>Key lemma (approximation):</b> any function <span class="m">f : A → B</span> in <span class="m">M[G]</span> with <span class="m">A, B ∈ M</span> is covered by some <span class="m">F ∈ M</span> with <span class="m">f(a) ∈ F(a)</span> and <span class="m">F(a)</span> countable in <span class="m">M</span>. (Proof: exercise E4.) So <span class="m">ω₂^M = ω₂<sup>M[G]</sup></span> and <span class="m">M[G] ⊨ 2^ℵ₀ ≥ ℵ₂</span>, i.e. <b>¬CH</b>. (If moreover <span class="m">M ⊨ GCH</span>, counting names gives exactly <span class="m">M[G] ⊨ 2^ℵ₀ = ℵ₂</span>; see E6.)</span>
+    <span class="zh"><b>定理.</b> 若 <span class="m">P ∈ M</span> 在 <span class="m">M</span> 中满足 ccc，则 <span class="m">M</span> 与 <span class="m">M[G]</span> 的基数（以及共尾性）完全相同。<b>关键引理（逼近引理）：</b><span class="m">M[G]</span> 中任意函数 <span class="m">f : A → B</span>（<span class="m">A, B ∈ M</span>）都能被某个 <span class="m">F ∈ M</span> 覆盖：<span class="m">f(a) ∈ F(a)</span>，且 <span class="m">F(a)</span> 在 <span class="m">M</span> 中可数。（证明见练习 E4。）于是 <span class="m">ω₂^M = ω₂<sup>M[G]</sup></span>，<span class="m">M[G] ⊨ 2^ℵ₀ ≥ ℵ₂</span>，即 <b>¬CH</b>。（若还有 <span class="m">M ⊨ GCH</span>，数一数名字可得恰好 <span class="m">M[G] ⊨ 2^ℵ₀ = ℵ₂</span>；见练习 E6。）</span></div>
+</section>
+
+<!-- ============ S10 ============ -->
+<section class="card" id="s10">
+  <div class="kicker">§10</div>
+  <h2><span class="en">Putting it together: CH is independent of ZFC</span><span class="zh">合起来：连续统假设独立于 ZFC</span></h2>
+  <p><span class="en">The flowchart combines Lessons 14, 15 and 16. Step through it.</span>
+     <span class="zh">这张流程图把第 14、15、16 课连成一体。一步一步走一遍。</span></p>
+  <div class="toolbar">
+    <button class="btn primary" id="flNext"><span class="en">Next step ▶</span><span class="zh">下一步 ▶</span></button>
+    <button class="btn ghost" id="flAll"><span class="en">Show all</span><span class="zh">全部显示</span></button>
+    <button class="btn ghost" id="flReset"><span class="en">Reset</span><span class="zh">重来</span></button>
+  </div>
+  <div class="stage"><svg id="flow" class="svgw" viewBox="0 0 880 520" width="880" height="520"></svg></div>
+  <div class="msg info" id="flMsg"></div>
+  <div class="def"><span class="en"><b>Theorem (Gödel 1938, Cohen 1963).</b> If ZF is consistent, then so are ZFC + CH and ZFC + ¬CH. Hence, if ZFC is consistent, it proves neither CH nor ¬CH.<br>
+    <b>Metamathematical fine print.</b> ZFC cannot prove “there is a ctm of ZFC” (unless ZFC is inconsistent; by Gödel's second theorem). The proof is: suppose ZFC + ¬CH ⊢ ⊥. The proof uses a finite set Φ of axioms. Choose a finite Ψ ⊆ ZFC so large that ZFC proves “for every ctm <span class="m">M ⊨ Ψ</span> and every <span class="m">M</span>-generic <span class="m">G</span> for <span class="m">P = Fn(ω₂<sup>M</sup> × ω, 2)</span>, <span class="m">M[G] ⊨ Φ</span>”. By reflection, LS and collapse, ZFC proves that a ctm of Ψ exists, and by Rasiowa–Sikorski that a generic over it exists. Then ZFC proves that Φ has a model, hence is consistent, while ZFC also proves “Φ ⊢ ⊥”. So ZFC is inconsistent. This argument is finitary: it is a proof in PA of Con(ZFC) → Con(ZFC + ¬CH).</span>
+    <span class="zh"><b>定理（哥德尔 1938，科恩 1963）.</b> 若 ZF 一致，则 ZFC + CH 与 ZFC + ¬CH 都一致。因此只要 ZFC 一致，它既证明不了 CH，也证明不了 ¬CH。<br>
+    <b>元数学上的细节.</b> ZFC 证明不了“存在 ZFC 的可数传递模型”（除非 ZFC 不一致；由哥德尔第二不完全性定理）。正确的论证是：设 ZFC + ¬CH ⊢ ⊥，这个证明只用到有限个公理 Φ。取有限的 Ψ ⊆ ZFC 足够大，使 ZFC 能证明“对 Ψ 的任一可数传递模型 <span class="m">M</span> 及 <span class="m">P = Fn(ω₂<sup>M</sup> × ω, 2)</span> 的任一 <span class="m">M</span>-脱殊滤子 <span class="m">G</span>，<span class="m">M[G] ⊨ Φ</span>”。由反射原理、LS 定理与传递化坍塌，ZFC 证明 Ψ 有可数传递模型，再由拉肖瓦–西科尔斯基引理证明其上存在脱殊滤子，从而证明 Φ 有模型、因而一致；而 ZFC 同时也证明“Φ ⊢ ⊥”。所以 ZFC 不一致。整个论证是有穷的：它是 PA 中关于 Con(ZFC) → Con(ZFC + ¬CH) 的一个证明。</span></div>
+</section>
+
+<!-- ============ S11 ============ -->
+<section class="card" id="s11">
+  <div class="kicker">§11</div>
+  <h2><span class="en">Epilogue: what forcing opened up</span><span class="zh">尾声：力迫法打开的天地</span></h2>
+  <p><span class="en">After 1963, independence proofs poured in. Click a card to open it.</span>
+     <span class="zh">1963 年之后，独立性结果如潮水般涌来。点开卡片看看。</span></p>
+  <div class="tilegrid" id="galTiles"></div>
+</section>
+
+<!-- ============ EXERCISES ============ -->
+<section class="card" id="exercises">
+  <div class="kicker"><span class="il"><span class="en">Exercises</span><span class="zh">练习</span></span></div>
+  <h2><span class="en">Your turn</span><span class="zh">轮到你了</span></h2>
+  <p class="muted"><span class="en">Progress is saved in your browser. A sidebar ✓ means solved.</span><span class="zh">进度保存在浏览器中，侧栏出现 ✓ 表示已完成。</span></p>
+
+  <div class="ex" id="e1" data-prog="L16E1">
+    <h3><span class="tag">E1</span><span class="il"><span class="en">Which sets are dense in Fn(ω,2)?</span><span class="zh">哪些集合在 Fn(ω,2) 中稠密？</span></span></h3>
+    <p><span class="en">Mark each set. Press “Show on tree” to paint its members on the tree (strings up to length 5) and probe it: click nodes to test density.</span>
+       <span class="zh">逐个判断。按“画在树上”可以把它的元素画在树上（长度不超过 5 的串），再点节点试探稠密性。</span></p>
+    <div id="e1List"></div>
+    <div class="stage" style="margin-top:10px"><svg id="e1Tree" class="svgw" viewBox="0 0 880 250" width="880" height="250"></svg></div>
+    <div class="msg" id="e1Probe"></div>
+    <div class="toolbar"><button class="btn primary" id="e1Check"><span class="en">Check</span><span class="zh">检查</span></button>
+      <button class="btn ghost" id="e1Show"><span class="en">Show answer</span><span class="zh">显示答案</span></button></div>
+    <div class="msg" id="e1Msg"></div>
+  </div>
+
+  <div class="ex" id="e2" data-prog="L16E2">
+    <h3><span class="tag">E2</span><span class="il"><span class="en">Extend a condition</span><span class="zh">加细一个条件</span></span></h3>
+    <p><span class="en">Start from the fixed condition <span class="m">p</span> (dark-outlined cells; you may not change them). Fill more cells to get a single <span class="m">q ≤ p</span> lying in all four dense sets at once. (These sets are open dense, i.e. closed under strengthening, so meeting them one after another works.)</span>
+       <span class="zh">从固定条件 <span class="m">p</span> 出发（深色边框的格子，不许改动）。再填一些格子，得到一个 <span class="m">q ≤ p</span>，同时属于下列四个稠密集。（这些集合都是开稠密的，即对加细封闭，所以逐个去碰就行。）</span></p>
+    <div class="stage" id="e2Cells"></div>
+    <div id="e2Reqs"></div>
+    <div class="toolbar"><button class="btn ghost" id="e2Clear"><span class="en">Clear</span><span class="zh">清空</span></button>
+      <button class="btn ghost" id="e2Show"><span class="en">Show answer</span><span class="zh">显示答案</span></button></div>
+    <div class="msg" id="e2Msg"></div>
+  </div>
+
+  <div class="ex" id="e3" data-prog="L16E3">
+    <h3><span class="tag">E3</span><span class="il"><span class="en">Evaluate a name</span><span class="zh">计算名字的取值</span></span></h3>
+    <p><span class="en">Let <span class="m">σ = {(0̌, ⟨00⟩), (1̌, ⟨01⟩)}</span> and <span class="m">τ = {(σ, ⟨0⟩), (1̌, ⟨01⟩), (2̌, ⟨1⟩), (0̌, 𝟙)}</span>, where <span class="m">⟨01⟩</span> is the condition <span class="m">{(0,0),(1,1)}</span>. For each generic below, click the elements of <span class="m">val(τ, G)</span>.</span>
+       <span class="zh">设 <span class="m">σ = {(0̌, ⟨00⟩), (1̌, ⟨01⟩)}</span>，<span class="m">τ = {(σ, ⟨0⟩), (1̌, ⟨01⟩), (2̌, ⟨1⟩), (0̌, 𝟙)}</span>，其中 <span class="m">⟨01⟩</span> 表示条件 <span class="m">{(0,0),(1,1)}</span>。对下面每个脱殊滤子，点出 <span class="m">val(τ, G)</span> 的所有元素。</span></p>
+    <div id="e3Rounds"></div>
+    <div class="toolbar"><button class="btn primary" id="e3Check"><span class="en">Check</span><span class="zh">检查</span></button>
+      <button class="btn ghost" id="e3Show"><span class="en">Show answer</span><span class="zh">显示答案</span></button></div>
+    <div class="msg" id="e3Msg"></div>
+  </div>
+
+  <div class="ex" id="e4" data-prog="L16E4">
+    <h3><span class="tag">E4</span><span class="il"><span class="en">Why ccc preserves cardinals: put the proof in order</span><span class="zh">ccc 为何保持基数：给证明排序</span></span></h3>
+    <p><span class="en">Click the steps in the right order. Click a placed step to send it back.</span>
+       <span class="zh">按正确顺序点击各步。点已放好的步骤可以撤回。</span></p>
+    <div class="row">
+      <div class="col"><b><span class="il"><span class="en">Pool</span><span class="zh">待选</span></span></b><div id="e4Pool" class="seq"></div></div>
+      <div class="col"><b><span class="il"><span class="en">Your proof</span><span class="zh">你的证明</span></span></b><div id="e4Seq" class="seq"></div></div>
+    </div>
+    <div class="toolbar"><button class="btn primary" id="e4Check"><span class="en">Check</span><span class="zh">检查</span></button>
+      <button class="btn ghost" id="e4Show"><span class="en">Show proof</span><span class="zh">显示证明</span></button></div>
+    <div class="msg" id="e4Msg"></div>
+  </div>
+
+  <div class="ex" id="e5" data-prog="L16E5">
+    <h3><span class="tag">E5</span><span class="il"><span class="en">Why must M be countable?</span><span class="zh">M 为什么必须可数？</span></span></h3>
+    <p><span class="en">Suppose <span class="m">G</span> is a filter on <span class="m">Fn(ω,2)</span> meeting <b>every</b> dense set in <span class="m">V</span>, and every <span class="m">D<sub>n</sub></span> in particular, so <span class="m">g = ⋃G</span> is a real. <b>(a)</b> Which dense set does <span class="m">G</span> fail to meet?</span>
+       <span class="zh">假设 <span class="m">G</span> 是 <span class="m">Fn(ω,2)</span> 上的滤子，与 <span class="m">V</span> 中<b>每个</b>稠密集都相交，尤其与每个 <span class="m">D<sub>n</sub></span> 相交，于是 <span class="m">g = ⋃G</span> 是一个实数。<b>(a)</b> <span class="m">G</span> 碰不到哪个稠密集？</span></p>
+    <div id="e5a"></div>
+    <div class="msg" id="e5aMsg"></div>
+    <p><span class="en"><b>(b)</b> Where exactly does the Rasiowa–Sikorski construction use countability?</span>
+       <span class="zh"><b>(b)</b> 拉肖瓦–西科尔斯基的构造究竟在哪里用到了可数性？</span></p>
+    <div id="e5b"></div>
+    <div class="msg" id="e5bMsg"></div>
+    <div class="toolbar"><button class="btn ghost" id="e5Show"><span class="en">Show answer &amp; proof</span><span class="zh">显示答案与证明</span></button></div>
+    <div class="steps" id="e5Proof"><div class="step def"><span class="en"><b>Proof that no generic over V exists.</b> <span class="m">D<sub>g</sub> = {p : p ⊥ g}</span> is in <span class="m">V</span> and dense (extend <span class="m">p</span> at a fresh <span class="m">n</span> by <span class="m">1 − g(n)</span>). If <span class="m">p ∈ G ∩ D<sub>g</sub></span>, then <span class="m">p ⊆ ⋃G = g</span>, so <span class="m">p</span> is compatible with <span class="m">g</span>. Contradiction. In a ctm the same <span class="m">D<sub>g</sub></span> exists only if <span class="m">g ∈ M</span>, and it doesn't. The construction of <span class="m">G</span> diagonalizes against a <b>countable</b> list of dense sets; against all of <span class="m">V</span>'s dense sets, it would have to diagonalize against itself.</span>
+      <span class="zh"><b>证明不存在 V 上的脱殊滤子.</b> <span class="m">D<sub>g</sub> = {p : p ⊥ g}</span> 属于 <span class="m">V</span> 且稠密（在一个新位置 <span class="m">n</span> 上填 <span class="m">1 − g(n)</span> 即可）。若 <span class="m">p ∈ G ∩ D<sub>g</sub></span>，则 <span class="m">p ⊆ ⋃G = g</span>，即 <span class="m">p</span> 与 <span class="m">g</span> 相容，矛盾。而在可数传递模型中，只有当 <span class="m">g ∈ M</span> 时才会有这个 <span class="m">D<sub>g</sub></span>，可 <span class="m">g ∉ M</span>。构造 <span class="m">G</span> 是对一份<b>可数</b>的稠密集清单做对角线；若要对付 <span class="m">V</span> 的全部稠密集，它就得对自己做对角线了。</span></div></div>
+  </div>
+
+  <div class="ex" id="e6" data-prog="L16E6">
+    <h3><span class="tag">E6</span><span class="il"><span class="en">How big is the continuum in M[G]?</span><span class="zh">M[G] 中的连续统有多大？</span></span></h3>
+    <p><span class="en">Assume <span class="m">M ⊨ GCH</span>. Upper bounds come from counting <b>nice names</b> for subsets of <span class="m">ω</span>: a nice name is determined by choosing, for each <span class="m">n</span>, an antichain <span class="m">Aₙ</span> (“<span class="m">n ∈ ẋ</span> iff some condition of <span class="m">Aₙ</span> is in <span class="m">G</span>”). With ccc, each antichain is countable, so there are at most <span class="m">(|P|^ℵ₀)^ℵ₀ = |P|^ℵ₀</span> nice names.</span>
+       <span class="zh">设 <span class="m">M ⊨ GCH</span>。上界来自数 <span class="m">ω</span> 的子集的<b>好名字</b>：一个好名字由对每个 <span class="m">n</span> 选定一个反链 <span class="m">Aₙ</span> 决定（“<span class="m">n ∈ ẋ</span> 当且仅当 <span class="m">Aₙ</span> 中有条件属于 <span class="m">G</span>”）。在 ccc 下每个反链可数，所以好名字至多有 <span class="m">(|P|^ℵ₀)^ℵ₀ = |P|^ℵ₀</span> 个。</span></p>
+    <p><b>(a)</b> <span class="m">P = Fn(ω₂ × ω, 2)</span>: <span class="il"><span class="en">in M[G], 2^ℵ₀ =</span><span class="zh">在 M[G] 中 2^ℵ₀ =</span></span></p>
+    <div id="e6a" class="tabs"></div><div class="msg" id="e6aMsg"></div>
+    <p><b>(b)</b> <span class="m">P = Fn(ℵ<sub>ω</sub> × ω, 2)</span>: <span class="il"><span class="en">in M[G], 2^ℵ₀ =</span><span class="zh">在 M[G] 中 2^ℵ₀ =</span></span></p>
+    <div id="e6b" class="tabs"></div><div class="msg" id="e6bMsg"></div>
+    <div class="toolbar"><button class="btn ghost" id="e6Show"><span class="en">Show answers</span><span class="zh">显示答案</span></button></div>
+  </div>
+</section>
+
+<!-- ============ RECAP ============ -->
+<section class="card" id="recap">
+  <div class="kicker"><span class="il"><span class="en">Recap of Parts I–IV</span><span class="zh">第一至四部分回顾</span></span></div>
+  <h2><span class="en">Sixteen lessons, one map: syntax vs semantics, and the diagonal thread</span><span class="zh">十六课一张图：语法与语义，以及贯穿始终的对角线</span></h2>
+  <p><span class="en">Left of the dashed line: <b>syntax</b> (⊢, proofs, computation). Right: <b>semantics</b> (⊨, structures, models). Lessons on the line are bridges between the two. Choose a thread to highlight it; hover a lesson for its role; click to open it.</span>
+     <span class="zh">虚线左边是<b>语法</b>（⊢、证明、计算），右边是<b>语义</b>（⊨、结构、模型），压在线上的几课是连接两边的桥梁。选一条线索让它高亮；鼠标停在某课上看它的作用；点击即可打开。</span></p>
+  <div class="tabs" id="mapTabs"></div>
+  <div class="stage"><svg id="cmap" class="svgw" viewBox="0 0 900 560" width="900" height="560"></svg></div>
+  <div class="msg info" id="mapMsg"></div>
+  <h2 style="margin-top:22px"><a href="lesson17.html" style="color:inherit"><span class="en">Next · Lesson 17: Part V · Hierarchies &amp; large cardinals →</span><span class="zh">下一课 · 第 17 课：第五部分 · 层级与大基数 →</span></a></h2>
+  <p><span class="en">Independence is not the end of the story. Part V asks how to measure the strength of theories and of sets: hierarchies of definability, ordinal notations, HOD, large cardinals, and determinacy.</span>
+     <span class="zh">独立性并不是故事的终点。第五部分要问：理论的强度、集合的复杂度该怎么度量？我们将讨论可定义性层级、序数记号、HOD、大基数与决定性。</span></p>
+</section>
+</main>
+</div>
+
+<script src="assets/logic.js"></script>
+<script src="assets/lesson16.js"></script>
+</body>
+</html>

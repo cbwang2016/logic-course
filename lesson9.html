@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 9 · Cardinals, ℵ numbers, Cofinality 基数：阿列夫数、基数运算、共尾性</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  /* ---------- lesson 9 local styles ---------- */
+  .ordread { font-family: var(--mono); font-size: 14px; min-height: 24px; margin-top: 6px; color: var(--ink); }
+  .ordread .k { font-family: var(--sans); color: var(--muted); font-size: 13px; }
+  svg.zoomable { cursor: zoom-in; }
+  svg.pickable { cursor: pointer; }
+  .m sup { font-size: .7em; }
+  .legend2 { display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px; color: var(--muted); margin: 6px 0; }
+  .legend2 i { display: inline-block; width: 14px; height: 14px; vertical-align: -2px; margin-right: 6px; border-radius: 4px; }
+  .res { font-family: var(--mono); font-size: 20px; padding: 6px 0; }
+  .res sup { font-size: .62em; }
+  table.kt { border-collapse: separate; border-spacing: 3px; font-family: var(--mono); font-size: 15px; }
+  table.kt th { font-weight: 600; font-size: 13px; padding: 4px 8px; color: var(--muted); }
+  table.kt td { width: 52px; height: 32px; text-align: center; border-radius: 7px; background: #fff; border: 1.5px solid var(--line); cursor: pointer; user-select: none; transition: background .25s, border-color .25s; }
+  table.kt td.lab { width: auto; cursor: default; border: 0; background: transparent; color: var(--muted); font-size: 13px; text-align: right; padding-right: 8px; }
+  table.kt td.diag { border-color: var(--meta); border-width: 2.5px; }
+  table.kt td.hot { background: var(--meta-soft); }
+  table.kt td.g { background: var(--true-soft); border-color: var(--true); font-weight: 800; cursor: default; }
+  table.kt td.neq { width: auto; border: 0; background: transparent; cursor: default; color: var(--false); font-size: 13px; text-align: left; white-space: nowrap; }
+  table.kt tr.blk0 td.cell { background: #eef2ff; } table.kt tr.blk1 td.cell { background: #fff4e6; }
+  table.kt tr.blk2 td.cell { background: #ebfbee; } table.kt tr.blk3 td.cell { background: #f8f0fc; }
+  table.kt tr td.cell.hot { background: var(--meta-soft); }
+  table.cm { border-collapse: separate; border-spacing: 3px; font-family: var(--mono); }
+  table.cm td, table.cm th { width: 38px; height: 34px; text-align: center; border-radius: 7px; font-size: 15px; }
+  table.cm th { color: var(--muted); font-weight: 600; font-size: 13px; }
+  table.cm td.c { cursor: pointer; border: 1.5px solid var(--line); background: #fff; }
+  table.cm td.c.in { background: var(--accent-soft); border-color: var(--accent); font-weight: 700; }
+  table.cm td.c.dg { outline: 2.5px solid var(--meta); outline-offset: -3px; }
+  table.cm td.D { background: var(--meta-soft); border: 1.5px solid var(--meta); font-weight: 800; color: var(--meta); }
+  table.cm td.D.in { background: var(--meta); color: #fff; }
+  table.cm td.note2 { width: auto; text-align: left; font-size: 12px; color: var(--false); white-space: nowrap; padding-left: 6px; }
+  table.cm td.lab { width: auto; text-align: right; color: var(--muted); font-size: 13px; padding-right: 6px; white-space: nowrap; }
+  .ansrow { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; padding: 10px 0; border-bottom: 1px dashed var(--line); }
+  .ansrow .q { flex: 1 1 260px; font-family: var(--mono); font-size: 16px; }
+  .ansrow .msg { flex-basis: 100%; margin: 4px 0 0; }
+  .opts { display: flex; gap: 6px; flex-wrap: wrap; }
+  .opts .btn.right { border-color: var(--true); background: var(--true-soft); }
+  .opts .btn.wrongc { border-color: var(--false); background: var(--false-soft); }
+  .chip.st-r { border-color: var(--true); background: var(--true-soft); }
+  .chip.st-s { border-color: var(--false); background: var(--false-soft); }
+  .chip .st { font-size: 12px; color: var(--muted); margin-left: 6px; }
+  .calc { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; align-items: center; }
+  .calc b { font-family: var(--mono); }
+</style>
+</head>
+<body class="lang-both">
+<header class="top">
+  <a class="home" href="index.html">∀∃ <span class="il"><span class="en">Logic &amp; Sets</span><span class="zh">逻辑与集合</span></span></a>
+  <span class="muted">/ L9</span>
+  <span class="spacer"></span>
+  <div class="lang-switch">
+    <button data-lang="en">EN</button><button data-lang="zh">中文</button><button data-lang="both">EN + 中</button>
+  </div>
+</header>
+
+<div class="layout">
+<nav class="side">
+  <div class="grp">Lesson 9</div>
+  <a href="index.html">← <span class="il"><span class="en">Course map</span><span class="zh">课程地图</span></span></a>
+  <a href="lesson8.html">← <span class="il"><span class="en">Lesson 8</span><span class="zh">第 8 课</span></span></a>
+  <a href="lesson10.html"><span class="il"><span class="en">Lesson 10</span><span class="zh">第 10 课</span></span> →</a>
+  <a href="#s1">1 · <span class="il"><span class="en">Initial ordinals</span><span class="zh">初始序数</span></span></a>
+  <a href="#s2">2 · <span class="il"><span class="en">Schröder–Bernstein</span><span class="zh">施罗德–伯恩斯坦</span></span></a>
+  <a href="#s3">3 · <span class="il"><span class="en">The ℵ hierarchy</span><span class="zh">阿列夫序列</span></span></a>
+  <a href="#s4">4 · κ · κ = κ</a>
+  <a href="#s5">5 · 2<sup>κ</sup> &gt; κ</a>
+  <a href="#s6">6 · <span class="il"><span class="en">CH, GCH, Easton</span><span class="zh">连续统假设</span></span></a>
+  <a href="#s7">7 · <span class="il"><span class="en">Cofinality</span><span class="zh">共尾性</span></span></a>
+  <a href="#s8">8 · <span class="il"><span class="en">König's theorem</span><span class="zh">柯尼希定理</span></span></a>
+  <div class="grp"><span class="il"><span class="en">Exercises</span><span class="zh">练习</span></span></div>
+  <a href="#e1" data-prog="L9E1">E1 · <span class="il"><span class="en">Arithmetic</span><span class="zh">基数运算</span></span></a>
+  <a href="#e2" data-prog="L9E2">E2 · <span class="il"><span class="en">Pairing</span><span class="zh">配对序</span></span></a>
+  <a href="#e3" data-prog="L9E3">E3 · cf</a>
+  <a href="#e4" data-prog="L9E4">E4 · <span class="il"><span class="en">Regular?</span><span class="zh">正则？</span></span></a>
+  <a href="#e5" data-prog="L9E5">E5 · <span class="il"><span class="en">CSB in action</span><span class="zh">CSB 实战</span></span></a>
+  <a href="#e6" data-prog="L9E6">E6 · <span class="il"><span class="en">König</span><span class="zh">柯尼希</span></span></a>
+</nav>
+
+<main>
+<div class="hero">
+  <div class="kicker">Part II · Lesson 9</div>
+  <h1><span class="en">Cardinals: ℵ numbers, cardinal arithmetic, cofinality</span><span class="zh">基数：阿列夫数、基数运算、共尾性</span></h1>
+  <p><span class="en">Ordinals measure length; cardinals measure size. ω, ω+1 and ω² are different lengths, but they all have the same size. In this lesson we pick one representative for each size, then learn to add, multiply and exponentiate sizes, and find that exponentiation is where ZFC stops giving answers.</span>
+     <span class="zh">序数量“长度”，基数量“大小”。ω、ω+1、ω² 长度各不相同，大小却一样。本课先为每种大小挑一个代表，再学大小的加法、乘法和乘方，然后会发现：到了乘方这一步，ZFC 就答不上来了。</span></p>
+</div>
+
+<!-- ============ S1 ============ -->
+<section class="card" id="s1">
+  <div class="kicker">§1</div>
+  <h2><span class="en">Cardinals are initial ordinals</span><span class="zh">基数就是初始序数</span></h2>
+  <div class="row">
+    <div class="col def"><span class="en"><b>Definition.</b> An ordinal κ is a <b>cardinal</b> (an <b>initial ordinal</b>) if it is not in bijection with any smaller ordinal β &lt; κ.</span>
+      <span class="zh"><b>定义.</b> 序数 κ 称为<b>基数</b>（<b>初始序数</b>），如果它不与任何更小的序数 β &lt; κ 等势。</span></div>
+    <div class="col def"><span class="en"><b>Definition (uses AC).</b> For any set X, its <b>cardinality</b> |X| is the least ordinal in bijection with X. AC (well-ordering theorem) guarantees such an ordinal exists, and the least one is automatically a cardinal.</span>
+      <span class="zh"><b>定义（要用选择公理）.</b> 对任意集合 X，它的<b>基数</b> |X| 是与 X 等势的最小序数。选择公理（良序定理）保证这样的序数存在，而最小的那个自动是基数。</span></div>
+  </div>
+  <p><span class="en">Below, the top row is an ordinal α drawn as matchsticks, and the bottom row is ℕ = ω. Press play to watch a bijection list α in ω steps. Every countably <i>infinite</i> ordinal is “ω in disguise” as far as <i>size</i> goes, so none of them except ω is a cardinal. (Finite ordinals are not touched by this: each natural number is a cardinal.)</span>
+     <span class="zh">下面上排是用火柴画的序数 α，下排是 ℕ = ω。按播放键，看一个双射如何用 ω 步把 α 数完。就“大小”而言，每个可数<i>无穷</i>序数都是“乔装的 ω”，所以除了 ω 本身，它们都不是基数。（有限序数不受影响：每个自然数都是基数。）</span></p>
+  <div class="toolbar" id="bijPick"></div>
+  <div class="stage"><svg id="bijSvg" viewBox="0 0 900 300" width="900" height="300"></svg></div>
+  <div class="toolbar">
+    <button class="btn primary" id="bijPlay"><span class="en">Play ▶</span><span class="zh">播放 ▶</span></button>
+    <button class="btn" id="bijStep"><span class="en">One step</span><span class="zh">单步</span></button>
+    <button class="btn ghost" id="bijReset"><span class="en">Reset</span><span class="zh">重来</span></button>
+  </div>
+  <div class="msg info" id="bijMsg"></div>
+  <div class="note"><span class="en">Consequences: every infinite cardinal is a <b>limit ordinal</b> (α+1 ≈ α for infinite α, by the Hilbert-hotel shift in the first picture), and the finite cardinals are exactly the natural numbers.</span>
+    <span class="zh">推论：每个无穷基数都是<b>极限序数</b>（无穷序数 α 满足 α+1 ≈ α，就是第一张图里“希尔伯特旅馆”式的平移），而有限基数恰好就是自然数。</span></div>
+</section>
+
+<!-- ============ S2 ============ -->
+<section class="card" id="s2">
+  <div class="kicker">§2</div>
+  <h2><span class="en">Cantor–Schröder–Bernstein: two injections give a bijection</span><span class="zh">康托尔–施罗德–伯恩斯坦定理：两个单射给出一个双射</span></h2>
+  <div class="def"><span class="en"><b>Theorem (ZF, no Choice).</b> If f: A → B and g: B → A are both injective, then there is a bijection h: A → B. So |A| ≤ |B| and |B| ≤ |A| imply |A| = |B|.</span>
+    <span class="zh"><b>定理（ZF，不用选择公理）.</b> 若 f: A → B 与 g: B → A 都是单射，则存在双射 h: A → B。因此 |A| ≤ |B| 且 |B| ≤ |A| 蕴涵 |A| = |B|。</span></div>
+  <p><span class="en">Follow the arrows backwards from any element. The arrows fall apart into <b>chains</b> of four kinds: chains that start in A, chains that start in B, finite cycles, and chains infinite in both directions. On each chain, pick f or g⁻¹ to pair everything up.</span>
+     <span class="zh">从任何一个元素出发，沿箭头往回追。所有箭头会分解成四类<b>链</b>：起点在 A 的链、起点在 B 的链、有限的圈、以及两头都无穷的链。在每条链上选用 f 或 g⁻¹，就能把元素一一配对。</span></p>
+  <div class="toolbar" id="csbPick"></div>
+  <div class="stage"><svg id="csbSvg" viewBox="0 0 900 430" width="900" height="430"></svg></div>
+  <div class="toolbar">
+    <button class="btn primary" id="csbNext"><span class="en">Next step ▶</span><span class="zh">下一步 ▶</span></button>
+    <button class="btn" id="csbAll"><span class="en">Show all</span><span class="zh">全部显示</span></button>
+    <button class="btn ghost" id="csbReset"><span class="en">Reset</span><span class="zh">重来</span></button>
+  </div>
+  <div class="msg info" id="csbMsg"></div>
+  <div class="steps" id="csbProof">
+    <div class="step def"><span class="en"><b>Proof.</b> For x in A or B, trace back: from a ∈ A go to g⁻¹(a) if it exists, from b ∈ B go to f⁻¹(b) if it exists. Either the trace stops at an element of A ∖ g[B] (an <b>A-chain</b>), or it stops at an element of B ∖ f[A] (a <b>B-chain</b>), or it never stops (a <b>cycle</b> or a <b>ℤ-chain</b>). Each element lies on exactly one chain, because f and g are injective.</span>
+      <span class="zh"><b>证明.</b> 对 A 或 B 中的元素往回追：a ∈ A 若有 g⁻¹(a) 就走过去，b ∈ B 若有 f⁻¹(b) 就走过去。追踪要么停在 A ∖ g[B] 的某个元素（<b>A 链</b>），要么停在 B ∖ f[A] 的某个元素（<b>B 链</b>），要么永不停止（<b>圈</b>或 <b>ℤ 链</b>）。由于 f、g 都是单射，每个元素恰好落在一条链上。</span></div>
+    <div class="step def"><span class="en">Define h(a) = f(a) if a lies on an A-chain, a cycle or a ℤ-chain, and h(a) = g⁻¹(a) if a lies on a B-chain (there every a ∈ A has a g-preimage). On each chain h is a bijection between its A-part and its B-part, so h is a bijection A → B. ∎ No choices were made, so this is a ZF proof.</span>
+      <span class="zh">定义：若 a 在 A 链、圈或 ℤ 链上，令 h(a) = f(a)；若 a 在 B 链上，令 h(a) = g⁻¹(a)（B 链上每个 a ∈ A 都有 g 原像）。在每条链上，h 是该链 A 部分与 B 部分之间的双射，所以 h: A → B 是双射。∎ 整个过程没有做任何选择，所以这是 ZF 中的证明。</span></div>
+  </div>
+  <div class="toolbar"><button class="btn" id="csbPNext"><span class="en">Reveal next step</span><span class="zh">揭晓下一步</span></button>
+    <button class="btn ghost" id="csbPAll"><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+</section>
+
+<!-- ============ S3 ============ -->
+<section class="card" id="s3">
+  <div class="kicker">§3</div>
+  <h2><span class="en">The ℵ hierarchy: ℵ₁ is the set of countable ordinals</span><span class="zh">阿列夫序列：ℵ₁ 就是全体可数序数之集</span></h2>
+  <div class="def"><span class="en"><b>Definition</b> (by transfinite recursion, using Hartogs numbers from Lesson 8):
+      <span class="m">ℵ₀ = ω</span>, &nbsp; <span class="m">ℵ<sub>α+1</sub> = ℵ<sub>α</sub>⁺ = h(ℵ<sub>α</sub>)</span> (the least ordinal that does not inject into ℵ<sub>α</sub>), &nbsp; <span class="m">ℵ<sub>λ</sub> = sup<sub>α&lt;λ</sub> ℵ<sub>α</sub></span> for limit λ. We also write ω<sub>α</sub> for ℵ<sub>α</sub> when we think of it as an ordinal. The infinite cardinals are exactly the ℵ<sub>α</sub>.</span>
+    <span class="zh"><b>定义</b>（超限递归，用第 8 课的哈托格斯数）：
+      <span class="m">ℵ₀ = ω</span>，<span class="m">ℵ<sub>α+1</sub> = ℵ<sub>α</sub>⁺ = h(ℵ<sub>α</sub>)</span>（不能单射到 ℵ<sub>α</sub> 的最小序数），对极限序数 λ 令 <span class="m">ℵ<sub>λ</sub> = sup<sub>α&lt;λ</sub> ℵ<sub>α</sub></span>。把它当作序数看时也记作 ω<sub>α</sub>。无穷基数恰好就是这些 ℵ<sub>α</sub>。</span></div>
+  <p><span class="en"><b>Click an ordinal</b>: the marker shows where it sits on the (not to scale) ordinal line, and the readout gives its cardinality. Gold posts are cardinals; between two posts every ordinal has the size of the post on its left.</span>
+     <span class="zh"><b>点击一个序数</b>：标记会显示它在序数轴上的位置（不按比例），并给出它的基数。金色立柱是基数；两根立柱之间的每个序数，大小都等于左边那根立柱。</span></p>
+  <div class="chips" id="alephChips"></div>
+  <div class="stage" style="margin-top:10px"><svg id="alephSvg" viewBox="0 0 900 200" width="900" height="200"></svg></div>
+  <div class="msg info" id="alephMsg"></div>
+  <div class="note"><span class="en"><b>Why is ω₁ uncountable?</b> ω₁ = h(ω) is the set of all countable ordinals. If ω₁ were countable it would be an element of itself. It is the first ordinal you can never reach by “countable means”: a countable sup of countable ordinals is still countable (using countable choice).</span>
+    <span class="zh"><b>ω₁ 为什么不可数？</b>ω₁ = h(ω) 是全体可数序数之集。若 ω₁ 可数，它就会是自己的元素。它是用“可数手段”永远到不了的第一个序数：可数个可数序数的上确界仍然可数（要用可数选择）。</span></div>
+</section>
+
+<!-- ============ S4 ============ -->
+<section class="card" id="s4">
+  <div class="kicker">§4</div>
+  <h2><span class="en">κ · κ = κ: the Gödel pairing order</span><span class="zh">κ · κ = κ：哥德尔配对序</span></h2>
+  <p><span class="en">Order κ × κ like this: first by the <b>maximum</b> max(α, β), then lexicographically. Each square “shell” is walked in turn: along its top row, then up its right column. Play it on ω × ω, and click any cell to see the cells before it.</span>
+     <span class="zh">这样给 κ × κ 排序：先比<b>最大值</b> max(α, β)，再按字典序比。于是一层层“方壳”依次走过：先沿顶上一行往右，再沿右边一列往上。在 ω × ω 上播放，点任意一个格子，看看排在它前面的格子。</span></p>
+  <div class="row">
+    <div class="col" style="flex:0 1 430px"><div class="stage"><svg id="pairSvg" viewBox="0 0 420 420" width="420" height="420"></svg></div></div>
+    <div class="col">
+      <div class="toolbar">
+        <button class="btn primary" id="pairPlay"><span class="en">Play ▶</span><span class="zh">播放 ▶</span></button>
+        <button class="btn ghost" id="pairReset"><span class="en">Reset</span><span class="zh">重来</span></button>
+      </div>
+      <div class="def m" style="font-size:14px">(α, β) ◁ (γ, δ) ⇔ max(α,β) &lt; max(γ,δ), <span class="il"><span class="en">or</span><span class="zh">或</span></span> max <span class="il"><span class="en">equal and</span><span class="zh">相等且</span></span> (α,β) &lt;<sub>lex</sub> (γ,δ)</div>
+      <div class="msg info" id="pairMsg"></div>
+      <div class="note"><span class="en"><b>Key point:</b> the cells before (α, β) all lie in the square (m+1) × (m+1), where m = max(α, β). In ω × ω that square is finite, so every proper initial segment is finite and the order type is exactly ω.</span>
+        <span class="zh"><b>关键：</b>排在 (α, β) 之前的格子都落在方块 (m+1) × (m+1) 中，其中 m = max(α, β)。在 ω × ω 里这个方块是有限的，所以每个真前段都有限，序型恰好是 ω。</span></div>
+    </div>
+  </div>
+  <h3><span class="en">The theorem for every infinite κ (proof sketch)</span><span class="zh">对一切无穷基数 κ 成立（证明梗概）</span></h3>
+  <div class="steps" id="kkSteps">
+    <div class="step def"><span class="en"><b>Theorem (Hessenberg).</b> For every infinite cardinal κ, |κ × κ| = κ. Induction on κ: suppose it holds for all infinite cardinals below κ. The order ◁ is a well-order of κ × κ.</span>
+      <span class="zh"><b>定理（黑森贝格）.</b> 对每个无穷基数 κ，|κ × κ| = κ。对 κ 归纳：设对小于 κ 的无穷基数都成立。序 ◁ 是 κ × κ 上的良序。</span></div>
+    <div class="step def"><span class="en">Take (α, β) ∈ κ × κ and let γ = max(α, β) + 1 &lt; κ (κ is a limit ordinal). Its initial segment is contained in γ × γ, and |γ × γ| = |γ|·|γ| &lt; κ: by induction if γ is infinite, trivially if finite.</span>
+      <span class="zh">任取 (α, β) ∈ κ × κ，令 γ = max(α, β) + 1 &lt; κ（κ 是极限序数）。它的前段包含于 γ × γ，而 |γ × γ| = |γ|·|γ| &lt; κ：γ 无穷时由归纳假设，γ 有限时显然。</span></div>
+    <div class="step def"><span class="en">So every proper initial segment of (κ × κ, ◁) has size &lt; κ, hence the order type is ≤ κ, so |κ × κ| ≤ κ. The reverse inequality is obvious (α ↦ (α, 0)). ∎</span>
+      <span class="zh">因此 (κ × κ, ◁) 的每个真前段的大小都 &lt; κ，于是序型 ≤ κ，即 |κ × κ| ≤ κ。反向不等式显然（α ↦ (α, 0)）。∎</span></div>
+    <div class="step def"><span class="en"><b>Corollary.</b> If κ, λ are cardinals, at least one infinite and both nonzero, then <b>κ + λ = κ · λ = max(κ, λ)</b>. (With μ = max: μ ≤ κ + λ ≤ μ + μ = 2·μ ≤ μ·μ = μ.)</span>
+      <span class="zh"><b>推论.</b> 若基数 κ, λ 中至少有一个无穷，且都不为零，则 <b>κ + λ = κ · λ = max(κ, λ)</b>。（记 μ = max：μ ≤ κ + λ ≤ μ + μ = 2·μ ≤ μ·μ = μ。）</span></div>
+  </div>
+  <div class="toolbar"><button class="btn" id="kkNext"><span class="en">Reveal next step</span><span class="zh">揭晓下一步</span></button>
+    <button class="btn ghost" id="kkAll"><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+
+  <h3><span class="en">Cardinal calculator</span><span class="zh">基数计算器</span></h3>
+  <div class="calc">
+    <b>κ =</b><div class="opts" id="ccK"></div>
+    <b>op</b><div class="opts" id="ccOp"></div>
+    <b>λ =</b><div class="opts" id="ccL"></div>
+  </div>
+  <div class="res" id="ccRes"></div>
+  <div class="msg info" id="ccWhy"></div>
+</section>
+
+<!-- ============ S5 ============ -->
+<section class="card" id="s5">
+  <div class="kicker">§5</div>
+  <h2><span class="en">2<sup>κ</sup> &gt; κ: Cantor's diagonal, one more time</span><span class="zh">2<sup>κ</sup> &gt; κ：再用一次康托尔对角线</span></h2>
+  <div class="def"><span class="en"><b>Definition.</b> κ<sup>λ</sup> = |<sup>λ</sup>κ|, the size of the set of all functions λ → κ. In particular 2<sup>κ</sup> = |𝒫(κ)|, by identifying a subset with its characteristic function. <b>Cantor:</b> no f: κ → 𝒫(κ) is onto, so κ &lt; 2<sup>κ</sup>.</span>
+    <span class="zh"><b>定义.</b> κ<sup>λ</sup> = |<sup>λ</sup>κ|，即所有函数 λ → κ 构成的集合的大小。特别地，把子集与其特征函数等同，得 2<sup>κ</sup> = |𝒫(κ)|。<b>康托尔：</b>任何 f: κ → 𝒫(κ) 都不是满射，所以 κ &lt; 2<sup>κ</sup>。</span></div>
+  <p><span class="en">Here X = {0,1,2,3,4}. Row x shows the set f(x): click cells to toggle membership. The purple row is the diagonal set <span class="m">D = {x : x ∉ f(x)}</span>. Try to make D equal to some row, for instance with the “copy D into row x” buttons. Each copy flips the diagonal cell, so D moves away again.</span>
+     <span class="zh">取 X = {0,1,2,3,4}。第 x 行表示集合 f(x)，点格子可切换隶属关系。紫色行是对角线集合 <span class="m">D = {x : x ∉ f(x)}</span>。试着让 D 等于某一行，比如用“把 D 抄到第 x 行”按钮。每抄一次，对角格就跟着翻转，D 又跑开了。</span></p>
+  <div class="row">
+    <div class="col" style="flex:0 1 auto"><div id="cantorTable"></div></div>
+    <div class="col">
+      <div class="toolbar"><button class="btn small" id="cantorRand"><span class="en">Random f</span><span class="zh">随机 f</span></button></div>
+      <div class="msg" id="cantorMsg"></div>
+      <div class="note"><span class="en">|𝒫(X)| = 2⁵ = 32 subsets, only 5 rows. For infinite κ the counting argument is gone, but the diagonal argument still works word for word.</span>
+        <span class="zh">|𝒫(X)| = 2⁵ = 32 个子集，却只有 5 行。κ 无穷时计数论证失效，但对角线论证一字不改照样成立。</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ S6 ============ -->
+<section class="card" id="s6">
+  <div class="kicker">§6</div>
+  <h2><span class="en">The continuum 2<sup>ℵ₀</sup>: CH, GCH and what ZFC cannot decide</span><span class="zh">连续统 2<sup>ℵ₀</sup>：连续统假设、广义连续统假设与 ZFC 判定不了的事</span></h2>
+  <div class="row">
+    <div class="col def"><span class="en"><b>CH</b> (Continuum Hypothesis): 2<sup>ℵ₀</sup> = ℵ₁, i.e. every infinite subset of ℝ is countable or the same size as ℝ.<br><b>GCH</b>: 2<sup>κ</sup> = κ⁺ for every infinite cardinal κ.</span>
+      <span class="zh"><b>连续统假设 CH</b>：2<sup>ℵ₀</sup> = ℵ₁，即 ℝ 的每个无穷子集要么可数，要么与 ℝ 等势。<br><b>广义连续统假设 GCH</b>：对每个无穷基数 κ，2<sup>κ</sup> = κ⁺。</span></div>
+    <div class="col def"><span class="en"><b>Gödel (1938):</b> GCH holds in L, so ZFC cannot refute it, if ZFC is consistent (Lesson 15). <b>Cohen (1963):</b> forcing makes 2<sup>ℵ₀</sup> = ℵ₂, so ZFC cannot prove CH, again if ZFC is consistent (Lesson 16). <b>Easton (1970):</b> for <i>regular</i> κ, the only ZFC constraints on κ ↦ 2<sup>κ</sup> are monotonicity and <b>cf(2<sup>κ</sup>) &gt; κ</b> (König, §8).</span>
+      <span class="zh"><b>哥德尔（1938）：</b>GCH 在 L 中成立，所以只要 ZFC 相容，ZFC 就驳不倒它（第 15 课）。<b>科恩（1963）：</b>力迫法可以造出 2<sup>ℵ₀</sup> = ℵ₂ 的模型，所以同样在 ZFC 相容的前提下，ZFC 证不出 CH（第 16 课）。<b>伊斯顿（1970）：</b>对<i>正则</i>基数 κ，ZFC 对函数 κ ↦ 2<sup>κ</sup> 的约束只有单调性和 <b>cf(2<sup>κ</sup>) &gt; κ</b>（柯尼希定理，§8）。</span></div>
+  </div>
+  <p><span class="en"><b>Which values of 2<sup>ℵ₀</sup> are possible?</b> Click a rung of the ℵ ladder.</span><span class="zh"><b>2<sup>ℵ₀</sup> 可能取哪些值？</b>点击阿列夫梯子上的一级。</span></p>
+  <div class="stage"><svg id="contSvg" viewBox="0 0 900 150" width="900" height="150"></svg></div>
+  <div class="toolbar"><button class="btn small" id="contAll"><span class="en">Show all verdicts</span><span class="zh">显示全部结论</span></button></div>
+  <div class="msg info" id="contMsg"></div>
+  <div class="note"><span class="en">At <i>singular</i> cardinals things are different and deep. Silver: if GCH holds below a singular κ of uncountable cofinality, it holds at κ. Shelah: if ℵ<sub>ω</sub> is a strong limit, then 2<sup>ℵ<sub>ω</sub></sup> &lt; ℵ<sub>ω₄</sub>.</span>
+    <span class="zh">在<i>奇异</i>基数处情况大不相同，而且很深刻。西尔弗：若 GCH 在一个共尾性不可数的奇异基数 κ 以下处处成立，则它在 κ 处也成立。谢拉赫：若 ℵ<sub>ω</sub> 是强极限基数，则 2<sup>ℵ<sub>ω</sub></sup> &lt; ℵ<sub>ω₄</sub>。</span></div>
+</section>
+
+<!-- ============ S7 ============ -->
+<section class="card" id="s7">
+  <div class="kicker">§7</div>
+  <h2><span class="en">Cofinality: how many steps to reach the top?</span><span class="zh">共尾性：要走多少步才能到顶？</span></h2>
+  <div class="def"><span class="en"><b>Definition.</b> A subset S ⊆ α is <b>cofinal</b> if it is unbounded in α: for every β &lt; α there is s ∈ S with β ≤ s. The <b>cofinality</b> cf(α) is the least order type of a cofinal subset. A cardinal κ is <b>regular</b> if cf(κ) = κ and <b>singular</b> if cf(κ) &lt; κ.</span>
+    <span class="zh"><b>定义.</b> 子集 S ⊆ α 称为<b>共尾的</b>，如果它在 α 中无界：对每个 β &lt; α 都有 s ∈ S 使 β ≤ s。α 的<b>共尾性</b> cf(α) 是共尾子集序型的最小值。基数 κ 称为<b>正则基数</b>，若 cf(κ) = κ；称为<b>奇异基数</b>，若 cf(κ) &lt; κ。</span></div>
+  <div class="toolbar" id="cfPick"></div>
+  <div class="stage"><svg id="cfSvg" viewBox="0 0 900 190" width="900" height="190"></svg></div>
+  <div class="msg info" id="cfMsg"></div>
+
+  <h3><span class="en">The ℵ ladder: regular or singular?</span><span class="zh">阿列夫梯子：正则还是奇异？</span></h3>
+  <div class="legend2"><span><i style="background:var(--true)"></i><span class="il"><span class="en">regular</span><span class="zh">正则</span></span></span><span><i style="background:var(--false)"></i><span class="il"><span class="en">singular</span><span class="zh">奇异</span></span></span><span><i style="background:var(--gold)"></i><span class="il"><span class="en">unknown: cannot be proved to exist</span><span class="zh">无法证明其存在</span></span></span></div>
+  <div class="stage"><svg id="ladSvg" viewBox="0 0 900 130" width="900" height="130"></svg></div>
+  <div class="msg info" id="ladMsg"></div>
+  <div class="row">
+    <div class="col def"><span class="en"><b>Facts.</b> cf(α) is always a regular cardinal, and cf(cf(α)) = cf(α). For limit λ, cf(ℵ<sub>λ</sub>) = cf(λ).</span><span class="zh"><b>事实.</b> cf(α) 总是正则基数，且 cf(cf(α)) = cf(α)。对极限序数 λ，cf(ℵ<sub>λ</sub>) = cf(λ)。</span></div>
+    <div class="col def"><span class="en"><b>Successor cardinals are regular</b> (AC): for infinite κ, if κ⁺ = ⋃<sub>i&lt;μ</sub> Sᵢ with μ ≤ κ and each |Sᵢ| ≤ κ, then |κ⁺| ≤ κ·κ = κ by §4, a contradiction.</span><span class="zh"><b>后继基数都是正则的</b>（选择公理）：对无穷基数 κ，若 κ⁺ = ⋃<sub>i&lt;μ</sub> Sᵢ，μ ≤ κ 且每个 |Sᵢ| ≤ κ，则由 §4 得 |κ⁺| ≤ κ·κ = κ，矛盾。</span></div>
+  </div>
+</section>
+
+<!-- ============ S8 ============ -->
+<section class="card" id="s8">
+  <div class="kicker">§8</div>
+  <h2><span class="en">König's theorem: Σ κᵢ &lt; Π λᵢ</span><span class="zh">柯尼希定理：Σ κᵢ &lt; Π λᵢ</span></h2>
+  <div class="def"><span class="en"><b>Theorem (König, AC).</b> If κᵢ &lt; λᵢ for every i ∈ I, then <span class="m">Σ<sub>i∈I</sub> κᵢ &lt; Π<sub>i∈I</sub> λᵢ</span>.</span>
+    <span class="zh"><b>定理（柯尼希，选择公理）.</b> 若对每个 i ∈ I 都有 κᵢ &lt; λᵢ，则 <span class="m">Σ<sub>i∈I</sub> κᵢ &lt; Π<sub>i∈I</sub> λᵢ</span>。</span></div>
+  <p><span class="en">The proof is a <b>block diagonal</b> argument. The rows below are the elements of Σκᵢ: block i has κᵢ rows. Each row is an attempted element F(i, ξ) of Πλᵢ, a tuple whose i-th entry lies in λᵢ = {0, …, λᵢ−1}. Click cells to change the values. In block i, look only at <b>column i</b> (purple frames): those κᵢ values cannot cover all λᵢ possibilities, so pick a missing value for g(i).</span>
+     <span class="zh">证明是一个<b>分块对角线</b>论证。下面每一行是 Σκᵢ 的一个元素，第 i 块有 κᵢ 行。每一行是一个试图列出的 Πλᵢ 元素 F(i, ξ)，即一个元组，第 i 个分量取值于 λᵢ = {0, …, λᵢ−1}。点格子可以改值。在第 i 块只看<b>第 i 列</b>（紫框）：这 κᵢ 个值盖不住 λᵢ 种可能，所以从缺的值里挑一个作 g(i)。</span></p>
+  <div class="row">
+    <div class="col" style="flex:0 1 auto"><div id="konigTable"></div></div>
+    <div class="col">
+      <div class="toolbar">
+        <button class="btn primary" id="konigBuild"><span class="en">Build g ▶</span><span class="zh">构造 g ▶</span></button>
+        <button class="btn" id="konigRand"><span class="en">Random rows</span><span class="zh">随机各行</span></button>
+      </div>
+      <div class="msg" id="konigMsg"></div>
+    </div>
+  </div>
+  <div class="steps" id="konigSteps">
+    <div class="step def"><span class="en"><b>Proof.</b> Let F: Σκᵢ → Πλᵢ be any map, where Σκᵢ = ⋃ᵢ {i} × κᵢ. For each i, the set Vᵢ = {F(i, ξ)(i) : ξ &lt; κᵢ} has size ≤ κᵢ &lt; λᵢ, so (AC) choose g(i) ∈ λᵢ ∖ Vᵢ. Then g ∈ Πλᵢ differs from F(i, ξ) at coordinate i, for every (i, ξ). So F is not onto. Also Σκᵢ ≤ Πλᵢ (easy if all λᵢ ≥ 2), so the inequality is strict. ∎</span>
+      <span class="zh"><b>证明.</b> 设 F: Σκᵢ → Πλᵢ 是任意映射，其中 Σκᵢ = ⋃ᵢ {i} × κᵢ。对每个 i，集合 Vᵢ = {F(i, ξ)(i) : ξ &lt; κᵢ} 的大小 ≤ κᵢ &lt; λᵢ，于是（用选择公理）取 g(i) ∈ λᵢ ∖ Vᵢ。则 g ∈ Πλᵢ，且对每个 (i, ξ)，g 与 F(i, ξ) 在第 i 个坐标上不同。所以 F 不是满射。又 Σκᵢ ≤ Πλᵢ（各 λᵢ ≥ 2 时容易验证），故严格不等式成立。∎</span></div>
+    <div class="step def"><span class="en"><b>Corollary 1.</b> κᵢ = 1, λᵢ = 2 for i &lt; κ gives κ &lt; 2<sup>κ</sup>: Cantor's theorem is the special case.</span><span class="zh"><b>推论 1.</b> 取 κᵢ = 1，λᵢ = 2（i &lt; κ），得 κ &lt; 2<sup>κ</sup>：康托尔定理是它的特例。</span></div>
+    <div class="step def"><span class="en"><b>Corollary 2.</b> κ &lt; κ<sup>cf(κ)</sup> for infinite κ: write κ = Σ<sub>i&lt;cf κ</sub> κᵢ with κᵢ &lt; κ, then Σκᵢ &lt; Π<sub>i&lt;cf κ</sub> κ = κ<sup>cf κ</sup>. E.g. ℵ<sub>ω</sub><sup>ℵ₀</sup> &gt; ℵ<sub>ω</sub>.</span><span class="zh"><b>推论 2.</b> 对无穷基数 κ，κ &lt; κ<sup>cf(κ)</sup>：把 κ 写成 Σ<sub>i&lt;cf κ</sub> κᵢ，κᵢ &lt; κ，则 Σκᵢ &lt; Π<sub>i&lt;cf κ</sub> κ = κ<sup>cf κ</sup>。例如 ℵ<sub>ω</sub><sup>ℵ₀</sup> &gt; ℵ<sub>ω</sub>。</span></div>
+    <div class="step def"><span class="en"><b>Corollary 3.</b> cf(2<sup>κ</sup>) &gt; κ. If 2<sup>κ</sup> = Σ<sub>i&lt;κ</sub> μᵢ with all μᵢ &lt; 2<sup>κ</sup>, König gives Σμᵢ &lt; Π<sub>i&lt;κ</sub> 2<sup>κ</sup> = 2<sup>κ·κ</sup> = 2<sup>κ</sup>, a contradiction. <b>So 2<sup>ℵ₀</sup> ≠ ℵ<sub>ω</sub></b>, since cf(ℵ<sub>ω</sub>) = ω.</span><span class="zh"><b>推论 3.</b> cf(2<sup>κ</sup>) &gt; κ。若 2<sup>κ</sup> = Σ<sub>i&lt;κ</sub> μᵢ，各 μᵢ &lt; 2<sup>κ</sup>，由柯尼希定理 Σμᵢ &lt; Π<sub>i&lt;κ</sub> 2<sup>κ</sup> = 2<sup>κ·κ</sup> = 2<sup>κ</sup>，矛盾。<b>所以 2<sup>ℵ₀</sup> ≠ ℵ<sub>ω</sub></b>，因为 cf(ℵ<sub>ω</sub>) = ω。</span></div>
+  </div>
+  <div class="toolbar"><button class="btn" id="konigNext"><span class="en">Reveal next step</span><span class="zh">揭晓下一步</span></button>
+    <button class="btn ghost" id="konigAll"><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+</section>
+
+<!-- ============ EXERCISES ============ -->
+<section class="card" id="exercises">
+  <div class="kicker"><span class="il"><span class="en">Exercises</span><span class="zh">练习</span></span></div>
+  <h2><span class="en">Your turn</span><span class="zh">轮到你了</span></h2>
+  <p class="muted"><span class="en">Progress is saved in your browser. A sidebar ✓ means solved by you; “Show answer” never counts.</span><span class="zh">进度保存在浏览器中，侧栏出现 ✓ 表示你自己做出来了；点“看答案”不计入。</span></p>
+
+  <div class="ex" id="e1" data-prog="L9E1">
+    <h3><span class="tag">E1</span><span class="il"><span class="en">Cardinal arithmetic (ZFC)</span><span class="zh">基数运算（ZFC）</span></span></h3>
+    <p class="muted"><span class="en">Pick the value that ZFC proves.</span><span class="zh">选出 ZFC 能证明的值。</span></p>
+    <div id="e1List"></div>
+  </div>
+
+  <div class="ex" id="e2" data-prog="L9E2">
+    <h3><span class="tag">E2</span><span class="il"><span class="en">Position in the pairing order</span><span class="zh">配对序中的位置</span></span></h3>
+    <p><span class="en">At which position (counting from 0) does the highlighted pair appear in the Gödel order of ω × ω? Get three in a row.</span>
+       <span class="zh">高亮的数对在 ω × ω 的哥德尔序中排第几（从 0 开始数）？连续答对三题。</span></p>
+    <div class="row">
+      <div class="col" style="flex:0 1 260px"><svg id="e2Svg" viewBox="0 0 260 275" width="260" height="275"></svg></div>
+      <div class="col">
+        <div class="res" id="e2Q"></div>
+        <div class="toolbar"><input class="formula" id="e2In" style="min-width:120px;width:140px">
+          <button class="btn primary small" id="e2Check"><span class="en">Check</span><span class="zh">检查</span></button>
+          <button class="btn ghost small" id="e2Show"><span class="en">Show answer</span><span class="zh">看答案</span></button>
+          <button class="btn small" id="e2New"><span class="en">New pair</span><span class="zh">换一题</span></button></div>
+        <div class="msg" id="e2Msg"></div>
+        <div class="m" id="e2Streak"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ex" id="e3" data-prog="L9E3">
+    <h3><span class="tag">E3</span><span class="il"><span class="en">Compute cofinalities</span><span class="zh">求共尾性</span></span></h3>
+    <div id="e3List"></div>
+  </div>
+
+  <div class="ex" id="e4" data-prog="L9E4">
+    <h3><span class="tag">E4</span><span class="il"><span class="en">Regular or singular?</span><span class="zh">正则还是奇异？</span></span></h3>
+    <p class="muted"><span class="en">Click to cycle ? → regular → singular, then check.</span><span class="zh">点击循环切换：? → 正则 → 奇异，然后检查。</span></p>
+    <div class="chips" id="e4Chips"></div>
+    <div class="toolbar"><button class="btn primary" id="e4Check"><span class="en">Check</span><span class="zh">检查</span></button>
+      <button class="btn ghost" id="e4Show"><span class="en">Show answer</span><span class="zh">看答案</span></button></div>
+    <div class="msg" id="e4Msg"></div>
+  </div>
+
+  <div class="ex" id="e5" data-prog="L9E5">
+    <h3><span class="tag">E5</span><span class="il"><span class="en">Schröder–Bernstein in action: [0,1] vs (0,1)</span><span class="zh">施罗德–伯恩斯坦实战：[0,1] 与 (0,1)</span></span></h3>
+    <p><b>(a)</b> <span class="en">Let g: (0,1) → [0,1] be the inclusion. Which f: [0,1] → (0,1) is injective?</span><span class="zh">令 g: (0,1) → [0,1] 为包含映射。下面哪个 f: [0,1] → (0,1) 是单射？</span></p>
+    <div id="e5a"></div><div class="msg" id="e5aMsg"></div>
+    <p><b>(b)</b> <span class="en">With f(x) = (x+1)/3 and g the inclusion, follow the chains of §2 and compute the bijection h from the proof (A = [0,1], B = (0,1)).</span><span class="zh">取 f(x) = (x+1)/3，g 为包含映射，按 §2 的链来求证明给出的双射 h（A = [0,1]，B = (0,1)）。</span></p>
+    <div id="e5b"></div>
+    <div class="toolbar"><button class="btn ghost small" id="e5Show"><span class="en">Show answers</span><span class="zh">看答案</span></button></div>
+    <div class="msg" id="e5bMsg"></div>
+  </div>
+
+  <div class="ex" id="e6" data-prog="L9E6">
+    <h3><span class="tag">E6</span><span class="il"><span class="en">What does ZFC prove?</span><span class="zh">ZFC 能证明什么？</span></span></h3>
+    <p class="muted"><span class="en">For each statement: is it a theorem of ZFC, or not provable in ZFC?</span><span class="zh">对每个命题判断：它是 ZFC 的定理，还是在 ZFC 中证不出来？</span></p>
+    <div id="e6List"></div>
+  </div>
+</section>
+
+<section class="card">
+  <div class="kicker"><span class="il"><span class="en">Next</span><span class="zh">下一课</span></span></div>
+  <h2><a href="lesson10.html" style="color:inherit"><span class="en">Lesson 10: The Axiom of Choice, Zorn's lemma, Banach–Tarski →</span><span class="zh">第 10 课：选择公理、佐恩引理、巴拿赫–塔斯基 →</span></a></h2>
+  <p><span class="en">“Uses AC” appeared again and again in this lesson: to define |X|, to show that successor cardinals are regular, and to make König's choices. Next we look at Choice itself: its equivalent forms, and its strange consequences.</span>
+     <span class="zh">本课一再出现“要用选择公理”：定义 |X|、证明后继基数正则、柯尼希定理里的选取。下一课我们直面选择公理本身：它的各种等价形式，以及它带来的奇异推论。</span></p>
+</section>
+</main>
+</div>
+
+<script src="assets/logic.js"></script>
+<script src="assets/lesson9.js"></script>
+</body>
+</html>

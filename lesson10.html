@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 10 · Axiom of Choice, Zorn, Banach–Tarski 选择公理、佐恩引理、巴拿赫–塔斯基</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  .pstep { border-left: 4px solid var(--meta); background: #fcf7fd; padding: 9px 14px 9px 44px; margin: 8px 0; border-radius: 0 10px 10px 0; position: relative; }
+  .pstep .snum { position: absolute; left: 12px; top: 9px; width: 22px; height: 22px; border-radius: 50%; background: var(--meta); color: #fff; font-size: 12px; font-weight: 800; text-align: center; line-height: 22px; }
+  .clk { cursor: pointer; }
+  .hnode circle, .hnode rect { transition: fill .25s, stroke .25s, stroke-width .25s; }
+  .hnode text { pointer-events: none; }
+  .eqarrow { cursor: pointer; }
+  .eqarrow .vis { transition: stroke .2s, stroke-width .2s; }
+  .eqarrow:hover .vis { stroke-width: 5; }
+  .orderlist { display: flex; flex-direction: column; gap: 6px; margin: 8px 0; }
+  .orderlist .chip { text-align: left; }
+  .orderlist .chip b.num { display: inline-block; min-width: 22px; color: var(--meta); }
+  .wordbox { font-family: var(--mono); font-size: 20px; min-height: 34px; padding: 4px 10px; background: #fffdf8; border: 1.5px solid var(--line); border-radius: 10px; display: inline-block; min-width: 200px; }
+  table.rot { border-collapse: collapse; font-family: var(--mono); font-size: 14px; }
+  table.rot td, table.rot th { white-space: nowrap; padding: 3px 8px; border-bottom: 1px solid var(--line); text-align: right; }
+  table.rot th { background: #f1efe7; }
+  table.rot td.hit { background: var(--true-soft); color: #1b5e20; font-weight: 700; }
+  .infocard { border: 2px solid var(--line); border-radius: 14px; padding: 12px 16px; background: #fff; min-height: 120px; }
+  .thm-chips .chip.lit { border-color: var(--meta); background: var(--meta-soft); }
+  .tline-dot { cursor: pointer; }
+  .legend2 { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; margin: 6px 0; }
+  .legend2 i { display: inline-block; width: 14px; height: 14px; border-radius: 50%; vertical-align: -2px; margin-right: 4px; }
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .seg button { border: 0; border-right: 1px solid var(--line); background: #fff; padding: 6px 12px; font: inherit; font-size: 14px; cursor: pointer; }
+  .seg button:last-child { border-right: 0; }
+  .seg button.sel { background: var(--ink); color: #fff; }
+  .seg button.sel .zh { color: #ddd; }
+  .lang-both .seg button .zh { display: inline; font-size: 12px; }
+  .lang-both .seg button .zh::before { content: " · "; }
+  .numstrip text { font-size: 11px; }
+  .kbd { font-family: var(--mono); min-width: 44px; }
+  .lang-en svg text.en2 { transform: translateY(7px); }
+  .lang-zh svg text.zh2 { transform: translateY(-8px); }
+</style>
+</head>
+<body class="lang-both">
+<header class="top">
+  <a class="home" href="index.html">∀∃ <span class="il"><span class="en">Logic &amp; Sets</span><span class="zh">逻辑与集合</span></span></a>
+  <span class="muted">/ L10</span>
+  <span class="spacer"></span>
+  <div class="lang-switch">
+    <button data-lang="en">EN</button><button data-lang="zh">中文</button><button data-lang="both">EN + 中</button>
+  </div>
+</header>
+
+<div class="layout">
+<nav class="side">
+  <div class="grp">Lesson 10</div>
+  <a href="index.html">← <span class="il"><span class="en">Course map</span><span class="zh">课程地图</span></span></a>
+  <a href="lesson9.html">← <span class="il"><span class="en">Lesson 9</span><span class="zh">第 9 课</span></span></a>
+  <a href="lesson11.html"><span class="il"><span class="en">Lesson 11</span><span class="zh">第 11 课</span></span> →</a>
+  <a href="#s1">1 · <span class="il"><span class="en">Choice functions</span><span class="zh">选择函数</span></span></a>
+  <a href="#s2">2 · <span class="il"><span class="en">Equivalents</span><span class="zh">等价形式</span></span></a>
+  <a href="#s3">3 · <span class="il"><span class="en">Zorn's lemma</span><span class="zh">佐恩引理</span></span></a>
+  <a href="#s4">4 · <span class="il"><span class="en">Bases</span><span class="zh">向量空间的基</span></span></a>
+  <a href="#s5">5 · <span class="il"><span class="en">Ultrafilters</span><span class="zh">超滤子</span></span></a>
+  <a href="#s6">6 · <span class="il"><span class="en">Vitali set</span><span class="zh">维塔利集</span></span></a>
+  <a href="#s7">7 · <span class="il"><span class="en">Free group F₂</span><span class="zh">自由群 F₂</span></span></a>
+  <a href="#s8">8 · <span class="il"><span class="en">Banach–Tarski</span><span class="zh">巴拿赫–塔斯基</span></span></a>
+  <a href="#s9">9 · <span class="il"><span class="en">Weak forms</span><span class="zh">弱选择公理</span></span></a>
+  <div class="grp"><span class="il"><span class="en">Exercises</span><span class="zh">练习</span></span></div>
+  <a href="#e1" data-prog="L10E1">E1 · <span class="il"><span class="en">AC or not?</span><span class="zh">要不要 AC</span></span></a>
+  <a href="#e2" data-prog="L10E2">E2 · <span class="il"><span class="en">Zorn steps</span><span class="zh">佐恩论证</span></span></a>
+  <a href="#e3" data-prog="L10E3">E3 · a·W(a⁻¹)</a>
+  <a href="#e4" data-prog="L10E4">E4 · <span class="il"><span class="en">Vitali</span><span class="zh">维塔利</span></span></a>
+  <a href="#e5" data-prog="L10E5">E5 · <span class="il"><span class="en">Maximal</span><span class="zh">极大元</span></span></a>
+  <a href="#e6" data-prog="L10E6">E6 · <span class="il"><span class="en">Linear extension</span><span class="zh">线性扩张</span></span></a>
+</nav>
+
+<main>
+<div class="hero">
+  <div class="kicker">Part II · Lesson 10</div>
+  <h1><span class="en">The Axiom of Choice, Zorn's Lemma, Banach–Tarski</span><span class="zh">选择公理、佐恩引理与巴拿赫–塔斯基悖论</span></h1>
+  <p><span class="en">One innocent-looking axiom: from any family of nonempty sets you may pick one element from each. It powers bases, ultrafilters, and maximal ideals, and it also produces a non-measurable set and a ball that splits into two balls. Every picture below can be clicked, stepped through, or animated.</span>
+     <span class="zh">一条看似无害的公理：从任意一族非空集合中，可以每个集合各取一个元素。有了它，就有了基、超滤子、极大理想；也正是它，造出了不可测集，还能把一个球拆开拼成两个球。下面的每张图都可以点击、单步或播放动画。</span></p>
+</div>
+
+<!-- ============ S1 ============ -->
+<section class="card" id="s1">
+  <div class="kicker">§1</div>
+  <h2><span class="en">One sock from each drawer: choice functions</span><span class="zh">每个抽屉拿一只袜子：选择函数</span></h2>
+  <div class="def"><span class="en"><b>Axiom of Choice (AC).</b> For every set <span class="m">X</span> of nonempty sets there is a function <span class="m">f : X → ⋃X</span> with <span class="m">f(A) ∈ A</span> for every <span class="m">A ∈ X</span>. Such an <span class="m">f</span> is a <b>choice function</b>. Equivalently: a product <span class="m">∏ᵢ Aᵢ</span> of nonempty sets is nonempty.</span>
+    <span class="zh"><b>选择公理（AC）.</b> 对任意由非空集合构成的集合 <span class="m">X</span>，存在函数 <span class="m">f : X → ⋃X</span>，使得对每个 <span class="m">A ∈ X</span> 都有 <span class="m">f(A) ∈ A</span>。这样的 <span class="m">f</span> 称为<b>选择函数</b>。等价地说：一族非空集合的笛卡儿积 <span class="m">∏ᵢ Aᵢ</span> 非空。</span></div>
+  <p><span class="en">Russell's picture: infinitely many drawers, each holding a pair. With <b>shoes</b> there is a rule (“take the left one”), and Separation turns that rule into a function, so no axiom is needed. With <b>socks</b> the two are indistinguishable, so no formula picks one. Pick socks by hand, try the ∞ setting, then press the buttons.</span>
+     <span class="zh">罗素的比喻：无穷多个抽屉，每个装着一双。若是<b>鞋</b>，有现成的规则（“拿左脚那只”），由分离公理即可把规则变成函数，不需要额外公理。若是<b>袜子</b>，两只一模一样，没有任何公式能挑出其中一只。先手动挑几只袜子，再切换到 ∞，最后按按钮试试。</span></p>
+  <div class="toolbar">
+    <div class="seg" id="drKind"><button data-k="shoe"><span class="en">👞 Shoes</span><span class="zh">鞋</span></button><button data-k="sock"><span class="en">🧦 Socks</span><span class="zh">袜子</span></button></div>
+    <div class="seg" id="drN"><button data-n="3">3</button><button data-n="6">6</button><button data-n="inf">∞</button></div>
+    <button class="btn small" id="drRule"><span class="en">Apply a rule</span><span class="zh">套用规则</span></button>
+    <button class="btn small" id="drAC"><span class="en">Invoke AC</span><span class="zh">动用选择公理</span></button>
+    <button class="btn small ghost" id="drReset"><span class="en">Reset</span><span class="zh">重置</span></button>
+  </div>
+  <div class="stage"><svg id="drawers" viewBox="0 0 880 250" width="880" height="250"></svg></div>
+  <div class="msg info" id="drMsg"></div>
+  <h3><span class="en">Why finitely many choices are free</span><span class="zh">为什么有限次选择不需要公理</span></h3>
+  <p class="muted"><span class="en">Before revealing it, try to say where exactly the proof below breaks down for infinitely many drawers.</span><span class="zh">揭晓之前，先想一想：下面的证明换成无穷多个抽屉时，究竟卡在哪一步？</span></p>
+  <div id="finSteps"></div>
+</section>
+
+<!-- ============ S2 ============ -->
+<section class="card" id="s2">
+  <div class="kicker">§2</div>
+  <h2><span class="en">Four faces of one axiom</span><span class="zh">同一条公理的四副面孔</span></h2>
+  <p><span class="en">Over ZF these four statements are equivalent. <b>Click a box</b> to read the statement, and <b>click an arrow</b> to step through the proof of that implication. Arrows you have opened turn green.</span>
+     <span class="zh">在 ZF 中，下面四个命题彼此等价。<b>点方框</b>看命题内容，<b>点箭头</b>逐步查看该蕴涵的证明。看过的箭头会变绿。</span></p>
+  <div class="row">
+    <div class="col" style="flex:1 1 520px"><div class="stage"><svg id="eqSvg" viewBox="0 0 640 380" width="640" height="380"></svg></div>
+      <div class="muted" id="eqCount" style="font-size:13px;margin-top:6px"></div></div>
+    <div class="col" style="flex:1 1 320px"><div class="infocard" id="eqPanel"></div></div>
+  </div>
+</section>
+
+<!-- ============ S3 ============ -->
+<section class="card" id="s3">
+  <div class="kicker">§3</div>
+  <h2><span class="en">Zorn's lemma: climbing chains in a poset</span><span class="zh">佐恩引理：在偏序集里顺着链往上爬</span></h2>
+  <div class="def"><span class="en"><b>Zorn's Lemma.</b> Let <span class="m">(P, ≤)</span> be a nonempty partial order in which every <b>chain</b> (a totally ordered subset) has an <b>upper bound</b> in <span class="m">P</span>. Then <span class="m">P</span> has a <b>maximal element</b>: some <span class="m">m</span> with no <span class="m">x &gt; m</span>.</span>
+    <span class="zh"><b>佐恩引理.</b> 设 <span class="m">(P, ≤)</span> 是非空偏序集，且其中每条<b>链</b>（全序子集）在 <span class="m">P</span> 中都有<b>上界</b>。则 <span class="m">P</span> 有<b>极大元</b>：即某个 <span class="m">m</span>，不存在 <span class="m">x &gt; m</span>。</span></div>
+  <p><span class="en">Hasse diagram: a line going up means “less than”. <b>Click elements</b> to build a set S. The panel says whether S is a chain and rings its upper bounds in gold. Then press <b>Climb</b> to watch the proof of Zorn run: at each stage the choice function g picks a strict upper bound of the chain built so far.</span>
+     <span class="zh">哈斯图：连线往上表示“小于”。<b>点击元素</b>组成集合 S，右侧会判断 S 是否为链，并用金色圈出它的上界。然后按<b>往上爬</b>，看佐恩引理的证明如何运行：每一阶段，选择函数 g 都为已建好的链挑一个严格上界。</span></p>
+  <div class="toolbar">
+    <div class="seg" id="zPoset"><button data-p="fin"><span class="en">finite poset</span><span class="zh">有限偏序集</span></button><button data-p="nat">ℕ</button><button data-p="natw">ℕ ∪ {ω}</button></div>
+    <button class="btn small primary" id="zClimb"><span class="en">Climb ▶ (proof of Zorn)</span><span class="zh">往上爬 ▶（佐恩引理的证明）</span></button>
+    <button class="btn small" id="zMax"><span class="en">Show maximal elements ★</span><span class="zh">显示极大元 ★</span></button>
+    <button class="btn small ghost" id="zClear"><span class="en">Clear</span><span class="zh">清空</span></button>
+  </div>
+  <div class="row">
+    <div class="col" style="flex:1 1 460px"><div class="stage"><svg id="zSvg" viewBox="0 0 600 400" width="600" height="400"></svg></div></div>
+    <div class="col" style="flex:1 1 300px"><div class="infocard" id="zInfo"></div><div class="msg" id="zLog"></div></div>
+  </div>
+  <h3><span class="en">The proof (AC ⇒ Zorn), in full</span><span class="zh">完整证明（AC ⇒ 佐恩引理）</span></h3>
+  <div id="zSteps"></div>
+</section>
+
+<!-- ============ S4 ============ -->
+<section class="card" id="s4">
+  <div class="kicker">§4</div>
+  <h2><span class="en">Application: every vector space has a basis</span><span class="zh">应用：每个向量空间都有基</span></h2>
+  <p><span class="en">Start small: <span class="m">V = 𝔽₂³</span> has 7 nonzero vectors, drawn as the <b>Fano plane</b>. Each line is a triple <span class="m">u, v, u+v</span>. Click points to build a linearly independent set. A dependent choice is rejected and the relation is shown. On the right is the <b>poset of independent sets</b>, ordered by ⊆: every click moves you up one step, and the gold top row holds the maximal elements, which are exactly the bases.</span>
+     <span class="zh">先看小例子：<span class="m">V = 𝔽₂³</span> 有 7 个非零向量，画成<b>法诺平面</b>，每条线是三元组 <span class="m">u, v, u+v</span>。点击点来组建线性无关组；若会导致线性相关，就拒绝加入并显示相关关系。右边是<b>线性无关集按 ⊆ 构成的偏序集</b>：每点一次就往上走一层，最上面金色的一行是极大元，恰好就是所有的基。</span></p>
+  <div class="row">
+    <div class="col" style="flex:0 1 360px"><div class="stage"><svg id="fano" viewBox="0 0 360 330" width="360" height="330"></svg></div></div>
+    <div class="col" style="flex:1 1 440px"><div class="stage"><svg id="indPoset" viewBox="0 0 520 330" width="520" height="330"></svg></div></div>
+  </div>
+  <div class="toolbar"><button class="btn small ghost" id="fanoReset"><span class="en">Reset</span><span class="zh">重置</span></button></div>
+  <div class="msg info" id="fanoMsg"></div>
+  <h3><span class="en">The Zorn argument (works for any vector space)</span><span class="zh">佐恩论证（对任何向量空间都成立）</span></h3>
+  <div id="basisSteps"></div>
+  <h3><span class="en">ℝ as a vector space over ℚ</span><span class="zh">把 ℝ 看作 ℚ 上的向量空间</span></h3>
+  <p><span class="en">Toggle reals into a set and the tool keeps it ℚ-linearly independent. It uses the fact that <span class="m">1, √2, √3, √6, π</span> are ℚ-independent (π is transcendental). Zorn extends any such set to a <b>Hamel basis</b> of ℝ over ℚ. That basis has size 2<sup>ℵ₀</sup>, and nobody can write one down: in Solovay's model of ZF + DC no Hamel basis exists.</span>
+     <span class="zh">点选实数加入集合，工具会保持它在 ℚ 上线性无关。这里用到 <span class="m">1, √2, √3, √6, π</span> 在 ℚ 上线性无关（π 是超越数）。佐恩引理可以把任何这样的集合扩充成 ℝ 在 ℚ 上的<b>哈默尔基</b>。这种基的势是 2<sup>ℵ₀</sup>，却没有人能把它具体写出来：在 ZF + DC 的索洛维模型中，哈默尔基根本不存在。</span></p>
+  <div class="chips" id="hamelChips"></div>
+  <div class="msg" id="hamelMsg"></div>
+  <div class="note"><span class="en"><b>Payoff.</b> Fix a Hamel basis H and some h₀ ∈ H. Let f(x) be the coefficient of h₀ when x is written in the basis H. Then f(x + y) = f(x) + f(y), yet f takes only rational values and is not of the form cx. So f is an additive function ℝ → ℝ that is not continuous.</span>
+    <span class="zh"><b>收获.</b> 取定哈默尔基 H 及某个 h₀ ∈ H，令 f(x) 为 x 在 H 下展开时 h₀ 的系数。则 f(x + y) = f(x) + f(y)，但 f 只取有理值，不可能形如 cx。于是 f 是一个不连续的可加函数 ℝ → ℝ。</span></div>
+</section>
+
+<!-- ============ S5 ============ -->
+<section class="card" id="s5">
+  <div class="kicker">§5</div>
+  <h2><span class="en">Application: every filter extends to an ultrafilter</span><span class="zh">应用：每个滤子都能扩张为超滤子</span></h2>
+  <div class="def"><span class="en">A <b>filter</b> on <span class="m">S</span> is <span class="m">F ⊆ 𝒫(S)</span> with <span class="m">S ∈ F</span>, <span class="m">∅ ∉ F</span>, closed under <span class="m">∩</span> and under supersets. It is an <b>ultrafilter</b> if for every <span class="m">A ⊆ S</span>, either <span class="m">A ∈ F</span> or <span class="m">S∖A ∈ F</span>. Think of F as the family of “large” sets: an ultrafilter decides every question of the form “is A large?”.</span>
+    <span class="zh"><b>滤子</b>是 <span class="m">S</span> 上满足以下条件的 <span class="m">F ⊆ 𝒫(S)</span>：<span class="m">S ∈ F</span>，<span class="m">∅ ∉ F</span>，对 <span class="m">∩</span> 封闭，且对取超集封闭。若对每个 <span class="m">A ⊆ S</span>，<span class="m">A ∈ F</span> 与 <span class="m">S∖A ∈ F</span> 必居其一，则称为<b>超滤子</b>。不妨把 F 看作“大集合”的全体：超滤子对每个“A 算不算大”的问题都给出了裁决。</span></div>
+  <p><span class="en">Below is the lattice <span class="m">𝒫({1,2,3,4})</span>. <b>Click sets</b> to use them as generators: the generated filter lights up in blue. Hover a set to compare it with its complement. Then press <b>Extend</b>.</span>
+     <span class="zh">下图是格 <span class="m">𝒫({1,2,3,4})</span>。<b>点击集合</b>把它们作为生成元，生成的滤子以蓝色显示。鼠标悬停可对比该集合与其补集。然后按<b>扩张</b>。</span></p>
+  <div class="toolbar">
+    <button class="btn small primary" id="ufExtend"><span class="en">Extend to an ultrafilter</span><span class="zh">扩张为超滤子</span></button>
+    <button class="btn small ghost" id="ufReset"><span class="en">Reset</span><span class="zh">重置</span></button>
+  </div>
+  <div class="stage"><svg id="ufSvg" viewBox="0 0 700 330" width="700" height="330"></svg></div>
+  <div class="msg info" id="ufMsg"></div>
+  <div class="msg" id="ufHover" style="min-height:20px"></div>
+  <h3><span class="en">On ℕ: the non-principal ultrafilter you cannot describe</span><span class="zh">在 ℕ 上：说不出模样的非主超滤子</span></h3>
+  <p><span class="en">On a finite set every ultrafilter is <b>principal</b>, of the form <span class="m">{A : k ∈ A}</span>. On ℕ, extend the Fréchet filter of cofinite sets to an ultrafilter <span class="m">U</span>. This needs choice, and ZF alone does not prove that any such U exists. Click a set and ask: is it in U?</span>
+     <span class="zh">有限集上的超滤子都是<b>主超滤子</b>，即形如 <span class="m">{A : k ∈ A}</span>。在 ℕ 上，把由余有限集构成的弗雷歇滤子扩张为超滤子 <span class="m">U</span>。这一步要用选择公理，仅凭 ZF 甚至证明不了这样的 U 存在。点一个集合，问问：它在 U 里吗？</span></p>
+  <div class="toolbar" id="natSets"></div>
+  <div class="stage"><svg id="natSvg" class="numstrip" viewBox="0 0 880 90" width="880" height="90"></svg></div>
+  <div class="msg info" id="natMsg"></div>
+  <div class="note"><span class="en"><b>Preview of nonstandard analysis.</b> Sequences of reals modulo “agree on a set in U” form the hyperreals <span class="m">ℝ^ℕ/U</span>. The class of <span class="m">(0,1,2,3,…)</span> exceeds every standard n, because <span class="m">{k : k &gt; n}</span> is cofinite and therefore in U. It is an <b>infinite number</b>, and its reciprocal is an infinitesimal. Drag n:</span>
+    <span class="zh"><b>非标准分析预告.</b> 实数序列按“在 U 中的某个集合上相等”取商，得到超实数 <span class="m">ℝ^ℕ/U</span>。<span class="m">(0,1,2,3,…)</span> 的等价类比每个标准自然数 n 都大，因为 <span class="m">{k : k &gt; n}</span> 是余有限集，从而属于 U。它是一个<b>无穷大数</b>，其倒数是无穷小。拖动 n：</span>
+    <div class="toolbar">n = <input type="range" id="hypN" min="0" max="35" value="7"> <b class="m" id="hypNv">7</b></div></div>
+  <div id="ufSteps"></div>
+</section>
+
+<!-- ============ S6 ============ -->
+<section class="card" id="s6">
+  <div class="kicker">§6</div>
+  <h2><span class="en">The Vitali set: a set with no possible length</span><span class="zh">维塔利集：一个无法定义长度的集合</span></h2>
+  <p><span class="en">Work on the circle <span class="m">𝕋 = ℝ/ℤ</span> (a point is an angle in [0,1)). Call x and y equivalent when x − y ∈ ℚ. Each class <span class="m">x + ℚ</span> is countable and dense. The picture shows 12 points of each class, x + k/12, in one color per class. <b>Add classes</b>, then <b>choose one point from each</b> (this is AC). Then rotate the chosen set V by rationals q, and click any dot to see which translate V + q it belongs to.</span>
+     <span class="zh">在圆周 <span class="m">𝕋 = ℝ/ℤ</span> 上讨论（点就是 [0,1) 中的角度）。若 x − y ∈ ℚ，则称 x 与 y 等价。每个等价类 <span class="m">x + ℚ</span> 都可数且稠密。图中每个等价类画出 12 个点 x + k/12，同一类同一种颜色。先<b>添加等价类</b>，再<b>从每类中各选一点</b>（这一步就是 AC）。然后把选出的集合 V 按有理数 q 旋转，点击任意一个点，看它属于哪个平移 V + q。</span></p>
+  <div class="toolbar">
+    <button class="btn small" id="vAdd"><span class="en">Add a class</span><span class="zh">添加等价类</span></button>
+    <button class="btn small primary" id="vChoose"><span class="en">Choose one point per class (AC)</span><span class="zh">每类各选一点（AC）</span></button>
+    <span class="muted" style="font-size:13px"><span class="il"><span class="en">rotate V by q =</span><span class="zh">把 V 旋转 q =</span></span></span>
+    <div class="seg" id="vQ"></div>
+    <button class="btn small ghost" id="vReset"><span class="en">Reset</span><span class="zh">重置</span></button>
+  </div>
+  <div class="row">
+    <div class="col" style="flex:0 1 420px"><div class="stage"><svg id="vSvg" viewBox="0 0 420 420" width="420" height="420"></svg></div>
+      <div class="msg info" id="vMsg"></div></div>
+    <div class="col" style="flex:1 1 360px">
+      <h3 style="margin-top:0"><span class="en">If V had a length c …</span><span class="zh">假如 V 有长度 c……</span></h3>
+      <p class="muted" style="font-size:14px"><span class="en">The countably many translates V + q are disjoint and cover 𝕋, and rotation preserves length. So countable additivity forces 1 = c + c + c + ⋯. Choose c and add up the translates:</span>
+        <span class="zh">可数多个平移 V + q 两两不交且覆盖 𝕋，而旋转保持长度。于是可数可加性要求 1 = c + c + c + ⋯。选一个 c，把这些平移的长度加起来：</span></p>
+      <div class="toolbar">c = <input type="range" id="vC" min="0" max="12" value="4"> <b class="m" id="vCv"></b>
+        <button class="btn small primary" id="vSum"><span class="en">Add up ▶</span><span class="zh">累加 ▶</span></button></div>
+      <div class="stage"><svg id="vBar" viewBox="0 0 380 300" width="380" height="300"></svg></div>
+      <div class="msg" id="vSumMsg"></div>
+    </div>
+  </div>
+  <div id="vSteps"></div>
+</section>
+
+<!-- ============ S7 ============ -->
+<section class="card" id="s7">
+  <div class="kicker">§7</div>
+  <h2><span class="en">The free group F₂: a group that is twice itself</span><span class="zh">自由群 F₂：一个等于“两份自己”的群</span></h2>
+  <p><span class="en"><span class="m">F₂</span> consists of the <b>reduced words</b> in <span class="m">a, a⁻¹, b, b⁻¹</span> (no <span class="m">aa⁻¹</span>, <span class="m">bb⁻¹</span>, … next to each other), multiplied by concatenation followed by cancellation. Its Cayley graph is the 4-regular tree below. Colors show the <b>first letter</b>: <span class="m">W(x)</span> is the set of reduced words beginning with x. Press the animation buttons: left-multiplying by <span class="m">a</span> blows the small orange piece <span class="m">W(a⁻¹)</span> up into <b>everything except W(a)</b>.</span>
+     <span class="zh"><span class="m">F₂</span> 由 <span class="m">a, a⁻¹, b, b⁻¹</span> 组成的<b>既约字</b>构成（不出现 <span class="m">aa⁻¹</span>、<span class="m">bb⁻¹</span> 等相邻抵消的情形），乘法是拼接后再约简。它的凯莱图就是下面这棵 4 正则树。颜色表示<b>首字母</b>：<span class="m">W(x)</span> 是以 x 开头的既约字全体。按动画按钮：左乘 <span class="m">a</span> 会把小小的橙色块 <span class="m">W(a⁻¹)</span> 撑大成<b>除 W(a) 以外的全部</b>。</span></p>
+  <div class="def m" style="font-size:15px">F₂ = {e} ⊔ W(a) ⊔ W(a⁻¹) ⊔ W(b) ⊔ W(b⁻¹) &nbsp;&nbsp; <span class="il"><span class="en">but also</span><span class="zh">但同时</span></span> &nbsp;&nbsp; F₂ = W(a) ⊔ a·W(a⁻¹) = W(b) ⊔ b·W(b⁻¹)</div>
+  <div class="toolbar">
+    <button class="btn small primary" id="fgA"><span class="en">Animate a·W(a⁻¹)</span><span class="zh">播放 a·W(a⁻¹)</span></button>
+    <button class="btn small primary" id="fgB"><span class="en">Animate b·W(b⁻¹)</span><span class="zh">播放 b·W(b⁻¹)</span></button>
+    <button class="btn small ghost" id="fgReset"><span class="en">Reset</span><span class="zh">复原</span></button>
+  </div>
+  <div class="legend2" id="fgLegend"></div>
+  <div class="row">
+    <div class="col" style="flex:0 1 640px"><div class="stage" style="display:flex;justify-content:center"><svg id="fgSvg" viewBox="0 0 640 640" width="640" height="640"></svg></div></div>
+    <div class="col" style="flex:1 1 220px"><div class="infocard" id="fgInfo"></div><div class="msg" id="fgMsg"></div></div>
+  </div>
+  <div class="note"><span class="en"><b>Why it works.</b> If w does not start with a, then a⁻¹w is reduced and starts with a⁻¹, and w = a·(a⁻¹w). Conversely, if w starts with a⁻¹, the a cancels and a·w does not start with a. So <span class="m">a·W(a⁻¹) = F₂ ∖ W(a)</span> exactly. Four disjoint pieces W(a), W(a⁻¹), W(b), W(b⁻¹) reassemble, by left multiplications, into <b>two</b> copies of F₂. This is a <b>paradoxical decomposition</b>.</span>
+    <span class="zh"><b>为什么成立.</b> 若 w 不以 a 开头，则 a⁻¹w 是以 a⁻¹ 开头的既约字，且 w = a·(a⁻¹w)。反之，若 w 以 a⁻¹ 开头，左乘 a 后首字母被消掉，a·w 不以 a 开头。所以恰好 <span class="m">a·W(a⁻¹) = F₂ ∖ W(a)</span>。四个两两不交的块 W(a)、W(a⁻¹)、W(b)、W(b⁻¹) 经过左乘，能重新拼成<b>两份</b> F₂。这就是<b>悖论分解</b>。</span></div>
+</section>
+
+<!-- ============ S8 ============ -->
+<section class="card" id="s8">
+  <div class="kicker">§8</div>
+  <h2><span class="en">Banach–Tarski: from F₂ to the ball</span><span class="zh">巴拿赫–塔斯基：从 F₂ 到实心球</span></h2>
+  <div class="def"><span class="en"><b>Theorem (Banach–Tarski 1924, ZFC).</b> The closed unit ball <span class="m">B ⊂ ℝ³</span> can be partitioned into finitely many pieces (5 suffice) which, moved by rotations and translations, reassemble into two disjoint copies of <span class="m">B</span>.</span>
+    <span class="zh"><b>定理（巴拿赫–塔斯基，1924，ZFC）.</b> ℝ³ 中的闭单位球 <span class="m">B</span> 可以分割成有限多块（5 块就够），这些块经旋转和平移后，可以重新拼成两个互不相交、与 <span class="m">B</span> 全等的球。</span></div>
+  <h3><span class="en">Ingredient 1: two rotations that generate a free group</span><span class="zh">要素一：两个生成自由群的旋转</span></h3>
+  <p><span class="en">Let ρ be the rotation about the z-axis and σ the rotation about the x-axis, both by the angle arccos(1/3). Build a reduced word with the buttons. The tool applies it to (1,0,0) one letter at a time, right to left. (σ fixes (1,0,0), so if the word ends in σ<sup>±1</sup> the tool tests the conjugate ρ·w·ρ⁻¹ instead, which ends in ρ⁻¹ and is the identity iff w is.) For a reduced word ending in ρ<sup>±1</sup>, every point that appears has the exact form <span class="m">(a, b√2, c)/3ᵏ</span> with integers a, b, c, and <b>b is never divisible by 3</b>. So the point never returns to (1,0,0), and the word is not the identity. The sphere on the right shows the path.</span>
+     <span class="zh">令 ρ 为绕 z 轴、σ 为绕 x 轴旋转 arccos(1/3) 角的旋转。用按钮拼一个既约字。工具从右往左逐个字母地把它作用到 (1,0,0) 上。（σ 固定 (1,0,0)，所以若字以 σ<sup>±1</sup> 结尾，工具改测它的共轭 ρ·w·ρ⁻¹：它以 ρ⁻¹ 结尾，并且它是恒等变换当且仅当 w 是。）对以 ρ<sup>±1</sup> 结尾的既约字，途中出现的每个点都恰好形如 <span class="m">(a, b√2, c)/3ᵏ</span>，其中 a, b, c 为整数，而且 <b>b 始终不被 3 整除</b>。所以这个点永远回不到 (1,0,0)，该字不是恒等变换。右边的球面画出了点的轨迹。</span></p>
+  <div class="toolbar" id="rotKeys"></div>
+  <div class="toolbar"><span class="wordbox" id="rotWord"></span></div>
+  <div class="row">
+    <div class="col" style="flex:1 1 480px"><div id="rotTable" style="max-height:330px;overflow:auto"></div><div class="msg" id="rotMsg"></div></div>
+    <div class="col" style="flex:0 1 300px"><div class="stage"><svg id="rotSphere" viewBox="0 0 300 300" width="300" height="300"></svg></div></div>
+  </div>
+  <h3><span class="en">The whole construction, step by step</span><span class="zh">整个构造，一步一步来</span></h3>
+  <div class="row">
+    <div class="col" style="flex:1 1 400px"><div id="btSteps"></div></div>
+    <div class="col" style="flex:0 1 420px"><div class="stage"><svg id="btSvg" viewBox="0 0 420 300" width="420" height="300"></svg></div></div>
+  </div>
+  <div class="note"><span class="en"><b>Why this is not a contradiction.</b> The pieces cannot all be Lebesgue measurable (otherwise volume would be preserved), so “volume” is simply undefined for some of them. The step that needs AC is choosing one point from each orbit, exactly as in the Vitali construction. In the plane there is no such paradox: the isometry group of ℝ² is solvable, hence amenable, so Banach's finitely additive invariant measure on all subsets exists. The real difference is that SO(3) contains a free group and the plane's isometry group does not.</span>
+    <span class="zh"><b>为什么这不算矛盾.</b> 这些块不可能全都勒贝格可测（否则体积就会保持不变），所以对其中某些块而言，“体积”根本没有定义。需要 AC 的那一步，是从每条轨道中选一个点，和维塔利集的构造如出一辙。在平面上不会出现这种悖论：ℝ² 的等距群是可解群，因而是顺从群，于是存在巴拿赫给出的、定义在一切子集上的有限可加不变测度。根本的差别在于：SO(3) 含有自由群，而平面的等距群不含。</span></div>
+</section>
+
+<!-- ============ S9 ============ -->
+<section class="card" id="s9">
+  <div class="kicker">§9</div>
+  <h2><span class="en">Weak forms of choice, and independence</span><span class="zh">弱选择公理与独立性</span></h2>
+  <p><span class="en">Many theorems need only a fragment of AC. Arrows mean “implies (over ZF)”, and none of them can be reversed. <b>Click a box</b> for the statement and a model where it fails, or <b>click a theorem chip</b> to light up the weakest principle in the diagram that suffices to prove it.</span>
+     <span class="zh">许多定理只需要 AC 的一部分。箭头表示“（在 ZF 上）蕴涵”，而且每个箭头都不可逆。<b>点方框</b>查看命题内容以及它不成立的模型；<b>点定理标签</b>，图中会亮出足以证明它的最弱原则。</span></p>
+  <div class="row">
+    <div class="col" style="flex:1 1 560px"><div class="stage"><svg id="wkSvg" viewBox="0 0 860 380" width="860" height="380"></svg></div></div>
+  </div>
+  <div class="chips thm-chips" id="wkChips" style="margin:12px 0"></div>
+  <div class="infocard" id="wkInfo"></div>
+  <h3><span class="en">AC is independent of ZF</span><span class="zh">AC 独立于 ZF</span></h3>
+  <p><span class="en">Click the dots on the timeline. Assuming ZF is consistent, ZF proves neither AC nor ¬AC. The two halves of that statement are the subject of Lessons 15 and 16.</span>
+     <span class="zh">点击时间轴上的圆点。若 ZF 一致，则 ZF 既证明不了 AC，也证明不了 ¬AC。这句话的两半，正是第 15、16 课的主题。</span></p>
+  <div class="stage"><svg id="tlSvg" viewBox="0 0 860 120" width="860" height="120"></svg></div>
+  <div class="msg info" id="tlMsg"></div>
+</section>
+
+<!-- ============ EXERCISES ============ -->
+<section class="card" id="exercises">
+  <div class="kicker"><span class="il"><span class="en">Exercises</span><span class="zh">练习</span></span></div>
+  <h2><span class="en">Your turn</span><span class="zh">轮到你了</span></h2>
+  <p class="muted"><span class="en">Progress is saved in your browser. A sidebar ✓ means you solved it yourself; “Show answer” never counts.</span><span class="zh">进度保存在浏览器中。侧栏出现 ✓ 表示你自己做出来了；点“显示答案”不计入。</span></p>
+
+  <!-- E1 -->
+  <div class="ex" id="e1" data-prog="L10E1">
+    <h3><span class="tag">E1</span><span class="il"><span class="en">Does it need choice?</span><span class="zh">需要选择公理吗？</span></span></h3>
+    <p><span class="en">Click a card to move it: tray → ZF suffices → needs choice → tray. Ask yourself whether there is a <b>definable rule</b>.</span>
+       <span class="zh">点击卡片移动：待分类 → 仅用 ZF → 需要选择 → 待分类。问问自己：有没有<b>可定义的规则</b>？</span></p>
+    <div class="zone tray"><h4><span class="il"><span class="en">Tray</span><span class="zh">待分类</span></span></h4><div class="chips" id="e1Tray"></div></div>
+    <div class="row" style="margin-top:12px">
+      <div class="col zone obj" style="background:var(--true-soft);border-color:var(--true)"><h4 style="color:var(--true)"><span class="il"><span class="en">Provable in ZF (no choice)</span><span class="zh">ZF 中可证（无需选择）</span></span></h4><div class="chips" id="e1ZF"></div></div>
+      <div class="col zone meta"><h4 style="color:var(--meta)"><span class="il"><span class="en">Needs (some) choice</span><span class="zh">需要（某种）选择公理</span></span></h4><div class="chips" id="e1AC"></div></div>
+    </div>
+    <div class="toolbar"><button class="btn primary" id="e1Check"><span class="en">Check</span><span class="zh">检查</span></button>
+      <button class="btn ghost" id="e1Show"><span class="en">Show answer</span><span class="zh">显示答案</span></button></div>
+    <div class="msg" id="e1Msg"></div>
+    <div id="e1Why"></div>
+  </div>
+
+  <!-- E2 -->
+  <div class="ex" id="e2" data-prog="L10E2">
+    <h3><span class="tag">E2</span><span class="il"><span class="en">Assemble the Zorn argument</span><span class="zh">拼出佐恩论证</span></span></h3>
+    <p><span class="en">Prove that every vector space V has a basis. Click the cards in the correct order; click a numbered card to take it back.</span>
+       <span class="zh">证明每个向量空间 V 都有基。按正确顺序点击卡片；点已编号的卡片可以撤回。</span></p>
+    <div class="row">
+      <div class="col"><h4><span class="il"><span class="en">Cards</span><span class="zh">卡片</span></span></h4><div class="orderlist" id="e2Pool"></div></div>
+      <div class="col"><h4><span class="il"><span class="en">Your proof</span><span class="zh">你的证明</span></span></h4><div class="orderlist" id="e2Seq"></div></div>
+    </div>
+    <div class="toolbar"><button class="btn primary" id="e2Check"><span class="en">Check</span><span class="zh">检查</span></button>
+      <button class="btn ghost" id="e2Show"><span class="en">Show answer</span><span class="zh">显示答案</span></button></div>
+    <div class="msg" id="e2Msg"></div>
+  </div>
+
+  <!-- E3 -->
+  <div class="ex" id="e3" data-prog="L10E3">
+    <h3><span class="tag">E3</span><span class="il"><span class="en">Verify a·W(a⁻¹) = F₂ ∖ W(a)</span><span class="zh">验证 a·W(a⁻¹) = F₂ ∖ W(a)</span></span></h3>
+    <p><span class="en">For each target u, find a word <span class="m">w ∈ W(a⁻¹)</span> with <span class="m">a·w = u</span>. Type with <span class="m">a, A, b, B</span> (capital = inverse) or use the keys, and the checker reduces your word. If no such w exists, say so.</span>
+       <span class="zh">对每个目标 u，找一个 <span class="m">w ∈ W(a⁻¹)</span> 使 <span class="m">a·w = u</span>。用 <span class="m">a, A, b, B</span> 输入（大写表示逆元），也可点按键，检查器会自动约简。若这样的 w 不存在，请直接指出。</span></p>
+    <div id="e3List"></div>
+    <div class="toolbar"><button class="btn ghost" id="e3Show"><span class="en">Show answer</span><span class="zh">显示答案</span></button></div>
+    <div class="msg" id="e3Msg"></div>
+  </div>
+
+  <!-- E4 -->
+  <div class="ex" id="e4" data-prog="L10E4">
+    <h3><span class="tag">E4</span><span class="il"><span class="en">True or false: the Vitali set</span><span class="zh">判断对错：维塔利集</span></span></h3>
+    <p class="muted"><span class="en">V ⊂ 𝕋 contains exactly one point of each class x + ℚ (see §6).</span><span class="zh">V ⊂ 𝕋 恰好包含每个等价类 x + ℚ 中的一个点（见 §6）。</span></p>
+    <div id="e4List"></div>
+  </div>
+
+  <!-- E5 -->
+  <div class="ex" id="e5" data-prog="L10E5">
+    <h3><span class="tag">E5</span><span class="il"><span class="en">Read the Hasse diagram</span><span class="zh">读哈斯图</span></span></h3>
+    <p><span class="en"><b>(a)</b> On the left, click every <b>maximal</b> element. <b>(b)</b> On the right, S = {b, e} is ringed in purple; click every <b>upper bound</b> of S.</span>
+       <span class="zh"><b>(a)</b> 在左图中点出所有<b>极大元</b>。<b>(b)</b> 右图中紫圈标出了 S = {b, e}，点出 S 的所有<b>上界</b>。</span></p>
+    <div class="row">
+      <div class="col"><div class="stage"><svg id="e5a" viewBox="0 0 380 330" width="380" height="330"></svg></div></div>
+      <div class="col"><div class="stage"><svg id="e5b" viewBox="0 0 380 330" width="380" height="330"></svg></div></div>
+    </div>
+    <div class="toolbar"><button class="btn primary" id="e5Check"><span class="en">Check</span><span class="zh">检查</span></button>
+      <button class="btn ghost" id="e5Show"><span class="en">Show answer</span><span class="zh">显示答案</span></button></div>
+    <div class="msg" id="e5Msg"></div>
+  </div>
+
+  <!-- E6 -->
+  <div class="ex" id="e6" data-prog="L10E6">
+    <h3><span class="tag">E6</span><span class="il"><span class="en">Challenge: every partial order extends to a linear order</span><span class="zh">挑战：每个偏序都能扩张为线性序</span></span></h3>
+    <p><span class="en">(Szpilrajn 1930.) Let ≤ be a partial order on a set X. We want a linear order on X that contains ≤. Which poset should Zorn's lemma be applied to?</span>
+       <span class="zh">（斯皮尔赖因，1930）设 ≤ 是集合 X 上的偏序。我们想找一个包含 ≤ 的线性序。应当对哪个偏序集使用佐恩引理？</span></p>
+    <div id="e6Choice"></div>
+    <div class="toolbar"><button class="btn ghost" id="e6Show"><span class="en">Show answer &amp; proof</span><span class="zh">显示答案与证明</span></button></div>
+    <div class="msg" id="e6Msg"></div>
+    <div id="e6Proof"></div>
+  </div>
+</section>
+
+<section class="card">
+  <div class="kicker"><span class="il"><span class="en">Next</span><span class="zh">下一课</span></span></div>
+  <h2><a href="lesson11.html" style="color:inherit"><span class="en">Lesson 11: Computability and the halting problem →</span><span class="zh">第 11 课：可计算性与停机问题 →</span></a></h2>
+  <p><span class="en">AC hands us objects that no rule can describe. Next we ask the opposite question: what can a finite rule actually <b>compute</b>? Turing machines, the universal machine, and the diagonal argument once more, this time showing that no program can decide whether programs halt.</span>
+     <span class="zh">AC 给了我们一些任何规则都描述不出来的对象。下一课反过来问：有限的规则究竟能<b>计算</b>什么？图灵机、通用图灵机，再加一次对角线论证，这回它告诉我们：没有任何程序能判定程序是否停机。</span></p>
+</section>
+</main>
+</div>
+
+<script src="assets/logic.js"></script>
+<script src="assets/lesson10.js"></script>
+</body>
+</html>

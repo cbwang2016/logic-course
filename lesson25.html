@@ -1,0 +1,532 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 25 · Large cardinals III: Woodin to rank-into-rank, determinacy 大基数（三）</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+.prereq { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 13px; color: var(--muted); margin: -2px 0 12px; }
+.prereq a.chip { text-decoration: none; color: var(--ink); padding: 2px 10px; font-size: 12.5px; }
+.prereq a.chip:hover { border-color: var(--accent); }
+.lang-both .prereq .chip .zh { font-size: 12px; }
+.idea { font-size: 15.5px; border-left: 4px solid var(--meta); background: var(--meta-soft); padding: 8px 14px; border-radius: 0 10px 10px 0; margin: 6px 0 14px; }
+.pit { border-left-color: var(--false); background: #fff1f1; }
+.pit b.h { color: #a61e1e; }
+.cy { border: 1.5px dashed var(--accent); border-radius: 12px; padding: 10px 14px 4px; margin: 16px 0 0; background: #fbfcff; }
+.cy .q { font-weight: 600; margin-bottom: 4px; }
+.cy .opts { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0; }
+.cy .opts .btn.right { border-color: var(--true); background: var(--true-soft); }
+.cy .opts .btn.wrongc { border-color: var(--false); background: var(--false-soft); }
+.status { display: inline-block; font-size: 12px; font-weight: 700; border-radius: 999px; padding: 1px 9px; margin: 0 4px 0 0; color: #fff; vertical-align: 1px; }
+.lang-both .status .zh { display: inline; color: #fff; font-size: 11px; }
+.lang-both .status .zh::before { content: " · "; }
+.st-zfc { background: var(--true); }
+.st-con { background: var(--accent); }
+.st-eq { background: #1098ad; }
+.st-open { background: var(--gold); }
+.st-no { background: var(--false); }
+.seg { display: inline-flex; flex-wrap: wrap; gap: 6px; }
+.svgbox { background: #fbfaf6; border: 1px dashed var(--line); border-radius: 14px; padding: 8px; overflow-x: auto; }
+.svgbox svg { margin: 0 auto; }
+.lbl { font-family: var(--sans); }
+.ladder-rung { cursor: pointer; }
+.ladder-rung:hover rect.bar { filter: brightness(0.95); stroke-width: 2.5; }
+.ladder-rung.sel rect.bar { stroke: var(--ink); stroke-width: 3; }
+.gnode { cursor: pointer; }
+.gnode circle { stroke-width: 2; transition: fill .3s, stroke .3s; }
+.gedge { stroke: #b8b3a6; stroke-width: 2; transition: stroke .3s, stroke-width .3s; }
+.gedge.win { stroke: var(--meta); stroke-width: 4; }
+.order-list { display: flex; flex-direction: column; gap: 6px; max-width: 640px; }
+.order-list .chip { display: flex; align-items: center; gap: 10px; cursor: default; }
+.order-list .chip .num { font-family: var(--mono); font-weight: 800; color: var(--accent); width: 22px; }
+.order-list .chip .sp { flex: 1; }
+.order-list .chip button { font: inherit; font-size: 13px; border: 1px solid var(--line); background: #fff; border-radius: 7px; cursor: pointer; padding: 0 8px; }
+.pick { display: flex; flex-wrap: wrap; gap: 8px; }
+.pick .chip.used { opacity: .35; pointer-events: none; }
+.matchrow { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 7px 0; border-bottom: 1px dashed var(--line); }
+.matchrow .cond { flex: 1 1 300px; font-family: var(--mono); font-size: 15px; }
+.matchrow select { font: inherit; font-size: 14px; padding: 4px 8px; border-radius: 8px; border: 1.5px solid var(--line); }
+.matchrow select.right { border-color: var(--true); background: var(--true-soft); }
+.matchrow select.wrong { border-color: var(--false); background: var(--false-soft); }
+.cards3 { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; }
+.ocard { border: 1.5px solid var(--line); border-radius: 14px; padding: 12px 14px; background: #fff; cursor: pointer; transition: transform .15s; }
+.ocard:hover { transform: translateY(-2px); }
+.ocard .more { display: none; font-size: 14px; margin-top: 6px; }
+.ocard.open .more { display: block; animation: fadein .4s ease both; }
+.atlas-node { cursor: pointer; }
+.atlas-node rect { transition: stroke-width .2s, opacity .2s; }
+.atlas-edge { transition: opacity .2s, stroke-width .2s; }
+.dimmed { opacity: .18; }
+table.mini { border-collapse: collapse; font-size: 14px; margin: 8px 0; }
+table.mini td, table.mini th { border-bottom: 1px solid var(--line); padding: 4px 10px; text-align: left; vertical-align: top; }
+table.mini th { background: #f1efe7; }
+input[type=range] { vertical-align: middle; }
+</style>
+</head>
+<body class="lang-both">
+<header class="top">
+  <a class="home" href="index.html">∀∃ <span class="il"><span class="en">Logic &amp; Sets</span><span class="zh">逻辑与集合</span></span></a>
+  <span class="muted">/ L25</span>
+  <span class="spacer"></span>
+  <div class="lang-switch">
+    <button data-lang="en">EN</button><button data-lang="zh">中文</button><button data-lang="both">EN + 中</button>
+  </div>
+</header>
+
+<div class="layout">
+<nav class="side">
+  <div class="grp">Lesson 25</div>
+  <a href="index.html">← <span class="il"><span class="en">Course map</span><span class="zh">课程地图</span></span></a>
+  <a href="lesson24.html">← <span class="il"><span class="en">Lesson 24</span><span class="zh">第 24 课</span></span></a>
+  <a href="lesson26.html"><span class="il"><span class="en">Lesson 26</span><span class="zh">第 26 课</span></span> →</a>
+  <a href="#s1">1 · <span class="il"><span class="en">Embedding paradigm</span><span class="zh">嵌入范式</span></span></a>
+  <a href="#s2">2 · <span class="il"><span class="en">Strong cardinals</span><span class="zh">强基数</span></span></a>
+  <a href="#s3">3 · <span class="il"><span class="en">Woodin cardinals</span><span class="zh">伍丁基数</span></span></a>
+  <a href="#s4">4 · <span class="il"><span class="en">Supercompact / strongly compact</span><span class="zh">超紧与强紧</span></span></a>
+  <a href="#s5">5 · <span class="il"><span class="en">Extendible &amp; huge</span><span class="zh">可扩与巨大</span></span></a>
+  <a href="#s6">6 · <span class="il"><span class="en">Rank-into-rank &amp; Kunen</span><span class="zh">秩入秩与库能</span></span></a>
+  <a href="#s7">7 · <span class="il"><span class="en">The ladder</span><span class="zh">一致性强度阶梯</span></span></a>
+  <a href="#s8">8 · <span class="il"><span class="en">Finite games</span><span class="zh">有限博弈</span></span></a>
+  <a href="#s9">9 · <span class="il"><span class="en">Infinite games &amp; AD</span><span class="zh">无穷博弈与 AD</span></span></a>
+  <a href="#s10">10 · <span class="il"><span class="en">Large cardinals ⇔ determinacy</span><span class="zh">大基数 ⇔ 决定性</span></span></a>
+  <a href="#s11">11 · <span class="il"><span class="en">Outlook</span><span class="zh">展望</span></span></a>
+  <div class="grp"><span class="il"><span class="en">Exercises</span><span class="zh">练习</span></span></div>
+  <a href="#e1" data-prog="L25E1">E1 · <span class="il"><span class="en">Order them</span><span class="zh">排序</span></span></a>
+  <a href="#e2" data-prog="L25E2">E2 · <span class="il"><span class="en">Solve a game</span><span class="zh">解博弈</span></span></a>
+  <a href="#e3" data-prog="L25E3">E3 · <span class="il"><span class="en">True / false</span><span class="zh">判断</span></span></a>
+  <a href="#e4" data-prog="L25E4">E4 · AD ⊥ AC</a>
+  <a href="#e5" data-prog="L25E5">E5 · <span class="il"><span class="en">Match j</span><span class="zh">配对嵌入</span></span></a>
+  <a href="#e6" data-prog="L25E6">E6 · <span class="il"><span class="en">Status</span><span class="zh">定理还是猜想</span></span></a>
+  <div class="grp"><span class="il"><span class="en">Recap</span><span class="zh">总结</span></span></div>
+  <a href="#atlas"><span class="il"><span class="en">Atlas of hierarchies</span><span class="zh">层级总图</span></span></a>
+</nav>
+
+<main>
+<div class="hero">
+  <div class="kicker">Part V · Lesson 25</div>
+  <h1><span class="en">Large cardinals III: from Woodin to rank-into-rank, and determinacy</span><span class="zh">大基数（三）：从伍丁到秩入秩，以及决定性</span></h1>
+  <p><span class="en">In Lesson 24 a measurable cardinal became an elementary embedding <span class="m">j : V → M</span>. This lesson pushes that one picture as far as it can go, makes <span class="m">M</span> look more and more like <span class="m">V</span>, and watches it hit a wall at <span class="m">M = V</span>. Then comes the payoff: infinite games. Large cardinals turn out to be exactly what is needed to decide who wins definable games on the reals.</span>
+     <span class="zh">第 24 课里，可测基数化身为初等嵌入 <span class="m">j : V → M</span>。本课把这一幅图推到极致：让 <span class="m">M</span> 越来越像 <span class="m">V</span>，直到在 <span class="m">M = V</span> 处撞上一堵墙。随后是回报：无穷博弈。原来，要判定实数上可定义博弈的胜负，所需要的恰恰就是大基数。</span></p>
+  <div class="note"><span class="en"><b>Status legend used throughout.</b> Every claim on this page carries one of these meanings, and they are not interchangeable:</span><span class="zh"><b>全课通用的状态标记。</b>本页每个论断都属于下列之一，它们不能混用：</span>
+    <div style="margin-top:6px;line-height:2">
+      <span class="status st-zfc"><span class="en">ZFC ⊢</span><span class="zh">ZFC 可证</span></span> <span class="il"><span class="en">a theorem of ZFC</span><span class="zh">ZFC 的定理</span></span> &nbsp;
+      <span class="status st-no"><span class="en">ZFC ⊢ ¬</span><span class="zh">ZFC 可否证</span></span> <span class="il"><span class="en">refutable in ZFC</span><span class="zh">在 ZFC 中可否证</span></span> &nbsp;
+      <span class="status st-con"><span class="en">Con</span><span class="zh">相对一致</span></span> <span class="il"><span class="en">consistent relative to some hypothesis</span><span class="zh">相对于某假设一致</span></span> &nbsp;
+      <span class="status st-eq"><span class="en">≡ Con</span><span class="zh">等一致</span></span> <span class="il"><span class="en">equiconsistent</span><span class="zh">一致性等价</span></span> &nbsp;
+      <span class="status st-open"><span class="en">open</span><span class="zh">未解决</span></span> <span class="il"><span class="en">nobody knows</span><span class="zh">尚无人知道</span></span>
+    </div></div>
+</div>
+
+<!-- ============ S1 ============ -->
+<section class="card" id="s1">
+  <div class="kicker">§1</div>
+  <h2><span class="en">The embedding paradigm: how close can M get to V?</span><span class="zh">嵌入范式：M 能离 V 多近？</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置</span></span>:
+    <a class="chip" href="lesson14.html">L14 · <span class="il"><span class="en">the hierarchy V</span><span class="zh">累积层级 V</span></span></a>
+    <a class="chip" href="lesson24.html">L24 · <span class="il"><span class="en">j : V → M, critical point</span><span class="zh">j : V → M 与临界点</span></span></a></div>
+  <div class="idea"><span class="en"><b>One idea.</b> Almost every large cardinal above a measurable is “there is <span class="m">j : V → M</span> with critical point <span class="m">κ</span>, <i>and M contains a lot of V</i>”. The more of V that M is required to contain, the stronger the axiom.</span>
+    <span class="zh"><b>核心思想。</b>可测基数之上的大基数几乎都形如“存在临界点为 <span class="m">κ</span> 的 <span class="m">j : V → M</span>，<i>并且 M 包含 V 的很大一部分</i>”。要求 M 包含的 V 越多，公理就越强。</span></div>
+  <div class="def"><span class="en"><b>Setting (from L24).</b> <span class="m">M</span> is a transitive class containing all ordinals, <span class="m">j : V → M</span> is elementary, and the <b>critical point</b> <span class="m">crit(j) = κ</span> is the least ordinal with <span class="m">j(κ) ≠ κ</span>; then <span class="m">j(κ) &gt; κ</span> and κ is measurable. Notation: <span class="m"><sup>λ</sup>M ⊆ M</span> means every function <span class="m">λ → M</span> (in V) already belongs to M (“M is closed under λ-sequences”).</span>
+    <span class="zh"><b>设定（承接第 24 课）。</b><span class="m">M</span> 是包含全体序数的传递类，<span class="m">j : V → M</span> 是初等嵌入，<b>临界点</b> <span class="m">crit(j) = κ</span> 是使 <span class="m">j(κ) ≠ κ</span> 的最小序数；此时 <span class="m">j(κ) &gt; κ</span>，且 κ 是可测基数。记号：<span class="m"><sup>λ</sup>M ⊆ M</span> 表示（V 中的）每个函数 <span class="m">λ → M</span> 都已属于 M（“M 对 λ-序列封闭”）。</span></div>
+  <p><span class="en">Drag the slider. The big V-shape is the universe (rank grows upward). The blue region is <span class="m">M</span>. The solid part is where M <b>agrees</b> with V completely; above that, M is a thinner class that still contains every ordinal (the vertical axis).</span>
+     <span class="zh">拖动滑块。大的 V 字形是整个集合宇宙（秩往上增长）。蓝色区域是 <span class="m">M</span>。实心部分是 M 与 V <b>完全一致</b>的地方；再往上，M 是更“瘦”的类，但仍含全部序数（竖轴）。</span></p>
+  <div class="toolbar"><input type="range" id="parSlider" min="0" max="5" step="1" value="0" style="width:340px"> <b id="parName"></b></div>
+  <div class="svgbox"><svg id="parSvg" viewBox="0 0 860 430" width="860" height="430"></svg></div>
+  <div class="msg info" id="parInfo"></div>
+  <div class="note pit"><span class="en"><b class="h">⚠ Common pitfall.</b> The picture is <i>schematic</i>. “How much of V is in M” is not a single number: closure under λ-sequences (supercompact) and containing <span class="m">V<sub>λ</sub></span> (strong) are different kinds of requirement. Also, the slider shows <b>one</b> embedding, while “strong” and “supercompact” demand embeddings <b>for every λ</b>. That is why a huge cardinal (one very closed embedding) need not be supercompact, even though “huge” has higher consistency strength.</span>
+    <span class="zh"><b class="h">⚠ 常见误区。</b>此图只是<i>示意</i>。“M 含有多少 V”并不是一个数：对 λ-序列封闭（超紧）和包含 <span class="m">V<sub>λ</sub></span>（强）是两类不同的要求。另外，滑块展示的是<b>一个</b>嵌入，而“强”和“超紧”要求<b>对每个 λ</b> 都有嵌入。所以巨大基数（只要一个封闭性极强的嵌入）不一定是超紧的，尽管“巨大”的一致性强度更高。</span></div>
+  <div class="cy" id="cy1"></div>
+</section>
+
+<!-- ============ S2 ============ -->
+<section class="card" id="s2">
+  <div class="kicker">§2</div>
+  <h2><span class="en">Strong cardinals: M contains V up to rank λ</span><span class="zh">强基数：M 包含直到秩 λ 的 V</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置</span></span>:
+    <a class="chip" href="#s1">§1</a>
+    <a class="chip" href="lesson24.html">L24 · <span class="il"><span class="en">ultrapower Ult(V, U)</span><span class="zh">超幂 Ult(V, U)</span></span></a></div>
+  <div class="idea"><span class="en"><b>One idea.</b> The cleanest way to make M “close to V” is to demand that M contains an initial segment <span class="m">V<sub>λ</sub></span> of the universe. A measurable already gives <span class="m">λ = κ+1</span>, and not one level more for free.</span>
+    <span class="zh"><b>核心思想。</b>让 M“接近 V”最干净的办法，是要求 M 包含宇宙的一个初始段 <span class="m">V<sub>λ</sub></span>。可测基数已经给出 <span class="m">λ = κ+1</span>，但再多一层就不是白给的了。</span></div>
+  <div class="def"><span class="en"><b>Definition.</b> κ is <b>λ-strong</b> if there is an elementary <span class="m">j : V → M</span>, M transitive, with <span class="m">crit(j) = κ</span>, <span class="m">j(κ) &gt; λ</span> and <span class="m">V<sub>λ</sub> ⊆ M</span>. κ is <b>strong</b> if it is λ-strong for <b>every</b> ordinal λ. <br><b>Fact</b> <span class="status st-zfc">ZFC ⊢</span>: κ is (κ+1)-strong ⇔ κ is measurable.</span>
+    <span class="zh"><b>定义.</b> 若存在初等嵌入 <span class="m">j : V → M</span>（M 传递），使 <span class="m">crit(j) = κ</span>、<span class="m">j(κ) &gt; λ</span> 且 <span class="m">V<sub>λ</sub> ⊆ M</span>，则称 κ 为 <b>λ-强基数</b>。若对<b>每个</b>序数 λ，κ 都是 λ-强的，则称 κ 为<b>强基数</b>。<br><b>事实</b> <span class="status st-zfc">ZFC ⊢</span>：κ 是 (κ+1)-强的 ⇔ κ 是可测基数。</span></div>
+  <p><span class="en">Move λ up the rank ruler. Watch three kinds of sets: a subset <span class="m">x ⊆ κ</span> (rank ≤ κ, so in <span class="m">V<sub>κ+1</sub></span>), a normal measure <span class="m">U ⊆ P(κ)</span> (rank κ+1, so in <span class="m">V<sub>κ+2</sub></span> but not <span class="m">V<sub>κ+1</sub></span>), and an arbitrary <span class="m">W ⊆ P(P(κ))</span> (rank ≤ κ+2).</span>
+     <span class="zh">沿着秩的标尺移动 λ。留意三类集合：子集 <span class="m">x ⊆ κ</span>（秩 ≤ κ，故属于 <span class="m">V<sub>κ+1</sub></span>）、正规测度 <span class="m">U ⊆ P(κ)</span>（秩为 κ+1，故属于 <span class="m">V<sub>κ+2</sub></span> 而不属于 <span class="m">V<sub>κ+1</sub></span>），以及任意的 <span class="m">W ⊆ P(P(κ))</span>（秩 ≤ κ+2）。</span></p>
+  <div class="toolbar"><span class="m">λ =</span> <span class="seg" id="strBtns"></span></div>
+  <div class="svgbox"><svg id="strSvg" viewBox="0 0 860 250" width="860" height="250"></svg></div>
+  <div class="msg info" id="strInfo"></div>
+  <div class="note pit"><span class="en"><b class="h">⚠ Common pitfall.</b> “<span class="m">V<sub>λ</sub> ⊆ M</span>” does <b>not</b> mean j is the identity on <span class="m">V<sub>λ</sub></span>: j still moves κ. It only says the <i>sets</i> of rank &lt; λ are all present in M. Also: strong cardinals are relatively weak in consistency strength (below Woodin), even though “strong” sounds strong.</span>
+    <span class="zh"><b class="h">⚠ 常见误区。</b>“<span class="m">V<sub>λ</sub> ⊆ M</span>”<b>并不</b>表示 j 在 <span class="m">V<sub>λ</sub></span> 上是恒等映射：j 照样移动 κ。它只是说秩 &lt; λ 的<i>集合</i>都在 M 里。另外，强基数的一致性强度其实不算高（低于伍丁基数），别被名字骗了。</span></div>
+  <div class="cy" id="cy2"></div>
+</section>
+
+<!-- ============ S3 ============ -->
+<section class="card" id="s3">
+  <div class="kicker">§3</div>
+  <h2><span class="en">Woodin cardinals: strength spread out below δ</span><span class="zh">伍丁基数：分布在 δ 之下的强度</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置</span></span>:
+    <a class="chip" href="#s2">§2 · <span class="il"><span class="en">λ-strong</span><span class="zh">λ-强</span></span></a>
+    <a class="chip" href="lesson23.html">L23 · <span class="il"><span class="en">Mahlo, weakly compact</span><span class="zh">马洛、弱紧</span></span></a></div>
+  <div class="idea"><span class="en"><b>One idea.</b> A Woodin cardinal δ need <b>not</b> itself be a critical point (the least one is not). Its strength lives in the cardinals <i>below</i> it: for every way f of “growing” inside δ, some κ &lt; δ closed under f is strong enough to reach past <span class="m">j(f)(κ)</span>.</span>
+    <span class="zh"><b>核心思想。</b>伍丁基数 δ 本身<b>不必</b>是临界点（最小的伍丁基数就不是）。它的强度在它<i>下方</i>的基数里：对 δ 内部每一种“增长方式” f，都有某个对 f 封闭的 κ &lt; δ，其强度足以覆盖到 <span class="m">j(f)(κ)</span>。</span></div>
+  <div class="def"><span class="en"><b>Definition (Woodin).</b> A cardinal δ is <b>Woodin</b> if for every function <span class="m">f : δ → δ</span> there is <span class="m">κ &lt; δ</span> with <span class="m">f″κ ⊆ κ</span> (κ is closed under f) and an elementary <span class="m">j : V → M</span>, M transitive, with <span class="m">crit(j) = κ</span> and <span class="m">V<sub>j(f)(κ)</sub> ⊆ M</span>.<br>
+    <b>Equivalent form.</b> δ is Woodin ⇔ δ is inaccessible and for every <span class="m">A ⊆ V<sub>δ</sub></span> some <span class="m">κ &lt; δ</span> is <b>&lt;δ-A-strong</b>: for every <span class="m">α &lt; δ</span> there is <span class="m">j : V → M</span> with <span class="m">crit(j) = κ</span>, <span class="m">j(κ) &gt; α</span>, <span class="m">V<sub>α</sub> ⊆ M</span> and <span class="m">j(A) ∩ V<sub>α</sub> = A ∩ V<sub>α</sub></span>.</span>
+    <span class="zh"><b>定义（伍丁）.</b> 称基数 δ 为<b>伍丁基数</b>，若对每个函数 <span class="m">f : δ → δ</span>，都存在 <span class="m">κ &lt; δ</span> 满足 <span class="m">f″κ ⊆ κ</span>（κ 对 f 封闭），以及初等嵌入 <span class="m">j : V → M</span>（M 传递），使 <span class="m">crit(j) = κ</span> 且 <span class="m">V<sub>j(f)(κ)</sub> ⊆ M</span>。<br>
+    <b>等价形式.</b> δ 是伍丁基数 ⇔ δ 不可达，并且对每个 <span class="m">A ⊆ V<sub>δ</sub></span>，都有某个 <span class="m">κ &lt; δ</span> 是 <b>&lt;δ-A-强的</b>：对每个 <span class="m">α &lt; δ</span>，存在 <span class="m">j : V → M</span>，使 <span class="m">crit(j) = κ</span>、<span class="m">j(κ) &gt; α</span>、<span class="m">V<sub>α</sub> ⊆ M</span>，且 <span class="m">j(A) ∩ V<sub>α</sub> = A ∩ V<sub>α</sub></span>。</span></div>
+  <p><span class="en">Pick a growth function f. The ticks below δ are its closure points (schematic: faster f, sparser closure points). Click a closure point κ to fire an embedding with critical point κ. Note the order <span class="m">κ &lt; j(f)(κ) &lt; j(κ)</span> (for growth functions, i.e. <span class="m">f(α) &gt; α</span>, as here): since κ is closed under f, elementarity makes <span class="m">j(κ)</span> closed under <span class="m">j(f)</span>, and <span class="m">κ &lt; j(κ)</span>.</span>
+     <span class="zh">选一个增长函数 f。δ 下方的刻度是它的封闭点（示意：f 越快，封闭点越稀）。点一个封闭点 κ，就以 κ 为临界点“发射”一个嵌入。注意顺序 <span class="m">κ &lt; j(f)(κ) &lt; j(κ)</span>（对增长函数，即 <span class="m">f(α) &gt; α</span>，如这里各例）：κ 对 f 封闭，由初等性 <span class="m">j(κ)</span> 对 <span class="m">j(f)</span> 封闭，而 <span class="m">κ &lt; j(κ)</span>。</span></p>
+  <div class="toolbar"><span class="seg" id="wdBtns"></span></div>
+  <div class="svgbox"><svg id="wdSvg" viewBox="0 0 860 270" width="860" height="270"></svg></div>
+  <div class="msg info" id="wdInfo"></div>
+  <div class="def"><span class="en"><b>Facts</b> <span class="status st-zfc">ZFC ⊢</span>. (1) Every Woodin cardinal is Mahlo; in fact the measurable cardinals below it form a stationary set. (2) The <b>least</b> Woodin cardinal is <b>not weakly compact</b>, hence not measurable. Being Woodin is a <span class="m">Π¹₁</span> property over <span class="m">V<sub>δ</sub></span>, so a weakly compact Woodin would reflect it to a smaller Woodin. (3) In consistency strength, Woodin is above strong (below a Woodin δ there are many cardinals that are strong in <span class="m">V<sub>δ</sub></span>) and below superstrong and supercompact.</span>
+    <span class="zh"><b>事实</b> <span class="status st-zfc">ZFC ⊢</span>。(1) 每个伍丁基数都是马洛基数；事实上，它下方的可测基数构成一个平稳集。(2) <b>最小</b>的伍丁基数<b>不是弱紧的</b>，因此也不可测。“是伍丁基数”是 <span class="m">V<sub>δ</sub></span> 上的 <span class="m">Π¹₁</span> 性质，弱紧的伍丁基数会把这条性质反射到更小的伍丁基数上。(3) 一致性强度上，伍丁高于强基数（伍丁基数 δ 下方有许多在 <span class="m">V<sub>δ</sub></span> 中是强基数的基数），低于超强基数和超紧基数。</span></div>
+  <div class="note pit"><span class="en"><b class="h">⚠ Common pitfall.</b> “Woodin” is not a strengthening of “measurable” for the same cardinal. The witnesses κ are measurable (they are critical points), but δ itself need not be. Also note where the quantifiers sit: <i>for every f</i> there is <i>some</i> κ; one κ need not work for all f.</span>
+    <span class="zh"><b class="h">⚠ 常见误区。</b>“伍丁”并不是同一个基数上对“可测”的加强。见证者 κ 是可测的（它们是临界点），δ 本身却不一定可测。还要注意量词的位置：<i>对每个 f</i>，存在<i>某个</i> κ；并不要求一个 κ 对所有 f 都管用。</span></div>
+  <div class="cy" id="cy3"></div>
+</section>
+
+<!-- ============ S4 ============ -->
+<section class="card" id="s4">
+  <div class="kicker">§4</div>
+  <h2><span class="en">Supercompact and strongly compact: measures on P<sub>κ</sub>(λ)</span><span class="zh">超紧与强紧：P<sub>κ</sub>(λ) 上的测度</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置</span></span>:
+    <a class="chip" href="#s1">§1 · <span class="m"><sup>λ</sup>M ⊆ M</span></a>
+    <a class="chip" href="lesson24.html">L24 · <span class="il"><span class="en">ultrafilters, normality</span><span class="zh">超滤与正规性</span></span></a></div>
+  <div class="idea"><span class="en"><b>One idea.</b> Look at the image <span class="m">j″λ = {j(α) : α &lt; λ}</span>. <b>Supercompact</b>: M contains this set itself. <b>Strongly compact</b>: M only contains some set D covering it that M thinks is small (<span class="m">|D|<sup>M</sup> &lt; j(κ)</span>).</span>
+    <span class="zh"><b>核心思想。</b>看像集 <span class="m">j″λ = {j(α) : α &lt; λ}</span>。<b>超紧</b>：M 包含这个集合本身。<b>强紧</b>：M 只需包含一个覆盖它、并且在 M 看来很小的集合 D（<span class="m">|D|<sup>M</sup> &lt; j(κ)</span>）。</span></div>
+  <div class="toolbar"><span class="seg"><button class="btn small sel" id="scSup"><span class="en">λ-supercompact</span><span class="zh">λ-超紧</span></button><button class="btn small" id="scStr"><span class="en">λ-strongly compact</span><span class="zh">λ-强紧</span></button></span></div>
+  <div class="svgbox"><svg id="scSvg" viewBox="0 0 860 260" width="860" height="260"></svg></div>
+  <div class="msg info" id="scInfo"></div>
+  <div class="def"><span class="en"><b>Definitions.</b> Let <span class="m">κ ≤ λ</span> and <span class="m">P<sub>κ</sub>(λ) = {x ⊆ λ : |x| &lt; κ}</span>. An ultrafilter U on <span class="m">P<sub>κ</sub>(λ)</span> is <b>fine</b> if <span class="m">{x : α ∈ x} ∈ U</span> for every <span class="m">α &lt; λ</span>, and <b>normal</b> if every f with <span class="m">f(x) ∈ x</span> on a U-large set is constant on a U-large set.
+    <br>• κ is <b>λ-strongly compact</b> ⇔ there is a κ-complete fine ultrafilter on <span class="m">P<sub>κ</sub>(λ)</span> ⇔ there is <span class="m">j : V → M</span> with <span class="m">crit(j) = κ</span> and some <span class="m">D ∈ M</span> with <span class="m">j″λ ⊆ D</span>, <span class="m">|D|<sup>M</sup> &lt; j(κ)</span>.
+    <br>• κ is <b>λ-supercompact</b> ⇔ there is a κ-complete <b>normal</b> fine ultrafilter on <span class="m">P<sub>κ</sub>(λ)</span> ⇔ there is <span class="m">j : V → M</span> with <span class="m">crit(j) = κ</span>, <span class="m">j(κ) &gt; λ</span>, <span class="m"><sup>λ</sup>M ⊆ M</span>.
+    <br><b>Strongly compact / supercompact</b> = λ-strongly compact / λ-supercompact for <b>all</b> λ ≥ κ. Equivalently, κ (uncountable) is strongly compact iff every κ-complete filter extends to a κ-complete ultrafilter, iff the infinitary logic <span class="m">L<sub>κ,κ</sub></span> satisfies the compactness theorem (that was the original definition).</span>
+    <span class="zh"><b>定义.</b> 设 <span class="m">κ ≤ λ</span>，<span class="m">P<sub>κ</sub>(λ) = {x ⊆ λ : |x| &lt; κ}</span>。<span class="m">P<sub>κ</sub>(λ)</span> 上的超滤 U 称为<b>精细的</b>，若对每个 <span class="m">α &lt; λ</span> 都有 <span class="m">{x : α ∈ x} ∈ U</span>；称为<b>正规的</b>，若每个在 U-大集上满足 <span class="m">f(x) ∈ x</span> 的函数 f 都在某个 U-大集上取常值。
+    <br>• κ 是 <b>λ-强紧的</b> ⇔ <span class="m">P<sub>κ</sub>(λ)</span> 上有 κ-完全的精细超滤 ⇔ 存在 <span class="m">j : V → M</span>，<span class="m">crit(j) = κ</span>，且有 <span class="m">D ∈ M</span> 使 <span class="m">j″λ ⊆ D</span>、<span class="m">|D|<sup>M</sup> &lt; j(κ)</span>。
+    <br>• κ 是 <b>λ-超紧的</b> ⇔ <span class="m">P<sub>κ</sub>(λ)</span> 上有 κ-完全的<b>正规</b>精细超滤 ⇔ 存在 <span class="m">j : V → M</span>，<span class="m">crit(j) = κ</span>、<span class="m">j(κ) &gt; λ</span>、<span class="m"><sup>λ</sup>M ⊆ M</span>。
+    <br><b>强紧 / 超紧</b> 即对<b>所有</b> λ ≥ κ 都是 λ-强紧 / λ-超紧。等价地，（不可数的）κ 是强紧基数，当且仅当每个 κ-完全滤都能扩张为 κ-完全超滤，当且仅当无穷逻辑 <span class="m">L<sub>κ,κ</sub></span> 满足紧致性定理（这是最初的定义）。</span></div>
+  <table class="mini">
+    <tr><th><span class="il"><span class="en">Claim</span><span class="zh">论断</span></span></th><th><span class="il"><span class="en">Status</span><span class="zh">状态</span></span></th></tr>
+    <tr><td><span class="en">supercompact ⇒ strongly compact (normal fine ⇒ fine); also supercompact ⇒ strong</span><span class="zh">超紧 ⇒ 强紧（正规精细 ⇒ 精细）；超紧 ⇒ 强</span></td><td><span class="status st-zfc">ZFC ⊢</span></td></tr>
+    <tr><td><span class="en">strongly compact ⇒ measurable</span><span class="zh">强紧 ⇒ 可测</span></td><td><span class="status st-zfc">ZFC ⊢</span></td></tr>
+    <tr><td><span class="en">the least strongly compact cardinal is the least measurable cardinal (Magidor 1976)</span><span class="zh">最小强紧基数恰是最小可测基数（马吉多尔，1976）</span></td><td><span class="status st-con"><span class="en">Con</span><span class="zh">相对一致</span></span> <span class="il"><span class="en">relative to a supercompact</span><span class="zh">相对于超紧基数</span></span></td></tr>
+    <tr><td><span class="en">the least strongly compact cardinal is supercompact (Magidor)</span><span class="zh">最小强紧基数是超紧的（马吉多尔）</span></td><td><span class="status st-con"><span class="en">Con</span><span class="zh">相对一致</span></span> <span class="il"><span class="en">relative to a supercompact</span><span class="zh">相对于超紧基数</span></span></td></tr>
+    <tr><td><span class="en">Con(ZFC + strongly compact) ⇒ Con(ZFC + supercompact), i.e. the two are equiconsistent</span><span class="zh">Con(ZFC + 强紧) ⇒ Con(ZFC + 超紧)，即两者等一致</span></td><td><span class="status st-open"><span class="en">open</span><span class="zh">未解决</span></span></td></tr>
+  </table>
+  <div class="note pit"><span class="en"><b class="h">⚠ Common pitfall.</b> Magidor's theorem says the least strongly compact <i>can</i> be the least measurable, so strongly compact does not <i>size-wise</i> sit above measurable. It says nothing about consistency strength: the exact consistency strength of a strongly compact cardinal is unknown (known lower bounds are far above one Woodin cardinal; the known upper bound is a supercompact).</span>
+    <span class="zh"><b class="h">⚠ 常见误区。</b>马吉多尔定理说最小强紧基数<i>可以</i>就是最小可测基数，所以就“大小”而言强紧并不一定在可测之上。但它不涉及一致性强度：强紧基数的确切一致性强度至今未知（已知下界远高于一个伍丁基数，已知上界是超紧基数）。</span></div>
+  <div class="cy" id="cy4"></div>
+</section>
+
+<!-- ============ S5 ============ -->
+<section class="card" id="s5">
+  <div class="kicker">§5</div>
+  <h2><span class="en">Extendible and huge: the critical sequence</span><span class="zh">可扩基数与巨大基数：临界序列</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置</span></span>:
+    <a class="chip" href="#s4">§4 · <span class="il"><span class="en">supercompact</span><span class="zh">超紧</span></span></a>
+    <a class="chip" href="lesson8.html">L8 · <span class="il"><span class="en">ordinals</span><span class="zh">序数</span></span></a></div>
+  <div class="idea"><span class="en"><b>One idea.</b> Apply j again and again to κ: <span class="m">κ₀ = κ, κ₁ = j(κ), κ₂ = j(κ₁), …</span> This <b>critical sequence</b> measures how far an embedding reaches. Huge: M is closed under <span class="m">κ₁</span>-sequences. n-huge: under <span class="m">κ<sub>n</sub></span>-sequences. Going all the way to <span class="m">sup<sub>n</sub> κ<sub>n</sub></span> is impossible (§6).</span>
+    <span class="zh"><b>核心思想。</b>对 κ 反复作用 j：<span class="m">κ₀ = κ, κ₁ = j(κ), κ₂ = j(κ₁), …</span> 这个<b>临界序列</b>刻画了嵌入能“伸”多远。巨大：M 对 <span class="m">κ₁</span>-序列封闭。n-巨大：对 <span class="m">κ<sub>n</sub></span>-序列封闭。一路走到 <span class="m">sup<sub>n</sub> κ<sub>n</sub></span> 则不可能（见 §6）。</span></div>
+  <div class="toolbar"><span class="m">n =</span> <input type="range" id="hgN" min="0" max="5" value="1" style="width:260px"> <b id="hgName"></b>
+    <button class="btn small" id="hgPlay"><span class="en">Animate j ▶</span><span class="zh">演示 j ▶</span></button></div>
+  <div class="svgbox"><svg id="hgSvg" viewBox="0 0 860 230" width="860" height="230"></svg></div>
+  <div class="msg info" id="hgInfo"></div>
+  <div class="def"><span class="en"><b>Definitions.</b>
+    • κ is <b>η-extendible</b> (η &gt; 0) if there are ζ and an elementary <span class="m">j : V<sub>κ+η</sub> → V<sub>ζ</sub></span> with <span class="m">crit(j) = κ</span> and <span class="m">η &lt; j(κ)</span>; κ is <b>extendible</b> if it is η-extendible for all η &gt; 0. (For full extendibility the clause <span class="m">η &lt; j(κ)</span> can be dropped.) Note that j here is a <i>set</i>: a map between two rank initial segments.
+    <br>• κ is <b>huge</b> if there is <span class="m">j : V → M</span> with <span class="m">crit(j) = κ</span> and <span class="m"><sup>j(κ)</sup>M ⊆ M</span>; <b>n-huge</b> if <span class="m"><sup>j<sup>n</sup>(κ)</sup>M ⊆ M</span>. (1-huge = huge.) <b>Superstrong</b>: <span class="m">V<sub>j(κ)</sub> ⊆ M</span>.
+    <br><b>Facts</b> <span class="status st-zfc">ZFC ⊢</span>: extendible ⇒ supercompact. Huge ⇒ superstrong (indeed <span class="m">V<sub>j(κ)+1</sub> ⊆ M</span>). In consistency strength: supercompact &lt; extendible &lt; Vopěnka's principle &lt; huge &lt; 2-huge &lt; 3-huge &lt; ….</span>
+    <span class="zh"><b>定义.</b>
+    • 称 κ 为 <b>η-可扩的</b>（η &gt; 0），若存在 ζ 和初等嵌入 <span class="m">j : V<sub>κ+η</sub> → V<sub>ζ</sub></span>，使 <span class="m">crit(j) = κ</span> 且 <span class="m">η &lt; j(κ)</span>；若对所有 η &gt; 0 都是 η-可扩的，则称 κ 为<b>可扩基数</b>。（对完整的可扩性，条件 <span class="m">η &lt; j(κ)</span> 可以去掉。）注意这里 j 是一个<i>集合</i>：两个秩初始段之间的映射。
+    <br>• 若存在 <span class="m">j : V → M</span>，使 <span class="m">crit(j) = κ</span> 且 <span class="m"><sup>j(κ)</sup>M ⊆ M</span>，则称 κ 为<b>巨大基数</b>；若 <span class="m"><sup>j<sup>n</sup>(κ)</sup>M ⊆ M</span>，则称为 <b>n-巨大基数</b>（1-巨大即巨大）。<b>超强基数</b>：<span class="m">V<sub>j(κ)</sub> ⊆ M</span>。
+    <br><b>事实</b> <span class="status st-zfc">ZFC ⊢</span>：可扩 ⇒ 超紧。巨大 ⇒ 超强（事实上 <span class="m">V<sub>j(κ)+1</sub> ⊆ M</span>）。一致性强度：超紧 &lt; 可扩 &lt; 沃彭卡原理 &lt; 巨大 &lt; 2-巨大 &lt; 3-巨大 &lt; ……</span></div>
+  <div class="note pit"><span class="en"><b class="h">⚠ Common pitfall: strength ≠ size.</b> If both exist, the least huge cardinal is <b>smaller</b> than the least supercompact cardinal, and a huge cardinal need not be supercompact. Yet “there is a huge cardinal” has <b>higher</b> consistency strength: it proves the consistency of “there is a supercompact cardinal”.</span>
+    <span class="zh"><b class="h">⚠ 常见误区：强度 ≠ 大小。</b>若两者都存在，最小巨大基数<b>小于</b>最小超紧基数，且巨大基数不一定超紧。然而“存在巨大基数”的一致性强度却<b>更高</b>：它能证明“存在超紧基数”是一致的。</span></div>
+  <div class="cy" id="cy5"></div>
+</section>
+
+<!-- ============ S6 ============ -->
+<section class="card" id="s6">
+  <div class="kicker">§6</div>
+  <h2><span class="en">Rank-into-rank and Kunen's wall</span><span class="zh">秩入秩公理与库能之墙</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置</span></span>:
+    <a class="chip" href="#s5">§5 · <span class="il"><span class="en">critical sequence</span><span class="zh">临界序列</span></span></a>
+    <a class="chip" href="lesson10.html">L10 · <span class="il"><span class="en">Axiom of Choice</span><span class="zh">选择公理</span></span></a>
+    <a class="chip" href="lesson15.html">L15 · <span class="il"><span class="en">L and L(X)</span><span class="zh">L 与 L(X)</span></span></a></div>
+  <div class="idea"><span class="en"><b>One idea.</b> The final step would be <span class="m">M = V</span>, i.e. <span class="m">j : V → V</span>. Kunen proved (using AC) that this is impossible, and more sharply that no <span class="m">j : V<sub>λ+2</sub> → V<sub>λ+2</sub></span> exists. Just below that line sit the strongest axioms not known to be inconsistent: I3, I2, I1, I0.</span>
+    <span class="zh"><b>核心思想。</b>最后一步将是 <span class="m">M = V</span>，即 <span class="m">j : V → V</span>。库能（利用 AC）证明这不可能，更精确地说，不存在 <span class="m">j : V<sub>λ+2</sub> → V<sub>λ+2</sub></span>。紧挨着这条线的下方，是尚未发现矛盾的最强公理：I3、I2、I1、I0。</span></div>
+  <div class="toolbar"><span class="seg" id="rrBtns"></span></div>
+  <div class="svgbox"><svg id="rrSvg" viewBox="0 0 860 290" width="860" height="290"></svg></div>
+  <div class="msg info" id="rrInfo"></div>
+  <div class="def"><span class="en"><b>Rank-into-rank axioms.</b> In each case j is nontrivial (not the identity), κ = crit(j), and <span class="m">λ = sup<sub>n</sub> κ<sub>n</sub></span> is the supremum of the critical sequence (for I3 and I1 this is forced by Kunen's theorem).
+    <br><b>I3</b>: there is a nontrivial elementary <span class="m">j : V<sub>λ</sub> → V<sub>λ</sub></span>.
+    <br><b>I2</b>: there is an elementary <span class="m">j : V → M</span> with <span class="m">V<sub>λ</sub> ⊆ M</span>, where λ is the supremum of the critical sequence.
+    <br><b>I1</b>: there is a nontrivial elementary <span class="m">j : V<sub>λ+1</sub> → V<sub>λ+1</sub></span>.
+    <br><b>I0</b>: there is a nontrivial elementary <span class="m">j : L(V<sub>λ+1</sub>) → L(V<sub>λ+1</sub>)</span> with <span class="m">crit(j) &lt; λ</span>.
+    <br>Each of I0 ⇒ I1 ⇒ I2 ⇒ I3 holds (in the strong sense that the cardinal witnessing the stronger axiom witnesses the weaker), and I3 is above every n-huge in consistency strength.</span>
+    <span class="zh"><b>秩入秩公理.</b> 以下 j 都非平凡（不是恒等映射），κ = crit(j)，<span class="m">λ = sup<sub>n</sub> κ<sub>n</sub></span> 是临界序列的上确界（对 I3 和 I1，这一点由库能定理强制）。
+    <br><b>I3</b>：存在非平凡初等嵌入 <span class="m">j : V<sub>λ</sub> → V<sub>λ</sub></span>。
+    <br><b>I2</b>：存在初等嵌入 <span class="m">j : V → M</span>，使 <span class="m">V<sub>λ</sub> ⊆ M</span>，其中 λ 是临界序列的上确界。
+    <br><b>I1</b>：存在非平凡初等嵌入 <span class="m">j : V<sub>λ+1</sub> → V<sub>λ+1</sub></span>。
+    <br><b>I0</b>：存在非平凡初等嵌入 <span class="m">j : L(V<sub>λ+1</sub>) → L(V<sub>λ+1</sub>)</span>，且 <span class="m">crit(j) &lt; λ</span>。
+    <br>I0 ⇒ I1 ⇒ I2 ⇒ I3 均成立（而且是强意义下：见证较强公理的基数也见证较弱的），I3 的一致性强度高于任意 n-巨大。</span></div>
+  <div class="def"><span class="en"><b>Kunen's inconsistency theorem (1971)</b> <span class="status st-no">ZFC ⊢ ¬</span>. For every ordinal λ there is no nontrivial elementary <span class="m">j : V<sub>λ+2</sub> → V<sub>λ+2</sub></span>. Consequently (in a class theory such as NBG, or with j added to the language and Replacement allowed for formulas mentioning j) there is no nontrivial elementary <span class="m">j : V → V</span>, and no ω-huge cardinal.</span>
+    <span class="zh"><b>库能不一致性定理（1971）</b> <span class="status st-no">ZFC ⊢ ¬</span>。对任意序数 λ，不存在非平凡初等嵌入 <span class="m">j : V<sub>λ+2</sub> → V<sub>λ+2</sub></span>。因此（在 NBG 这样的类理论中，或者把 j 加入语言、并允许含 j 的公式使用替换公理时）不存在非平凡初等嵌入 <span class="m">j : V → V</span>，也不存在 ω-巨大基数。</span></div>
+  <h3><span class="en">Proof sketch (Kunen, via ω-Jónsson functions)</span><span class="zh">证明梗概（库能，借助 ω-琼森函数）</span></h3>
+  <div class="steps" id="kuSteps">
+    <div class="step def"><span class="en"><b>Step 1 · Set-up.</b> Suppose <span class="m">j : V<sub>λ+2</sub> → V<sub>λ+2</sub></span> is elementary and nontrivial, with critical point κ. Let <span class="m">κ₀ = κ</span>, <span class="m">κ<sub>n+1</sub> = j(κ<sub>n</sub>)</span>, and <span class="m">η = sup<sub>n</sub> κ<sub>n</sub> ≤ λ</span>. Because <span class="m">⟨κ<sub>n</sub>⟩</span> is a countable sequence and <span class="m">crit(j) &gt; ω</span>, <span class="m">j(⟨κ<sub>n</sub>⟩) = ⟨κ<sub>n+1</sub>⟩</span>, so <b><span class="m">j(η) = η</span></b>.</span>
+      <span class="zh"><b>第 1 步 · 准备.</b> 设 <span class="m">j : V<sub>λ+2</sub> → V<sub>λ+2</sub></span> 是非平凡初等嵌入，临界点为 κ。令 <span class="m">κ₀ = κ</span>，<span class="m">κ<sub>n+1</sub> = j(κ<sub>n</sub>)</span>，<span class="m">η = sup<sub>n</sub> κ<sub>n</sub> ≤ λ</span>。由于 <span class="m">⟨κ<sub>n</sub>⟩</span> 是可数序列且 <span class="m">crit(j) &gt; ω</span>，有 <span class="m">j(⟨κ<sub>n</sub>⟩) = ⟨κ<sub>n+1</sub>⟩</span>，所以 <b><span class="m">j(η) = η</span></b>。</span></div>
+    <div class="step def"><span class="en"><b>Step 2 · A combinatorial monster (this is where AC enters).</b> By a theorem of Erdős and Hajnal, which uses the Axiom of Choice, there is an <b>ω-Jónsson function</b> for η: a map <span class="m">f : [η]<sup>ω</sup> → η</span> such that for every <span class="m">A ⊆ η</span> with <span class="m">|A| = η</span>, <span class="m">f″[A]<sup>ω</sup> = η</span>. In words, f maps the countable subsets of <i>any</i> large set onto <i>everything</i>. Suitably coded, f is an element of <span class="m">V<sub>λ+2</sub></span>, and “f is ω-Jónsson for η” is expressible there, because it quantifies only over subsets of η.</span>
+      <span class="zh"><b>第 2 步 · 一个组合“怪物”（AC 就在这里用上）.</b> 由埃尔德什–哈伊瑙尔定理（其证明用到选择公理），存在关于 η 的 <b>ω-琼森函数</b>：映射 <span class="m">f : [η]<sup>ω</sup> → η</span>，使得对每个满足 <span class="m">|A| = η</span> 的 <span class="m">A ⊆ η</span>，都有 <span class="m">f″[A]<sup>ω</sup> = η</span>。通俗地说，任何一个大集合的可数子集，经 f 映射后能覆盖<i>全部</i>。经过适当编码，f 是 <span class="m">V<sub>λ+2</sub></span> 的元素，且“f 是 η 的 ω-琼森函数”能在其中表达，因为这句话只对 η 的子集作量化。</span></div>
+    <div class="step def"><span class="en"><b>Step 3 · Elementarity.</b> Then <span class="m">j(f)</span> is ω-Jónsson for <span class="m">j(η) = η</span>. Apply this to <span class="m">A = j″η</span>, which has size η. Hence <span class="m">κ ∈ j(f)″[j″η]<sup>ω</sup></span>: there is a countable <span class="m">s ⊆ j″η</span> with <span class="m">j(f)(s) = κ</span>.</span>
+      <span class="zh"><b>第 3 步 · 初等性.</b> 于是 <span class="m">j(f)</span> 是 <span class="m">j(η) = η</span> 的 ω-琼森函数。把它用在 <span class="m">A = j″η</span> 上（其势为 η），得到 <span class="m">κ ∈ j(f)″[j″η]<sup>ω</sup></span>：存在可数集 <span class="m">s ⊆ j″η</span> 使 <span class="m">j(f)(s) = κ</span>。</span></div>
+    <div class="step def"><span class="en"><b>Step 4 · Contradiction.</b> Write <span class="m">s = j″t</span> with t a countable subset of η. Since t is countable and <span class="m">crit(j) &gt; ω</span>, <span class="m">j(t) = j″t = s</span>. So <span class="m">κ = j(f)(j(t)) = j(f(t))</span>, i.e. κ is in the <b>range</b> of j. But κ is not: ordinals <span class="m">α &lt; κ</span> have <span class="m">j(α) = α &lt; κ</span>, and ordinals <span class="m">α ≥ κ</span> have <span class="m">j(α) ≥ j(κ) &gt; κ</span>. Contradiction. ∎
+      <br><b>For j : V → V</b>: let <span class="m">λ = sup κ<sub>n</sub></span>; then <span class="m">j(λ) = λ</span>, so j maps <span class="m">V<sub>λ+2</sub></span> into itself, and its restriction contradicts what we just proved. (Woodin found a second proof using Solovay's splitting of stationary sets, which also needs AC.)</span>
+      <span class="zh"><b>第 4 步 · 矛盾.</b> 写 <span class="m">s = j″t</span>，其中 t 是 η 的可数子集。由于 t 可数且 <span class="m">crit(j) &gt; ω</span>，<span class="m">j(t) = j″t = s</span>。于是 <span class="m">κ = j(f)(j(t)) = j(f(t))</span>，即 κ 在 j 的<b>值域</b>里。但这不可能：<span class="m">α &lt; κ</span> 时 <span class="m">j(α) = α &lt; κ</span>，<span class="m">α ≥ κ</span> 时 <span class="m">j(α) ≥ j(κ) &gt; κ</span>。矛盾。∎
+      <br><b>对 j : V → V</b>：令 <span class="m">λ = sup κ<sub>n</sub></span>，则 <span class="m">j(λ) = λ</span>，于是 j 把 <span class="m">V<sub>λ+2</sub></span> 映入自身，其限制与刚证明的结论矛盾。（伍丁给出了另一个证明，用的是索洛维的平稳集分割定理，同样需要 AC。）</span></div>
+  </div>
+  <div class="toolbar"><button class="btn primary" data-next="kuSteps"><span class="en">Reveal next step</span><span class="zh">揭晓下一步</span></button>
+    <button class="btn ghost" data-all="kuSteps"><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+  <div class="def"><span class="en"><b>Beyond the wall: choiceless cardinals.</b> Without AC, Kunen's proof breaks down at Step 2. A <b>Reinhardt cardinal</b> is the critical point of a nontrivial elementary <span class="m">j : V → V</span> (formalized with j as an extra class, e.g. in ZF(j) or NBG-style class theory without choice). A <b>Berkeley cardinal</b> δ: for every transitive set M with <span class="m">δ ∈ M</span> and every <span class="m">α &lt; δ</span> there is a nontrivial elementary <span class="m">j : M → M</span> with <span class="m">α &lt; crit(j) &lt; δ</span>. Berkeley cardinals are stronger than Reinhardt cardinals. Both are inconsistent with ZFC.
+    <br><span class="status st-open"><span class="en">open</span><span class="zh">未解决</span></span> Whether ZF + “there is a Reinhardt cardinal” (or a Berkeley cardinal) is consistent is open. A known partial result: <b>Suzuki</b> showed in ZF that no <i>definable</i> j : V → V exists. In the other direction, <b>Schlutzenberg</b> (arXiv 2020; <i>J. Math. Logic</i> 2025) showed: if ZF + I0 at λ holds (an elementary <span class="m">j : L(V<sub>λ+1</sub>) → L(V<sub>λ+1</sub>)</span> with <span class="m">crit(j) &lt; λ</span>), then there is an inner model of ZF + “there is a nontrivial elementary <span class="m">j : V<sub>λ+2</sub> → V<sub>λ+2</sub></span>”. So Con(ZFC + I0) ⇒ Con(ZF + such a j), and the λ+2 bound in Kunen's theorem genuinely needs AC.</span>
+    <span class="zh"><b>墙的另一边：无选择的基数。</b>没有 AC，库能的证明在第 2 步就断了。<b>莱因哈特基数</b>是某个非平凡初等嵌入 <span class="m">j : V → V</span> 的临界点（形式化时把 j 当作额外的类，例如在 ZF(j) 或不含选择的 NBG 式类理论中）。<b>伯克利基数</b> δ：对每个满足 <span class="m">δ ∈ M</span> 的传递集 M 和每个 <span class="m">α &lt; δ</span>，存在非平凡初等嵌入 <span class="m">j : M → M</span> 使 <span class="m">α &lt; crit(j) &lt; δ</span>。伯克利基数比莱因哈特基数更强。两者都与 ZFC 矛盾。
+    <br><span class="status st-open"><span class="en">open</span><span class="zh">未解决</span></span> ZF +“存在莱因哈特基数”（或伯克利基数）是否一致，至今未知。已知的部分结果：<b>铃木</b>在 ZF 中证明了不存在<i>可定义的</i> j : V → V。另一方向上，<b>施卢岑贝格</b>（arXiv 2020；《数理逻辑杂志》2025）证明：若 ZF + 在 λ 处的 I0 成立（存在初等嵌入 <span class="m">j : L(V<sub>λ+1</sub>) → L(V<sub>λ+1</sub>)</span>，且 <span class="m">crit(j) &lt; λ</span>），则存在满足 ZF +“存在非平凡初等嵌入 <span class="m">j : V<sub>λ+2</sub> → V<sub>λ+2</sub></span>”的内模型。因此 Con(ZFC + I0) ⇒ Con(ZF + 这样的 j)，可见库能定理中 λ+2 这条界线确实依赖 AC。</span></div>
+  <div class="note pit"><span class="en"><b class="h">⚠ Common pitfall.</b> Kunen's theorem does <b>not</b> refute I3–I0: those live at <span class="m">V<sub>λ</sub></span>, <span class="m">V<sub>λ+1</sub></span> and <span class="m">L(V<sub>λ+1</sub>)</span>, just under the line <span class="m">V<sub>λ+2</sub></span>. (<span class="m">L(V<sub>λ+1</sub>)</span> contains <span class="m">V<sub>λ+1</sub></span> but generally not all of <span class="m">V<sub>λ+2</sub></span>, and it does not satisfy AC.) And “Reinhardt is inconsistent” is only proved <b>with AC</b>.</span>
+    <span class="zh"><b class="h">⚠ 常见误区。</b>库能定理<b>并没有</b>否定 I3–I0：它们落在 <span class="m">V<sub>λ</sub></span>、<span class="m">V<sub>λ+1</sub></span> 和 <span class="m">L(V<sub>λ+1</sub>)</span> 上，正好在 <span class="m">V<sub>λ+2</sub></span> 这条线下方。（<span class="m">L(V<sub>λ+1</sub>)</span> 包含 <span class="m">V<sub>λ+1</sub></span>，但一般不包含整个 <span class="m">V<sub>λ+2</sub></span>，而且不满足 AC。）另外，“莱因哈特基数不一致”只是在<b>有 AC</b> 的前提下被证明了。</span></div>
+  <div class="cy" id="cy6"></div>
+</section>
+
+<!-- ============ S7 ============ -->
+<section class="card" id="s7">
+  <div class="kicker">§7</div>
+  <h2><span class="en">The consistency-strength ladder</span><span class="zh">一致性强度阶梯</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置</span></span>:
+    <a class="chip" href="lesson12.html">L12 · <span class="il"><span class="en">Con(T), Gödel II</span><span class="zh">Con(T) 与第二不完全性</span></span></a>
+    <a class="chip" href="lesson15.html">L15 · <span class="il"><span class="en">V = L</span><span class="zh">V = L</span></span></a>
+    <a class="chip" href="#s6">§6</a></div>
+  <div class="idea"><span class="en"><b>One idea.</b> T₁ has <b>higher consistency strength</b> than T₂ if <span class="m">ZFC + T₁ ⊢ Con(ZFC + T₂)</span> (so, by Gödel II, the converse provability fails if T₁ is consistent). Every natural large-cardinal axiom studied so far fits into one ladder. Click a rung.</span>
+    <span class="zh"><b>核心思想。</b>若 <span class="m">ZFC + T₁ ⊢ Con(ZFC + T₂)</span>，就说 T₁ 的<b>一致性强度更高</b>（由哥德尔第二不完全性定理，若 T₁ 一致，则反过来证不出）。迄今研究过的自然大基数公理，都排进了同一架阶梯。点击某一级试试。</span></div>
+  <div class="toolbar"><span class="seg" id="ladLegend"></span></div>
+  <div class="row">
+    <div class="col" style="flex:1 1 520px"><div class="svgbox"><svg id="ladSvg" viewBox="0 0 640 980" width="640" height="980"></svg></div></div>
+    <div class="col" style="flex:1 1 280px;position:sticky;top:70px"><div class="msg info" id="ladInfo"></div></div>
+  </div>
+  <div class="note pit"><span class="en"><b class="h">⚠ Common pitfalls.</b> (1) The linear ordering is an <b>observation</b>, not a theorem: there is no formal definition of “large-cardinal axiom”. (2) In a few places the order is not known; the most famous is the strongly compact cardinal, placed here between Woodin and supercompact with a dashed bracket. (3) Region boundaries for “canonical inner models known” are approximate and move as research progresses. (4) Higher on the ladder does not mean a larger cardinal (§5).</span>
+    <span class="zh"><b class="h">⚠ 常见误区。</b>(1) 线性排序是一个<b>经验观察</b>，不是定理：“大基数公理”并没有形式定义。(2) 有几处排序并不清楚，最著名的是强紧基数，这里用虚线括号把它放在伍丁与超紧之间。(3)“已知典范内模型”这一区域的边界是大致的，会随研究进展而移动。(4) 阶梯上更高，不代表基数更大（见 §5）。</span></div>
+  <div class="cy" id="cy7"></div>
+</section>
+
+<!-- ============ S8 ============ -->
+<section class="card" id="s8">
+  <div class="kicker">§8</div>
+  <h2><span class="en">Finite games and backward induction (Zermelo)</span><span class="zh">有限博弈与逆向归纳（策梅洛）</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置</span></span>:
+    <a class="chip" href="lesson3.html">L3 · <span class="il"><span class="en">∀∃ alternation</span><span class="zh">∀∃ 交替</span></span></a>
+    <a class="chip" href="lesson17.html">L17 · <span class="il"><span class="en">quantifier hierarchy</span><span class="zh">量词层级</span></span></a></div>
+  <div class="idea"><span class="en"><b>One idea.</b> “Player I has a winning strategy” is a long alternating formula <span class="m">∃a₀ ∀b₀ ∃a₁ ∀b₁ (play ∈ A)</span>. For a finite game you can evaluate it from the leaves upward. Every node gets the name of the player who wins from there.</span>
+    <span class="zh"><b>核心思想。</b>“玩家 I 有获胜策略”就是一个很长的交替量词公式 <span class="m">∃a₀ ∀b₀ ∃a₁ ∀b₁ (对局 ∈ A)</span>。有限博弈可以从叶子往上逐层计算，每个结点都标上从该处出发必胜的玩家。</span></div>
+  <p><span class="en">Player I moves at the root and at depth 2; player II at depths 1 and 3. Click a <b>leaf</b> to change who wins that play. Then press Solve: a node where I is to move is I's if <i>some</i> child is I's; a node where II is to move is I's only if <i>every</i> child is I's. Purple edges show the winner's strategy.</span>
+     <span class="zh">玩家 I 在根和第 2 层走棋，玩家 II 在第 1、3 层走棋。点击<b>叶子</b>可改变该对局的胜者。然后点“求解”：轮到 I 的结点，只要<i>某个</i>子结点归 I，它就归 I；轮到 II 的结点，只有<i>所有</i>子结点都归 I，它才归 I。紫色边是胜者的策略。</span></p>
+  <div class="toolbar">
+    <button class="btn primary" id="fgSolve"><span class="en">Solve by backward induction ▶</span><span class="zh">逆向归纳求解 ▶</span></button>
+    <button class="btn" id="fgRand"><span class="en">Random leaves 🎲</span><span class="zh">随机叶子 🎲</span></button>
+    <button class="btn ghost" id="fgClear"><span class="en">Clear labels</span><span class="zh">清除标注</span></button>
+  </div>
+  <div class="svgbox"><svg id="fgSvg" viewBox="0 0 860 330" width="860" height="330"></svg></div>
+  <div class="msg" id="fgMsg"></div>
+  <div class="def"><span class="en"><b>Zermelo's theorem</b> <span class="status st-zfc">ZFC ⊢</span> (in fact provable in very weak theories). In every finite two-player game of perfect information without draws, exactly one player has a winning strategy. <b>Proof:</b> induction on the height of the game tree, exactly as the animation does it.</span>
+    <span class="zh"><b>策梅洛定理</b> <span class="status st-zfc">ZFC ⊢</span>（其实在很弱的理论里就能证明）。在每个没有平局、完全信息的有限二人博弈中，恰有一方有获胜策略。<b>证明：</b>对博弈树的高度归纳，和动画做的完全一样。</span></div>
+  <div class="note pit"><span class="en"><b class="h">⚠ Common pitfall.</b> “Determined” means a winning strategy <b>exists</b>, not that anyone can find it quickly (chess is determined in this sense, with draws as a third outcome). And “exactly one” is easy: if both had winning strategies, play them against each other; the resulting play would be won by both.</span>
+    <span class="zh"><b class="h">⚠ 常见误区。</b>“确定”指获胜策略<b>存在</b>，不等于谁能很快把它找出来（国际象棋在这个意义下也是确定的，只是平局算第三种结局）。“恰有一方”很容易：若双方都有获胜策略，让两个策略对弈，得到的对局就会同时归双方所有，矛盾。</span></div>
+  <div class="cy" id="cy8"></div>
+</section>
+
+<!-- ============ S9 ============ -->
+<section class="card" id="s9">
+  <div class="kicker">§9</div>
+  <h2><span class="en">Infinite games: Gale–Stewart, Borel determinacy, and AD versus AC</span><span class="zh">无穷博弈：盖尔–斯图尔特、博雷尔决定性，以及 AD 与 AC 的冲突</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置</span></span>:
+    <a class="chip" href="#s8">§8</a>
+    <a class="chip" href="lesson19.html">L19 · <span class="il"><span class="en">Baire space, Σ⁰₁ / Borel</span><span class="zh">贝尔空间、Σ⁰₁ 与博雷尔集</span></span></a>
+    <a class="chip" href="lesson1.html#s8">L1 · <span class="il"><span class="en">diagonal method</span><span class="zh">对角线方法</span></span></a></div>
+  <div class="idea"><span class="en"><b>One idea.</b> Now the play is infinite: I and II alternately pick natural numbers, producing <span class="m">x = (a₀, b₀, a₁, b₁, …) ∈ ω<sup>ω</sup></span>. Player I wins iff <span class="m">x ∈ A</span>. If A is <b>open</b>, I wins at a finite stage, so the finite-game reasoning survives with ordinal ranks. For arbitrary A, AC builds a game nobody wins.</span>
+    <span class="zh"><b>核心思想。</b>现在对局是无穷的：I 和 II 轮流选自然数，产生 <span class="m">x = (a₀, b₀, a₁, b₁, …) ∈ ω<sup>ω</sup></span>，当且仅当 <span class="m">x ∈ A</span> 时 I 获胜。若 A 是<b>开集</b>，I 的胜利在某个有限时刻就已注定，于是有限博弈的推理加上序数秩照样适用。对任意的 A，AC 却能造出一个谁都赢不了的博弈。</span></div>
+  <div class="def"><span class="en"><b>Definitions.</b> For <span class="m">A ⊆ ω<sup>ω</sup></span>, the <b>Gale–Stewart game</b> <span class="m">G<sub>A</sub></span>: I plays <span class="m">a₀</span>, II plays <span class="m">b₀</span>, I plays <span class="m">a₁</span>, … ; I wins iff <span class="m">(a₀,b₀,a₁,b₁,…) ∈ A</span>. A <b>strategy</b> for I is a function from finite sequences of even length to ω (for II: odd length). It is <b>winning</b> if every play following it is won. <span class="m">G<sub>A</sub></span> (or A) is <b>determined</b> if one player has a winning strategy. <b>AD</b> (axiom of determinacy, Mycielski–Steinhaus 1962): every <span class="m">A ⊆ ω<sup>ω</sup></span> is determined.</span>
+    <span class="zh"><b>定义.</b> 对 <span class="m">A ⊆ ω<sup>ω</sup></span>，<b>盖尔–斯图尔特博弈</b> <span class="m">G<sub>A</sub></span>：I 出 <span class="m">a₀</span>，II 出 <span class="m">b₀</span>，I 出 <span class="m">a₁</span>，……；当且仅当 <span class="m">(a₀,b₀,a₁,b₁,…) ∈ A</span> 时 I 获胜。I 的<b>策略</b>是从偶数长度有限序列到 ω 的函数（II 的则是奇数长度）。若遵循某策略的每一局都获胜，则称它为<b>获胜策略</b>。若某一方有获胜策略，则称 <span class="m">G<sub>A</sub></span>（或 A）是<b>确定的</b>。<b>AD</b>（决定性公理，梅齐尔斯基–施泰因豪斯，1962）：每个 <span class="m">A ⊆ ω<sup>ω</sup></span> 都是确定的。</span></div>
+
+  <h3><span class="en">(a) Open games: an interactive truncation</span><span class="zh">(a) 开博弈：一个可交互的截断模型</span></h3>
+  <p><span class="en">Moves are 0 or 1 and the tree is cut after 5 moves (I moves at even depths, II at odd depths). Click nodes to make them <b>targets</b>: I wins as soon as the play passes through a target, so A is the union of the cylinders <span class="m">[s]</span> of the targets s, an open set. Press “Rank” to compute the positions from which I can <i>force</i> a hit, labelled by the number of moves still needed (in the real ω-branching game these ranks are countable <b>ordinals</b>). Every other position is a “safe” position for II.</span>
+     <span class="zh">着法只有 0 和 1，树在第 5 步之后截断（I 在偶数层走棋，II 在奇数层走棋）。点击结点把它设为<b>目标</b>：对局一旦经过目标，I 立即获胜，所以 A 是各目标 s 的柱集 <span class="m">[s]</span> 之并，是开集。点“计算秩”，求出 I 能<i>强迫</i>命中目标的位置，并标上还需要的步数（在真正 ω 分叉的博弈中，这些秩是可数<b>序数</b>）。其余位置都是 II 的“安全”位置。</span></p>
+  <div class="toolbar">
+    <button class="btn primary" id="opRank"><span class="en">Rank ▶</span><span class="zh">计算秩 ▶</span></button>
+    <button class="btn" id="opRand"><span class="en">Random targets 🎲</span><span class="zh">随机目标 🎲</span></button>
+  </div>
+  <div class="svgbox"><svg id="opSvg" viewBox="0 0 860 330" width="860" height="330"></svg></div>
+  <div class="msg" id="opMsg"></div>
+  <div class="def"><span class="en"><b>Gale–Stewart theorem (1953)</b> <span class="status st-zfc">ZFC ⊢</span>. Every open (<span class="m">Σ⁰₁</span>) set, and hence every closed (<span class="m">Π⁰₁</span>) set, is determined.</span>
+    <span class="zh"><b>盖尔–斯图尔特定理（1953）</b> <span class="status st-zfc">ZFC ⊢</span>。每个开集（<span class="m">Σ⁰₁</span>）都是确定的，因而每个闭集（<span class="m">Π⁰₁</span>）也是。</span></div>
+  <div class="steps" id="gsSteps">
+    <div class="step def"><span class="en"><b>Step 1.</b> Call a position p (finite sequence) <b>good for I</b> if I has a winning strategy in the game continuing from p. Suppose the start is not good for I. We build a winning strategy for II.</span>
+      <span class="zh"><b>第 1 步.</b> 若在从位置 p（有限序列）继续的博弈中 I 有获胜策略，就称 p <b>对 I 有利</b>。假设起点不是对 I 有利的，我们来为 II 造一个获胜策略。</span></div>
+    <div class="step def"><span class="en"><b>Step 2.</b> If it is I's turn at a position not good for I, then <i>every</i> move of I leads to a position not good for I (otherwise I would move there and win). If it is II's turn at a position not good for I, then <i>some</i> move of II leads to a position not good for I (otherwise every move of II leads to a good-for-I position, and I could combine those winning strategies, choosing one for each of II's countably many moves, so the position would be good for I; a choice-free version uses the ordinal ranks from the toy above). II's strategy: play the <b>least</b> such move. Choosing the least one needs no choice principle.</span>
+      <span class="zh"><b>第 2 步.</b> 若轮到 I 时位置不对 I 有利，那么 I 的<i>每</i>一步都通向不对 I 有利的位置（否则 I 走过去就赢了）。若轮到 II 时位置不对 I 有利，那么 II <i>某</i>一步通向不对 I 有利的位置（否则 II 每一步都通向对 I 有利的位置，I 为 II 的可数多种走法各选一个获胜策略拼起来，该位置就对 I 有利了；不用选择的版本可以借助上面玩具模型里的序数秩）。II 的策略是：走<b>最小</b>的这样一步。取“最小”不需要任何选择原理。</span></div>
+    <div class="step def"><span class="en"><b>Step 3.</b> Following this strategy, every finite stage of the play is a position not good for I. If the final play x were in A, then since A is open, some finite initial segment p of x has <span class="m">[p] ⊆ A</span>. From p, I wins whatever happens, so p is good for I. Contradiction. So <span class="m">x ∉ A</span> and II wins. ∎ (The ranks in the toy above make Step 2 explicit.)</span>
+      <span class="zh"><b>第 3 步.</b> 按此策略，对局的每个有限阶段都是不对 I 有利的位置。如果最终对局 x 属于 A，由于 A 是开集，x 有某个有限前段 p 满足 <span class="m">[p] ⊆ A</span>。从 p 出发 I 怎么走都赢，所以 p 对 I 有利，矛盾。因此 <span class="m">x ∉ A</span>，II 获胜。∎（上面玩具模型里的秩把第 2 步具体化了。）</span></div>
+  </div>
+  <div class="toolbar"><button class="btn primary" data-next="gsSteps"><span class="en">Reveal next step</span><span class="zh">揭晓下一步</span></button>
+    <button class="btn ghost" data-all="gsSteps"><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+  <div class="def"><span class="en"><b>Borel determinacy (Martin 1975)</b> <span class="status st-zfc">ZFC ⊢</span>. Every Borel set <span class="m">A ⊆ ω<sup>ω</sup></span> is determined. The proof “unravels” a Borel game into an open game on a larger tree of moves, and each level of the Borel hierarchy costs further iterations of the power-set operation. <b>Friedman (1971)</b> showed that this cost is unavoidable in an essential way: Borel determinacy cannot be proved in Zermelo set theory (without Replacement), nor in second-order arithmetic. It is a natural statement about sets of reals that genuinely needs uncountably many iterations of the power set.</span>
+    <span class="zh"><b>博雷尔决定性（马丁，1975）</b> <span class="status st-zfc">ZFC ⊢</span>。每个博雷尔集 <span class="m">A ⊆ ω<sup>ω</sup></span> 都是确定的。证明把博雷尔博弈“展开”成某棵更大着法树上的开博弈，博雷尔层级每升高一级，都要多迭代几次幂集运算。<b>弗里德曼（1971）</b>证明这一代价本质上不可避免：博雷尔决定性在策梅洛集合论（无替换公理）中不可证，在二阶算术中也不可证。这是一个关于实数集的自然命题，却真正需要不可数多次迭代幂集。</span></div>
+
+  <h3><span class="en">(b) Why AD contradicts AC: a diagonal argument</span><span class="zh">(b) 为什么 AD 与 AC 矛盾：一个对角线论证</span></h3>
+  <p><span class="en">AC well-orders all strategies in a list of length <span class="m">2<sup>ℵ₀</sup></span>. At stage α we spoil both the α-th strategy of I and the α-th strategy of II, by putting one play into A and promising another to stay out. This is Cantor's diagonal method run over all strategies. Press “Next stage”.</span>
+     <span class="zh">AC 把全体策略良序排成长度为 <span class="m">2<sup>ℵ₀</sup></span> 的一列。第 α 步，同时破坏 I 的第 α 个策略和 II 的第 α 个策略：把一个对局放进 A，再预定另一个对局永远留在 A 外。这就是对全体策略施行的康托尔对角线法。点“下一步”。</span></p>
+  <div class="toolbar"><button class="btn primary" id="adNext"><span class="en">Next stage ▶</span><span class="zh">下一步 ▶</span></button><button class="btn ghost" id="adReset"><span class="en">Reset</span><span class="zh">重置</span></button></div>
+  <div class="svgbox"><svg id="adSvg" viewBox="0 0 860 280" width="860" height="280"></svg></div>
+  <div class="steps" id="acSteps">
+    <div class="step def"><span class="en"><b>Step 1 · Count.</b> A strategy is a function from the countable set <span class="m">ω<sup>&lt;ω</sup></span> to ω, so there are exactly <span class="m">ℵ₀<sup>ℵ₀</sup> = 2<sup>ℵ₀</sup></span> strategies for each player.</span><span class="zh"><b>第 1 步 · 计数.</b> 策略是从可数集 <span class="m">ω<sup>&lt;ω</sup></span> 到 ω 的函数，所以每位玩家恰有 <span class="m">ℵ₀<sup>ℵ₀</sup> = 2<sup>ℵ₀</sup></span> 个策略。</span></div>
+    <div class="step def"><span class="en"><b>Step 2 · Well-order (AC).</b> List I's strategies as <span class="m">⟨σ<sub>α</sub> : α &lt; 2<sup>ℵ₀</sup>⟩</span> and II's as <span class="m">⟨τ<sub>α</sub> : α &lt; 2<sup>ℵ₀</sup>⟩</span>, where 2<sup>ℵ₀</sup> is taken as an initial ordinal, so every <span class="m">α &lt; 2<sup>ℵ₀</sup></span> has <span class="m">|α| &lt; 2<sup>ℵ₀</sup></span>.</span><span class="zh"><b>第 2 步 · 良序（AC）.</b> 把 I 的策略排成 <span class="m">⟨σ<sub>α</sub> : α &lt; 2<sup>ℵ₀</sup>⟩</span>，II 的排成 <span class="m">⟨τ<sub>α</sub> : α &lt; 2<sup>ℵ₀</sup>⟩</span>，这里 2<sup>ℵ₀</sup> 取为初始序数，于是每个 <span class="m">α &lt; 2<sup>ℵ₀</sup></span> 都有 <span class="m">|α| &lt; 2<sup>ℵ₀</sup></span>。</span></div>
+    <div class="step def"><span class="en"><b>Step 3 · Stage α.</b> So far fewer than 2<sup>ℵ₀</sup> plays have been chosen. The plays consistent with <span class="m">τ<sub>α</sub></span> number 2<sup>ℵ₀</sup> (I's moves vary freely and are visible in the play), so pick one, <span class="m">x<sub>α</sub></span>, not yet promised to stay out, and put it <b>into A</b>. Likewise pick a play <span class="m">y<sub>α</sub></span> consistent with <span class="m">σ<sub>α</sub></span>, different from all <span class="m">x<sub>β</sub></span> (β ≤ α), and promise it stays <b>out of A</b>.</span><span class="zh"><b>第 3 步 · 第 α 步.</b> 目前已选出的对局少于 2<sup>ℵ₀</sup> 个。与 <span class="m">τ<sub>α</sub></span> 相容的对局有 2<sup>ℵ₀</sup> 个（I 的着法可以任意变化，而且都出现在对局里），所以能挑一个尚未被预定留在外面的 <span class="m">x<sub>α</sub></span>，把它<b>放进 A</b>。同样，挑一个与 <span class="m">σ<sub>α</sub></span> 相容、且不同于所有 <span class="m">x<sub>β</sub></span>（β ≤ α）的对局 <span class="m">y<sub>α</sub></span>，预定它<b>留在 A 外</b>。</span></div>
+    <div class="step def"><span class="en"><b>Step 4 · Diagonal conclusion.</b> Let <span class="m">A = {x<sub>α</sub> : α &lt; 2<sup>ℵ₀</sup>}</span>. No <span class="m">y<sub>α</sub></span> lies in A. Each <span class="m">τ<sub>α</sub></span> loses on <span class="m">x<sub>α</sub> ∈ A</span>, and each <span class="m">σ<sub>α</sub></span> loses on <span class="m">y<sub>α</sub> ∉ A</span>. So no strategy wins <span class="m">G<sub>A</sub></span>: A is not determined, and <span class="status st-no">ZFC ⊢ ¬</span>AD. ∎</span><span class="zh"><b>第 4 步 · 对角线结论.</b> 令 <span class="m">A = {x<sub>α</sub> : α &lt; 2<sup>ℵ₀</sup>}</span>。没有任何 <span class="m">y<sub>α</sub></span> 属于 A。每个 <span class="m">τ<sub>α</sub></span> 在 <span class="m">x<sub>α</sub> ∈ A</span> 上输，每个 <span class="m">σ<sub>α</sub></span> 在 <span class="m">y<sub>α</sub> ∉ A</span> 上输。所以没有策略能赢 <span class="m">G<sub>A</sub></span>：A 不是确定的，于是 <span class="status st-no">ZFC ⊢ ¬</span>AD。∎</span></div>
+  </div>
+  <div class="toolbar"><button class="btn primary" data-next="acSteps"><span class="en">Reveal next step</span><span class="zh">揭晓下一步</span></button>
+    <button class="btn ghost" data-all="acSteps"><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+  <div class="def"><span class="en"><b>AD ⇒ regularity</b> (in ZF). Under AD every set of reals is Lebesgue measurable (Mycielski–Świerczkowski), has the property of Baire (via Banach–Mazur games), and has the perfect set property (Davis, via ∗-games). Each proof turns the property into a game whose winner decides it. The same proofs are <b>local</b>: if every set in a reasonable pointclass Γ is determined, then the sets in Γ (or one level down) are regular. This is how projective determinacy gives projective regularity (§10, L19).</span>
+    <span class="zh"><b>AD ⇒ 正则性</b>（在 ZF 中）。在 AD 下，每个实数集都勒贝格可测（梅齐尔斯基–希维尔奇科夫斯基），具有贝尔性质（借助巴拿赫–马祖尔博弈），并具有完美集性质（戴维斯，借助 ∗-博弈）。每个证明都把一条性质改写成博弈，由博弈的胜者来判定它。这些证明还是<b>局部的</b>：若某个合理点类 Γ 中的集合都是确定的，那么 Γ 中（或低一层）的集合就是正则的。投影决定性正是这样推出投影集的正则性（§10，第 19 课）。</span></div>
+  <div class="note pit"><span class="en"><b class="h">⚠ Common pitfall.</b> AD is false in ZFC, but that does not make it useless. The natural statement is <b>AD<sup>L(ℝ)</sup></b>: “the inner model L(ℝ) satisfies AD”. It is consistent with V satisfying ZFC (relative to large cardinals, §10), since L(ℝ) usually fails AC even when V satisfies it. Also, “open” means open <i>for player I's payoff</i>; closed games are determined by the symmetric argument.</span>
+    <span class="zh"><b class="h">⚠ 常见误区。</b>AD 在 ZFC 中为假，但这不等于它没用。自然的说法是 <b>AD<sup>L(ℝ)</sup></b>：“内模型 L(ℝ) 满足 AD”。它可以与“V 满足 ZFC”同时成立（相对于大基数而言，见 §10），因为即使 V 满足 AC，L(ℝ) 通常也不满足。另外，“开”是指 <i>I 的获胜集</i>是开集；闭博弈的确定性由对称的论证得到。</span></div>
+  <div class="cy" id="cy9"></div>
+</section>
+
+<!-- ============ S10 ============ -->
+<section class="card" id="s10">
+  <div class="kicker">§10</div>
+  <h2><span class="en">Large cardinals ⇔ determinacy</span><span class="zh">大基数 ⇔ 决定性</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置</span></span>:
+    <a class="chip" href="lesson19.html">L19 · <span class="il"><span class="en">projective hierarchy, regularity</span><span class="zh">投影层级与正则性</span></span></a>
+    <a class="chip" href="#s3">§3 · <span class="il"><span class="en">Woodin</span><span class="zh">伍丁</span></span></a>
+    <a class="chip" href="#s9">§9</a></div>
+  <div class="idea"><span class="en"><b>One idea.</b> Each extra Woodin cardinal buys exactly one more level of projective determinacy. The match is so tight that it runs in both directions: determinacy also produces inner models with Woodin cardinals.</span>
+    <span class="zh"><b>核心思想。</b>每多一个伍丁基数，投影决定性就恰好多上一层。两者匹配得如此紧密，以至于反过来也成立：决定性也能造出含伍丁基数的内模型。</span></div>
+  <p><span class="en">Slide the hypothesis. The tower is the boldface projective hierarchy from L19; a lit level is determined, and Σ and Π light together because, for boldface classes, determinacy of a class and of its dual are equivalent.</span>
+     <span class="zh">拖动假设。这座塔是第 19 课的（黑体）投影层级；点亮的层是确定的。Σ 与 Π 同时点亮，因为对黑体点类，一个类与其对偶类的决定性是等价的。</span></p>
+  <div class="toolbar"><input type="range" id="ldSlider" min="0" max="6" value="0" style="width:340px"> <b id="ldName"></b></div>
+  <div class="svgbox"><svg id="ldSvg" viewBox="0 0 860 380" width="860" height="380"></svg></div>
+  <div class="msg info" id="ldInfo"></div>
+  <table class="mini">
+    <tr><th><span class="il"><span class="en">Theorem</span><span class="zh">定理</span></span></th><th><span class="il"><span class="en">Status</span><span class="zh">状态</span></span></th></tr>
+    <tr><td><span class="en"><b>Martin (1970).</b> If there is a measurable cardinal, every <span class="m">Π¹₁</span> (equivalently, every analytic <span class="m">Σ¹₁</span>) set is determined.</span><span class="zh"><b>马丁（1970）.</b> 若存在可测基数，则每个 <span class="m">Π¹₁</span> 集（等价地，每个解析集 <span class="m">Σ¹₁</span>）都是确定的。</span></td><td><span class="status st-zfc">ZFC ⊢</span></td></tr>
+    <tr><td><span class="en"><b>Martin; Harrington (1978).</b> <span class="m">Π¹₁</span>-determinacy ⇔ <span class="m">x<sup>♯</sup></span> exists for every real x.</span><span class="zh"><b>马丁；哈灵顿（1978）.</b> <span class="m">Π¹₁</span>-决定性 ⇔ 对每个实数 x，<span class="m">x<sup>♯</sup></span> 存在。</span></td><td><span class="status st-zfc">ZFC ⊢</span></td></tr>
+    <tr><td><span class="en"><b>Martin–Steel (1989).</b> If there are n Woodin cardinals with a measurable cardinal above them all, then every <span class="m">Π¹<sub>n+1</sub></span> set is determined.</span><span class="zh"><b>马丁–斯蒂尔（1989）.</b> 若存在 n 个伍丁基数，且它们上方还有一个可测基数，则每个 <span class="m">Π¹<sub>n+1</sub></span> 集都是确定的。</span></td><td><span class="status st-zfc">ZFC ⊢</span></td></tr>
+    <tr><td><span class="en"><b>Corollary.</b> Infinitely many Woodin cardinals ⇒ PD (projective determinacy): above the first n Woodins there is another Woodin, and below it a measurable (Woodins are limits of measurables).</span><span class="zh"><b>推论.</b> 无穷多个伍丁基数 ⇒ PD（投影决定性）：前 n 个伍丁基数上方还有一个伍丁基数，而它下方就有可测基数（伍丁基数是可测基数的极限）。</span></td><td><span class="status st-zfc">ZFC ⊢</span></td></tr>
+    <tr><td><span class="en"><b>Woodin (building on Martin–Steel).</b> If there are infinitely many Woodin cardinals with a measurable above them all, then <span class="m">AD<sup>L(ℝ)</sup></span> holds.</span><span class="zh"><b>伍丁（基于马丁–斯蒂尔）.</b> 若存在无穷多个伍丁基数，且它们上方还有一个可测基数，则 <span class="m">AD<sup>L(ℝ)</sup></span> 成立。</span></td><td><span class="status st-zfc">ZFC ⊢</span></td></tr>
+    <tr><td><span class="en"><b>Woodin (converse direction).</b> <span class="m">Π¹<sub>n+1</sub></span>-determinacy ⇔ for every real x, the canonical mouse <span class="m">M<sub>n</sub><sup>♯</sup>(x)</span> with n Woodin cardinals exists and is <span class="m">ω₁</span>-iterable (proof published by Müller–Schindler–Woodin).</span><span class="zh"><b>伍丁（逆方向）.</b> <span class="m">Π¹<sub>n+1</sub></span>-决定性 ⇔ 对每个实数 x，含 n 个伍丁基数的典范鼠 <span class="m">M<sub>n</sub><sup>♯</sup>(x)</span> 存在且 <span class="m">ω₁</span>-可迭代（证明由穆勒–申德勒–伍丁发表）。</span></td><td><span class="status st-zfc">ZFC ⊢</span></td></tr>
+    <tr><td><span class="en"><b>Woodin.</b> Con(ZF + AD) ⇔ Con(ZFC + there are infinitely many Woodin cardinals). Also, Con(ZFC + PD) ⇔ Con(ZFC + “for each n there are n Woodin cardinals”).</span><span class="zh"><b>伍丁.</b> Con(ZF + AD) ⇔ Con(ZFC + 存在无穷多个伍丁基数)。另有 Con(ZFC + PD) ⇔ Con(ZFC +“对每个 n，存在 n 个伍丁基数”)。</span></td><td><span class="status st-eq"><span class="en">≡ Con</span><span class="zh">等一致</span></span></td></tr>
+    <tr><td><span class="en"><b>In L.</b> If V = L there is a <span class="m">Δ¹₂</span> well-ordering of the reals, hence a non-measurable <span class="m">Δ¹₂</span> set, so <span class="m">Π¹₁</span>-determinacy fails. Thus PD (even <span class="m">Π¹₁</span>-Det) is not provable in ZFC (if ZFC is consistent).</span><span class="zh"><b>在 L 中.</b> 若 V = L，则实数有 <span class="m">Δ¹₂</span> 良序，从而有不可测的 <span class="m">Δ¹₂</span> 集，于是 <span class="m">Π¹₁</span>-决定性不成立。因此（若 ZFC 一致）ZFC 证不出 PD，连 <span class="m">Π¹₁</span>-Det 都证不出。</span></td><td><span class="status st-zfc">ZFC ⊢</span> <span class="il"><span class="en">(the implication)</span><span class="zh">（该蕴涵）</span></span></td></tr>
+  </table>
+  <div class="note pit"><span class="en"><b class="h">⚠ Common pitfall.</b> Martin–Steel needs something <b>above</b> the n Woodins (a measurable suffices; the optimal hypothesis is that <span class="m">M<sub>n</sub><sup>♯</sup>(x)</span> exists for every real x). n Woodin cardinals alone do <b>not</b> prove <span class="m">Π¹<sub>n+1</sub></span>-determinacy: for n = 0, ZFC does not prove <span class="m">Π¹₁</span>-determinacy. Likewise “ω Woodins ⇒ AD<sup>L(ℝ)</sup>” uses the measurable above. At the level of <i>consistency</i>, however, no measurable is needed: PD is equiconsistent with “n Woodins for each n”, and AD with ω Woodins.</span>
+    <span class="zh"><b class="h">⚠ 常见误区。</b>马丁–斯蒂尔定理需要 n 个伍丁基数<b>上方</b>还有东西（一个可测基数就够；最优假设是对每个实数 x，<span class="m">M<sub>n</sub><sup>♯</sup>(x)</span> 存在）。只有 n 个伍丁基数<b>证不出</b> <span class="m">Π¹<sub>n+1</sub></span>-决定性：n = 0 时，ZFC 证不出 <span class="m">Π¹₁</span>-决定性。同样，“ω 个伍丁 ⇒ AD<sup>L(ℝ)</sup>”用到了上方的可测基数。但在<i>一致性</i>层面不需要可测基数：PD 与“对每个 n 有 n 个伍丁基数”等一致，AD 与 ω 个伍丁基数等一致。</span></div>
+  <div class="cy" id="cy10"></div>
+</section>
+
+<!-- ============ S11 ============ -->
+<section class="card" id="s11">
+  <div class="kicker">§11</div>
+  <h2><span class="en">Outlook: what is still open</span><span class="zh">展望：哪些问题仍然悬而未决</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置</span></span>:
+    <a class="chip" href="lesson22.html">L22 · HOD</a>
+    <a class="chip" href="#s7">§7</a>
+    <a class="chip" href="lesson27.html">L27 · <span class="il"><span class="en">deep treatment</span><span class="zh">深入讨论</span></span> →</a></div>
+  <div class="idea"><span class="en"><b>One idea.</b> Everything below is <b>open</b> unless marked otherwise. Click a card for a one-paragraph status report; Lesson 27 treats these in depth.</span>
+    <span class="zh"><b>核心思想。</b>除非另有标注，下面每一项都<b>尚未解决</b>。点开卡片看一段状态说明；第 27 课会深入讨论。</span></div>
+  <div class="cards3" id="outCards"></div>
+  <div class="def" style="margin-top:16px"><span class="en"><b>Philosophical status.</b> Large-cardinal axioms are not provable in ZFC (an inaccessible κ gives a model <span class="m">V<sub>κ</sub></span> of ZFC, so by Gödel II, ZFC cannot prove one exists, assuming ZFC is consistent). Why adopt them? <b>Realists</b> see them as describing the full, maximal universe of sets, and point to <i>extrinsic</i> evidence: they settle projective questions (§10), and they are linearly ordered and mutually reinforcing. <b>Formalists</b> regard set theory as whatever follows from the chosen axioms, with no reason to privilege these extensions. Some realists even suspect certain large cardinals are false. The SEP entry on large cardinals and determinacy records the debate between “non-pluralists” (e.g. Martin, Steel, Woodin) and pluralists (e.g. Feferman, Shelah).</span>
+    <span class="zh"><b>哲学地位。</b>大基数公理在 ZFC 中不可证（不可达基数 κ 给出 ZFC 的模型 <span class="m">V<sub>κ</sub></span>，由哥德尔第二不完全性定理，若 ZFC 一致，则 ZFC 证不出它存在）。那为何要接受它们？<b>实在论者</b>认为它们刻画的是完整、极大的集合宇宙，并举出<i>外在</i>证据：它们解决了投影集问题（§10），而且彼此线性有序、相互印证。<b>形式主义者</b>则认为集合论就是所选公理的推论，没有理由偏爱这些扩张。有些实在论者甚至怀疑某些大基数公理是假的。斯坦福哲学百科“大基数与决定性”条目记录了“非多元论者”（如马丁、斯蒂尔、伍丁）与多元论者（如费弗曼、谢拉赫）之间的争论。</span></div>
+  <div class="note pit"><span class="en"><b class="h">⚠ Common pitfall.</b> “Conjecture” ≠ “theorem”. The HOD <i>Dichotomy</i> is a theorem; the HOD <i>Conjecture</i> is open. “Inner models for supercompacts” is a program, not a result.</span>
+    <span class="zh"><b class="h">⚠ 常见误区。</b>“猜想”≠“定理”。HOD <i>二分定理</i>是已证定理；HOD <i>猜想</i>尚未解决。“超紧基数的内模型”是一项研究纲领，不是已有结果。</span></div>
+  <div class="cy" id="cy11"></div>
+</section>
+
+<!-- ============ EXERCISES ============ -->
+<section class="card" id="exercises">
+  <div class="kicker"><span class="il"><span class="en">Exercises</span><span class="zh">练习</span></span></div>
+  <h2><span class="en">Your turn</span><span class="zh">轮到你了</span></h2>
+  <p class="muted"><span class="en">Progress is saved in your browser. A sidebar ✓ means solved. “Show answer” never counts as a solve.</span><span class="zh">进度保存在浏览器中，侧栏出现 ✓ 表示已完成。点“看答案”不计入完成。</span></p>
+
+  <div class="ex" id="e1" data-prog="L25E1">
+    <h3><span class="tag">E1</span><span class="il"><span class="en">Order by consistency strength</span><span class="zh">按一致性强度排序</span></span></h3>
+    <p><span class="en">Use ↑ / ↓ to sort from <b>weakest</b> (top) to <b>strongest</b> (bottom). All the comparisons here are known to be strict.</span>
+       <span class="zh">用 ↑ / ↓ 从<b>最弱</b>（上）排到<b>最强</b>（下）。这里所有的比较都已知是严格的。</span></p>
+    <div class="order-list" id="e1List"></div>
+    <div class="toolbar"><button class="btn primary" id="e1Check"><span class="en">Check</span><span class="zh">检查</span></button>
+      <button class="btn" id="e1Shuffle"><span class="en">Shuffle</span><span class="zh">打乱</span></button>
+      <button class="btn ghost" id="e1Show"><span class="en">Show answer</span><span class="zh">看答案</span></button></div>
+    <div class="msg" id="e1Msg"></div>
+  </div>
+
+  <div class="ex" id="e2" data-prog="L25E2">
+    <h3><span class="tag">E2</span><span class="il"><span class="en">Backward induction by hand</span><span class="zh">手动逆向归纳</span></span></h3>
+    <p><span class="en">Leaves are fixed. Click each <b>inner</b> node to label it I or II (who wins from there). Who moves where: I at depths 0 and 2, II at depths 1 and 3. Solve 2 different games to complete the exercise.</span>
+       <span class="zh">叶子已固定。点击每个<b>内部</b>结点，标上 I 或 II（从该处出发谁必胜）。走棋顺序：I 在第 0、2 层，II 在第 1、3 层。正确解出 2 个不同的博弈即算完成。</span></p>
+    <div class="svgbox"><svg id="e2Svg" viewBox="0 0 860 330" width="860" height="330"></svg></div>
+    <div class="toolbar"><button class="btn primary" id="e2Check"><span class="en">Check</span><span class="zh">检查</span></button>
+      <button class="btn" id="e2New"><span class="en">New game</span><span class="zh">换一局</span></button>
+      <button class="btn ghost" id="e2Show"><span class="en">Show answer</span><span class="zh">看答案</span></button>
+      <span class="muted" id="e2Count"></span></div>
+    <div class="msg" id="e2Msg"></div>
+  </div>
+
+  <div class="ex" id="e3" data-prog="L25E3">
+    <h3><span class="tag">E3</span><span class="il"><span class="en">True / false gallery: determinacy</span><span class="zh">判断对错：决定性</span></span></h3>
+    <div id="e3List"></div>
+  </div>
+
+  <div class="ex" id="e4" data-prog="L25E4">
+    <h3><span class="tag">E4</span><span class="il"><span class="en">Rebuild the proof that AD contradicts AC</span><span class="zh">重建“AD 与 AC 矛盾”的证明</span></span></h3>
+    <p><span class="en">Click the steps in the correct logical order.</span><span class="zh">按正确的逻辑顺序依次点击各步。</span></p>
+    <div class="pick" id="e4Pool"></div>
+    <ol id="e4Seq" style="min-height:30px"></ol>
+    <div class="toolbar"><button class="btn primary" id="e4Check"><span class="en">Check</span><span class="zh">检查</span></button>
+      <button class="btn" id="e4Reset"><span class="en">Reset</span><span class="zh">重来</span></button>
+      <button class="btn ghost" id="e4Show"><span class="en">Show answer</span><span class="zh">看答案</span></button></div>
+    <div class="msg" id="e4Msg"></div>
+  </div>
+
+  <div class="ex" id="e5" data-prog="L25E5">
+    <h3><span class="tag">E5</span><span class="il"><span class="en">Match each embedding condition to its name</span><span class="zh">为每个嵌入条件配上名字</span></span></h3>
+    <p class="muted"><span class="en">Unless stated otherwise: j : V → M elementary, M transitive, crit(j) = κ, and the condition is required for <b>one</b> such j.</span><span class="zh">除非另有说明：j : V → M 为初等嵌入，M 传递，crit(j) = κ，且条件只要求对<b>某一个</b>这样的 j 成立。</span></p>
+    <div id="e5List"></div>
+    <div class="toolbar"><button class="btn primary" id="e5Check"><span class="en">Check</span><span class="zh">检查</span></button>
+      <button class="btn ghost" id="e5Show"><span class="en">Show answer</span><span class="zh">看答案</span></button></div>
+    <div class="msg" id="e5Msg"></div>
+  </div>
+
+  <div class="ex" id="e6" data-prog="L25E6">
+    <h3><span class="tag">E6</span><span class="il"><span class="en">Theorem, independent, refuted, or open?</span><span class="zh">定理、独立、已否证，还是未解决？</span></span></h3>
+    <p class="muted"><span class="en">“Independent” means: neither provable nor refutable in ZFC, assuming the relevant large cardinals are consistent.</span><span class="zh">“独立”指：假定相关大基数一致，则在 ZFC 中既不可证也不可否证。</span></p>
+    <div id="e6List"></div>
+    <div class="toolbar"><button class="btn primary" id="e6Check"><span class="en">Check</span><span class="zh">检查</span></button>
+      <button class="btn ghost" id="e6Show"><span class="en">Show answer</span><span class="zh">看答案</span></button></div>
+    <div class="msg" id="e6Msg"></div>
+  </div>
+</section>
+
+<!-- ============ ATLAS ============ -->
+<section class="card" id="atlas">
+  <div class="kicker"><span class="il"><span class="en">Course recap</span><span class="zh">课程总结</span></span></div>
+  <h2><span class="en">An atlas of hierarchies: the course in one picture</span><span class="zh">层级总图：一张图看完整门课</span></h2>
+  <p><span class="en">Each box is a lesson. Click once to see what it contributes and how it connects; click again (or use the link) to open it. Notice that the whole course is a story of <b>hierarchies measuring complexity</b>: of formulas, of sets of naturals, of sets of reals, of ordinals, of universes, and finally of consistency strength.</span>
+     <span class="zh">每个方框是一课。单击一次查看它的贡献和关联；再单击一次（或点链接）即可打开。你会发现，整门课讲的是一个<b>用层级度量复杂度</b>的故事：公式的复杂度、自然数集合的复杂度、实数集合的复杂度、序数的复杂度、宇宙的复杂度，最后是一致性强度。</span></p>
+  <div class="svgbox"><svg id="atSvg" viewBox="0 0 960 600" width="960" height="600"></svg></div>
+  <div class="msg info" id="atInfo"></div>
+  <h3 style="margin-top:22px"><a href="lesson26.html" style="color:inherit"><span class="en">Next: Part VI · The big picture &amp; open frontiers →</span><span class="zh">下一部分：第六部分 · 全景与前沿问题 →</span></a></h3>
+  <p><span class="en">Lesson 26 steps back and assembles these hierarchies into one landscape; Lessons 27–28 visit the open frontiers: CH, Ultimate L, forcing axioms, HOD and pcf, and the frontiers of model theory, computability and proof theory.</span>
+     <span class="zh">第 26 课退后一步，把这些层级拼成一幅完整的全景；第 27–28 课走访前沿问题：连续统假设、终极 L、力迫公理、HOD 与 pcf 理论，以及模型论、可计算性理论与证明论的前沿。</span></p>
+  <div class="toolbar"><a class="btn primary" href="lesson26.html" style="text-decoration:none"><span class="en">Lesson 26 →</span><span class="zh">第 26 课 →</span></a></div>
+</section>
+</main>
+</div>
+
+<script src="assets/logic.js"></script>
+<script src="assets/lesson25.js"></script>
+</body>
+</html>

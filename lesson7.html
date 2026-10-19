@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 7 · Building ℕ, ℤ, ℚ, ℝ from Sets 用集合构造 ℕ、ℤ、ℚ、ℝ</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+.nb { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 3px; padding: 4px; margin: 1px; border: 2px solid; border-radius: 9px; min-width: 18px; min-height: 18px; vertical-align: middle; }
+.nb.e { min-width: 16px; min-height: 16px; padding: 0; border-radius: 5px; background: #fff !important; }
+.nb.d0 { border-color: #3b5bdb; background: #eef2ff; }
+.nb.d1 { border-color: #2f9e44; background: #ebfbee; }
+.nb.d2 { border-color: #f08c00; background: #fff4e6; }
+.nb.d3 { border-color: #ae3ec9; background: #f8f0fc; }
+.nb.d4 { border-color: #0c8599; background: #e3fafc; }
+.nb.d5 { border-color: #e03131; background: #fff5f5; }
+.nb.num { font: 700 13px var(--mono); padding: 0 7px; border-radius: 999px; border-color: #868e96; background: #f1f3f5; min-height: 20px; }
+.setrow { display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-start; }
+.panel { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; min-width: 0; }
+.panel h4 { margin: 0 0 6px; font-size: 13px; color: var(--muted); font-weight: 600; }
+.bigtext { font-family: var(--mono); font-size: 15px; word-break: break-all; }
+.stat { display: inline-block; font-family: var(--mono); font-size: 13px; background: #f1efe7; border-radius: 8px; padding: 2px 8px; margin: 2px 4px 2px 0; }
+select.sel { font: inherit; font-size: 14px; padding: 5px 8px; border-radius: 8px; border: 1px solid var(--line); background: #fff; }
+.pairpick { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; font-family: var(--mono); font-size: 16px; }
+.verdict { font-family: var(--mono); font-size: 14px; }
+.verdict td, .verdict th { padding: 4px 10px; }
+.yes { color: var(--true); font-weight: 700; }
+.no { color: var(--false); font-weight: 700; }
+.strip { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.nbtn { width: 38px; height: 38px; border-radius: 50%; border: 2px solid var(--line); background: #fff; font: 700 14px var(--mono); cursor: pointer; transition: all .2s; }
+.nbtn.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+.nbtn.bad { box-shadow: 0 0 0 4px rgba(224,49,49,.35); }
+.tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+.gridpt { cursor: pointer; }
+.trace { font-family: var(--mono); font-size: 14px; line-height: 1.8; }
+.trace div { animation: fadein .4s ease both; }
+.pairin { font-family: var(--mono); font-size: 16px; width: 64px; padding: 5px 8px; border: 1.5px solid var(--line); border-radius: 8px; text-align: center; }
+.tf .stmt { font-family: var(--mono); }
+.chk { display: inline-block; min-width: 18px; font-weight: 700; }
+</style>
+</head>
+<body class="lang-both">
+<header class="top">
+  <a class="home" href="index.html">∀∃ <span class="il"><span class="en">Logic &amp; Sets</span><span class="zh">逻辑与集合</span></span></a>
+  <span class="muted">/ L7</span>
+  <span class="spacer"></span>
+  <div class="lang-switch">
+    <button data-lang="en">EN</button><button data-lang="zh">中文</button><button data-lang="both">EN + 中</button>
+  </div>
+</header>
+
+<div class="layout">
+<nav class="side">
+  <div class="grp">Lesson 7</div>
+  <a href="index.html">← <span class="il"><span class="en">Course map</span><span class="zh">课程地图</span></span></a>
+  <a href="lesson6.html">← <span class="il"><span class="en">Lesson 6</span><span class="zh">第 6 课</span></span></a>
+  <a href="lesson8.html"><span class="il"><span class="en">Lesson 8</span><span class="zh">第 8 课</span></span> →</a>
+  <a href="#s1">1 · <span class="il"><span class="en">Ordered pairs</span><span class="zh">有序对</span></span></a>
+  <a href="#s2">2 · <span class="il"><span class="en">Von Neumann ℕ</span><span class="zh">冯·诺伊曼自然数</span></span></a>
+  <a href="#s3">3 · <span class="il"><span class="en">ω &amp; induction</span><span class="zh">ω 与归纳法</span></span></a>
+  <a href="#s4">4 · <span class="il"><span class="en">Recursion</span><span class="zh">递归定理</span></span></a>
+  <a href="#s5">5 · ℤ</a>
+  <a href="#s6">6 · ℚ</a>
+  <a href="#s7">7 · <span class="il"><span class="en">Dedekind cuts</span><span class="zh">戴德金分割</span></span></a>
+  <a href="#s8">8 · <span class="il"><span class="en">Cauchy sequences</span><span class="zh">柯西列</span></span></a>
+  <a href="#s9">9 · <span class="il"><span class="en">How many?</span><span class="zh">有多少？</span></span></a>
+  <div class="grp"><span class="il"><span class="en">Exercises</span><span class="zh">练习</span></span></div>
+  <a href="#e1" data-prog="L7E1">E1 · (a, b)</a>
+  <a href="#e2" data-prog="L7E2">E2 · <span class="il"><span class="en">numerals</span><span class="zh">自然数</span></span></a>
+  <a href="#e3" data-prog="L7E3">E3 · ℤ</a>
+  <a href="#e4" data-prog="L7E4">E4 · <span class="il"><span class="en">cut?</span><span class="zh">是分割吗</span></span></a>
+  <a href="#e5" data-prog="L7E5">E5 · sup</a>
+  <a href="#e6" data-prog="L7E6">E6 · <span class="il"><span class="en">well-defined?</span><span class="zh">良定义？</span></span></a>
+</nav>
+
+<main>
+<div class="hero">
+  <div class="kicker">Part II · Lesson 7</div>
+  <h1><span class="en">Building ℕ, ℤ, ℚ, ℝ from Sets</span><span class="zh">用集合构造 ℕ、ℤ、ℚ、ℝ</span></h1>
+  <p><span class="en">Lesson 6 gave us safe construction rules. Now we use them to manufacture all of analysis from the empty set. Each number system is built from the previous one by a single idea: pairs, equivalence classes, or cuts.</span>
+     <span class="zh">第 6 课给了我们一套安全的构造规则。现在就用它们从空集出发，把整个分析学的地基造出来。每个数系都由前一个借助一个想法搭成：有序对、等价类，或者分割。</span></p>
+  <svg id="ladder" viewBox="0 0 900 90" width="900" height="90"></svg>
+</div>
+
+<!-- ============ S1 ============ -->
+<section class="card" id="s1">
+  <div class="kicker">§1</div>
+  <h2><span class="en">Kuratowski ordered pairs</span><span class="zh">库拉托夫斯基有序对</span></h2>
+  <div class="def"><span class="en"><b>Definition.</b> <span class="m">(a, b) := {{a}, {a, b}}</span>. <b>Characteristic property:</b> <span class="m">(a, b) = (c, d) ⇔ a = c ∧ b = d</span>. That property is all we ever use. The set itself is just a convenient implementation.</span>
+    <span class="zh"><b>定义.</b> <span class="m">(a, b) := {{a}, {a, b}}</span>。<b>基本性质：</b><span class="m">(a, b) = (c, d) ⇔ a = c ∧ b = d</span>。我们用到的只有这条性质，那个集合本身不过是一种方便的实现方式。</span></div>
+  <p><span class="en">Pick <span class="m">a, b</span> and <span class="m">c, d</span> (von Neumann numerals and a few other sets). Try to fool the definition: find two different pairs giving the same set. Compare with the naive attempt <span class="m">{a, b}</span>.</span>
+     <span class="zh">选定 <span class="m">a, b</span> 与 <span class="m">c, d</span>（冯·诺伊曼自然数或其他几个集合）。试着骗过这个定义：找两个不同的有序对，使它们是同一个集合。再与天真的写法 <span class="m">{a, b}</span> 比较。</span></p>
+  <div class="row">
+    <div class="col">
+      <div class="pairpick">(<select class="sel" id="kpA"></select>,<select class="sel" id="kpB"></select>)
+        <label style="font-family:var(--sans);font-size:13px"><input type="checkbox" id="kpNums" checked> <span class="il"><span class="en">abbreviate numerals</span><span class="zh">用数字简写</span></span></label></div>
+      <div class="stage" id="kpBox1" style="margin-top:8px;min-height:90px"></div>
+    </div>
+    <div class="col">
+      <div class="pairpick">(<select class="sel" id="kpC"></select>,<select class="sel" id="kpD"></select>)</div>
+      <div class="stage" id="kpBox2" style="margin-top:8px;min-height:90px"></div>
+    </div>
+  </div>
+  <div id="kpVerdict" style="margin-top:10px"></div>
+  <div class="row" style="margin-top:6px">
+    <div class="col panel"><h4><span class="il"><span class="en">Decoding p = (a, b) with ∈ only</span><span class="zh">只用 ∈ 解码 p = (a, b)</span></span></h4><div id="kpDecode" class="trace"></div></div>
+    <div class="col">
+      <div class="steps" id="kpProof">
+        <div class="step"><p><span class="en"><b>Proof, case a = b.</b> Then <span class="m">(a, a) = {{a}}</span> has one member. If <span class="m">(c, d) = {{a}}</span>, then <span class="m">{c} = {c, d} = {a}</span>, so <span class="m">c = d = a</span>.</span><span class="zh"><b>证明，情形 a = b.</b> 此时 <span class="m">(a, a) = {{a}}</span> 只有一个元素。若 <span class="m">(c, d) = {{a}}</span>，则 <span class="m">{c} = {c, d} = {a}</span>，故 <span class="m">c = d = a</span>。</span></p></div>
+        <div class="step"><p><span class="en"><b>Case a ≠ b.</b> Then <span class="m">(a, b)</span> has two members, a singleton <span class="m">{a}</span> and a doubleton <span class="m">{a, b}</span>. So <span class="m">c ≠ d</span> too (otherwise one member). Matching singletons: <span class="m">{c} = {a}</span>, so <span class="m">c = a</span>.</span><span class="zh"><b>情形 a ≠ b.</b> 此时 <span class="m">(a, b)</span> 有两个元素：单元素集 <span class="m">{a}</span> 与二元集 <span class="m">{a, b}</span>。所以也有 <span class="m">c ≠ d</span>（否则只有一个元素）。单元素集对单元素集：<span class="m">{c} = {a}</span>，故 <span class="m">c = a</span>。</span></p></div>
+        <div class="step"><p><span class="en">Matching doubletons: <span class="m">{a, d} = {a, b}</span> with <span class="m">d ≠ a</span>, so <span class="m">d = b</span>. ∎</span><span class="zh">二元集对二元集：<span class="m">{a, d} = {a, b}</span> 且 <span class="m">d ≠ a</span>，故 <span class="m">d = b</span>。∎</span></p></div>
+      </div>
+      <div class="toolbar"><button class="btn" id="kpNext"><span class="en">Proof: next step</span><span class="zh">证明：下一步</span></button><button class="btn ghost" id="kpAll"><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+    </div>
+  </div>
+  <div class="note"><span class="en">With pairs we get everything relational: <span class="m">A × B = {p ∈ 𝒫(𝒫(A ∪ B)) : ∃a ∈ A ∃b ∈ B, p = (a, b)}</span> (Power set + Separation, since <span class="m">{a}, {a, b} ⊆ A ∪ B</span>). A <b>relation</b> is a subset of <span class="m">A × B</span>, and a <b>function</b> is a relation in which each <span class="m">a</span> has exactly one partner.</span>
+    <span class="zh">有了有序对，一切关系概念就都有了：<span class="m">A × B = {p ∈ 𝒫(𝒫(A ∪ B)) : ∃a ∈ A ∃b ∈ B, p = (a, b)}</span>（幂集 + 分离公理，因为 <span class="m">{a}, {a, b} ⊆ A ∪ B</span>）。<b>关系</b>就是 <span class="m">A × B</span> 的子集，<b>函数</b>就是每个 <span class="m">a</span> 恰有一个对应元的关系。</span></div>
+</section>
+
+<!-- ============ S2 ============ -->
+<section class="card" id="s2">
+  <div class="kicker">§2</div>
+  <h2><span class="en">Von Neumann natural numbers</span><span class="zh">冯·诺伊曼自然数</span></h2>
+  <div class="def"><span class="en"><span class="m">0 := ∅</span>, &nbsp; <span class="m">n + 1 := n ∪ {n}</span>. So <span class="m">n = {0, 1, …, n − 1}</span>: each number <b>is</b> the set of its predecessors, and has exactly n members.</span>
+    <span class="zh"><span class="m">0 := ∅</span>，&nbsp; <span class="m">n + 1 := n ∪ {n}</span>。于是 <span class="m">n = {0, 1, …, n − 1}</span>：每个数<b>就是</b>比它小的数组成的集合，恰有 n 个元素。</span></div>
+  <div class="toolbar">n = <input type="range" id="vnN" min="0" max="6" value="3"> <b class="m" id="vnNv">3</b>
+    <label style="font-size:13px"><input type="checkbox" id="vnAbbr"> <span class="il"><span class="en">abbreviate inner numerals</span><span class="zh">内层用数字简写</span></span></label></div>
+  <div class="setrow">
+    <div class="panel" style="flex:1 1 300px"><h4><span class="il"><span class="en">n as nested boxes</span><span class="zh">n 的嵌套盒子</span></span></h4><div id="vnBoxes"></div><div id="vnText" class="bigtext" style="margin-top:8px"></div><div id="vnStats"></div></div>
+    <div class="panel" style="flex:1 1 300px"><h4><span class="il"><span class="en">Staircase: n is the set of all lower steps</span><span class="zh">台阶：n 就是它下面所有台阶的集合</span></span></h4><svg id="vnStairs" viewBox="0 0 380 210" width="380" height="210"></svg></div>
+  </div>
+  <h3><span class="en">Order is membership: m &lt; n ⇔ m ∈ n</span><span class="zh">序就是隶属：m &lt; n ⇔ m ∈ n</span></h3>
+  <p><span class="en">The ∈-matrix of the numbers 0–7 (row m, column n, filled when <span class="m">m ∈ n</span>). Click a cell.</span>
+     <span class="zh">0–7 这几个数的 ∈ 矩阵（第 m 行、第 n 列，若 <span class="m">m ∈ n</span> 则涂色）。点击一个格子。</span></p>
+  <div class="row">
+    <div class="col" style="flex:0 1 380px"><svg id="vnMx" viewBox="0 0 370 360" width="370" height="360"></svg></div>
+    <div class="col"><div class="msg info" id="vnMxMsg"></div>
+      <div class="note"><span class="en">The filled cells form a strict triangle. On ω, the relation ∈ is <b>irreflexive</b> (empty diagonal), <b>transitive</b>, and <b>total</b>: a strict linear order, and in fact a well-order (Lesson 8). Each n is also a <b>transitive set</b>: <span class="m">m ∈ n ⇒ m ⊆ n</span>.</span>
+        <span class="zh">涂色的格子构成严格三角形。在 ω 上，∈ 是<b>反自反</b>的（对角线全空）、<b>传递</b>的、<b>完全</b>的：这是一个严格线性序，事实上还是良序（第 8 课）。每个 n 也是<b>传递集</b>：<span class="m">m ∈ n ⇒ m ⊆ n</span>。</span></div></div>
+  </div>
+</section>
+
+<!-- ============ S3 ============ -->
+<section class="card" id="s3">
+  <div class="kicker">§3</div>
+  <h2><span class="en">ω, the smallest inductive set, and induction</span><span class="zh">ω：最小的归纳集，以及数学归纳法</span></h2>
+  <div class="def"><span class="en"><b>Definition.</b> Let <span class="m">I</span> be inductive (Axiom of Infinity). <span class="m">ω := {n ∈ I : n belongs to every inductive set}</span> (Separation). It does not depend on the choice of <span class="m">I</span>, it is inductive, and it is a subset of every inductive set: the <b>smallest</b> one, just like the set of formulas in Lesson 1.</span>
+    <span class="zh"><b>定义.</b> 设 <span class="m">I</span> 是归纳集（无穷公理）。<span class="m">ω := {n ∈ I : n 属于每一个归纳集}</span>（分离公理）。它与 <span class="m">I</span> 的选取无关，本身是归纳集，并且包含于每个归纳集：它是<b>最小</b>的归纳集，和第 1 课里的公式集一模一样。</span></div>
+  <div class="toolbar"><button class="btn primary" id="omInt"><span class="en">Intersect the inductive sets ▶</span><span class="zh">求这些归纳集的交 ▶</span></button>
+    <button class="btn ghost" id="omReset"><span class="en">Reset</span><span class="zh">重置</span></button></div>
+  <div class="stage"><svg id="omSvg" viewBox="0 0 820 250" width="820" height="250"></svg></div>
+  <h3><span class="en">Induction = minimality</span><span class="zh">归纳法 = 最小性</span></h3>
+  <p><span class="en"><b>Principle of induction.</b> If <span class="m">S ⊆ ω</span>, <span class="m">0 ∈ S</span>, and <span class="m">n ∈ S ⇒ n + 1 ∈ S</span>, then <span class="m">S = ω</span>. <i>Proof:</i> S is inductive, so <span class="m">ω ⊆ S</span> by minimality. Toggle numbers to build your own S. Any gap breaks the chain at a precise spot.</span>
+     <span class="zh"><b>归纳原理.</b> 若 <span class="m">S ⊆ ω</span>，<span class="m">0 ∈ S</span>，且 <span class="m">n ∈ S ⇒ n + 1 ∈ S</span>，则 <span class="m">S = ω</span>。<i>证明：</i>S 是归纳集，由最小性 <span class="m">ω ⊆ S</span>。点击数字自己造一个 S。只要有缺口，链条就会在一个确定的位置断开。</span></p>
+  <div class="stage"><svg id="indSvg" viewBox="0 0 800 100" width="800" height="100"></svg></div>
+  <div class="toolbar"><button class="btn small" id="indAll"><span class="en">all of ω</span><span class="zh">整个 ω</span></button><button class="btn small" id="indEven"><span class="en">evens</span><span class="zh">偶数</span></button><button class="btn small" id="indGap"><span class="en">gap at 7</span><span class="zh">在 7 处有缺口</span></button><button class="btn small" id="indNo0"><span class="en">without 0</span><span class="zh">不含 0</span></button></div>
+  <div class="msg" id="indMsg"></div>
+</section>
+
+<!-- ============ S4 ============ -->
+<section class="card" id="s4">
+  <div class="kicker">§4</div>
+  <h2><span class="en">The recursion theorem: defining + and ·</span><span class="zh">递归定理：定义 + 与 ·</span></h2>
+  <div class="def"><span class="en"><b>Recursion Theorem.</b> For any set <span class="m">A</span>, any <span class="m">a ∈ A</span> and any function <span class="m">g : A → A</span>, there is a <b>unique</b> function <span class="m">h : ω → A</span> with <span class="m">h(0) = a</span> and <span class="m">h(n + 1) = g(h(n))</span>.</span>
+    <span class="zh"><b>递归定理.</b> 对任意集合 <span class="m">A</span>、任意 <span class="m">a ∈ A</span> 和任意函数 <span class="m">g : A → A</span>，存在<b>唯一</b>的函数 <span class="m">h : ω → A</span>，使 <span class="m">h(0) = a</span> 且 <span class="m">h(n + 1) = g(h(n))</span>。</span></div>
+  <p><span class="en">Fix m. Addition is the h with <span class="m">a = m</span>, <span class="m">g = S</span>: <span class="m">m + 0 = m</span>, <span class="m">m + (k+1) = S(m + k)</span>. Multiplication uses <span class="m">a = 0</span>, <span class="m">g(x) = x + m</span>: <span class="m">m · 0 = 0</span>, <span class="m">m · (k+1) = m · k + m</span>. Watch the recursion unroll.</span>
+     <span class="zh">固定 m。加法就是取 <span class="m">a = m</span>、<span class="m">g = S</span> 得到的 h：<span class="m">m + 0 = m</span>，<span class="m">m + (k+1) = S(m + k)</span>。乘法取 <span class="m">a = 0</span>、<span class="m">g(x) = x + m</span>：<span class="m">m · 0 = 0</span>，<span class="m">m · (k+1) = m · k + m</span>。看递归一步步展开。</span></p>
+  <div class="toolbar">m = <input type="range" id="rcM" min="0" max="6" value="3"> <b class="m" id="rcMv">3</b>
+    &nbsp; n = <input type="range" id="rcN" min="0" max="6" value="4"> <b class="m" id="rcNv">4</b>
+    <select class="sel" id="rcOp"><option value="+">m + n</option><option value="*">m · n</option></select>
+    <button class="btn primary" id="rcGo"><span class="en">Unroll ▶</span><span class="zh">展开 ▶</span></button></div>
+  <div class="row">
+    <div class="col"><div class="stage"><svg id="rcSvg" viewBox="0 0 440 270" width="440" height="270"></svg></div></div>
+    <div class="col"><div class="trace" id="rcTrace"></div></div>
+  </div>
+  <h3><span class="en">Proof sketch of the recursion theorem</span><span class="zh">递归定理的证明梗概</span></h3>
+  <div class="steps" id="rcProof">
+    <div class="step"><p><span class="en"><b>1. Attempts.</b> Call a function <span class="m">f</span> an <i>attempt</i> if <span class="m">dom f = k</span> for some <span class="m">k ∈ ω</span>, <span class="m">f(0) = a</span> (if <span class="m">k &gt; 0</span>), and <span class="m">f(i + 1) = g(f(i))</span> whenever <span class="m">i + 1 &lt; k</span>. Attempts are subsets of <span class="m">ω × A</span>, so the set of all attempts exists (Power set + Separation).</span>
+      <span class="zh"><b>1. 尝试函数.</b> 称函数 <span class="m">f</span> 为<i>尝试</i>，若对某个 <span class="m">k ∈ ω</span> 有 <span class="m">dom f = k</span>，<span class="m">f(0) = a</span>（当 <span class="m">k &gt; 0</span>），并且只要 <span class="m">i + 1 &lt; k</span> 就有 <span class="m">f(i + 1) = g(f(i))</span>。尝试都是 <span class="m">ω × A</span> 的子集，所以全体尝试构成集合（幂集 + 分离公理）。</span></p></div>
+    <div class="step"><p><span class="en"><b>2. Attempts agree.</b> By induction on i: any two attempts agree at every i in both domains.</span>
+      <span class="zh"><b>2. 尝试彼此相容.</b> 对 i 归纳：任意两个尝试在公共定义域的每个 i 上取值相同。</span></p></div>
+    <div class="step"><p><span class="en"><b>3. Attempts reach everywhere.</b> By induction on k: an attempt with domain k exists (extend one with domain k by one more value using g).</span>
+      <span class="zh"><b>3. 尝试可以无限延伸.</b> 对 k 归纳：定义域为 k 的尝试总存在（用 g 把定义域为 k 的尝试再延长一位）。</span></p></div>
+    <div class="step"><p><span class="en"><b>4. Glue.</b> <span class="m">h := ⋃{attempts}</span>. By 2 it is a function, by 3 its domain is ω, and it satisfies the equations. Uniqueness: two solutions agree at 0, and agreement at n gives agreement at n + 1, so by induction they are equal. ∎</span>
+      <span class="zh"><b>4. 粘合.</b> 令 <span class="m">h := ⋃{全体尝试}</span>。由第 2 步它是函数，由第 3 步其定义域为 ω，且满足递归等式。唯一性：两个解在 0 处相等，在 n 处相等则在 n + 1 处相等，归纳即得处处相等。∎</span></p></div>
+  </div>
+  <div class="toolbar"><button class="btn" id="rcPNext"><span class="en">Next step</span><span class="zh">下一步</span></button><button class="btn ghost" id="rcPAll"><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+</section>
+
+<!-- ============ S5 ============ -->
+<section class="card" id="s5">
+  <div class="kicker">§5</div>
+  <h2><span class="en">ℤ: equivalence classes of pairs of naturals</span><span class="zh">ℤ：自然数对的等价类</span></h2>
+  <div class="def"><span class="en">Think of <span class="m">(a, b)</span> as “a − b”, but define it <b>without subtraction</b>: <span class="m">(a, b) ~ (c, d) ⇔ a + d = b + c</span>. This is an equivalence relation on <span class="m">ω × ω</span> (transitivity uses cancellation for +), and <span class="m">ℤ := (ω × ω)/~</span>.</span>
+    <span class="zh">把 <span class="m">(a, b)</span> 想成“a − b”，但定义时<b>不用减法</b>：<span class="m">(a, b) ~ (c, d) ⇔ a + d = b + c</span>。这是 <span class="m">ω × ω</span> 上的等价关系（传递性要用加法消去律），而 <span class="m">ℤ := (ω × ω)/~</span>。</span></div>
+  <p><span class="en">Each lattice point is a pair <span class="m">(a, b)</span>. Click one: its whole equivalence class lights up, and it is a diagonal line. In <b>add</b> mode, click two points and see that the sum's class does not depend on which representatives you picked.</span>
+     <span class="zh">每个格点都是一个数对 <span class="m">(a, b)</span>。点一个：它所在的整个等价类会亮起来，恰好是一条斜线。在<b>加法</b>模式下点两个点，可以看到和所在的类与代表元的选取无关。</span></p>
+  <div class="toolbar">
+    <button class="btn sel" id="zMode1"><span class="en">Classes</span><span class="zh">等价类</span></button>
+    <button class="btn" id="zMode2"><span class="en">Add</span><span class="zh">加法</span></button>
+    <button class="btn" id="zShuffle"><span class="en">Other representatives 🎲</span><span class="zh">换代表元 🎲</span></button>
+    <button class="btn" id="zNeg"><span class="en">Negate: (a,b) ↦ (b,a)</span><span class="zh">取负：(a,b) ↦ (b,a)</span></button>
+  </div>
+  <div class="row">
+    <div class="col" style="flex:0 1 500px"><div class="stage"><svg id="zSvg" viewBox="0 0 490 480" width="490" height="480"></svg></div></div>
+    <div class="col"><div class="msg info" id="zMsg"></div>
+      <div class="def m" style="font-size:14px">[(a,b)] + [(c,d)] = [(a+c, b+d)]<br>[(a,b)] · [(c,d)] = [(ac+bd, ad+bc)]<br>[(a,b)] &lt; [(c,d)] ⇔ a+d &lt; b+c<br>n ↦ [(n, 0)] : ω ↪ ℤ</div>
+      <div class="note"><span class="en">Operations are defined on representatives, so each definition comes with a duty: prove it is <b>well-defined</b>, i.e. independent of the representatives (try E6 for an operation that fails).</span>
+        <span class="zh">运算是借助代表元定义的，所以每个定义都附带一项义务：证明它<b>良定义</b>，即与代表元的选取无关（E6 里有一个不良定义的反例）。</span></div></div>
+  </div>
+</section>
+
+<!-- ============ S6 ============ -->
+<section class="card" id="s6">
+  <div class="kicker">§6</div>
+  <h2><span class="en">ℚ: equivalence classes of fractions</span><span class="zh">ℚ：分数的等价类</span></h2>
+  <div class="def"><span class="en">On <span class="m">ℤ × (ℤ ∖ {0})</span> put <span class="m">(a, b) ~ (c, d) ⇔ a·d = b·c</span>, and <span class="m">ℚ := (ℤ × (ℤ∖{0}))/~</span>. Think of <span class="m">(a, b)</span> as <span class="m">a/b</span>. <span class="m">[(a,b)] + [(c,d)] = [(ad + bc, bd)]</span>, <span class="m">[(a,b)] · [(c,d)] = [(ac, bd)]</span>.</span>
+    <span class="zh">在 <span class="m">ℤ × (ℤ ∖ {0})</span> 上令 <span class="m">(a, b) ~ (c, d) ⇔ a·d = b·c</span>，而 <span class="m">ℚ := (ℤ × (ℤ∖{0}))/~</span>。把 <span class="m">(a, b)</span> 想成 <span class="m">a/b</span>。<span class="m">[(a,b)] + [(c,d)] = [(ad + bc, bd)]</span>，<span class="m">[(a,b)] · [(c,d)] = [(ac, bd)]</span>。</span></div>
+  <p><span class="en">Horizontal axis a, vertical axis b. Click a point: its class is every lattice point on the line through the origin. Each rational number <b>is</b> a line through the origin (minus the origin).</span>
+     <span class="zh">横轴为 a，纵轴为 b。点一个点：它的等价类就是过原点那条直线上的所有格点。每个有理数<b>就是</b>一条过原点的直线（去掉原点）。</span></p>
+  <div class="row">
+    <div class="col" style="flex:0 1 560px"><div class="stage"><svg id="qSvg" viewBox="0 0 550 420" width="550" height="420"></svg></div></div>
+    <div class="col"><div class="msg info" id="qMsg"></div>
+      <div class="note"><span class="en"><b>Why b ≠ 0?</b> The point <span class="m">(0, 0)</span> satisfies <span class="m">a·0 = b·0</span> for every <span class="m">(a, b)</span>, so it would be equivalent to everything, and transitivity would collapse all of ℚ into one class. Transitivity uses cancellation of the nonzero <span class="m">d</span>.</span>
+        <span class="zh"><b>为什么要求 b ≠ 0？</b> 点 <span class="m">(0, 0)</span> 对每个 <span class="m">(a, b)</span> 都满足 <span class="m">a·0 = b·0</span>，于是它与一切等价，传递性会把整个 ℚ 并成一个类。证明传递性时要消去非零的 <span class="m">d</span>。</span></div></div>
+  </div>
+</section>
+
+<!-- ============ S7 ============ -->
+<section class="card" id="s7">
+  <div class="kicker">§7</div>
+  <h2><span class="en">ℝ: Dedekind cuts</span><span class="zh">ℝ：戴德金分割</span></h2>
+  <div class="def"><span class="en"><b>Definition.</b> A <b>Dedekind cut</b> is a set <span class="m">L ⊆ ℚ</span> with (i) <span class="m">∅ ≠ L ≠ ℚ</span>; (ii) downward closed: <span class="m">q ∈ L, p &lt; q ⇒ p ∈ L</span>; (iii) no greatest element. <span class="m">ℝ :=</span> the set of all cuts (a subset of <span class="m">𝒫(ℚ)</span>), ordered by <span class="m">⊆</span>. Each rational <span class="m">r</span> becomes the cut <span class="m">{q : q &lt; r}</span>.</span>
+    <span class="zh"><b>定义.</b> <b>戴德金分割</b>是满足下列条件的集合 <span class="m">L ⊆ ℚ</span>：(i) <span class="m">∅ ≠ L ≠ ℚ</span>；(ii) 向下封闭：<span class="m">q ∈ L, p &lt; q ⇒ p ∈ L</span>；(iii) 没有最大元。<span class="m">ℝ :=</span> 全体分割组成的集合（是 <span class="m">𝒫(ℚ)</span> 的子集），按 <span class="m">⊆</span> 排序。每个有理数 <span class="m">r</span> 对应分割 <span class="m">{q : q &lt; r}</span>。</span></div>
+  <p><span class="en">Drag the knife along the line of rationals. Blue ticks are in <span class="m">L</span>, orange ticks are not. Then press <b>√2</b> and <b>zoom</b>: no matter how far you zoom, no rational sits exactly at the cut.</span>
+     <span class="zh">沿着有理数直线拖动“刀”。蓝色刻度属于 <span class="m">L</span>，橙色的不属于。然后按 <b>√2</b> 再<b>放大</b>：无论放大多少倍，切口处都找不到一个有理数。</span></p>
+  <div class="toolbar">
+    <button class="btn primary" id="ddS2"><span class="en">Cut at √2</span><span class="zh">在 √2 处切</span></button>
+    <button class="btn primary" id="ddZoom"><span class="en">Zoom into the gap ▶</span><span class="zh">放大缺口 ▶</span></button>
+    <button class="btn ghost" id="ddReset"><span class="en">Reset view</span><span class="zh">还原视图</span></button>
+  </div>
+  <div class="stage"><svg id="ddSvg" viewBox="0 0 860 200" width="860" height="200" style="touch-action:none"></svg></div>
+  <div class="msg info" id="ddMsg"></div>
+  <div class="note"><span class="en"><b>Why √2 ∉ ℚ.</b> If <span class="m">p² = 2q²</span> in lowest terms, p is even, say <span class="m">p = 2r</span>; then <span class="m">q² = 2r²</span>, so q is even too, which contradicts lowest terms. The set <span class="m">{q : q &lt; 0 ∨ q² &lt; 2}</span> is a cut (no greatest element, because the inequality is strict), and since no rational has square exactly 2, its complement <span class="m">{q ≥ 0 : q² &gt; 2}</span> has no least element either: a <b>gap</b> in ℚ, which the cut itself fills.</span>
+    <span class="zh"><b>为什么 √2 ∉ ℚ.</b> 若 <span class="m">p² = 2q²</span> 且为既约分数，则 p 是偶数，设 <span class="m">p = 2r</span>；于是 <span class="m">q² = 2r²</span>，q 也是偶数，与既约矛盾。集合 <span class="m">{q : q &lt; 0 ∨ q² &lt; 2}</span> 是分割（不等式是严格的，所以没有最大元）；又因为没有平方恰为 2 的有理数，它的补集 <span class="m">{q ≥ 0 : q² &gt; 2}</span> 也没有最小元：这是 ℚ 中的一个<b>缺口</b>，而这个分割本身正好把它填上。</span></div>
+
+  <h3><span class="en">Least upper bounds: take the union</span><span class="zh">最小上界：取并集即可</span></h3>
+  <p><span class="en">Cuts are ordered by inclusion, so the supremum of a nonempty family of cuts that is bounded above is simply their <b>union</b> (proof in E5). Add the cuts at 1, 1.4, 1.41, … one by one. Their union is exactly the √2 cut, a least upper bound that ℚ itself lacks.</span>
+     <span class="zh">分割按包含关系排序，所以一族非空且有上界的分割，其上确界就是它们的<b>并集</b>（证明见 E5）。逐个加入 1、1.4、1.41……处的分割，它们的并恰好就是 √2 分割。这个最小上界在 ℚ 里是找不到的。</span></p>
+  <div class="toolbar"><button class="btn primary" id="lubAdd"><span class="en">Add next cut</span><span class="zh">加入下一个分割</span></button><button class="btn ghost" id="lubReset"><span class="en">Reset</span><span class="zh">重置</span></button></div>
+  <div class="stage"><svg id="lubSvg" viewBox="0 0 860 240" width="860" height="240"></svg></div>
+</section>
+
+<!-- ============ S8 ============ -->
+<section class="card" id="s8">
+  <div class="kicker">§8</div>
+  <h2><span class="en">The alternative: Cauchy sequences</span><span class="zh">另一条路：柯西列</span></h2>
+  <div class="def"><span class="en">A sequence <span class="m">(qₙ)</span> of rationals is <b>Cauchy</b> if <span class="m">∀ε ∈ ℚ⁺ ∃N ∀m, n ≥ N: |qₘ − qₙ| &lt; ε</span>. Two are equivalent if <span class="m">qₙ − rₙ → 0</span>. Cantor's <span class="m">ℝ</span> is the set of equivalence classes. It satisfies the same axioms as the Dedekind reals (a complete ordered field), and any two complete ordered fields are isomorphic, by a unique isomorphism.</span>
+    <span class="zh">有理数列 <span class="m">(qₙ)</span> 称为<b>柯西列</b>，若 <span class="m">∀ε ∈ ℚ⁺ ∃N ∀m, n ≥ N: |qₘ − qₙ| &lt; ε</span>。若 <span class="m">qₙ − rₙ → 0</span>，则称两个柯西列等价。康托尔的 <span class="m">ℝ</span> 就是等价类全体。它与戴德金实数满足同样的公理（完备有序域），而任意两个完备有序域都同构，且同构唯一。</span></div>
+  <p><span class="en">Two different rational sequences heading for the same gap: decimal truncations of √2 and Newton's iteration <span class="m">q ↦ q/2 + 1/q</span>. Drag ε: the band shows where the tail must stay. Each row is one term.</span>
+     <span class="zh">两个不同的有理数列奔向同一个缺口：√2 的十进制截断，以及牛顿迭代 <span class="m">q ↦ q/2 + 1/q</span>。拖动 ε：色带标出数列尾部必须待在的范围。每一行是一项。</span></p>
+  <div class="toolbar">ε = 10<sup>−<b id="cyEv">2</b></sup> <input type="range" id="cyE" min="1" max="6" value="2"></div>
+  <div class="stage"><svg id="cySvg" viewBox="0 0 860 282" width="860" height="282"></svg></div>
+  <div class="msg info" id="cyMsg"></div>
+</section>
+
+<!-- ============ S9 ============ -->
+<section class="card" id="s9">
+  <div class="kicker">§9</div>
+  <h2><span class="en">How many? |ℕ| = |ℤ| = |ℚ| &lt; |ℝ|</span><span class="zh">有多少？|ℕ| = |ℤ| = |ℚ| &lt; |ℝ|</span></h2>
+  <p><span class="en">Each construction embeds the previous system: <span class="m">n ↦ [(n,0)]</span>, <span class="m">z ↦ [(z,1)]</span>, <span class="m">r ↦ {q : q &lt; r}</span>. (Strictly speaking ℕ ⊄ ℤ as sets; we identify each system with its image.) Pairs and classes do not increase size, but cuts do.</span>
+     <span class="zh">每次构造都把前一个数系嵌入进来：<span class="m">n ↦ [(n,0)]</span>，<span class="m">z ↦ [(z,1)]</span>，<span class="m">r ↦ {q : q &lt; r}</span>。（严格说来，作为集合 ℕ ⊄ ℤ；我们把每个数系与它的像等同起来。）取数对、取等价类都不会让集合变大，取分割却会。</span></p>
+  <div class="tabs">
+    <button class="btn sel" data-cd="z"><span class="en">ℕ ≈ ℤ: zigzag</span><span class="zh">ℕ ≈ ℤ：之字形</span></button>
+    <button class="btn" data-cd="q"><span class="en">ℕ ≈ ℚ: walk the grid</span><span class="zh">ℕ ≈ ℚ：走遍格子</span></button>
+    <button class="btn" data-cd="r"><span class="en">ℕ ≉ ℝ: diagonal</span><span class="zh">ℕ ≉ ℝ：对角线</span></button>
+  </div>
+  <div class="stage"><svg id="cdSvg" viewBox="0 0 860 330" width="860" height="330"></svg></div>
+  <div class="msg info" id="cdMsg"></div>
+  <div class="note"><span class="en">Exactly: <span class="m">|ℝ| = |𝒫(ℕ)| = 2<sup>ℵ₀</sup></span>. Cuts are subsets of the countable set ℚ, so <span class="m">|ℝ| ≤ 2<sup>ℵ₀</sup></span>. Conversely <span class="m">X ↦ Σ<sub>n∈X</sub> 2·3<sup>−(n+1)</sup></span> injects <span class="m">𝒫(ℕ)</span> into ℝ. Whether anything lies strictly between ℵ₀ and 2<sup>ℵ₀</sup> is the Continuum Hypothesis (Lesson 16).</span>
+    <span class="zh">准确地说：<span class="m">|ℝ| = |𝒫(ℕ)| = 2<sup>ℵ₀</sup></span>。分割是可数集 ℚ 的子集，所以 <span class="m">|ℝ| ≤ 2<sup>ℵ₀</sup></span>；反过来，<span class="m">X ↦ Σ<sub>n∈X</sub> 2·3<sup>−(n+1)</sup></span> 把 <span class="m">𝒫(ℕ)</span> 单射到 ℝ 中。ℵ₀ 与 2<sup>ℵ₀</sup> 之间是否还有别的基数，就是连续统假设（第 16 课）。</span></div>
+</section>
+
+<!-- ============ EXERCISES ============ -->
+<section class="card" id="exercises">
+  <div class="kicker"><span class="il"><span class="en">Exercises</span><span class="zh">练习</span></span></div>
+  <h2><span class="en">Your turn</span><span class="zh">轮到你了</span></h2>
+  <p class="muted"><span class="en">Progress is saved in your browser. A sidebar ✓ means solved.</span><span class="zh">进度保存在浏览器中，侧栏出现 ✓ 表示已完成。</span></p>
+  <div class="toolbar"><span class="muted"><span class="il"><span class="en">Insert:</span><span class="zh">插入：</span></span></span> <div class="keys" id="setKeys"></div></div>
+
+  <div class="ex" id="e1" data-prog="L7E1">
+    <h3><span class="tag">E1</span><span class="il"><span class="en">Decode and encode pairs</span><span class="zh">有序对的解码与编码</span></span></h3>
+    <p><span class="en">Answer pairs as <span class="m">(x, y)</span> using numerals; answer sets using only <span class="m">∅</span>, braces and commas.</span>
+       <span class="zh">有序对的答案写成 <span class="m">(x, y)</span>，可以用数字；集合的答案只能用 <span class="m">∅</span>、花括号和逗号。</span></p>
+    <div id="e1List"></div>
+    <div class="tf"><div class="stmt" style="font-family:var(--sans)"><b>(d)</b> <span class="il"><span class="en">Is <span class="m">{{∅, {∅}}}</span> an ordered pair?</span><span class="zh"><span class="m">{{∅, {∅}}}</span> 是有序对吗？</span></span></div>
+      <button class="btn small" data-d="1"><span class="il"><span class="en">Yes</span><span class="zh">是</span></span></button><button class="btn small" data-d="0"><span class="il"><span class="en">No</span><span class="zh">不是</span></span></button>
+      <button class="btn small ghost" data-d="s"><span class="il"><span class="en">Show answer</span><span class="zh">看答案</span></span></button>
+      <div style="flex-basis:100%"><div class="msg" id="e1dMsg"></div></div></div>
+  </div>
+
+  <div class="ex" id="e2" data-prog="L7E2">
+    <h3><span class="tag">E2</span><span class="il"><span class="en">Von Neumann numerals as sets</span><span class="zh">作为集合的冯·诺伊曼自然数</span></span></h3>
+    <div id="e2List"></div>
+    <p><b>(c)</b> <span class="il"><span class="en">True or false?</span><span class="zh">判断对错：</span></span></p>
+    <div id="e2TF"></div>
+    <div class="toolbar"><button class="btn ghost small" id="e2Show"><span class="en">Show answers to (c)</span><span class="zh">显示 (c) 的答案</span></button></div>
+  </div>
+
+  <div class="ex" id="e3" data-prog="L7E3">
+    <h3><span class="tag">E3</span><span class="il"><span class="en">Integers as pairs</span><span class="zh">整数即数对</span></span></h3>
+    <p><span class="en"><b>(a)</b> Click <b>every</b> point of the grid (0 ≤ a, b ≤ 8) that represents the integer <span class="m">−3</span>, then check.</span>
+       <span class="zh"><b>(a)</b> 在格子（0 ≤ a, b ≤ 8）中点出代表整数 <span class="m">−3</span> 的<b>所有</b>点，然后检查。</span></p>
+    <svg id="e3Svg" viewBox="0 0 330 330" width="330" height="330"></svg>
+    <div class="toolbar"><button class="btn primary" id="e3aCheck"><span class="en">Check</span><span class="zh">检查</span></button><button class="btn ghost" id="e3aShow"><span class="en">Show answer</span><span class="zh">显示答案</span></button></div>
+    <div class="msg" id="e3aMsg"></div>
+    <p><span class="en"><b>(b)</b> Using only the pair rule <span class="m">[(a,b)]·[(c,d)] = [(ac+bd, ad+bc)]</span>, give a representative of <span class="m">[(2, 5)] · [(4, 1)]</span>.</span>
+       <span class="zh"><b>(b)</b> 只用数对的乘法规则 <span class="m">[(a,b)]·[(c,d)] = [(ac+bd, ad+bc)]</span>，写出 <span class="m">[(2, 5)] · [(4, 1)]</span> 的一个代表元。</span></p>
+    <div class="toolbar"><span class="m">(</span> <input class="pairin" id="e3bX"> <span class="m">,</span> <input class="pairin" id="e3bY"> <span class="m">)</span> <button class="btn primary small" id="e3bCheck"><span class="en">Check</span><span class="zh">检查</span></button><button class="btn ghost small" id="e3bShow"><span class="en">Show answer</span><span class="zh">看答案</span></button></div>
+    <div class="msg" id="e3bMsg"></div>
+  </div>
+
+  <div class="ex" id="e4" data-prog="L7E4">
+    <h3><span class="tag">E4</span><span class="il"><span class="en">Is it a Dedekind cut?</span><span class="zh">它是戴德金分割吗？</span></span></h3>
+    <p><span class="en">All sets below are subsets of ℚ. Check (i) nonempty and not all of ℚ, (ii) downward closed, (iii) no greatest element.</span>
+       <span class="zh">下面的集合都是 ℚ 的子集。逐条检查：(i) 非空且不等于 ℚ，(ii) 向下封闭，(iii) 没有最大元。</span></p>
+    <div id="e4List"></div>
+    <div class="toolbar"><button class="btn ghost" id="e4Show"><span class="en">Show all answers</span><span class="zh">显示全部答案</span></button></div>
+    <div class="msg" id="e4Msg"></div>
+  </div>
+
+  <div class="ex" id="e5" data-prog="L7E5">
+    <h3><span class="tag">E5</span><span class="il"><span class="en">The union of cuts is their supremum</span><span class="zh">分割之并就是上确界</span></span></h3>
+    <p><span class="en"><b>Claim.</b> Let <span class="m">𝒞</span> be a nonempty set of cuts, bounded above by a cut <span class="m">B</span> (every <span class="m">L ∈ 𝒞</span> has <span class="m">L ⊆ B</span>). Then <span class="m">U = ⋃𝒞</span> is a cut, and it is the least upper bound of <span class="m">𝒞</span>. Prove it, then compare.</span>
+       <span class="zh"><b>命题.</b> 设 <span class="m">𝒞</span> 是一个非空的分割族，且有上界分割 <span class="m">B</span>（每个 <span class="m">L ∈ 𝒞</span> 都满足 <span class="m">L ⊆ B</span>）。则 <span class="m">U = ⋃𝒞</span> 是分割，并且是 <span class="m">𝒞</span> 的最小上界。先自己证明，再对照。</span></p>
+    <div class="steps" id="e5Steps">
+      <div class="step"><p><span class="en"><b>(i) U ⊆ ℚ and U ≠ ∅.</b> U exists by the Union axiom, and it is a subset of ℚ. Pick any <span class="m">L ∈ 𝒞</span> (𝒞 ≠ ∅). Then <span class="m">∅ ≠ L ⊆ U</span>.</span><span class="zh"><b>(i) U ⊆ ℚ 且 U ≠ ∅.</b> 由并集公理 U 存在，且是 ℚ 的子集。任取 <span class="m">L ∈ 𝒞</span>（𝒞 ≠ ∅），则 <span class="m">∅ ≠ L ⊆ U</span>。</span></p></div>
+      <div class="step"><p><span class="en"><b>U ≠ ℚ.</b> Every <span class="m">L ⊆ B</span>, so <span class="m">U ⊆ B ≠ ℚ</span>.</span><span class="zh"><b>U ≠ ℚ.</b> 每个 <span class="m">L ⊆ B</span>，所以 <span class="m">U ⊆ B ≠ ℚ</span>。</span></p></div>
+      <div class="step"><p><span class="en"><b>(ii) Downward closed.</b> If <span class="m">q ∈ U</span> and <span class="m">p &lt; q</span>, then <span class="m">q ∈ L</span> for some <span class="m">L ∈ 𝒞</span>, so <span class="m">p ∈ L ⊆ U</span>.</span><span class="zh"><b>(ii) 向下封闭.</b> 若 <span class="m">q ∈ U</span> 且 <span class="m">p &lt; q</span>，则对某个 <span class="m">L ∈ 𝒞</span> 有 <span class="m">q ∈ L</span>，于是 <span class="m">p ∈ L ⊆ U</span>。</span></p></div>
+      <div class="step"><p><span class="en"><b>(iii) No maximum.</b> If <span class="m">q ∈ U</span>, then <span class="m">q ∈ L</span> for some <span class="m">L ∈ 𝒞</span>. L has no maximum, so some <span class="m">r ∈ L</span> has <span class="m">r &gt; q</span>, and <span class="m">r ∈ U</span>.</span><span class="zh"><b>(iii) 无最大元.</b> 若 <span class="m">q ∈ U</span>，则对某个 <span class="m">L ∈ 𝒞</span> 有 <span class="m">q ∈ L</span>。L 没有最大元，故有 <span class="m">r ∈ L</span> 使 <span class="m">r &gt; q</span>，而 <span class="m">r ∈ U</span>。</span></p></div>
+      <div class="step"><p><span class="en"><b>Least upper bound.</b> Each <span class="m">L ⊆ U</span>, so U is an upper bound. If every <span class="m">L ∈ 𝒞</span> satisfies <span class="m">L ⊆ B′</span>, then <span class="m">U ⊆ B′</span>. Hence <span class="m">U = sup 𝒞</span>, and <span class="m">(ℝ, ⊆)</span> has the least-upper-bound property. ∎</span><span class="zh"><b>最小上界.</b> 每个 <span class="m">L ⊆ U</span>，所以 U 是上界。若每个 <span class="m">L ∈ 𝒞</span> 都满足 <span class="m">L ⊆ B′</span>，则 <span class="m">U ⊆ B′</span>。所以 <span class="m">U = sup 𝒞</span>，从而 <span class="m">(ℝ, ⊆)</span> 具有最小上界性质。∎</span></p></div>
+    </div>
+    <div class="toolbar"><button class="btn primary" id="e5Next"><span class="en">Reveal next step</span><span class="zh">揭晓下一步</span></button><button class="btn ghost" id="e5All"><span class="en">Show whole proof</span><span class="zh">显示完整证明</span></button></div>
+    <p><b><span class="il"><span class="en">Checkpoint:</span><span class="zh">检查问题：</span></span></b> <span class="il"><span class="en">Which hypothesis is needed <i>only</i> for “U ≠ ℚ”?</span><span class="zh">哪个条件<i>只</i>在证明“U ≠ ℚ”时才用到？</span></span></p>
+    <div id="e5Choice"></div>
+    <div class="toolbar"><button class="btn ghost small" id="e5Show"><span class="en">Show answer</span><span class="zh">看答案</span></button></div>
+    <div class="msg" id="e5Msg"></div>
+  </div>
+
+  <div class="ex" id="e6" data-prog="L7E6">
+    <h3><span class="tag">E6</span><span class="il"><span class="en">Hunt for a well-definedness failure</span><span class="zh">揪出“不良定义”</span></span></h3>
+    <p><span class="en">Someone proposes multiplying integers by <span class="m">[(a,b)] ⋆ [(c,d)] := [(a·c, b·d)]</span>. Find representatives <span class="m">(a,b) ~ (a′,b′)</span> and <span class="m">(c,d) ~ (c′,d′)</span> for which the two results are <b>not</b> equivalent. That proves ⋆ is not a function on ℤ.</span>
+       <span class="zh">有人提议这样定义整数乘法：<span class="m">[(a,b)] ⋆ [(c,d)] := [(a·c, b·d)]</span>。找出代表元 <span class="m">(a,b) ~ (a′,b′)</span> 与 <span class="m">(c,d) ~ (c′,d′)</span>，使两次计算的结果<b>不</b>等价。这就证明了 ⋆ 不是 ℤ 上的函数。</span></p>
+    <div class="toolbar m">(a,b) = (<input class="pairin" id="e6a"> , <input class="pairin" id="e6b">) &nbsp; (a′,b′) = (<input class="pairin" id="e6a2"> , <input class="pairin" id="e6b2">)</div>
+    <div class="toolbar m">(c,d) = (<input class="pairin" id="e6c"> , <input class="pairin" id="e6d">) &nbsp; (c′,d′) = (<input class="pairin" id="e6c2"> , <input class="pairin" id="e6d2">)</div>
+    <div class="toolbar"><button class="btn primary" id="e6Check"><span class="en">Test</span><span class="zh">检验</span></button><button class="btn ghost" id="e6Show"><span class="en">Show answer</span><span class="zh">显示答案</span></button></div>
+    <div class="msg" id="e6Msg"></div>
+  </div>
+</section>
+
+<section class="card">
+  <div class="kicker"><span class="il"><span class="en">Next</span><span class="zh">下一课</span></span></div>
+  <h2><a href="lesson8.html" style="color:inherit"><span class="en">Lesson 8: Well-orders, ordinals, transfinite induction →</span><span class="zh">第 8 课：良序、序数与超限归纳 →</span></a></h2>
+  <p><span class="en">ω was built by “add one more, forever”. Why stop there? Next: ω + 1 = ω ∪ {ω}, ω + ω, ω·ω, …, the ordinals, and induction that runs past infinity.</span>
+     <span class="zh">ω 是靠“再加一个，永不停歇”造出来的。为什么要停在这里？下一课：ω + 1 = ω ∪ {ω}、ω + ω、ω·ω……这就是序数，以及能越过无穷继续进行的归纳法。</span></p>
+</section>
+</main>
+</div>
+
+<script src="assets/logic.js"></script>
+<script src="assets/lesson7.js"></script>
+</body>
+</html>

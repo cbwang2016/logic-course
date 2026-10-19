@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 11 · Computability &amp; the Halting Problem 可计算性与停机问题</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  .tape { background: #fbfaf6; border: 1px dashed var(--line); border-radius: 14px; padding: 6px 0; overflow: hidden; }
+  .tape svg { margin: 0 auto; }
+  .tape g.cells { transition: transform .22s ease; }
+  .tape .cell rect { fill: #fff; stroke: #c9c3b3; stroke-width: 1.5; }
+  .tape .cell.flash rect { fill: var(--gold-soft); stroke: var(--gold); }
+  .tape .cell text { font-size: 20px; text-anchor: middle; dominant-baseline: central; font-weight: 700; }
+  .tape .cell text.blank { fill: #d4cfc0; font-weight: 400; }
+  .tape .idx { font-size: 10px; fill: #b0aa9a; text-anchor: middle; }
+  textarea.tm { font-family: var(--mono); font-size: 14px; width: 100%; min-height: 230px; border: 1.5px solid var(--line); border-radius: 10px; padding: 8px 10px; background: #fffdf8; resize: vertical; line-height: 1.45; }
+  textarea.tm:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  input.small { font-family: var(--mono); font-size: 16px; padding: 5px 10px; border: 1.5px solid var(--line); border-radius: 9px; background: #fffdf8; width: 150px; }
+  .status { display: flex; gap: 10px; flex-wrap: wrap; font-family: var(--mono); font-size: 14px; margin: 8px 0; }
+  .status { font-family: var(--sans); }
+  .status span { background: #f1efe7; border-radius: 8px; padding: 3px 10px; }
+  .status span.halt { background: var(--true-soft); color: #1b5e20; font-weight: 700; }
+  .status span.rej { background: var(--false-soft); color: #8a1c1c; font-weight: 700; }
+  table.rules { border-collapse: collapse; font-family: var(--mono); font-size: 14px; }
+  table.rules th, table.rules td { padding: 2px 10px; border-bottom: 1px solid var(--line); text-align: center; }
+  table.rules th { background: #f1efe7; font-weight: 600; }
+  table.rules tr.next td { background: var(--gold-soft); font-weight: 700; }
+  .sd .node circle { fill: #fff; stroke: var(--ink); stroke-width: 2; transition: fill .2s; }
+  .sd .node.halt circle.outer { fill: none; stroke: var(--ink); stroke-width: 1.5; }
+  .sd .node.acc circle { stroke: var(--true); }
+  .sd .node.rej circle { stroke: var(--false); }
+  .sd .node.cur circle.inner { fill: var(--gold-soft); stroke: var(--gold); stroke-width: 3.5; }
+  .sd .node text { font-size: 14px; font-weight: 700; text-anchor: middle; dominant-baseline: central; }
+  .sd path.edge { fill: none; stroke: #9aa0aa; stroke-width: 1.8; }
+  .sd path.edge.hot { stroke: var(--accent); stroke-width: 3.2; }
+  .sd text.elab { font-size: 11.5px; fill: #555; paint-order: stroke; stroke: #fbfaf6; stroke-width: 4px; stroke-linejoin: round; }
+  .sd text.elab.hot { fill: var(--accent); font-weight: 800; }
+  .prtree .pn rect { stroke-width: 2; rx: 8; }
+  .prtree .pn text { font-size: 14px; text-anchor: middle; dominant-baseline: central; font-weight: 700; }
+  .prtree .pn.basic rect { fill: var(--gold-soft); stroke: var(--gold); }
+  .prtree .pn.comp rect { fill: var(--accent-soft); stroke: var(--accent); }
+  .prtree .pn.rec rect { fill: var(--meta-soft); stroke: var(--meta); }
+  .prtree .pn.ref rect { fill: #fff; stroke: var(--true); stroke-dasharray: 5 3; }
+  .prtree .pn.ref { cursor: pointer; }
+  .prtree .pn.hi rect { filter: drop-shadow(0 0 5px rgba(59,91,219,.9)); }
+  .ladder div { font-family: var(--mono); font-size: 15px; padding: 3px 8px; border-left: 3px solid var(--meta); margin: 3px 0; background: #fff; }
+  .ladder div b { color: var(--meta); }
+  .ack td.big { color: var(--muted); font-size: 12px; }
+  .ack td.diag { outline: 2px solid var(--meta); outline-offset: -3px; }
+  .ack td { cursor: pointer; }
+  .ack td.sel { background: var(--accent-soft) !important; }
+  .mu-cells { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
+  .mu-cells div { width: 64px; border-radius: 10px; border: 2px solid var(--line); text-align: center; font-family: var(--mono); font-size: 13px; padding: 4px 0; background: #fff; }
+  .mu-cells div.zero { border-color: var(--true); background: var(--true-soft); font-weight: 700; }
+  .mu-cells div.nz { border-color: #d6d1c2; }
+  .mu-cells div.cur { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .bits { font-family: var(--mono); font-size: 14px; word-break: break-all; line-height: 1.9; background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; }
+  .bits span.blk { border-radius: 4px; padding: 1px 0; transition: background .2s; }
+  .bits span.blk:nth-of-type(odd) { color: #3b5bdb; }
+  .bits span.blk:nth-of-type(even) { color: #ae3ec9; }
+  .bits span.sep { color: #b0aa9a; }
+  .bits span.blk.hot { background: var(--gold-soft); outline: 2px solid var(--gold); }
+  .utape { display: grid; grid-template-columns: 150px 1fr; gap: 8px; align-items: center; margin: 8px 0; }
+  .utape .lab { font-size: 13px; font-weight: 700; color: var(--muted); }
+  .phase { display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 0; }
+  .phase > span { border: 2px solid var(--line); border-radius: 999px; padding: 2px 12px; font-size: 13px; background: #fff; transition: all .2s; }
+  .phase > span.on { border-color: var(--accent); background: var(--accent-soft); font-weight: 700; }
+  .orderlist { min-height: 60px; border: 2px dashed var(--line); border-radius: 12px; padding: 8px; background: #fbfaf6; }
+  .orderlist .chip, .ordertray .chip { display: block; margin: 5px 0; }
+  .orderlist .chip .num { font-weight: 800; color: var(--accent); margin-right: 6px; }
+  table.res { border-collapse: collapse; font-family: var(--mono); font-size: 14px; margin: 8px 0; }
+  table.res td, table.res th { padding: 3px 10px; border-bottom: 1px solid var(--line); text-align: center; }
+  table.res th { background: #f1efe7; }
+  table.res td.okc { background: var(--true-soft); }
+  table.res td.badc { background: var(--false-soft); }
+  .cls { display: flex; gap: 6px; flex-wrap: wrap; }
+  .ctbox { cursor: pointer; }
+  .ctbox rect { transition: fill .2s, stroke .2s; }
+  .ctbox.on rect { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 3; }
+  .clu { cursor: pointer; }
+  .clu ellipse { transition: fill .25s; }
+  .riceDot { transition: r .2s, stroke-width .2s; }
+  .vx { text-decoration: overline; }
+  table.rules th .zh { font-size: 11px; font-weight: 400; }
+  .ack td.big { white-space: nowrap; font-size: 12px; }
+  table.ack { width: 100%; }
+  #ctSvg text, #venn text, #redSvg text, #riceSvg text, #hpFlow text, #dtSvg text { font-family: var(--sans); }
+  .dot-fly { transition: transform 1.1s cubic-bezier(.3,.8,.3,1); }
+</style>
+</head>
+<body class="lang-both">
+<header class="top">
+  <a class="home" href="index.html">∀∃ <span class="il"><span class="en">Logic &amp; Sets</span><span class="zh">逻辑与集合</span></span></a>
+  <span class="muted">/ L11</span>
+  <span class="spacer"></span>
+  <div class="lang-switch">
+    <button data-lang="en">EN</button><button data-lang="zh">中文</button><button data-lang="both">EN + 中</button>
+  </div>
+</header>
+
+<div class="layout">
+<nav class="side">
+  <div class="grp">Lesson 11</div>
+  <a href="index.html">← <span class="il"><span class="en">Course map</span><span class="zh">课程地图</span></span></a>
+  <a href="lesson10.html">← <span class="il"><span class="en">Lesson 10</span><span class="zh">第 10 课</span></span></a>
+  <a href="lesson12.html"><span class="il"><span class="en">Lesson 12</span><span class="zh">第 12 课</span></span> →</a>
+  <a href="#s1">1 · <span class="il"><span class="en">Turing machines</span><span class="zh">图灵机</span></span></a>
+  <a href="#s2">2 · <span class="il"><span class="en">Primitive recursion</span><span class="zh">原始递归</span></span></a>
+  <a href="#s3">3 · <span class="il"><span class="en">Ackermann</span><span class="zh">阿克曼函数</span></span></a>
+  <a href="#s4">4 · <span class="il"><span class="en">μ &amp; Church–Turing</span><span class="zh">μ 算子与丘奇–图灵论题</span></span></a>
+  <a href="#s5">5 · <span class="il"><span class="en">Universal machine</span><span class="zh">通用图灵机</span></span></a>
+  <a href="#s6">6 · <span class="il"><span class="en">Halting problem</span><span class="zh">停机问题</span></span></a>
+  <a href="#s7">7 · <span class="il"><span class="en">Decidable vs r.e.</span><span class="zh">可判定与递归可枚举</span></span></a>
+  <a href="#s8">8 · <span class="il"><span class="en">Reductions &amp; Rice</span><span class="zh">归约与莱斯定理</span></span></a>
+  <div class="grp"><span class="il"><span class="en">Exercises</span><span class="zh">练习</span></span></div>
+  <a href="#e1" data-prog="L11E1">E1 · <span class="il"><span class="en">Design a TM</span><span class="zh">设计图灵机</span></span></a>
+  <a href="#e2" data-prog="L11E2">E2 · <span class="il"><span class="en">Trace</span><span class="zh">追踪计算</span></span></a>
+  <a href="#e3" data-prog="L11E3">E3 · <span class="il"><span class="en">Classify</span><span class="zh">分类</span></span></a>
+  <a href="#e4" data-prog="L11E4">E4 · <span class="il"><span class="en">Diagonal order</span><span class="zh">对角线步骤</span></span></a>
+  <a href="#e5" data-prog="L11E5">E5 · Rice</a>
+  <a href="#e6" data-prog="L11E6">E6 · <span class="il"><span class="en">Define exp</span><span class="zh">定义幂函数</span></span></a>
+</nav>
+
+<main>
+<div class="hero">
+  <div class="kicker">Part III · Lesson 11</div>
+  <h1><span class="en">Computability &amp; the Halting Problem</span><span class="zh">可计算性与停机问题</span></h1>
+  <p><span class="en">What does it mean for a function to be computable “by a mechanical procedure”? We build the machines, run them, encode them as numbers, and then turn Cantor's diagonal argument against them: some perfectly precise questions have no algorithm at all.</span>
+     <span class="zh">一个函数“能被机械程序算出来”，究竟是什么意思？我们动手造机器、运行机器、把机器编码成数，再把康托尔的对角线论证对准它们：有些表述得清清楚楚的问题，根本不存在算法。</span></p>
+</div>
+
+<!-- ============ S1 ============ -->
+<section class="card" id="s1">
+  <div class="kicker">§1</div>
+  <h2><span class="en">A Turing machine, live</span><span class="zh">现场运行一台图灵机</span></h2>
+  <div class="def"><span class="en"><b>Definition.</b> A (deterministic, one-tape) <b>Turing machine</b> is a finite set of states <span class="m">Q</span> with a start state, a finite tape alphabet <span class="m">Γ ∋ _</span> (blank), and a partial transition function <span class="m">δ : Q × Γ ⇀ Q × Γ × {L, R, N}</span>. A rule <span class="m">q a → q' b R</span> reads: “in state q reading a, write b, move right, go to q'”. The machine <b>halts</b> when no rule applies.</span>
+    <span class="zh"><b>定义.</b> 一台（确定型、单带）<b>图灵机</b>由以下几样东西组成：有限状态集 <span class="m">Q</span>（含一个初始状态）、有限带字母表 <span class="m">Γ ∋ _</span>（空白符），以及部分转移函数 <span class="m">δ : Q × Γ ⇀ Q × Γ × {L, R, N}</span>。规则 <span class="m">q a → q' b R</span> 的意思是：“处于状态 q 且读到 a 时，写下 b，右移一格，转入 q'”。没有规则可用时，机器<b>停机</b>。</span></div>
+  <div class="toolbar" id="tmPresets"></div>
+  <div class="msg info" id="tmDesc"></div>
+  <div class="tape"><svg id="tmTape"></svg></div>
+  <div class="toolbar">
+    <label><span class="il"><span class="en">Input</span><span class="zh">输入</span></span> <input class="small" id="tmInput" value="111"></label>
+    <button class="btn primary" id="tmStep"><span class="en">Step ▸</span><span class="zh">单步 ▸</span></button>
+    <button class="btn primary" id="tmRun"><span class="en">Run ▶</span><span class="zh">运行 ▶</span></button>
+    <button class="btn ghost" id="tmReset"><span class="en">Reset</span><span class="zh">重置</span></button>
+    <label class="muted" style="font-size:13px"><span class="il"><span class="en">speed</span><span class="zh">速度</span></span> <input type="range" id="tmSpeed" min="0" max="4" value="2"></label>
+  </div>
+  <div class="status" id="tmStatus"></div>
+  <div class="row">
+    <div class="col" style="flex:1 1 520px">
+      <div class="stage sd"><svg id="tmDiagram"></svg></div>
+    </div>
+    <div class="col" style="flex:1 1 300px">
+      <b><span class="il"><span class="en">Transition table (editable)</span><span class="zh">转移表（可编辑）</span></span></b>
+      <p class="muted" style="font-size:13px;margin:4px 0"><span class="en">One rule per line: <span class="m">state read -&gt; next write move</span>. <span class="m">_</span> is blank, move ∈ L/R/N, <span class="m">#</span> starts a comment. The first state is the start state; the machine halts when no rule matches. Halting in a state named <span class="m">acc…</span>/<span class="m">rej…</span> means accept/reject.</span>
+        <span class="zh">每行一条规则：<span class="m">状态 读入 -&gt; 新状态 写入 移动</span>。<span class="m">_</span> 表示空白，移动取 L/R/N，<span class="m">#</span> 后为注释。第一条规则的状态为初始状态；没有规则匹配时停机。停在名为 <span class="m">acc…</span>/<span class="m">rej…</span> 的状态表示接受/拒绝。</span></p>
+      <textarea class="tm" id="tmText" spellcheck="false"></textarea>
+      <div class="toolbar"><button class="btn" id="tmApply"><span class="en">Load my table</span><span class="zh">载入我的转移表</span></button></div>
+      <div class="msg" id="tmErr"></div>
+      <div id="tmRules" style="max-height:300px;overflow:auto;position:relative"></div>
+    </div>
+  </div>
+  <div class="note"><span class="en"><b>Step-count convention.</b> Every applied rule counts as one step, including the final rule that moves the machine into the halt state <span class="m">H</span>. With this convention the 2-state busy beaver writes 4 ones in 6 steps and the 3-state champion writes 6 ones in 14 steps. Let <span class="m">Σ(n)</span> be the maximum number of 1s left on the tape by an n-state machine over the alphabet <span class="m">{_, 1}</span> that halts when started on a blank tape (the halt state H is not counted among the n). Radó (1962) showed that Σ is not computable; in fact for every computable f we have <span class="m">Σ(n) &gt; f(n)</span> for all sufficiently large n.</span>
+    <span class="zh"><b>步数约定.</b> 每执行一条规则记一步，包括把机器送进停机状态 <span class="m">H</span> 的最后那条规则。按此约定，2 状态忙碌海狸在 6 步内写出 4 个 1，3 状态冠军机在 14 步内写出 6 个 1。记 <span class="m">Σ(n)</span> 为字母表 <span class="m">{_, 1}</span> 上、从空白带出发且最终停机的 n 状态机器（停机状态 H 不计入 n）在带上最多能留下的 1 的个数。拉多（1962）证明了 Σ 不可计算；事实上，对任意可计算函数 f，当 n 充分大时都有 <span class="m">Σ(n) &gt; f(n)</span>。</span></div>
+</section>
+
+<!-- ============ S2 ============ -->
+<section class="card" id="s2">
+  <div class="kicker">§2</div>
+  <h2><span class="en">Primitive recursive functions: built from five kinds of blocks</span><span class="zh">原始递归函数：用五种积木搭出来</span></h2>
+  <div class="def"><span class="en"><b>Definition.</b> The primitive recursive functions are the smallest class of functions <span class="m">ℕᵏ → ℕ</span> that contains <b>zero</b> <span class="m">Z(x) = 0</span> (in any number of variables, including the constant 0 with no variables, so that a one-variable f can start with <span class="m">f(0) = 0</span>), <b>successor</b> <span class="m">S(x) = x+1</span>, the <b>projections</b> <span class="m">Pⁿᵢ(x₁,…,xₙ) = xᵢ</span>, and is closed under <b>composition</b> <span class="m">f(<span class="vx">x</span>) = h(g₁(<span class="vx">x</span>),…,gₘ(<span class="vx">x</span>))</span> and <b>primitive recursion</b>:
+      <span class="m">f(<span class="vx">x</span>, 0) = g(<span class="vx">x</span>)</span>, <span class="m">f(<span class="vx">x</span>, y+1) = h(<span class="vx">x</span>, y, f(<span class="vx">x</span>, y))</span>.</span>
+    <span class="zh"><b>定义.</b> 原始递归函数类是满足下列条件的最小函数类（函数 <span class="m">ℕᵏ → ℕ</span>）：包含<b>零函数</b> <span class="m">Z(x) = 0</span>（变元个数任意，也包括无变元的常数 0，这样单变元函数 f 也能以 <span class="m">f(0) = 0</span> 起步）、<b>后继函数</b> <span class="m">S(x) = x+1</span>、<b>投影函数</b> <span class="m">Pⁿᵢ(x₁,…,xₙ) = xᵢ</span>；并且对<b>复合</b> <span class="m">f(<span class="vx">x</span>) = h(g₁(<span class="vx">x</span>),…,gₘ(<span class="vx">x</span>))</span> 和<b>原始递归</b>
+      <span class="m">f(<span class="vx">x</span>, 0) = g(<span class="vx">x</span>)</span>，<span class="m">f(<span class="vx">x</span>, y+1) = h(<span class="vx">x</span>, y, f(<span class="vx">x</span>, y))</span> 封闭。</span></div>
+  <p><span class="en">Pick a function. Left: its construction tree (gold = basic functions, blue = composition, purple = primitive recursion; a dashed green box is a function defined earlier, so click it to unfold it). Right: the recursion running on your inputs, one rung at a time.</span>
+     <span class="zh">选一个函数。左边是它的构造树（金色＝基本函数，蓝色＝复合，紫色＝原始递归；绿色虚线框是先前定义好的函数，点击可以展开）。右边是递归在你给的输入上一级一级地展开。</span></p>
+  <div class="toolbar" id="prPick"></div>
+  <div class="toolbar">
+    <span class="m">x =</span> <input type="range" id="prX" min="0" max="5" value="2"> <b class="m" id="prXv">2</b>
+    <span class="m" style="margin-left:14px">y =</span> <input type="range" id="prY" min="0" max="5" value="3"> <b class="m" id="prYv">3</b>
+    <button class="btn primary" id="prGo"><span class="en">Unfold the recursion ▶</span><span class="zh">展开递归 ▶</span></button>
+  </div>
+  <div class="row">
+    <div class="col" style="flex:1 1 460px"><div class="stage prtree"><svg id="prTree"></svg></div>
+      <div class="msg info" id="prNode"></div></div>
+    <div class="col" style="flex:1 1 300px"><div class="ladder" id="prLadder"></div><div class="msg" id="prOut"></div></div>
+  </div>
+  <div class="note"><span class="en">Every primitive recursive function is <b>total</b> and computable by a program that uses only bounded <span class="m">for</span>-loops: the number of iterations of each loop is known before the loop starts. Primitive recursion is exactly a “for <span class="m">i = 0 … y−1</span>” loop.</span>
+    <span class="zh">每个原始递归函数都是<b>全函数</b>，而且可以由只含有界 <span class="m">for</span> 循环的程序计算：每个循环跑几圈，在进入循环之前就已确定。原始递归正好就是一个“for <span class="m">i = 0 … y−1</span>”循环。</span></div>
+</section>
+
+<!-- ============ S3 ============ -->
+<section class="card" id="s3">
+  <div class="kicker">§3</div>
+  <h2><span class="en">The Ackermann function: computable, but not primitive recursive</span><span class="zh">阿克曼函数：可计算，却不是原始递归的</span></h2>
+  <div class="def m" style="font-size:15px">A(0, n) = n + 1 &nbsp;·&nbsp; A(m+1, 0) = A(m, 1) &nbsp;·&nbsp; A(m+1, n+1) = A(m, A(m+1, n))</div>
+  <p><span class="en">Each row iterates the row above it, so the rows climb the ladder successor → addition → multiplication → exponentiation → towers. The purple diagonal <span class="m">n ↦ A(n, n)</span> races up all rows at once. Click a small cell to watch the call stack of the recursion while it computes.</span>
+     <span class="zh">每一行都是上一行的迭代，于是各行沿着阶梯往上爬：后继 → 加法 → 乘法 → 乘方 → 指数塔。紫框对角线 <span class="m">n ↦ A(n, n)</span> 同时冲上所有行。点击较小的格子，可以看到计算过程中递归调用栈的起伏。</span></p>
+  <div class="row">
+    <div class="col" style="flex:1 1 100%"><div class="stage" id="ackTable"></div></div>
+    <div class="col" style="flex:0 1 440px"><div class="stage"><svg id="ackStack" viewBox="0 0 420 230" width="420" height="230"></svg></div></div>
+    <div class="col" style="flex:1 1 300px"><div class="msg info" id="ackMsg"></div></div>
+  </div>
+  <h3><span class="en">Why A is not primitive recursive</span><span class="zh">为什么 A 不是原始递归函数</span></h3>
+  <div class="steps" id="ackSteps">
+    <div class="step def"><span class="en"><b>Lemma (domination).</b> For every primitive recursive <span class="m">f(x₁,…,xₖ)</span> there is an m with <span class="m">f(<span class="vx">x</span>) &lt; A(m, max <span class="vx">x</span>)</span> for all <span class="vx">x</span>.</span>
+      <span class="zh"><b>引理（控制）.</b> 对每个原始递归函数 <span class="m">f(x₁,…,xₖ)</span>，存在 m，使得对所有 <span class="vx">x</span> 都有 <span class="m">f(<span class="vx">x</span>) &lt; A(m, max <span class="vx">x</span>)</span>。</span></div>
+    <div class="step def"><span class="en"><b>Proof idea.</b> Induction on the construction of f. Z, S, Pⁿᵢ are bounded by row 0 or 1. If h and the gᵢ are bounded by row m, then the composition is bounded by row m+2. If g and h are bounded by row m, one shows <span class="m">f(<span class="vx">x</span>, y) &lt; A(m+1, y + max <span class="vx">x</span>)</span>, since each step of the recursion applies row m once more and row m+1 <i>is</i> iterated row m. A sum inside the argument is absorbed by going a few rows further. So every construction step raises the row by only a fixed amount.</span>
+      <span class="zh"><b>证明思路.</b> 对 f 的构造归纳。Z、S、Pⁿᵢ 被第 0 或第 1 行控制。若 h 和各 gᵢ 都被第 m 行控制，则复合被第 m+2 行控制。若 g、h 被第 m 行控制，可以证明 <span class="m">f(<span class="vx">x</span>, y) &lt; A(m+1, y + max <span class="vx">x</span>)</span>，因为递归每走一步就多用一次第 m 行，而第 m+1 行<i>正是</i>第 m 行的迭代。自变量里的和式，再往下多走几行就能吸收掉。所以每一步构造只把行号抬高一个固定的量。</span></div>
+    <div class="step def"><span class="en"><b>Diagonal.</b> If <span class="m">g(n) = A(n, n)</span> were primitive recursive, so would be <span class="m">g(n)+1</span>, giving m with <span class="m">A(n,n) + 1 &lt; A(m, n)</span> for all n. Put n = m: <span class="m">A(m,m) + 1 &lt; A(m,m)</span>. Contradiction. ∎ (A diagonal argument again, as in Cantor's theorem!)</span>
+      <span class="zh"><b>对角线.</b> 若 <span class="m">g(n) = A(n, n)</span> 是原始递归的，则 <span class="m">g(n)+1</span> 也是，于是有 m 使对所有 n 都有 <span class="m">A(n,n) + 1 &lt; A(m, n)</span>。取 n = m 得 <span class="m">A(m,m) + 1 &lt; A(m,m)</span>，矛盾。∎（又是一次对角线论证，和康托尔定理如出一辙！）</span></div>
+    <div class="step note"><span class="en"><b>Yet A is computable.</b> The recursion always terminates because each call decreases the pair (m, n) in the <b>lexicographic order on ω × ω</b>, a well-order of type ω² (Lesson 8). A well-order has no infinite descending sequence, so the recursion cannot go on forever.</span>
+      <span class="zh"><b>但 A 是可计算的.</b> 递归一定终止，因为每次调用都让数对 (m, n) 在 <b>ω × ω 的字典序</b>下严格变小，而这是一个序型为 ω² 的良序（第 8 课）。良序里没有无穷降链，所以递归不可能无休止。</span></div>
+  </div>
+  <div class="toolbar"><button class="btn primary" id="ackNext"><span class="en">Reveal next step</span><span class="zh">揭晓下一步</span></button>
+    <button class="btn ghost" id="ackAll"><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+</section>
+
+<!-- ============ S4 ============ -->
+<section class="card" id="s4">
+  <div class="kicker">§4</div>
+  <h2><span class="en">The μ-operator and the Church–Turing thesis</span><span class="zh">μ 算子与丘奇–图灵论题</span></h2>
+  <div class="def"><span class="en"><b>Unbounded search.</b> <span class="m">μy[g(<span class="vx">x</span>, y) = 0]</span> is the least y with <span class="m">g(<span class="vx">x</span>, y) = 0</span>, provided <span class="m">g(<span class="vx">x</span>, z)</span> is defined for all z ≤ y; otherwise it is <b>undefined</b>. The smallest class containing the basic functions and closed under composition, primitive recursion <i>and</i> μ is the class of <b>partial recursive</b> (μ-recursive) functions; its total members are the <b>(general) recursive</b> functions. This is a <span class="m">while</span>-loop: nobody tells you in advance how many rounds it takes.</span>
+    <span class="zh"><b>无界搜索.</b> <span class="m">μy[g(<span class="vx">x</span>, y) = 0]</span> 表示使 <span class="m">g(<span class="vx">x</span>, y) = 0</span> 的最小 y，前提是对所有 z ≤ y，<span class="m">g(<span class="vx">x</span>, z)</span> 都有定义；否则它<b>无定义</b>。包含基本函数、并对复合、原始递归<i>以及</i> μ 算子都封闭的最小函数类，就是<b>部分递归函数</b>（μ 递归函数）类；其中的全函数称为<b>（一般）递归函数</b>。μ 算子就是一个 <span class="m">while</span> 循环：事先没人告诉你要转多少圈。</span></div>
+  <div class="toolbar" id="muPick"></div>
+  <div class="toolbar"><span class="m">x =</span> <input type="range" id="muX" min="0" max="20" value="7"> <b class="m" id="muXv">7</b>
+    <button class="btn primary" id="muGo"><span class="en">Search ▶</span><span class="zh">开始搜索 ▶</span></button></div>
+  <div class="m" id="muFormula" style="font-size:16px"></div>
+  <div class="mu-cells" id="muCells"></div>
+  <div class="msg" id="muOut"></div>
+
+  <h3><span class="en">Many definitions, one class</span><span class="zh">定义各异，殊途同归</span></h3>
+  <p><span class="en">In the 1930s several people formalized “algorithm” in completely different ways, and every one of them turned out to define exactly the same functions. Click a model.</span>
+     <span class="zh">20 世纪 30 年代，好几位学者用截然不同的方式把“算法”形式化，结果每一种定义出来的函数类都一模一样。点击各个模型看看。</span></p>
+  <div class="stage" style="display:flex;justify-content:center"><svg id="ctSvg" viewBox="0 0 760 340" width="760" height="340"></svg></div>
+  <div class="msg info" id="ctMsg"></div>
+  <div class="def"><span class="en"><b>Church–Turing thesis.</b> A function <span class="m">ℕᵏ ⇀ ℕ</span> is effectively computable (by any finite, mechanical procedure) if and only if it is Turing computable. This is <b>not a theorem</b>: it identifies an informal notion with a formal one. The evidence is that all the formal models are provably equivalent, and that no counterexample has ever been found.</span>
+    <span class="zh"><b>丘奇–图灵论题.</b> 一个函数 <span class="m">ℕᵏ ⇀ ℕ</span> 能行可计算（即能被某种有限的机械程序计算），当且仅当它图灵可计算。这<b>不是定理</b>：它把一个直观概念等同于一个形式概念。支持它的证据有两条：各种形式模型之间可以严格证明等价，而且至今没有人找到反例。</span></div>
+</section>
+
+<!-- ============ S5 ============ -->
+<section class="card" id="s5">
+  <div class="kicker">§5</div>
+  <h2><span class="en">Machines are numbers: the universal machine</span><span class="zh">机器就是数：通用图灵机</span></h2>
+  <p><span class="en">Number the states <span class="m">q₁, q₂, …</span> (start = q₁), the symbols <span class="m">s₁ = _, s₂, …</span>, and the moves <span class="m">L=1, R=2, N=3</span>. A rule <span class="m">(qᵢ, sⱼ) → (qₖ, sₗ, m)</span> becomes <span class="m">0ⁱ 1 0ʲ 1 0ᵏ 1 0ˡ 1 0ᵐ</span>, and rules are glued with <span class="m">11</span>. So every machine M has a code <span class="m">⟨M⟩ ∈ {0,1}*</span>; putting a 1 in front (so that no leading zeros are lost) and reading the result in binary gives a number e, and we write <span class="m">Mₑ</span> for the machine with code e. By convention, a number that codes no machine denotes a machine with no rules (it halts at once), so every e ∈ ℕ names some machine. Hence there are only <b>countably many</b> machines.</span>
+     <span class="zh">把状态编号为 <span class="m">q₁, q₂, …</span>（初始状态为 q₁），符号编号为 <span class="m">s₁ = _, s₂, …</span>，移动记 <span class="m">L=1, R=2, N=3</span>。规则 <span class="m">(qᵢ, sⱼ) → (qₖ, sₗ, m)</span> 编码成 <span class="m">0ⁱ 1 0ʲ 1 0ᵏ 1 0ˡ 1 0ᵐ</span>，规则之间用 <span class="m">11</span> 隔开。这样每台机器 M 都有一个编码 <span class="m">⟨M⟩ ∈ {0,1}*</span>；在前面补一个 1（免得丢掉开头的 0）再读成二进制数，就得到一个数 e，编码为 e 的机器记作 <span class="m">Mₑ</span>。约定：不是任何机器编码的数，代表一台没有任何规则（立即停机）的机器，于是每个 e ∈ ℕ 都对应一台机器。所以图灵机只有<b>可数</b>多台。</span></p>
+  <div class="toolbar" id="uPick"></div>
+  <div class="bits" id="uBits"></div>
+  <div class="muted" id="uNum" style="font-size:13px;margin:6px 0"></div>
+  <div class="def"><span class="en"><b>Theorem (Turing 1936).</b> There is a single machine U such that for every machine M and input w: <span class="m">U(⟨M⟩, w)</span> halts iff <span class="m">M(w)</span> halts, with the same output. U is a fixed program that reads other programs, the way an interpreter does. Below, U keeps three tapes: the program, M's tape, and M's current state <span class="m">0ⁱ</span>. (A multi-tape machine can always be simulated by a one-tape machine, so this is no loss of generality.)</span>
+    <span class="zh"><b>定理（图灵，1936）.</b> 存在一台固定的机器 U，使得对任意机器 M 和输入 w：<span class="m">U(⟨M⟩, w)</span> 停机当且仅当 <span class="m">M(w)</span> 停机，并且输出相同。U 是一个读取别的程序的固定程序，就像解释器。下面的 U 用三条带：程序带、M 的带、M 的当前状态 <span class="m">0ⁱ</span>。（多带机总能用单带机模拟，所以这样做不失一般性。）</span></div>
+  <div class="phase" id="uPhase"></div>
+  <div class="utape"><div class="lab"><span class="il"><span class="en">tape 2: M's tape</span><span class="zh">带 2：M 的带</span></span></div><div class="tape"><svg id="uTape"></svg></div></div>
+  <div class="utape"><div class="lab"><span class="il"><span class="en">tape 3: state</span><span class="zh">带 3：状态</span></span></div><div class="m" id="uState" style="font-size:16px"></div></div>
+  <div class="toolbar">
+    <button class="btn primary" id="uStep"><span class="en">U simulates one step of M ▸</span><span class="zh">U 模拟 M 的一步 ▸</span></button>
+    <button class="btn ghost" id="uReset"><span class="en">Reset</span><span class="zh">重置</span></button>
+  </div>
+  <div class="msg" id="uMsg"></div>
+</section>
+
+<!-- ============ S6 ============ -->
+<section class="card" id="s6">
+  <div class="kicker">§6</div>
+  <h2><span class="en">The halting problem, by diagonalization</span><span class="zh">停机问题：对角线论证</span></h2>
+  <p><span class="en">List all machines <span class="m">M₀, M₁, M₂, …</span> (by code) and feed each one every code as input. Entry (e, i) says whether <span class="m">Mₑ</span> halts (↓) or runs forever (↑) on input i. Now do to this table exactly what Cantor did to a list of 0/1 sequences.</span>
+     <span class="zh">按编码列出所有机器 <span class="m">M₀, M₁, M₂, …</span>，再把每个编码都当作输入喂给每台机器。第 (e, i) 格记录 <span class="m">Mₑ</span> 在输入 i 上是停机（↓）还是永远运行（↑）。接下来对这张表做的事，和康托尔对 0/1 序列清单做的事一模一样。</span></p>
+  <div class="row">
+    <div class="col" style="flex:1 1 470px">
+      <div class="toolbar">
+        <button class="btn primary" id="hpFlip"><span class="en">Flip the diagonal ▶</span><span class="zh">翻转对角线 ▶</span></button>
+        <button class="btn ghost" id="hpReset"><span class="en">Reset</span><span class="zh">重置</span></button>
+      </div>
+      <div class="stage"><svg id="hpTable" viewBox="0 0 470 470" width="470" height="470"></svg></div>
+      <div class="msg info" id="hpMsg"></div>
+    </div>
+    <div class="col" style="flex:1 1 340px">
+      <h3 style="margin-top:4px"><span class="en">Run D on its own code</span><span class="zh">让 D 运行自己的编码</span></h3>
+      <div class="toolbar"><button class="btn primary" id="hpRun"><span class="en">Run D(⟨D⟩) ▶</span><span class="zh">运行 D(⟨D⟩) ▶</span></button></div>
+      <div class="stage"><svg id="hpFlow" viewBox="0 0 380 400" width="380" height="400"></svg></div>
+    </div>
+  </div>
+  <div class="row" style="margin-top:10px">
+    <div class="col def"><span class="en"><b>Cantor.</b> Given <span class="m">f : ℕ → 𝒫(ℕ)</span>, let <span class="m">S = {n : n ∉ f(n)}</span>. Then S ≠ f(n) for every n, since they differ at n.</span>
+      <span class="zh"><b>康托尔.</b> 给定 <span class="m">f : ℕ → 𝒫(ℕ)</span>，令 <span class="m">S = {n : n ∉ f(n)}</span>。则对每个 n 都有 S ≠ f(n)，因为二者在 n 处不同。</span></div>
+    <div class="col def"><span class="en"><b>Turing.</b> Given a supposed decider H, let <span class="m">D(e)↓ ⇔ H says Mₑ(e)↑</span>. Then D ≠ Mₑ for every e, since they differ at e. But D is a machine, so it must be on the list.</span>
+      <span class="zh"><b>图灵.</b> 假设有判定器 H，令 <span class="m">D(e)↓ ⇔ H 判定 Mₑ(e)↑</span>。则对每个 e 都有 D ≠ Mₑ，因为二者在 e 处不同。可 D 本身是一台机器，必然在清单上。</span></div>
+  </div>
+  <h3><span class="en">The proof, step by step</span><span class="zh">逐步展开证明</span></h3>
+  <div class="steps" id="hpSteps">
+    <div class="step def"><span class="en"><b>Theorem.</b> <span class="m">HALT = {(e, x) : Mₑ halts on x}</span> is not decidable: no Turing machine halts on every input and outputs 1 exactly on HALT.</span>
+      <span class="zh"><b>定理.</b> <span class="m">HALT = {(e, x) : Mₑ 在 x 上停机}</span> 不可判定：不存在一台在所有输入上都停机、且恰在 HALT 上输出 1 的图灵机。</span></div>
+    <div class="step def"><span class="en">Suppose H decides HALT. Build D: on input e, run H on (e, e); if H answers 1, loop forever; if H answers 0, halt. D is a Turing machine (it calls H as a subroutine), so <span class="m">D = M<sub>d</sub></span> for some d.</span>
+      <span class="zh">假设 H 判定 HALT。构造 D：输入 e 时，在 (e, e) 上运行 H；若 H 回答 1，就进入死循环；若回答 0，就停机。D 是一台图灵机（把 H 当子程序调用），所以对某个 d 有 <span class="m">D = M<sub>d</sub></span>。</span></div>
+    <div class="step def"><span class="en">Then <span class="m">M<sub>d</sub>(d)↓ ⇔ D(d)↓ ⇔ H(d,d) = 0 ⇔ M<sub>d</sub>(d)↑</span>. Contradiction, so H does not exist. ∎</span>
+      <span class="zh">于是 <span class="m">M<sub>d</sub>(d)↓ ⇔ D(d)↓ ⇔ H(d,d) = 0 ⇔ M<sub>d</sub>(d)↑</span>，矛盾，所以 H 不存在。∎</span></div>
+    <div class="step note"><span class="en">The same proof shows the <b>diagonal halting set</b> <span class="m">K = {e : Mₑ(e)↓}</span> is undecidable: D is exactly a machine that would halt on the complement of K. Note what we did <i>not</i> claim: that some single pair (e, x) has no answer. Each pair has a definite answer (and for a single pair, one of the two trivial machines “output 1” / “output 0” gives it). What does not exist is one <b>uniform</b> algorithm that is correct for all pairs.</span>
+      <span class="zh">同样的证明说明<b>对角停机集</b> <span class="m">K = {e : Mₑ(e)↓}</span> 不可判定：D 恰好是一台在 K 的补集上停机的机器。注意我们<i>并没有</i>断言某一对 (e, x) 没有答案。每一对都有确定的答案（而且对单独一对，“输出 1”和“输出 0”这两台平凡机器之一就能给出它）。不存在的是一个对所有输入都正确、<b>一致适用</b>的算法。</span></div>
+  </div>
+  <div class="toolbar"><button class="btn primary" id="hpNext"><span class="en">Reveal next step</span><span class="zh">揭晓下一步</span></button>
+    <button class="btn ghost" id="hpAll"><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+</section>
+
+<!-- ============ S7 ============ -->
+<section class="card" id="s7">
+  <div class="kicker">§7</div>
+  <h2><span class="en">Decidable, r.e., co-r.e.</span><span class="zh">可判定、递归可枚举、余递归可枚举</span></h2>
+  <div class="def"><span class="en"><b>Definitions.</b> <span class="m">A ⊆ ℕ</span> is <b>decidable</b> (recursive) if its characteristic function is computable. A is <b>recursively enumerable</b> (r.e.) if <span class="m">A = Wₑ := {x : Mₑ(x)↓}</span> for some e; equivalently, A is empty or the range of a computable total function, i.e. some machine lists exactly A. A is <b>co-r.e.</b> if <span class="m">ℕ ∖ A</span> is r.e.</span>
+    <span class="zh"><b>定义.</b> 若 <span class="m">A ⊆ ℕ</span> 的特征函数可计算，则称 A <b>可判定</b>（递归）。若对某个 e 有 <span class="m">A = Wₑ := {x : Mₑ(x)↓}</span>，则称 A <b>递归可枚举</b>（r.e.）；等价地，A 为空集或者是某个可计算全函数的值域，也就是有一台机器恰好把 A 的元素一一列出。若 <span class="m">ℕ ∖ A</span> 递归可枚举，则称 A <b>余递归可枚举</b>（co-r.e.）。</span></div>
+  <p><span class="en">Click a problem to place it on the map.</span><span class="zh">点击一个问题，把它放到图上。</span></p>
+  <div class="chips" id="vennChips"></div>
+  <div class="stage" style="display:flex;justify-content:center;margin-top:10px"><svg id="venn" viewBox="0 0 720 330" width="720" height="330"></svg></div>
+  <div class="msg info" id="vennMsg"></div>
+  <div class="def"><span class="en"><b>Complementation theorem (Post 1944).</b> A is decidable ⇔ A is both r.e. and co-r.e. (⇐: say <span class="m">A = Wₑ</span> and <span class="m">ℕ ∖ A = W<sub>e′</sub></span>. Given x, run <span class="m">Mₑ(x)</span> and <span class="m">M<sub>e′</sub>(x)</span> alternately one step at a time; exactly one of them halts, after finitely many steps, and that tells us whether x ∈ A.) So <span class="m">K</span> is r.e. but not co-r.e., and <span class="m">ℕ ∖ K</span> is not r.e.</span>
+    <span class="zh"><b>补集定理（波斯特，1944）.</b> A 可判定 ⇔ A 既递归可枚举又余递归可枚举。（⇐：设 <span class="m">A = Wₑ</span>，<span class="m">ℕ ∖ A = W<sub>e′</sub></span>。给定 x，轮流让 <span class="m">Mₑ(x)</span> 和 <span class="m">M<sub>e′</sub>(x)</span> 各走一步；二者恰有一个会在有限步内停机，由此就知道 x 是否属于 A。）因此 <span class="m">K</span> 递归可枚举但不是余递归可枚举，<span class="m">ℕ ∖ K</span> 则不是递归可枚举的。</span></div>
+
+  <h3><span class="en">Why K is r.e.: dovetailing</span><span class="zh">K 为什么递归可枚举：交错运行（dovetailing）</span></h3>
+  <p><span class="en">We cannot run <span class="m">M₀(0)</span> to completion first: it might never stop, and then we would never even start <span class="m">M₁(1)</span>. Instead, at stage s, run each <span class="m">Mₑ(e)</span> with e ≤ s for one more step, sweeping along the diagonals of the grid. Each halting computation is found after finitely many stages, and the ones that run forever block nothing.</span>
+     <span class="zh">不能先把 <span class="m">M₀(0)</span> 跑完再说：它可能永不停机，那 <span class="m">M₁(1)</span> 就永远轮不上。正确做法是：在第 s 阶段，让每个 e ≤ s 的 <span class="m">Mₑ(e)</span> 各多跑一步，沿着网格的斜线扫过去。每个会停机的计算都会在有限个阶段后被发现，而永不停机的那些也挡不住别人。</span></p>
+  <div class="toolbar">
+    <button class="btn primary" id="dtGo"><span class="en">Dovetail ▶</span><span class="zh">交错运行 ▶</span></button>
+    <button class="btn ghost" id="dtReset"><span class="en">Reset</span><span class="zh">重置</span></button>
+  </div>
+  <div class="row">
+    <div class="col" style="flex:1 1 520px"><div class="stage"><svg id="dtSvg" viewBox="0 0 560 330" width="560" height="330"></svg></div></div>
+    <div class="col" style="flex:0 1 240px"><b><span class="il"><span class="en">Enumeration of K</span><span class="zh">K 的枚举</span></span></b><div class="stage m" id="dtOut" style="min-height:120px;font-size:17px"></div>
+      <p class="muted" style="font-size:13px"><span class="en">The list is correct but comes out of order, and at no finite stage can you be sure that a missing e will never appear.</span><span class="zh">清单是对的，但顺序是乱的；而且在任何有限阶段，你都无法断定一个还没出现的 e 以后永远不会出现。</span></p></div>
+  </div>
+</section>
+
+<!-- ============ S8 ============ -->
+<section class="card" id="s8">
+  <div class="kicker">§8</div>
+  <h2><span class="en">Reductions and Rice's theorem</span><span class="zh">归约与莱斯定理</span></h2>
+  <div class="def"><span class="en"><b>Many-one reduction.</b> <span class="m">A ≤ₘ B</span> if there is a total computable f with <span class="m">x ∈ A ⇔ f(x) ∈ B</span>. If B is decidable then so is A; contrapositively, <b>if A is undecidable then so is B</b>. Reductions carry undecidability <i>forward</i>, from K to everything K reduces to.</span>
+    <span class="zh"><b>多一归约.</b> 若存在可计算全函数 f，使 <span class="m">x ∈ A ⇔ f(x) ∈ B</span>，则记 <span class="m">A ≤ₘ B</span>。若 B 可判定，则 A 也可判定；换个说法，<b>若 A 不可判定，则 B 也不可判定</b>。归约把不可判定性<i>往前传</i>：从 K 传到所有 K 能归约过去的问题。</span></div>
+  <div class="toolbar" id="redPick"></div>
+  <div class="row">
+    <div class="col" style="flex:1 1 520px"><div class="stage"><svg id="redSvg" viewBox="0 0 640 300" width="640" height="300"></svg></div>
+      <div class="toolbar"><button class="btn primary" id="redGo"><span class="en">Apply f ▶</span><span class="zh">施加 f ▶</span></button></div></div>
+    <div class="col" style="flex:1 1 280px"><div class="def" id="redText"></div></div>
+  </div>
+
+  <h3><span class="en">Rice's theorem: no non-trivial semantic property is decidable</span><span class="zh">莱斯定理：任何非平凡的语义性质都不可判定</span></h3>
+  <p><span class="en">Each dot is a program, and programs are grouped into clouds by the partial function they compute. A <b>semantic</b> property is a union of whole clouds. Click clouds to choose a property P.</span>
+     <span class="zh">每个点是一个程序，计算同一个部分函数的程序归成一朵云。<b>语义</b>性质就是若干朵完整的云的并。点击云朵来选定性质 P。</span></p>
+  <div class="toolbar"><button class="btn" id="riceSyn"><span class="en">Compare: a syntactic property (≤ 5 states)</span><span class="zh">对比：语法性质（状态数 ≤ 5）</span></button>
+    <button class="btn ghost" id="riceClear"><span class="en">Clear</span><span class="zh">清空</span></button></div>
+  <div class="stage" style="display:flex;justify-content:center"><svg id="riceSvg" viewBox="0 0 740 300" width="740" height="300"></svg></div>
+  <div class="msg info" id="riceMsg"></div>
+  <div class="steps" id="riceSteps">
+    <div class="step def"><span class="en"><b>Rice's theorem.</b> Write <span class="m">φₑ</span> for the (unary) partial function computed by <span class="m">Mₑ</span>. Let 𝒞 be a set of unary partial computable functions with <span class="m">∅ ≠ 𝒞 ≠</span> all of them. Then <span class="m">{e : φₑ ∈ 𝒞}</span> is undecidable.</span>
+      <span class="zh"><b>莱斯定理.</b> 记 <span class="m">φₑ</span> 为 <span class="m">Mₑ</span> 计算的（一元）部分函数。设 𝒞 是一个一元部分可计算函数的集合，且 <span class="m">∅ ≠ 𝒞 ≠</span> 全体一元部分可计算函数。则 <span class="m">{e : φₑ ∈ 𝒞}</span> 不可判定。</span></div>
+    <div class="step def"><span class="en"><b>Proof.</b> WLOG the everywhere-undefined function <span class="m">∅ ∉ 𝒞</span> (otherwise use the complement). Pick some <span class="m">ψ ∈ 𝒞</span>, computed by a machine N. Given e, let <span class="m">M<sub>f(e)</sub></span> be: “on input x, first run <span class="m">Mₑ(e)</span>; if that halts, run N(x)”. f is computable (it just edits code).</span>
+      <span class="zh"><b>证明.</b> 不妨设处处无定义函数 <span class="m">∅ ∉ 𝒞</span>（否则改看补集）。取某个 <span class="m">ψ ∈ 𝒞</span>，设由机器 N 计算。给定 e，令 <span class="m">M<sub>f(e)</sub></span> 为：“输入 x 时，先运行 <span class="m">Mₑ(e)</span>；若它停机，再运行 N(x)”。f 可计算（它只是在改写代码）。</span></div>
+    <div class="step def"><span class="en">If <span class="m">e ∈ K</span>, then <span class="m">φ<sub>f(e)</sub> = ψ ∈ 𝒞</span>. If <span class="m">e ∉ K</span>, then <span class="m">φ<sub>f(e)</sub> = ∅ ∉ 𝒞</span>. So <span class="m">K ≤ₘ {e : φₑ ∈ 𝒞}</span>, and the latter is undecidable. ∎</span>
+      <span class="zh">若 <span class="m">e ∈ K</span>，则 <span class="m">φ<sub>f(e)</sub> = ψ ∈ 𝒞</span>；若 <span class="m">e ∉ K</span>，则 <span class="m">φ<sub>f(e)</sub> = ∅ ∉ 𝒞</span>。所以 <span class="m">K ≤ₘ {e : φₑ ∈ 𝒞}</span>，后者不可判定。∎</span></div>
+  </div>
+  <div class="toolbar"><button class="btn primary" id="riceNext"><span class="en">Reveal next step</span><span class="zh">揭晓下一步</span></button>
+    <button class="btn ghost" id="riceAll"><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+</section>
+
+<!-- ============ EXERCISES ============ -->
+<section class="card" id="exercises">
+  <div class="kicker"><span class="il"><span class="en">Exercises</span><span class="zh">练习</span></span></div>
+  <h2><span class="en">Your turn</span><span class="zh">轮到你了</span></h2>
+  <p class="muted"><span class="en">Progress is saved in your browser. A sidebar ✓ means solved.</span><span class="zh">进度保存在浏览器中，侧栏出现 ✓ 表示已完成。</span></p>
+
+  <!-- E1 -->
+  <div class="ex" id="e1" data-prog="L11E1">
+    <h3><span class="tag">E1</span><span class="il"><span class="en">Design a Turing machine</span><span class="zh">设计一台图灵机</span></span></h3>
+    <p><span class="en">Choose a task, write a transition table (same format as §1), and run the tests. Your machine must halt on every test input.</span>
+       <span class="zh">选一个任务，写出转移表（格式同 §1），然后运行测试。你的机器必须在每个测试输入上停机。</span></p>
+    <div class="toolbar" id="e1Tasks"></div>
+    <div class="msg info" id="e1Desc"></div>
+    <textarea class="tm" id="e1Text" spellcheck="false" style="min-height:160px"></textarea>
+    <div class="toolbar">
+      <button class="btn primary" id="e1Run"><span class="en">Run tests</span><span class="zh">运行测试</span></button>
+      <button class="btn ghost" id="e1Show"><span class="en">Show answer</span><span class="zh">显示答案</span></button>
+    </div>
+    <div id="e1Res"></div>
+    <div class="msg" id="e1Msg"></div>
+  </div>
+
+  <!-- E2 -->
+  <div class="ex" id="e2" data-prog="L11E2">
+    <h3><span class="tag">E2</span><span class="il"><span class="en">Trace a computation</span><span class="zh">追踪一次计算</span></span></h3>
+    <p><span class="en">Run the <b>binary increment</b> machine of §1 in your head on input <span class="m">1011</span>. What is on the tape when it halts, and how many steps does it take (counting the final rule)?</span>
+       <span class="zh">在脑子里让 §1 的<b>二进制加一</b>机器在输入 <span class="m">1011</span> 上运行。停机时带上写着什么？一共走了多少步（最后那条规则也算）？</span></p>
+    <pre class="m" id="e2Table" style="background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:14px"></pre>
+    <div class="toolbar">
+      <label><span class="il"><span class="en">final tape</span><span class="zh">最终带内容</span></span> <input class="small" id="e2Tape"></label>
+      <label><span class="il"><span class="en">steps</span><span class="zh">步数</span></span> <input class="small" id="e2Steps" style="width:80px"></label>
+      <button class="btn primary" id="e2Check"><span class="en">Check</span><span class="zh">检查</span></button>
+      <button class="btn ghost" id="e2Show"><span class="en">Show answer</span><span class="zh">显示答案</span></button>
+    </div>
+    <div class="msg" id="e2Msg"></div>
+    <div id="e2Trace"></div>
+  </div>
+
+  <!-- E3 -->
+  <div class="ex" id="e3" data-prog="L11E3">
+    <h3><span class="tag">E3</span><span class="il"><span class="en">Classify the problems</span><span class="zh">给问题分类</span></span></h3>
+    <p class="muted"><span class="en">Choose the most precise class for each set. “r.e.” here means r.e. but not decidable, and similarly for co-r.e.</span>
+      <span class="zh">为每个集合选出最精确的类别。这里“递归可枚举”指递归可枚举但不可判定，“余递归可枚举”同理。</span></p>
+    <div id="e3List"></div>
+  </div>
+
+  <!-- E4 -->
+  <div class="ex" id="e4" data-prog="L11E4">
+    <h3><span class="tag">E4</span><span class="il"><span class="en">Put the diagonal argument in order</span><span class="zh">给对角线论证排序</span></span></h3>
+    <p><span class="en">Click the steps in the right order to assemble the proof that HALT is undecidable. Click a placed step to send it back.</span>
+       <span class="zh">按正确顺序点击各步骤，拼出“HALT 不可判定”的证明。点击已放好的步骤可以把它退回去。</span></p>
+    <div class="row">
+      <div class="col"><b><span class="il"><span class="en">Pool</span><span class="zh">备选</span></span></b><div class="ordertray" id="e4Pool"></div></div>
+      <div class="col"><b><span class="il"><span class="en">Your proof</span><span class="zh">你的证明</span></span></b><div class="orderlist" id="e4List"></div></div>
+    </div>
+    <div class="toolbar">
+      <button class="btn primary" id="e4Check"><span class="en">Check</span><span class="zh">检查</span></button>
+      <button class="btn ghost" id="e4Show"><span class="en">Show answer</span><span class="zh">显示答案</span></button>
+    </div>
+    <div class="msg" id="e4Msg"></div>
+  </div>
+
+  <!-- E5 -->
+  <div class="ex" id="e5" data-prog="L11E5">
+    <h3><span class="tag">E5</span><span class="il"><span class="en">Rice or not?</span><span class="zh">莱斯定理管不管？</span></span></h3>
+    <p class="muted"><span class="en">Given a machine M (as code), is the property decidable?</span><span class="zh">给定机器 M（的编码），下列性质可判定吗？</span></p>
+    <div id="e5List"></div>
+  </div>
+
+  <!-- E6 -->
+  <div class="ex" id="e6" data-prog="L11E6">
+    <h3><span class="tag">E6</span><span class="il"><span class="en">Define exponentiation by primitive recursion</span><span class="zh">用原始递归定义乘方</span></span></h3>
+    <p><span class="en">Fill in the two equations for <span class="m">exp(x, y) = xʸ</span> (with <span class="m">0⁰ = 1</span>). In the step, <span class="m">r</span> stands for the previous value <span class="m">exp(x, y)</span>. You may use numbers, <span class="m">x, y, r</span>, <span class="m">S(·)</span>, <span class="m">add(·,·)</span>, <span class="m">mult(·,·)</span>, <span class="m">+</span>, <span class="m">*</span> and parentheses, but no <span class="m">^</span>.</span>
+       <span class="zh">填出 <span class="m">exp(x, y) = xʸ</span>（约定 <span class="m">0⁰ = 1</span>）的两个方程。递推式中 <span class="m">r</span> 代表前一个值 <span class="m">exp(x, y)</span>。可以使用数字、<span class="m">x, y, r</span>、<span class="m">S(·)</span>、<span class="m">add(·,·)</span>、<span class="m">mult(·,·)</span>、<span class="m">+</span>、<span class="m">*</span> 和括号，但不准用 <span class="m">^</span>。</span></p>
+    <div class="toolbar"><b class="m">exp(x, 0) =</b> <input class="formula" id="e6Base" style="min-width:180px;width:200px"></div>
+    <div class="toolbar"><b class="m">exp(x, y+1) =</b> <input class="formula" id="e6Step" style="min-width:180px;width:200px"></div>
+    <div class="toolbar">
+      <button class="btn primary" id="e6Check"><span class="en">Check on x, y = 0…4</span><span class="zh">在 x, y = 0…4 上检验</span></button>
+      <button class="btn ghost" id="e6Show"><span class="en">Show answer</span><span class="zh">显示答案</span></button>
+    </div>
+    <div class="msg" id="e6Msg"></div>
+    <div id="e6Grid"></div>
+  </div>
+</section>
+
+<section class="card">
+  <div class="kicker"><span class="il"><span class="en">Next</span><span class="zh">下一课</span></span></div>
+  <h2><a href="lesson12.html" style="color:inherit"><span class="en">Lesson 12: Gödel's incompleteness theorems →</span><span class="zh">第 12 课：哥德尔不完全性定理 →</span></a></h2>
+  <p><span class="en">Code a machine as a number and you can ask questions about machines in arithmetic. Next, Gödel codes <i>formulas and proofs</i> as numbers and runs the same diagonal trick inside Peano arithmetic. The result: any consistent, r.e. theory containing enough arithmetic leaves some true sentence unproved. (Quick preview: if the true arithmetic sentences were r.e., K would be decidable.)</span>
+     <span class="zh">把机器编码成数，就能用算术谈论机器。下一课，哥德尔把<i>公式和证明</i>编码成数，在皮亚诺算术内部再玩一次对角线把戏。结论是：任何相容的、递归可枚举的、含有足够算术的理论，都有证不出来的真语句。（先剧透一点：如果算术真语句的集合是递归可枚举的，K 就可判定了。）</span></p>
+</section>
+</main>
+</div>
+
+<script src="assets/logic.js"></script>
+<script src="assets/lesson11.js"></script>
+</body>
+</html>

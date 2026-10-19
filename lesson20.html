@@ -1,0 +1,527 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 20 · The Lévy hierarchy &amp; absoluteness 列维层级与绝对性</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  .prereq { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 13px; margin: 2px 0 10px; color: var(--muted); }
+  .prereq a.chip { text-decoration: none; color: var(--ink); font-size: 12.5px; padding: 3px 10px; }
+  .prereq a.chip:hover { border-color: var(--accent); }
+  .lang-both .prereq .chip .zh { display: inline; font-size: 12px; }
+  .lang-both .prereq .chip .zh::before { content: " · "; }
+  .core { font-weight: 600; margin: 6px 0 10px; }
+  .cy { border: 2px dashed #c5cdf5; background: #f8f9ff; border-radius: 14px; padding: 12px 16px; margin: 16px 0 4px; }
+  .cy .q { font-weight: 600; }
+  .cy .opts { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+  .cy .opts .btn { text-align: left; }
+  .cy .opts .btn.right { border-color: var(--true); background: var(--true-soft); }
+  .cy .opts .btn.wrongc { border-color: var(--false); background: var(--false-soft); }
+  .pit { border-left: 4px solid var(--false); background: #fff4f4; padding: 10px 14px; border-radius: 0 10px 10px 0; margin: 14px 0; }
+  .pit b.h { color: var(--false); }
+  .proof { border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; margin: 12px 0; background: #fffefb; }
+  .proof .step { border-left: 3px solid var(--meta); padding: 4px 12px; margin: 8px 0; background: var(--meta-soft); border-radius: 0 8px 8px 0; }
+  .qbar { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; font-family: var(--mono); font-size: 17px; align-items: center; min-height: 44px; }
+  .qtok { padding: 5px 10px; border-radius: 9px; border: 2px solid var(--line); background: #fff; transition: all .3s; }
+  .qtok.E { border-color: var(--accent); background: var(--accent-soft); }
+  .qtok.A { border-color: var(--false); background: var(--false-soft); }
+  .qtok.bd { border-style: dashed; border-color: #999; background: #f4f3ee; color: #555; font-size: 15px; }
+  .qtok.mx { border-color: var(--gold); background: var(--gold-soft); }
+  .qtok.hot { box-shadow: 0 0 0 4px rgba(174,62,201,.35); }
+  .qtok.newb { animation: pop .5s both; }
+  .rewr { font-family: var(--mono); font-size: 15px; margin: 0; padding-left: 22px; }
+  .rewr li { margin: 6px 0; }
+  .rewr li .why { font-family: var(--sans); font-size: 13px; color: var(--muted); display: block; }
+  .ladder td, .ladder th { padding: 6px 10px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+  .ladder { border-collapse: collapse; font-size: 14px; margin: 8px 0; }
+  .ladder tr.sel td { background: var(--gold-soft); }
+  .ladder tr { cursor: pointer; }
+  .arrowU { color: var(--true); font-weight: 800; }
+  .arrowD { color: var(--accent); font-weight: 800; }
+  .arrowN { color: var(--false); font-weight: 800; }
+  .ordlist { list-style: none; padding: 0; margin: 8px 0; }
+  .ordlist li { border: 1.5px solid var(--line); background: #fff; border-radius: 10px; padding: 8px 12px; margin: 6px 0; cursor: pointer; }
+  .ordlist li:hover { border-color: var(--accent); }
+  .ordlist li.picked { border-color: var(--accent); background: var(--accent-soft); }
+  .ordlist li.right { border-color: var(--true); background: var(--true-soft); }
+  .ordlist li.wrong { border-color: var(--false); background: var(--false-soft); }
+  .ordlist li .num { font-family: var(--mono); font-weight: 800; color: var(--accent); margin-right: 8px; }
+  .sel3 { display: flex; gap: 6px; flex-wrap: wrap; }
+  .gridq { display: grid; grid-template-columns: minmax(220px, 1.4fr) 2fr; gap: 6px 14px; align-items: center; }
+  .gridq .stmt { font-size: 15px; }
+  .gridq .btn.small.right { border-color: var(--true); background: var(--true-soft); }
+  .gridq .btn.small.wrongc { border-color: var(--false); background: var(--false-soft); }
+  .cb { display: flex; gap: 10px; align-items: flex-start; padding: 6px 4px; border-bottom: 1px dashed var(--line); }
+  .cb input { margin-top: 5px; transform: scale(1.25); }
+  .cb.right { background: var(--true-soft); }
+  .cb.wrong { background: var(--false-soft); }
+  svg .lbl { font-size: 13px; }
+  svg .small { font-size: 11px; }
+  .hcell { cursor: pointer; }
+  .hcell rect { transition: fill .3s, stroke .3s; }
+  .hcell:hover rect { stroke-width: 3; }
+  .lang-both .cy .opts .btn .zh, .lang-both .ordlist .zh { font-size: 12.5px; }
+</style>
+</head>
+<body class="lang-both">
+<header class="top">
+  <a class="home" href="index.html">∀∃ <span class="il"><span class="en">Logic &amp; Sets</span><span class="zh">逻辑与集合</span></span></a>
+  <span class="muted">/ L20</span>
+  <span class="spacer"></span>
+  <div class="lang-switch">
+    <button data-lang="en">EN</button><button data-lang="zh">中文</button><button data-lang="both">EN + 中</button>
+  </div>
+</header>
+
+<div class="layout">
+<nav class="side">
+  <div class="grp">Lesson 20</div>
+  <a href="index.html">← <span class="il"><span class="en">Course map</span><span class="zh">课程地图</span></span></a>
+  <a href="lesson19.html">← <span class="il"><span class="en">Lesson 19</span><span class="zh">第 19 课</span></span></a>
+  <a href="lesson21.html"><span class="il"><span class="en">Lesson 21</span><span class="zh">第 21 课</span></span> →</a>
+  <a href="#s1">1 · <span class="il"><span class="en">Bounded quantifiers</span><span class="zh">有界量词</span></span></a>
+  <a href="#s2">2 · <span class="il"><span class="en">Σₙ and Πₙ</span><span class="zh">Σₙ 与 Πₙ</span></span></a>
+  <a href="#s3">3 · <span class="il"><span class="en">Modulo ZF</span><span class="zh">模 ZF 分类</span></span></a>
+  <a href="#s4">4 · <span class="il"><span class="en">Δ₀ absoluteness</span><span class="zh">Δ₀ 绝对性</span></span></a>
+  <a href="#s5">5 · <span class="il"><span class="en">The ladder</span><span class="zh">绝对性阶梯</span></span></a>
+  <a href="#s6">6 · <span class="il"><span class="en">H_κ ≺Σ₁ V</span><span class="zh">H_κ ≺Σ₁ V</span></span></a>
+  <a href="#s7">7 · <span class="il"><span class="en">Reflection</span><span class="zh">反射定理</span></span></a>
+  <a href="#s8">8 · <span class="il"><span class="en">Partial truth</span><span class="zh">部分真谓词</span></span></a>
+  <a href="#s9">9 · <span class="il"><span class="en">Shoenfield</span><span class="zh">舍恩菲尔德</span></span></a>
+  <a href="#s10">10 · <span class="il"><span class="en">Hierarchy atlas</span><span class="zh">层级地图</span></span></a>
+  <div class="grp"><span class="il"><span class="en">Exercises</span><span class="zh">练习</span></span></div>
+  <a href="#e1" data-prog="L20E1">E1 · Σ/Π ?</a>
+  <a href="#e2" data-prog="L20E2">E2 · ↑ ↓ ↕</a>
+  <a href="#e3" data-prog="L20E3">E3 · L vs V</a>
+  <a href="#e4" data-prog="L20E4">E4 · <span class="il"><span class="en">Reflection order</span><span class="zh">反射排序</span></span></a>
+  <a href="#e5" data-prog="L20E5">E5 · Shoenfield T/F</a>
+  <a href="#e6" data-prog="L20E6">E6 · H_ω₁ ⊀Σ₂ V</a>
+</nav>
+
+<main>
+<div class="hero">
+  <div class="kicker">Part V · Lesson 20</div>
+  <h1><span class="en">The Lévy hierarchy &amp; absoluteness</span><span class="zh">列维层级与绝对性</span></h1>
+  <p><span class="en">In Lesson 17 we measured arithmetic statements by counting unbounded number quantifiers. Here we do the same with <b>set</b> quantifiers. The count tells you which statements a smaller universe M is guaranteed to get right, and which ones forcing can never change.</span>
+     <span class="zh">第 17 课里，我们数无界的数量词来衡量算术命题的复杂度。这一课对<b>集合</b>量词做同样的事。数出来的层级决定了一个较小的宇宙 M 能保证判断对哪些命题，也决定了哪些命题力迫法永远改变不了。</span></p>
+  <p class="muted" style="font-size:14px"><span class="en">Convention: we work in ZFC unless stated otherwise. “Transitive class M” means: x ∈ M and y ∈ x imply y ∈ M.</span>
+     <span class="zh">约定：除非另作说明，均在 ZFC 中工作。“传递类 M”指：x ∈ M 且 y ∈ x 时必有 y ∈ M。</span></p>
+</div>
+
+<!-- ============ S1 ============ -->
+<section class="card" id="s1">
+  <div class="kicker">§1 · Step 1</div>
+  <h2><span class="en">Bounded quantifiers: searching inside a given set</span><span class="zh">有界量词：只在给定集合里搜索</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置知识</span></span>:
+    <a class="chip" href="lesson14.html"><span class="en">L14 · transitive sets</span><span class="zh">传递集</span></a>
+    <a class="chip" href="lesson17.html"><span class="en">L17 · bounded ∀n&lt;m</span><span class="zh">有界数量词</span></a>
+    <a class="chip" href="lesson8.html"><span class="en">L8 · ordinals</span><span class="zh">序数</span></a></div>
+  <p class="core"><span class="en">Core idea: a formula whose quantifiers only range over elements of sets you already hold can be checked by looking at a small, fixed part of the universe.</span>
+     <span class="zh">核心思想：如果公式的量词只在手头已有集合的元素里取值，那么只需看宇宙中一小块固定的部分，就能判定它。</span></p>
+  <div class="def"><span class="en"><b>Definition (Δ₀ = Σ₀ = Π₀).</b> The <b>Δ₀ formulas</b> of the language {∈} form the smallest class that contains the atomic formulas <span class="m">x ∈ y</span>, <span class="m">x = y</span>, is closed under <span class="m">¬, ∧, ∨, →, ↔</span>, and is closed under <b>bounded quantification</b>:
+      <span class="m">∃x∈y φ :≡ ∃x (x ∈ y ∧ φ)</span> and <span class="m">∀x∈y φ :≡ ∀x (x ∈ y → φ)</span>, where <span class="m">y</span> is a <b>variable</b> different from <span class="m">x</span>.</span>
+    <span class="zh"><b>定义（Δ₀ = Σ₀ = Π₀）.</b> 语言 {∈} 中的 <b>Δ₀ 公式</b>构成满足下列条件的最小类：包含原子公式 <span class="m">x ∈ y</span>、<span class="m">x = y</span>；对 <span class="m">¬, ∧, ∨, →, ↔</span> 封闭；对<b>有界量化</b>封闭，即
+      <span class="m">∃x∈y φ :≡ ∃x (x ∈ y ∧ φ)</span>，<span class="m">∀x∈y φ :≡ ∀x (x ∈ y → φ)</span>，其中 <span class="m">y</span> 是与 <span class="m">x</span> 不同的<b>变元</b>。</span></div>
+  <p><span class="en">Examples. “x is transitive”: <span class="m">∀y∈x ∀z∈y (z ∈ x)</span>. “x is an ordinal”: x is transitive and <span class="m">∀y∈x ∀z∈x (y∈z ∨ y=z ∨ z∈y)</span>. This one is equivalent in ZF to the official definition, because Foundation supplies the well-foundedness. Pick a set and a property below and watch the search: it never leaves the picture of <span class="m">trcl({x})</span>.</span>
+     <span class="zh">例子：“x 是传递集”：<span class="m">∀y∈x ∀z∈y (z ∈ x)</span>。“x 是序数”：x 传递且 <span class="m">∀y∈x ∀z∈x (y∈z ∨ y=z ∨ z∈y)</span>。在 ZF 中它与正式定义等价，因为良基公理（正则公理）保证了良基性。下面选一个集合和一个性质，观察搜索过程：它从不走出 <span class="m">trcl({x})</span> 这幅图。</span></p>
+  <div class="toolbar" id="d0sets"></div>
+  <div class="toolbar" id="d0props"></div>
+  <div class="stage"><svg id="d0svg" viewBox="0 0 760 330" width="760" height="330"></svg></div>
+  <div class="msg info" id="d0msg"></div>
+  <div class="pit"><span class="en"><b class="h">⚠ Common pitfall.</b> “Bounded” means bounded by a <i>variable</i> or parameter. <span class="m">∃z∈𝒫(x)</span> is <b>not</b> a bounded quantifier as written: unfolded it is <span class="m">∃w (w = 𝒫(x) ∧ ∃z∈w …)</span>, and <span class="m">w = 𝒫(x)</span> is not Δ₀ (it is Π₁, see §5). Likewise <span class="m">∃n∈ω</span> is bounded only if <span class="m">ω</span> is supplied as a parameter. Since “w = ω” is Δ₀, arithmetic statements are Δ₀ <i>in the parameter ω</i>.</span>
+    <span class="zh"><b class="h">⚠ 常见误区.</b> “有界”指以<i>变元</i>或参数为界。<span class="m">∃z∈𝒫(x)</span> 照字面<b>不是</b>有界量词：展开后是 <span class="m">∃w (w = 𝒫(x) ∧ ∃z∈w …)</span>，而 <span class="m">w = 𝒫(x)</span> 不是 Δ₀ 的（它是 Π₁，见 §5）。同理，只有把 <span class="m">ω</span> 当作参数给出时，<span class="m">∃n∈ω</span> 才是有界的。由于“w = ω”是 Δ₀ 的，算术命题都是<i>以 ω 为参数</i>的 Δ₀ 命题。</span></div>
+  <div class="cy" id="cy1"></div>
+</section>
+
+<!-- ============ S2 ============ -->
+<section class="card" id="s2">
+  <div class="kicker">§2 · Step 2</div>
+  <h2><span class="en">Σₙ and Πₙ: counting unbounded quantifier blocks</span><span class="zh">Σₙ 与 Πₙ：数无界量词块</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置知识</span></span>:
+    <a class="chip" href="#s1"><span class="en">§1 · Δ₀</span><span class="zh">Δ₀</span></a>
+    <a class="chip" href="lesson17.html"><span class="en">L17 · Σ⁰ₙ / Π⁰ₙ</span><span class="zh">算术层级</span></a>
+    <a class="chip" href="lesson3.html"><span class="en">L3 · prenex form</span><span class="zh">前束范式</span></a></div>
+  <p class="core"><span class="en">Core idea: exactly as in the arithmetical hierarchy, count the alternating blocks of <b>unbounded</b> quantifiers in front of a Δ₀ matrix.</span>
+     <span class="zh">核心思想：和算术层级完全一样，数一数 Δ₀ 母式前面<b>无界</b>量词交替的块数。</span></p>
+  <div class="def"><span class="en"><b>Definition (Lévy).</b> <span class="m">Σ₀ = Π₀ = Δ₀</span>. A formula is <b>Σₙ₊₁</b> if it has the form <span class="m">∃x₁…∃x_k ψ</span> with ψ a Πₙ formula, and <b>Πₙ₊₁</b> if it has the form <span class="m">∀x₁…∀x_k ψ</span> with ψ a Σₙ formula (k ≥ 1). These are <b>syntactic</b> classes. Every Σₙ or Πₙ formula is also Σₘ and Πₘ for every m &gt; n: just add dummy quantifiers.</span>
+    <span class="zh"><b>定义（列维）.</b> <span class="m">Σ₀ = Π₀ = Δ₀</span>。形如 <span class="m">∃x₁…∃x_k ψ</span>（ψ 为 Πₙ 公式，k ≥ 1）的公式称为 <b>Σₙ₊₁</b> 公式；形如 <span class="m">∀x₁…∀x_k ψ</span>（ψ 为 Σₙ 公式）的称为 <b>Πₙ₊₁</b> 公式。这些都是<b>语法</b>类。任何 Σₙ 或 Πₙ 公式对每个 m &gt; n 也都是 Σₘ 和 Πₘ 公式，补上哑量词即可。</span></div>
+  <p><span class="en"><b>Formula builder.</b> Click blocks to grow a prenex prefix in front of a Δ₀ matrix <span class="m">φ₀</span>. Blue = unbounded ∃, red = unbounded ∀, dashed grey = bounded (bounded by the most recent variable, or by the parameter <span class="m">a</span>). The staircase counts blocks.</span>
+     <span class="zh"><b>公式搭建器.</b> 点击积木，在 Δ₀ 母式 <span class="m">φ₀</span> 前面搭一个前束前缀。蓝色＝无界 ∃，红色＝无界 ∀，灰色虚线＝有界（以最近引入的变元为界，没有变元时以参数 <span class="m">a</span> 为界）。下方的台阶图数出量词块。</span></p>
+  <div class="toolbar">
+    <button class="btn" data-q="E">∃v</button><button class="btn" data-q="A">∀v</button>
+    <button class="btn" data-q="bE">∃v∈u</button><button class="btn" data-q="bA">∀v∈u</button>
+    <button class="btn ghost" id="qUndo">⌫ <span class="il"><span class="en">undo</span><span class="zh">撤销</span></span></button>
+    <button class="btn ghost" id="qClear"><span class="il"><span class="en">clear</span><span class="zh">清空</span></span></button>
+  </div>
+  <div class="toolbar"><span class="muted" style="font-size:13px"><span class="il"><span class="en">Presets</span><span class="zh">预设</span></span>:</span>
+    <button class="btn small" data-pre="E">“a is countable”</button>
+    <button class="btn small" data-pre="A,bA">“a is a cardinal”</button>
+    <button class="btn small" data-pre="E,A">CH-shape</button>
+    <button class="btn small" data-pre="bA,E">∀x∈a ∃y</button>
+    <button class="btn small" data-pre="E,E,A,bE,A">∃∃∀(∃∈)∀</button>
+  </div>
+  <div class="qbar" id="qbar"></div>
+  <div class="stage"><svg id="qstairs" viewBox="0 0 760 150" width="760" height="150"></svg></div>
+  <div class="msg info" id="qmsg"></div>
+  <div class="note"><span class="en">Analogy with L17: <span class="m">Σ⁰ₙ</span> counts unbounded <i>number</i> quantifiers over a decidable (Δ⁰₀) matrix; Lévy's <span class="m">Σₙ</span> counts unbounded <i>set</i> quantifiers over a Δ₀ matrix. In both hierarchies bounded quantifiers are “free”, but for sets this needs an axiom (next step).</span>
+    <span class="zh">与第 17 课类比：<span class="m">Σ⁰ₙ</span> 数的是可判定（Δ⁰₀）母式前面的无界<i>数</i>量词；列维的 <span class="m">Σₙ</span> 数的是 Δ₀ 母式前面的无界<i>集合</i>量词。两种层级里有界量词都“不算数”，但在集合论里这要靠一条公理（见下一步）。</span></div>
+  <div class="cy" id="cy2"></div>
+</section>
+
+<!-- ============ S3 ============ -->
+<section class="card" id="s3">
+  <div class="kicker">§3 · Step 3</div>
+  <h2><span class="en">Classification modulo a theory: Σₙ<sup>ZF</sup>, Πₙ<sup>ZF</sup>, Δₙ<sup>ZF</sup></span><span class="zh">模理论分类：Σₙ<sup>ZF</sup>、Πₙ<sup>ZF</sup>、Δₙ<sup>ZF</sup></span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置知识</span></span>:
+    <a class="chip" href="#s2"><span class="en">§2 · Σₙ / Πₙ</span><span class="zh">Σₙ / Πₙ</span></a>
+    <a class="chip" href="lesson6.html"><span class="en">L6 · Replacement</span><span class="zh">替换公理</span></a>
+    <a class="chip" href="lesson14.html"><span class="en">L14 · V_α</span><span class="zh">V_α</span></a></div>
+  <p class="core"><span class="en">Core idea: the Collection principle lets a bounded quantifier slide past an unbounded one, so modulo ZF only the unbounded blocks count.</span>
+     <span class="zh">核心思想：收集原理允许有界量词“穿过”无界量词，因此在模 ZF 的意义下，只有无界量词块才算数。</span></p>
+  <div class="def"><span class="en"><b>Definition.</b> Let T be a theory. A formula φ is <b>Σₙ<sup>T</sup></b> if there is a Σₙ formula ψ with the same free variables such that <span class="m">T ⊢ ∀x̄ (φ ↔ ψ)</span>. Πₙ<sup>T</sup> is defined in the same way. φ is <b>Δₙ<sup>T</sup></b> if it is both Σₙ<sup>T</sup> and Πₙ<sup>T</sup>.<br>
+    <b>Collection lemma (provable in ZF).</b> <span class="m">∀x∈a ∃y φ ↔ ∃b ∀x∈a ∃y∈b φ</span>. (→ is Collection, which ZF proves from Replacement plus the V_α hierarchy; ← is trivial.)<br>
+    <b>Consequence.</b> For n ≥ 1, Σₙ<sup>ZF</sup> is closed under ∧, ∨, ∃x, ∃x∈y and ∀x∈y; Πₙ<sup>ZF</sup> is closed under ∧, ∨, ∀x, ∃x∈y and ∀x∈y; and ¬ turns Σₙ<sup>ZF</sup> into Πₙ<sup>ZF</sup>.</span>
+    <span class="zh"><b>定义.</b> 设 T 是一个理论。若存在自由变元相同的 Σₙ 公式 ψ，使得 <span class="m">T ⊢ ∀x̄ (φ ↔ ψ)</span>，则称 φ 为 <b>Σₙ<sup>T</sup></b> 公式；Πₙ<sup>T</sup> 同理。若 φ 既是 Σₙ<sup>T</sup> 又是 Πₙ<sup>T</sup>，则称它为 <b>Δₙ<sup>T</sup></b> 公式。<br>
+    <b>收集引理（ZF 可证）.</b> <span class="m">∀x∈a ∃y φ ↔ ∃b ∀x∈a ∃y∈b φ</span>。（→ 即收集原理，ZF 可由替换公理加上 V_α 层级证明；← 显然。）<br>
+    <b>推论.</b> 当 n ≥ 1 时，Σₙ<sup>ZF</sup> 对 ∧、∨、∃x、∃x∈y、∀x∈y 封闭；Πₙ<sup>ZF</sup> 对 ∧、∨、∀x、∃x∈y、∀x∈y 封闭；¬ 把 Σₙ<sup>ZF</sup> 变成 Πₙ<sup>ZF</sup>。</span></div>
+  <p><span class="en"><b>Normalizer.</b> Step through the rewriting. Each step moves the first bounded quantifier that stands in front of an unbounded one to the right. If the two quantifiers have the same type, they simply swap (pure logic). If the types differ, Collection (or its dual) creates a fresh unbounded quantifier and bounds the old one by it.</span>
+     <span class="zh"><b>规范化器.</b> 一步步看改写过程。每一步把第一个“挡在无界量词前面”的有界量词往右移。两个量词同类型时直接交换（纯逻辑）；类型不同时，用收集原理（或其对偶形式）引入一个新的无界量词，并让原来那个量词以它为界。</span></p>
+  <div class="toolbar">
+    <select id="nzPre" class="btn"></select>
+    <button class="btn" id="nzFromBuilder"><span class="en">Load from §2 builder</span><span class="zh">载入 §2 搭建器的公式</span></button>
+    <button class="btn primary" id="nzStep"><span class="en">Next rewrite ▶</span><span class="zh">下一步改写 ▶</span></button>
+    <button class="btn" id="nzAll"><span class="en">Run all ⏩</span><span class="zh">全部执行 ⏩</span></button>
+  </div>
+  <div class="qbar" id="nzbar"></div>
+  <ol class="rewr" id="nzlog"></ol>
+  <div class="msg" id="nzmsg"></div>
+  <h3><span class="en">A Δ₁<sup>ZF</sup> example: “x is finite”</span><span class="zh">Δ₁<sup>ZF</sup> 的例子：“x 是有限集”</span></h3>
+  <div class="toolbar"><button class="btn small sel" id="finS">Σ₁</button><button class="btn small" id="finP">Π₁</button></div>
+  <div class="msg info m" id="finBox" style="font-size:14.5px"></div>
+  <div class="pit"><span class="en"><b class="h">⚠ Common pitfall.</b> “φ is Σ₁” and “φ is Σ₁<sup>ZF</sup>” are different claims. The second depends on the theory. Example: “x ∈ L”, i.e. <span class="m">∃α (x ∈ L_α)</span>, is Σ₁<sup>ZF</sup>, but in <span class="m">ZF + V=L</span> it is equivalent to <span class="m">x = x</span>, which is Δ₀. Also, “ZF cannot prove φ is Πₙ” claims are always conditional on the consistency of ZF, since an inconsistent theory proves every equivalence.</span>
+    <span class="zh"><b class="h">⚠ 常见误区.</b> “φ 是 Σ₁ 的”和“φ 是 Σ₁<sup>ZF</sup> 的”是两回事，后者依赖于理论。例：“x ∈ L”，即 <span class="m">∃α (x ∈ L_α)</span>，是 Σ₁<sup>ZF</sup> 的；但在 <span class="m">ZF + V=L</span> 中它等价于 <span class="m">x = x</span>，是 Δ₀ 的。另外，凡是“ZF 证明不了 φ 是 Πₙ 的”这类断言，都以 ZF 的一致性为前提，因为不一致的理论能证明任何等价式。</span></div>
+  <div class="cy" id="cy3"></div>
+</section>
+
+<!-- ============ S4 ============ -->
+<section class="card" id="s4">
+  <div class="kicker">§4 · Step 4</div>
+  <h2><span class="en">Absoluteness, and why Δ₀ formulas are absolute for transitive classes</span><span class="zh">绝对性，以及 Δ₀ 公式为何对传递类绝对</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置知识</span></span>:
+    <a class="chip" href="lesson14.html"><span class="en">L14 · relativization φ^M</span><span class="zh">相对化 φ^M</span></a>
+    <a class="chip" href="#s1"><span class="en">§1 · Δ₀</span><span class="zh">Δ₀</span></a></div>
+  <p class="core"><span class="en">Core idea: a bounded search started at x only visits elements of elements of x. If M is transitive, M can see all of them, so M and V give the same answer.</span>
+     <span class="zh">核心思想：从 x 出发的有界搜索只会访问 x 的元素的元素……若 M 是传递的，这些 M 全都看得见，于是 M 和 V 给出同样的答案。</span></p>
+  <div class="def"><span class="en"><b>Definition.</b> For a class M and a formula φ(x₁,…,xₙ), φ<sup>M</sup> is φ with every quantifier <span class="m">∃y / ∀y</span> replaced by <span class="m">∃y∈M / ∀y∈M</span>. φ is <b>absolute for M</b> if <span class="m">∀x̄∈M (φ<sup>M</sup>(x̄) ↔ φ(x̄))</span>. It is <b>upward absolute</b> if only “→” is required, and <b>downward absolute</b> if only “←” is required.<br>
+    <b>Theorem.</b> If M is a transitive class, every Δ₀ formula is absolute for M. No axioms need to hold in M.</span>
+    <span class="zh"><b>定义.</b> 对类 M 与公式 φ(x₁,…,xₙ)，φ<sup>M</sup> 是把 φ 中每个量词 <span class="m">∃y / ∀y</span> 换成 <span class="m">∃y∈M / ∀y∈M</span> 后得到的公式。若 <span class="m">∀x̄∈M (φ<sup>M</sup>(x̄) ↔ φ(x̄))</span>，则称 φ <b>对 M 绝对</b>；只要求“→”时称为<b>向上绝对</b>，只要求“←”时称为<b>向下绝对</b>。<br>
+    <b>定理.</b> 若 M 是传递类，则每个 Δ₀ 公式都对 M 绝对，不需要 M 满足任何公理。</span></div>
+  <p><span class="en">The pictures below show <span class="m">x = {a, b}</span> with <span class="m">x ∈ M</span>. Toggle whether M is transitive, then ask M and V the Δ₀ question “<span class="m">x = ∅</span>”, i.e. <span class="m">∀y∈x (y ≠ y)</span>.</span>
+     <span class="zh">下图中 <span class="m">x = {a, b}</span>，且 <span class="m">x ∈ M</span>。切换 M 是否传递，再分别问 M 和 V 这个 Δ₀ 问题：“<span class="m">x = ∅</span>”，即 <span class="m">∀y∈x (y ≠ y)</span>。</span></p>
+  <div class="toolbar">
+    <button class="btn sel" id="trT"><span class="en">M transitive</span><span class="zh">M 传递</span></button>
+    <button class="btn" id="trN"><span class="en">M not transitive</span><span class="zh">M 不传递</span></button>
+    <button class="btn primary" id="trRun"><span class="en">Ask “x = ∅ ?” ▶</span><span class="zh">提问“x = ∅ ？” ▶</span></button>
+  </div>
+  <div class="stage"><svg id="trsvg" viewBox="0 0 760 300" width="760" height="300"></svg></div>
+  <div class="msg" id="trmsg"></div>
+  <div class="proof" id="pf4">
+    <b><span class="il"><span class="en">Proof (induction on Δ₀ formulas)</span><span class="zh">证明（对 Δ₀ 公式归纳）</span></span></b>
+    <div class="steps">
+      <div class="step"><span class="en"><b>Atomic.</b> <span class="m">(x∈y)<sup>M</sup></span> is literally <span class="m">x∈y</span>, and the same holds for =. Nothing to prove.</span><span class="zh"><b>原子公式.</b> <span class="m">(x∈y)<sup>M</sup></span> 就是 <span class="m">x∈y</span>，等号同理，无需证明。</span></div>
+      <div class="step"><span class="en"><b>Connectives.</b> Relativization commutes with ¬, ∧, …, so the induction hypothesis passes straight through.</span><span class="zh"><b>联结词.</b> 相对化与 ¬、∧ 等可交换，归纳假设直接传递下去。</span></div>
+      <div class="step"><span class="en"><b>Bounded ∃.</b> Let <span class="m">y, p̄ ∈ M</span>. Then <span class="m">(∃x∈y ψ)<sup>M</sup></span> is <span class="m">∃x∈M (x∈y ∧ ψ<sup>M</sup>)</span>. Since M is transitive and <span class="m">y∈M</span>, every <span class="m">x∈y</span> is already in M, so “<span class="m">x∈M</span>” is redundant. Together with ψ<sup>M</sup> ↔ ψ (IH, applicable because x ∈ M) this gives <span class="m">∃x (x∈y ∧ ψ)</span>.</span>
+        <span class="zh"><b>有界 ∃.</b> 设 <span class="m">y, p̄ ∈ M</span>，则 <span class="m">(∃x∈y ψ)<sup>M</sup></span> 就是 <span class="m">∃x∈M (x∈y ∧ ψ<sup>M</sup>)</span>。因为 M 传递且 <span class="m">y∈M</span>，每个 <span class="m">x∈y</span> 都已在 M 中，所以条件“<span class="m">x∈M</span>”是多余的；再结合 ψ<sup>M</sup> ↔ ψ（归纳假设，因 x ∈ M 而适用）即得 <span class="m">∃x (x∈y ∧ ψ)</span>。</span></div>
+      <div class="step"><span class="en"><b>Bounded ∀.</b> Same argument, or use <span class="m">∀x∈y ψ ≡ ¬∃x∈y ¬ψ</span>. ∎ The only property of M we used is transitivity, in the step “x ∈ y ∈ M ⇒ x ∈ M”. That is exactly where the non-transitive picture above breaks.</span>
+        <span class="zh"><b>有界 ∀.</b> 同理，或利用 <span class="m">∀x∈y ψ ≡ ¬∃x∈y ¬ψ</span>。∎ 我们用到的 M 的唯一性质就是传递性，即“x ∈ y ∈ M ⇒ x ∈ M”这一步。上面那幅不传递的图恰恰坏在这里。</span></div>
+    </div>
+    <div class="toolbar"><button class="btn small" data-pnext><span class="en">Next step</span><span class="zh">下一步</span></button><button class="btn small ghost" data-pall><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+  </div>
+  <div class="cy" id="cy4"></div>
+</section>
+
+<!-- ============ S5 ============ -->
+<section class="card" id="s5">
+  <div class="kicker">§5 · Step 5</div>
+  <h2><span class="en">The absoluteness ladder: Σ₁ goes up, Π₁ goes down</span><span class="zh">绝对性阶梯：Σ₁ 向上，Π₁ 向下</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置知识</span></span>:
+    <a class="chip" href="#s4"><span class="en">§4 · Δ₀ absoluteness</span><span class="zh">Δ₀ 绝对性</span></a>
+    <a class="chip" href="lesson9.html"><span class="en">L9 · cardinals</span><span class="zh">基数</span></a>
+    <a class="chip" href="lesson5.html"><span class="en">L5 · Löwenheim–Skolem</span><span class="zh">LS 定理</span></a></div>
+  <p class="core"><span class="en">Core idea: a witness found inside M is still a witness in V, but V may hold witnesses (or counterexamples) that M cannot see.</span>
+     <span class="zh">核心思想：在 M 里找到的证据到了 V 里仍然是证据；但 V 可能有 M 看不见的证据（或反例）。</span></p>
+  <div class="def"><span class="en"><b>Theorem.</b> Let M be a transitive class.
+      (1) Σ₁ formulas are <b>upward absolute</b>: for x̄ ∈ M, <span class="m">φ<sup>M</sup>(x̄) → φ(x̄)</span>.
+      (2) Π₁ formulas are <b>downward absolute</b>: for x̄ ∈ M, <span class="m">φ(x̄) → φ<sup>M</sup>(x̄)</span>.
+      (3) If M ⊨ T (each axiom of T relativized to M holds) and V ⊨ T, then Σ₁<sup>T</sup> formulas are upward absolute, Π₁<sup>T</sup> formulas are downward absolute, and <b>Δ₁<sup>T</sup> formulas are absolute</b> for M.</span>
+    <span class="zh"><b>定理.</b> 设 M 是传递类。
+      (1) Σ₁ 公式<b>向上绝对</b>：对 x̄ ∈ M 有 <span class="m">φ<sup>M</sup>(x̄) → φ(x̄)</span>。
+      (2) Π₁ 公式<b>向下绝对</b>：对 x̄ ∈ M 有 <span class="m">φ(x̄) → φ<sup>M</sup>(x̄)</span>。
+      (3) 若 M ⊨ T（T 的每条公理相对化到 M 后都成立）且 V ⊨ T，则 Σ₁<sup>T</sup> 公式向上绝对，Π₁<sup>T</sup> 公式向下绝对，<b>Δ₁<sup>T</sup> 公式绝对</b>。</span></div>
+  <p><span class="en">Below, M is a <b>countable</b> transitive set model of a large finite fragment of ZFC. Such an M exists in ZFC: reflect the fragment to some V_α (§7), take a countable elementary submodel (Löwenheim–Skolem), and apply the Mostowski collapse. Pick a statement and run the search.</span>
+     <span class="zh">下图中 M 是 ZFC 某个足够大的有限片段的<b>可数</b>传递集合模型。这样的 M 在 ZFC 中确实存在：先把该片段反射到某个 V_α（§7），再取可数初等子模型（勒文海姆–斯科伦），最后做莫斯托夫斯基坍塌。选一个命题，运行搜索。</span></p>
+  <div class="toolbar" id="ladEx"></div>
+  <div class="toolbar"><button class="btn primary" id="ladRun"><span class="en">Search in M, then in V ▶</span><span class="zh">先在 M 中搜，再在 V 中搜 ▶</span></button></div>
+  <div class="row">
+    <div class="col" style="flex:1 1 430px"><div class="stage"><svg id="ladsvg" viewBox="0 0 440 340" width="440" height="340"></svg></div></div>
+    <div class="col" style="flex:1 1 300px">
+      <table class="ladder" id="ladTable"></table>
+      <div class="msg" id="ladmsg"></div>
+    </div>
+  </div>
+  <div class="pit"><span class="en"><b class="h">⚠ Common pitfall.</b> “ω₁<sup>M</sup> is countable in V but uncountable in M” is <b>not</b> a contradiction. “Countable” is Σ₁ (∃ a surjection from ω), and the surjection simply isn't an element of M. Absoluteness theorems speak about formulas with parameters <i>in M</i>; Π₁ downward absoluteness says nothing about upward transfer.</span>
+    <span class="zh"><b class="h">⚠ 常见误区.</b> “ω₁<sup>M</sup> 在 V 中可数、在 M 中不可数”<b>并不</b>矛盾。“可数”是 Σ₁ 的（存在从 ω 出发的满射），只是那个满射不是 M 的元素而已。绝对性定理讨论的是参数<i>在 M 中</i>的公式；Π₁ 的向下绝对性对向上传递不作任何保证。</span></div>
+  <div class="cy" id="cy5"></div>
+</section>
+
+<!-- ============ S6 ============ -->
+<section class="card" id="s6">
+  <div class="kicker">§6 · Step 6</div>
+  <h2><span class="en">Lévy absoluteness: H_κ is Σ₁-elementary in V</span><span class="zh">列维绝对性：H_κ 是 V 的 Σ₁-初等子结构</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置知识</span></span>:
+    <a class="chip" href="#s5"><span class="en">§5 · upward absoluteness</span><span class="zh">向上绝对</span></a>
+    <a class="chip" href="lesson5.html"><span class="en">L5 · Löwenheim–Skolem</span><span class="zh">LS 定理</span></a>
+    <a class="chip" href="lesson14.html"><span class="en">L14 · Mostowski collapse</span><span class="zh">莫斯托夫斯基坍塌</span></a></div>
+  <p class="core"><span class="en">Core idea: if a Σ₁ fact about small sets has a witness anywhere in V, it has a small witness. Shrink the witness with Löwenheim–Skolem and the Mostowski collapse.</span>
+     <span class="zh">核心思想：关于小集合的 Σ₁ 事实只要在 V 中某处有证据，就一定有小的证据。用勒文海姆–斯科伦定理加莫斯托夫斯基坍塌，把证据“压小”。</span></p>
+  <div class="def"><span class="en"><b>Definition.</b> <span class="m">H_κ = {x : |trcl(x)| &lt; κ}</span>, the sets of hereditary cardinality &lt; κ. H_κ is transitive and <span class="m">H_κ ⊆ V_κ</span>. <span class="m">H_ω₁ = HC</span> is the set of hereditarily countable sets.<br>
+    <b>Theorem (Lévy; ZFC).</b> For every <b>uncountable</b> cardinal κ, <span class="m">H_κ ≺<sub>Σ₁</sub> V</span>: for every Σ₁ formula φ and all <span class="m">p̄ ∈ H_κ</span>, <span class="m">φ<sup>H_κ</sup>(p̄) ↔ φ(p̄)</span>.</span>
+    <span class="zh"><b>定义.</b> <span class="m">H_κ = {x : |trcl(x)| &lt; κ}</span>，即遗传基数小于 κ 的集合全体。H_κ 是传递集，且 <span class="m">H_κ ⊆ V_κ</span>。<span class="m">H_ω₁ = HC</span> 是遗传可数集全体。<br>
+    <b>定理（列维；ZFC）.</b> 对每个<b>不可数</b>基数 κ，<span class="m">H_κ ≺<sub>Σ₁</sub> V</span>：对每个 Σ₁ 公式 φ 及所有 <span class="m">p̄ ∈ H_κ</span>，有 <span class="m">φ<sup>H_κ</sup>(p̄) ↔ φ(p̄)</span>。</span></div>
+  <div class="toolbar">
+    <span class="m">κ =</span>
+    <button class="btn small sel" data-kap="1">ω₁</button><button class="btn small" data-kap="2">ω₂</button><button class="btn small" data-kap="3">ω₃</button>
+    <button class="btn primary" id="levyRun"><span class="en">Run the argument ▶</span><span class="zh">演示论证 ▶</span></button>
+  </div>
+  <div class="stage"><svg id="levysvg" viewBox="0 0 760 360" width="760" height="360"></svg></div>
+  <div class="msg info" id="levymsg"></div>
+  <div class="proof" id="pf6">
+    <b><span class="il"><span class="en">Proof (the non-trivial direction ←)</span><span class="zh">证明（非平凡方向 ←）</span></span></b>
+    <div class="steps">
+      <div class="step"><span class="en">→ is §5 (1): H_κ is transitive. For ←, write φ ≡ ∃w ψ(w, p̄) with ψ Δ₀, and suppose V ⊨ ψ(w, p̄). Choose a regular θ &gt; κ with <span class="m">w, p̄ ∈ H_θ</span>. Then <span class="m">H_θ ⊨ ψ(w,p̄)</span> by Δ₀ absoluteness.</span>
+        <span class="zh">→ 就是 §5 (1)：H_κ 是传递的。对 ←，记 φ ≡ ∃w ψ(w, p̄)，ψ 为 Δ₀，并设 V ⊨ ψ(w, p̄)。取正则基数 θ &gt; κ 使 <span class="m">w, p̄ ∈ H_θ</span>。由 Δ₀ 绝对性，<span class="m">H_θ ⊨ ψ(w,p̄)</span>。</span></div>
+      <div class="step"><span class="en">Löwenheim–Skolem (uses AC): there is <span class="m">X ≺ (H_θ, ∈)</span> with <span class="m">trcl({p̄}) ∪ {w} ⊆ X</span> and <span class="m">|X| ≤ |trcl({p̄})| + ℵ₀ &lt; κ</span>. The strict inequality needs κ <b>uncountable</b>.</span>
+        <span class="zh">勒文海姆–斯科伦（用到选择公理）：存在 <span class="m">X ≺ (H_θ, ∈)</span>，使 <span class="m">trcl({p̄}) ∪ {w} ⊆ X</span> 且 <span class="m">|X| ≤ |trcl({p̄})| + ℵ₀ &lt; κ</span>。严格不等号要求 κ <b>不可数</b>。</span></div>
+      <div class="step"><span class="en">Mostowski collapse <span class="m">π : X ≅ N</span>, N transitive. Since <span class="m">trcl({p̄}) ⊆ X</span> is transitive, π fixes it pointwise, so <span class="m">π(p̄) = p̄</span>. Then <span class="m">N ⊨ ψ(π(w), p̄)</span>.</span>
+        <span class="zh">莫斯托夫斯基坍塌 <span class="m">π : X ≅ N</span>，N 传递。由于 <span class="m">trcl({p̄}) ⊆ X</span> 本身传递，π 在其上逐点不动，故 <span class="m">π(p̄) = p̄</span>，于是 <span class="m">N ⊨ ψ(π(w), p̄)</span>。</span></div>
+      <div class="step"><span class="en">N is transitive with <span class="m">|N| &lt; κ</span>, so every element of N, including <span class="m">π(w)</span>, lies in H_κ. By Δ₀ absoluteness (twice: N → V → H_κ), <span class="m">H_κ ⊨ ψ(π(w), p̄)</span>, hence <span class="m">H_κ ⊨ ∃w ψ</span>. ∎</span>
+        <span class="zh">N 传递且 <span class="m">|N| &lt; κ</span>，所以 N 的每个元素（包括 <span class="m">π(w)</span>）都属于 H_κ。两次运用 Δ₀ 绝对性（N → V → H_κ），得 <span class="m">H_κ ⊨ ψ(π(w), p̄)</span>，从而 <span class="m">H_κ ⊨ ∃w ψ</span>。∎</span></div>
+    </div>
+    <div class="toolbar"><button class="btn small" data-pnext><span class="en">Next step</span><span class="zh">下一步</span></button><button class="btn small ghost" data-pall><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+  </div>
+  <div class="pit"><span class="en"><b class="h">⚠ Common pitfall.</b> The theorem stops at Σ₁. <span class="m">H_ω₁</span> is <b>not</b> Σ₂-elementary in V: “there is an uncountable set” is Σ₂ (∃x ∀f …), true in V, false in H_ω₁, where every set is countable (see E6). It also needs κ uncountable: in <span class="m">H_ω = V_ω</span>, the Σ₁ sentence <span class="m">∃x (x is a nonzero limit ordinal)</span> (i.e. “an infinite set exists”) fails.</span>
+    <span class="zh"><b class="h">⚠ 常见误区.</b> 定理只到 Σ₁ 为止。<span class="m">H_ω₁</span> <b>不是</b> V 的 Σ₂-初等子结构：“存在不可数集”是 Σ₂ 命题（∃x ∀f …），在 V 中为真，在 H_ω₁ 中却为假，因为那里每个集合都可数（见 E6）。定理还要求 κ 不可数：在 <span class="m">H_ω = V_ω</span> 中，Σ₁ 命题 <span class="m">∃x (x 是非零极限序数)</span>（即“存在无穷集”）不成立。</span></div>
+  <div class="cy" id="cy6"></div>
+</section>
+
+<!-- ============ S7 ============ -->
+<section class="card" id="s7">
+  <div class="kicker">§7 · Step 7</div>
+  <h2><span class="en">The reflection theorem (Lévy–Montague)</span><span class="zh">反射定理（列维–蒙塔古）</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置知识</span></span>:
+    <a class="chip" href="lesson14.html"><span class="en">L14 · V_α</span><span class="zh">V_α</span></a>
+    <a class="chip" href="lesson5.html"><span class="en">L5 · Tarski–Vaught test</span><span class="zh">塔斯基–沃特判别法</span></a>
+    <a class="chip" href="lesson13.html"><span class="en">L13 · Tarski undefinability</span><span class="zh">塔斯基不可定义性</span></a></div>
+  <p class="core"><span class="en">Core idea: for finitely many formulas, keep climbing until every witness question asked below the current level is answered below it. The limit of the climb reflects those formulas.</span>
+     <span class="zh">核心思想：对有限多个公式，一直往上爬，直到“当前高度以下提出的每个求证据问题，都能在该高度以下得到回答”。爬升的极限就反射了这些公式。</span></p>
+  <div class="def"><span class="en"><b>Reflection theorem (a schema).</b> For each finite list of formulas <span class="m">φ₁,…,φ_k</span>, ZF proves: the class <span class="m">{α : ∀i ∀p̄∈V_α (φ_i<sup>V_α</sup>(p̄) ↔ φ_i(p̄))}</span> is <b>closed and unbounded</b> in Ord.<br>
+    <b>Σₙ version.</b> For each fixed n ≥ 1, ZF ⊢ “the class <span class="m">C(n) = {α : V_α ≺<sub>Σₙ</sub> V}</span> is closed unbounded”. This single sentence can be written down because Σₙ truth is definable (§8).</span>
+    <span class="zh"><b>反射定理（定理模式）.</b> 对每个有限公式列 <span class="m">φ₁,…,φ_k</span>，ZF 证明：类 <span class="m">{α : ∀i ∀p̄∈V_α (φ_i<sup>V_α</sup>(p̄) ↔ φ_i(p̄))}</span> 在 Ord 中<b>闭且无界</b>。<br>
+    <b>Σₙ 版本.</b> 对每个固定的 n ≥ 1，ZF ⊢“类 <span class="m">C(n) = {α : V_α ≺<sub>Σₙ</sub> V}</span> 闭且无界”。之所以能写成单独一句话，是因为 Σₙ 真谓词可定义（§8）。</span></div>
+  <div class="toolbar">
+    <button class="btn primary" id="refStep"><span class="en">Close off one more round ▶</span><span class="zh">再封闭一轮 ▶</span></button>
+    <button class="btn" id="refSup"><span class="en">Take the supremum α</span><span class="zh">取上确界 α</span></button>
+    <button class="btn ghost" id="refReset"><span class="en">Reset</span><span class="zh">重置</span></button>
+  </div>
+  <div class="stage"><svg id="refsvg" viewBox="0 0 760 380" width="760" height="380"></svg></div>
+  <div class="msg info" id="refmsg"></div>
+  <div class="proof" id="pf7">
+    <b><span class="il"><span class="en">Proof sketch</span><span class="zh">证明概要</span></span></b>
+    <div class="steps">
+      <div class="step"><span class="en">Close the list under subformulas (still finite). For every subformula of the form <span class="m">∃y ψ(y, p̄)</span>, let <span class="m">F(p̄)</span> = the least γ such that, if some witness y exists, then one exists in <span class="m">V_γ</span> (and 0 if none exists).</span>
+        <span class="zh">把公式列对子公式封闭（仍是有限的）。对每个形如 <span class="m">∃y ψ(y, p̄)</span> 的子公式，令 <span class="m">F(p̄)</span> 为最小的 γ，使得只要存在证据 y，就有一个在 <span class="m">V_γ</span> 中（若不存在证据则取 0）。</span></div>
+      <div class="step"><span class="en"><b>Replacement</b>: <span class="m">G(β) = sup{F(p̄) : p̄ ∈ V_β, over the finitely many ∃-subformulas}</span> is an ordinal.</span>
+        <span class="zh">由<b>替换公理</b>，<span class="m">G(β) = sup{F(p̄) : p̄ ∈ V_β，取遍有限多个 ∃-子公式}</span> 是一个序数。</span></div>
+      <div class="step"><span class="en">Given β, put <span class="m">β₀ = β+1</span> and <span class="m">βₖ₊₁ = max(βₖ + 1, G(βₖ))</span>, and let <span class="m">α = sup βₖ</span>, a limit ordinal &gt; β. (This is the animation above.)</span>
+        <span class="zh">给定 β，令 <span class="m">β₀ = β+1</span>，<span class="m">βₖ₊₁ = max(βₖ + 1, G(βₖ))</span>，<span class="m">α = sup βₖ</span>，这是大于 β 的极限序数（即上面的动画）。</span></div>
+      <div class="step"><span class="en">Any <span class="m">p̄ ∈ V_α</span> lies in some <span class="m">V_βₖ</span>, so its witnesses (if any) lie in <span class="m">V_{βₖ₊₁} ⊆ V_α</span>. This is the Tarski–Vaught condition for our finitely many formulas, and induction on subformulas gives <span class="m">φ_i<sup>V_α</sup> ↔ φ_i</span> on V_α.</span>
+        <span class="zh">任何 <span class="m">p̄ ∈ V_α</span> 都落在某个 <span class="m">V_βₖ</span> 中，于是它的证据（若存在）落在 <span class="m">V_{βₖ₊₁} ⊆ V_α</span> 中。这就是这有限多个公式的塔斯基–沃特条件；对子公式归纳即得在 V_α 上 <span class="m">φ_i<sup>V_α</sup> ↔ φ_i</span>。</span></div>
+      <div class="step"><span class="en"><b>Closed:</b> if each α<sub>ξ</sub> (ξ &lt; λ) reflects the list, then so does <span class="m">sup α<sub>ξ</sub></span>, because <span class="m">V_sup = ⋃ V<sub>α<sub>ξ</sub></sub></span> and witnesses for parameters in some <span class="m">V<sub>α<sub>ξ</sub></sub></span> are found in that same <span class="m">V<sub>α<sub>ξ</sub></sub></span>. ∎</span>
+        <span class="zh"><b>闭性：</b>若每个 α<sub>ξ</sub>（ξ &lt; λ）都反射这些公式，则 <span class="m">sup α<sub>ξ</sub></span> 也反射，因为 <span class="m">V_sup = ⋃ V<sub>α<sub>ξ</sub></sub></span>，而参数在某个 <span class="m">V<sub>α<sub>ξ</sub></sub></span> 中时，证据在同一个 <span class="m">V<sub>α<sub>ξ</sub></sub></span> 中就能找到。∎</span></div>
+    </div>
+    <div class="toolbar"><button class="btn small" data-pnext><span class="en">Next step</span><span class="zh">下一步</span></button><button class="btn small ghost" data-pall><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+  </div>
+  <div class="pit"><span class="en"><b class="h">⚠ Common pitfall.</b> The theorem does <b>not</b> say “ZF ⊢ ∃α V_α ≺ V”. That is not even a sentence of set theory: “V_α ≺ V” quantifies over <i>all</i> formulas, which would need a truth predicate for V, and by Tarski (L13) none is definable. What we get is one theorem <i>per</i> finite list of formulas (equivalently, per n, via C(n)). One consequence: if ZFC is consistent, it is <b>not finitely axiomatizable</b>. Otherwise reflecting its finitely many axioms would give ZFC ⊢ “some V_α ⊨ ZFC”, hence ZFC ⊢ Con(ZFC), contradicting Gödel II.</span>
+    <span class="zh"><b class="h">⚠ 常见误区.</b> 反射定理<b>不是</b>说“ZF ⊢ ∃α V_α ≺ V”。后者根本不是集合论中的一句话：“V_α ≺ V”要对<i>所有</i>公式量化，这需要一个关于 V 的真谓词，而由塔斯基定理（第 13 课），这样的谓词不可定义。我们得到的是<i>每个</i>有限公式列各一条定理（等价地，借助 C(n)，每个 n 一条）。推论：若 ZFC 一致，它<b>不可有限公理化</b>。否则把那有限多条公理反射下去，得 ZFC ⊢“某个 V_α ⊨ ZFC”，从而 ZFC ⊢ Con(ZFC)，与哥德尔第二不完全性定理矛盾。</span></div>
+  <div class="cy" id="cy7"></div>
+</section>
+
+<!-- ============ S8 ============ -->
+<section class="card" id="s8">
+  <div class="kicker">§8 · Step 8</div>
+  <h2><span class="en">Partial truth predicates: Σₙ-truth is definable, full truth is not</span><span class="zh">部分真谓词：Σₙ 真可定义，完全真不可定义</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置知识</span></span>:
+    <a class="chip" href="lesson13.html"><span class="en">L13 · Tarski, diagonal lemma</span><span class="zh">塔斯基、对角线引理</span></a>
+    <a class="chip" href="#s3"><span class="en">§3 · closure of Σₙ<sup>ZF</sup></span><span class="zh">Σₙ<sup>ZF</sup> 的封闭性</span></a></div>
+  <p class="core"><span class="en">Core idea: one formula can evaluate all formulas up to a fixed complexity n, and it has complexity n itself. No single formula can handle every level.</span>
+     <span class="zh">核心思想：一个公式可以对复杂度不超过 n 的所有公式求值，而它自身的复杂度也是 n；但没有任何一个公式能同时管住所有层级。</span></p>
+  <div class="def"><span class="en"><b>Theorem.</b> (a) There is a Δ₁<sup>ZF</sup> formula <span class="m">Sat<sub>Δ₀</sub>(e, p)</span> such that for each Δ₀ formula φ(x), ZF ⊢ ∀p (φ(p) ↔ Sat<sub>Δ₀</sub>(⌜φ⌝, p)). The idea: evaluate φ inside the set <span class="m">trcl({p})</span>.
+    (b) For each n ≥ 1 there is a <b>Σₙ</b> formula <span class="m">Sat<sub>Σₙ</sub>(e, p)</span> such that for every Σₙ formula φ(x), ZF ⊢ ∀p (φ(p) ↔ Sat<sub>Σₙ</sub>(⌜φ⌝, p)).
+    (c) <b>Tarski.</b> There is no formula <span class="m">Tr(e, p)</span> that does this for <i>all</i> formulas φ simultaneously.</span>
+    <span class="zh"><b>定理.</b> (a) 存在 Δ₁<sup>ZF</sup> 公式 <span class="m">Sat<sub>Δ₀</sub>(e, p)</span>，使得对每个 Δ₀ 公式 φ(x)，ZF ⊢ ∀p (φ(p) ↔ Sat<sub>Δ₀</sub>(⌜φ⌝, p))。思路：在集合 <span class="m">trcl({p})</span> 内部对 φ 求值。
+    (b) 对每个 n ≥ 1，存在 <b>Σₙ</b> 公式 <span class="m">Sat<sub>Σₙ</sub>(e, p)</span>，使得对每个 Σₙ 公式 φ(x)，ZF ⊢ ∀p (φ(p) ↔ Sat<sub>Σₙ</sub>(⌜φ⌝, p))。
+    (c) <b>塔斯基.</b> 不存在一个公式 <span class="m">Tr(e, p)</span> 能对<i>所有</i>公式 φ 同时做到这一点。</span></div>
+  <p><span class="en">Why no contradiction? Choose a candidate truth predicate and build its liar δ with the diagonal lemma: <span class="m">ZF ⊢ δ ↔ ¬Pred(⌜δ⌝)</span>. If δ lay inside Pred's domain, then δ ↔ Pred(⌜δ⌝) ↔ ¬δ. So δ must land <b>outside</b> that domain.</span>
+     <span class="zh">为什么不矛盾？选一个候选真谓词，用对角线引理造出它的说谎者 δ：<span class="m">ZF ⊢ δ ↔ ¬Pred(⌜δ⌝)</span>。若 δ 落在 Pred 的管辖范围之内，就会有 δ ↔ Pred(⌜δ⌝) ↔ ¬δ。所以 δ 只能落在管辖范围<b>之外</b>。</span></p>
+  <div class="toolbar" id="satBtns"></div>
+  <div class="stage"><svg id="satsvg" viewBox="0 0 760 270" width="760" height="270"></svg></div>
+  <div class="msg" id="satmsg"></div>
+  <div class="pit"><span class="en"><b class="h">⚠ Common pitfall.</b> “Each Sat<sub>Σₙ</sub> is definable” does not give a definable full truth predicate by taking the union over n. The union would be <span class="m">∃n Sat<sub>Σₙ</sub>(e,p)</span>, but n is a metatheoretic index and Sat<sub>Σₙ</sub> is a different formula for each n. There is no single formula that takes n as an argument and still works for all n.</span>
+    <span class="zh"><b class="h">⚠ 常见误区.</b> “每个 Sat<sub>Σₙ</sub> 都可定义”并不能通过对 n 取并得到一个可定义的完全真谓词。那个并会是 <span class="m">∃n Sat<sub>Σₙ</sub>(e,p)</span>，但 n 是元理论中的下标，每个 n 对应的 Sat<sub>Σₙ</sub> 是不同的公式；不存在一个以 n 为变量、又对所有 n 都正确的单一公式。</span></div>
+  <div class="cy" id="cy8"></div>
+</section>
+
+<!-- ============ S9 ============ -->
+<section class="card" id="s9">
+  <div class="kicker">§9 · Step 9</div>
+  <h2><span class="en">Shoenfield absoluteness: Σ¹₂ statements cannot be moved</span><span class="zh">舍恩菲尔德绝对性：Σ¹₂ 命题纹丝不动</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置知识</span></span>:
+    <a class="chip" href="lesson18.html"><span class="en">L18 · Σ¹ₙ, trees, Π¹₁ = well-founded</span><span class="zh">Σ¹ₙ、树、Π¹₁ 与良基</span></a>
+    <a class="chip" href="lesson15.html"><span class="en">L15 · L</span><span class="zh">可构成宇宙 L</span></a>
+    <a class="chip" href="lesson16.html"><span class="en">L16 · forcing</span><span class="zh">力迫法</span></a>
+    <a class="chip" href="#s5"><span class="en">§5 · Δ₁<sup>ZF</sup> absolute</span><span class="zh">Δ₁<sup>ZF</sup> 绝对</span></a></div>
+  <p class="core"><span class="en">Core idea: a Σ¹₂ statement is equivalent to “a certain tree S on ω × ω₁ has an infinite branch”. Ill-foundedness of a tree is absolute, so any transitive model of ZF that contains all countable ordinals gives the same answer.</span>
+     <span class="zh">核心思想：一个 Σ¹₂ 命题等价于“ω × ω₁ 上的某棵树 S 有无穷分支”。树的非良基性是绝对的，所以只要 ZF 的传递模型包含所有可数序数，答案就相同。</span></p>
+  <div class="def"><span class="en"><b>Shoenfield's absoluteness theorem.</b> Let M be a transitive model of ZF (a set or a proper class) with <span class="m">ω₁ ⊆ M</span>, and let <span class="m">a ∈ ω^ω ∩ M</span>. Then every Σ¹₂(a) and every Π¹₂(a) sentence is absolute between M and V. In particular this holds for <span class="m">M = L[a]</span> (or L when there is no parameter) and between V and any forcing extension V[G].<br>
+    <b>Without ω₁ ⊆ M</b> (e.g. M countable), only the easy half survives: Σ¹₂(a) sentences are still <i>upward</i> absolute.</span>
+    <span class="zh"><b>舍恩菲尔德绝对性定理.</b> 设 M 是 ZF 的传递模型（可以是集合，也可以是真类），<span class="m">ω₁ ⊆ M</span>，且 <span class="m">a ∈ ω^ω ∩ M</span>。则每个 Σ¹₂(a) 句子和每个 Π¹₂(a) 句子在 M 与 V 之间绝对。特别地，对 <span class="m">M = L[a]</span>（无参数时即 L）成立，对 V 与任意力迫扩张 V[G] 之间也成立。<br>
+    <b>若去掉 ω₁ ⊆ M</b>（例如 M 可数），只剩容易的那一半：Σ¹₂(a) 句子仍然<i>向上</i>绝对。</span></div>
+  <div class="toolbar">
+    <button class="btn sel" id="shBig"><span class="en">M ⊇ ω₁ (e.g. L)</span><span class="zh">M ⊇ ω₁（如 L）</span></button>
+    <button class="btn" id="shSmall"><span class="en">M countable (Ord ∩ M &lt; ω₁)</span><span class="zh">M 可数（Ord ∩ M &lt; ω₁）</span></button>
+    <button class="btn primary" id="shGrow"><span class="en">Grow the tree of attempts ▶</span><span class="zh">生长“尝试树” ▶</span></button>
+  </div>
+  <div class="stage"><svg id="shsvg" viewBox="0 0 760 360" width="760" height="360"></svg></div>
+  <div class="msg info" id="shmsg"></div>
+  <div class="proof" id="pf9">
+    <b><span class="il"><span class="en">Proof sketch (for σ ≡ ∃x ∀y θ(x, y, a), θ arithmetical)</span><span class="zh">证明概要（σ ≡ ∃x ∀y θ(x, y, a)，θ 为算术公式）</span></span></b>
+    <div class="steps">
+      <div class="step"><span class="en"><b>Π¹₁ = well-foundedness (L18).</b> There is a recursive way to assign to each x a tree <span class="m">T_x</span> on ω (built from finite pieces of x and a) such that <span class="m">∀y θ(x,y,a) ⟺ T_x is well-founded</span>.</span>
+        <span class="zh"><b>Π¹₁ = 良基（第 18 课）.</b> 可以递归地给每个 x 指派一棵 ω 上的树 <span class="m">T_x</span>（由 x 和 a 的有限片段构造），使得 <span class="m">∀y θ(x,y,a) ⟺ T_x 良基</span>。</span></div>
+      <div class="step"><span class="en"><b>Rank functions.</b> A countable tree is well-founded iff it has an order-reversing map into ω₁ (a rank function). So <span class="m">σ ⟺ ∃x ∃f (f : T_x → ω₁ order-reversing)</span>.</span>
+        <span class="zh"><b>秩函数.</b> 可数树良基，当且仅当存在到 ω₁ 的保逆序映射（秩函数）。所以 <span class="m">σ ⟺ ∃x ∃f (f : T_x → ω₁ 保逆序)</span>。</span></div>
+      <div class="step"><span class="en"><b>The Shoenfield tree S.</b> A node of S is a finite attempt <span class="m">(x↾n, f↾n)</span>: n digits of x and ordinal values below ω₁ for the first n nodes of T_x (in a fixed enumeration of ω^{&lt;ω}) that respect the order so far. S is a tree on <span class="m">ω × ω₁</span>. For an ordinal δ let <span class="m">S_δ</span> be the subtree that only uses values <span class="m">&lt; δ</span>. It is defined from a and δ by an absolute (Δ₁<sup>ZF</sup>) recipe, so whenever <span class="m">δ ∈ M</span>, M computes the same <span class="m">S_δ</span>. Because <span class="m">ω₁ ⊆ M</span>, this holds for <b>every</b> countable δ.</span>
+        <span class="zh"><b>舍恩菲尔德树 S.</b> S 的节点是有限的“尝试” <span class="m">(x↾n, f↾n)</span>：x 的前 n 位，以及给 T_x 的前 n 个节点（按 ω^{&lt;ω} 的某个固定枚举）指定的小于 ω₁ 的序数值，且到目前为止保持序关系。S 是 <span class="m">ω × ω₁</span> 上的树。对序数 δ，令 <span class="m">S_δ</span> 为只用到 <span class="m">&lt; δ</span> 的值的子树。它由 a 和 δ 经绝对的（Δ₁<sup>ZF</sup>）方式定义，所以只要 <span class="m">δ ∈ M</span>，M 算出的 <span class="m">S_δ</span> 就是同一棵树。由于 <span class="m">ω₁ ⊆ M</span>，这对<b>每个</b>可数 δ 都成立。</span></div>
+      <div class="step"><span class="en"><b>Branches.</b> An infinite branch of <span class="m">S_δ</span> is exactly a pair (x, f) with f a rank function from T_x into δ. Since a well-founded countable tree has countable rank, <span class="m">σ ⟺ S_δ is ill-founded for some countable δ</span>. Caution: we never use <span class="m">ω₁<sup>M</sup> = ω₁</span>; that can fail even for M = L (when ω₁<sup>L</sup> is countable).</span>
+        <span class="zh"><b>分支.</b> <span class="m">S_δ</span> 的无穷分支恰好是一对 (x, f)，其中 f 是从 T_x 到 δ 的秩函数。由于良基的可数树的秩可数，<span class="m">σ ⟺ 存在可数 δ 使 S_δ 非良基</span>。注意：我们从不使用 <span class="m">ω₁<sup>M</sup> = ω₁</span>；即使 M = L，它也可能不成立（当 ω₁<sup>L</sup> 可数时）。</span></div>
+      <div class="step"><span class="en"><b>Absoluteness of well-foundedness.</b> “S is well-founded” is Δ₁<sup>ZF</sup> (Π₁: no descending sequence; Σ₁: a rank function exists), hence absolute for transitive models of ZF (§5); so is “T_x is well-founded”. <b>Up:</b> if <span class="m">M ⊨ σ</span>, take x ∈ M with <span class="m">M ⊨ “T_x well-founded”</span>; then T_x really is well-founded, so σ. <b>Down:</b> if σ, some <span class="m">S_δ</span> (δ countable, so δ ∈ M) is ill-founded, hence <span class="m">M ⊨ “S_δ ill-founded”</span>; a branch in M yields x ∈ M with a rank function in M, so <span class="m">M ⊨ σ</span>. ∎ If M is countable, M only contains the trees <span class="m">S_δ</span> for <span class="m">δ &lt; Ord ∩ M</span>, and these may all be well-founded even though S is not.</span>
+        <span class="zh"><b>良基性的绝对性.</b> “S 良基”是 Δ₁<sup>ZF</sup> 的（Π₁ 形式：不存在无穷下降序列；Σ₁ 形式：存在秩函数），因而对 ZF 的传递模型绝对（§5）；“T_x 良基”同理。<b>向上：</b>若 <span class="m">M ⊨ σ</span>，取 x ∈ M 使 <span class="m">M ⊨“T_x 良基”</span>，则 T_x 确实良基，故 σ 成立。<b>向下：</b>若 σ 成立，则某个 <span class="m">S_δ</span>（δ 可数，故 δ ∈ M）非良基，从而 <span class="m">M ⊨“S_δ 非良基”</span>；M 中的一条分支给出 x ∈ M 以及 M 中的秩函数，所以 <span class="m">M ⊨ σ</span>。∎ 若 M 可数，M 只含有 <span class="m">δ &lt; Ord ∩ M</span> 的树 <span class="m">S_δ</span>，即使 S 非良基，这些树也可能全是良基的。</span></div>
+    </div>
+    <div class="toolbar"><button class="btn small" data-pnext><span class="en">Next step</span><span class="zh">下一步</span></button><button class="btn small ghost" data-pall><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+  </div>
+  <div class="row">
+    <div class="col def"><span class="en"><b>Consequences.</b><br>• Arithmetic sentences (Goldbach, Con(ZFC), …) and Σ¹₂ / Π¹₂ sentences have the same truth value in V, in L and in every forcing extension, so <b>forcing alone cannot prove them independent</b>.<br>• If ZFC + V=L proves a Σ¹₂ or Π¹₂ sentence, then ZFC proves it.<br>• From L to V: Σ¹₃ sentences are upward absolute and Π¹₃ sentences downward absolute.</span>
+      <span class="zh"><b>推论.</b><br>• 算术句子（哥德巴赫猜想、Con(ZFC) 等）以及 Σ¹₂ / Π¹₂ 句子在 V、L 和任何力迫扩张中真值相同，所以<b>单靠力迫法无法证明它们独立</b>。<br>• 若 ZFC + V=L 证明了某个 Σ¹₂ 或 Π¹₂ 句子，则 ZFC 也能证明它。<br>• 从 L 到 V：Σ¹₃ 句子向上绝对，Π¹₃ 句子向下绝对。</span></div>
+    <div class="col pit"><span class="en"><b class="h">⚠ Sharpness.</b> Σ¹₃ can move. “There is a non-constructible real”, <span class="m">∃x (x ∉ L)</span>, is Σ¹₃, because “x ∈ L” is Σ¹₂ for reals x. It is false in L and true after adding a Cohen real. Similarly CH can be changed by forcing (L16), so CH is not ZFC-equivalent to any Σ¹₂ sentence (if ZFC is consistent).</span>
+      <span class="zh"><b class="h">⚠ 不可再推广.</b> Σ¹₃ 就可能变。“存在不可构成的实数”，即 <span class="m">∃x (x ∉ L)</span>，是 Σ¹₃ 句子，因为对实数 x，“x ∈ L”是 Σ¹₂ 的。它在 L 中为假，添加一个科恩实数后为真。同理，CH 可以被力迫改变（第 16 课），所以（若 ZFC 一致）CH 不与任何 Σ¹₂ 句子 ZFC-等价。</span></div>
+  </div>
+  <div class="cy" id="cy9"></div>
+</section>
+
+<!-- ============ S10 ============ -->
+<section class="card" id="s10">
+  <div class="kicker">§10 · Step 10</div>
+  <h2><span class="en">The hierarchy atlas: Σ⁰ₙ, Lévy Σₙ, Σ¹ₙ</span><span class="zh">层级地图：Σ⁰ₙ、列维 Σₙ、Σ¹ₙ</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置知识</span></span>:
+    <a class="chip" href="lesson17.html"><span class="en">L17 · Σ⁰ₙ</span><span class="zh">算术层级</span></a>
+    <a class="chip" href="lesson18.html"><span class="en">L18 · Σ¹ₙ</span><span class="zh">分析层级</span></a>
+    <a class="chip" href="#s6"><span class="en">§6 · H_ω₁ ≺Σ₁ V</span><span class="zh">H_ω₁ ≺Σ₁ V</span></a></div>
+  <p class="core"><span class="en">Core idea: all three hierarchies are “count the unbounded quantifiers”, but over different universes. Number quantifiers correspond to quantifiers over V_ω; real quantifiers correspond to quantifiers over H_ω₁, <b>shifted by one level</b>.</span>
+     <span class="zh">核心思想：三种层级都是“数无界量词”，只是论域不同。数量词对应 V_ω 上的量词；实数量词对应 H_ω₁ 上的量词，并且<b>层级错开一位</b>。</span></p>
+  <div class="def"><span class="en"><b>Facts (n ≥ 1).</b>
+    (i) A ⊆ ω is <span class="m">Σ⁰ₙ</span> ⟺ A is Σₙ-definable over <span class="m">(V_ω, ∈)</span>. (V_ω = H_ω is coded in ℕ by Ackermann's coding: m E k ⟺ the m-th binary digit of k is 1.)
+    (ii) A ⊆ ω^ω is <span class="m">Σ¹ₙ₊₁</span> ⟺ A is Σₙ-definable over <span class="m">(H_ω₁, ∈)</span>. Lightface corresponds to no parameters; boldface to parameters from H_ω₁ (each coded by a real).
+    (iii) (ZFC, by §6) For sets of reals, Σ₁ over H_ω₁ = Σ₁ over V with parameters in H_ω₁. Hence Σ¹₂ ⊆ Σ₁<sup>ZFC</sup>, Π¹₂ ⊆ Π₁<sup>ZFC</sup>, while Σ¹₁ and Π¹₁ are Δ₁<sup>ZF</sup> and arithmetical statements are Δ₀ in the parameter ω.</span>
+    <span class="zh"><b>事实（n ≥ 1）.</b>
+    (i) A ⊆ ω 是 <span class="m">Σ⁰ₙ</span> 的 ⟺ A 在 <span class="m">(V_ω, ∈)</span> 上 Σₙ 可定义。（V_ω = H_ω 借阿克曼编码嵌入 ℕ：m E k ⟺ k 的第 m 个二进制位为 1。）
+    (ii) A ⊆ ω^ω 是 <span class="m">Σ¹ₙ₊₁</span> 的 ⟺ A 在 <span class="m">(H_ω₁, ∈)</span> 上 Σₙ 可定义。无参数（lightface，细体）对应无参数定义；带参数（boldface，粗体）对应以 H_ω₁ 中元素为参数（每个都可用实数编码）。
+    (iii)（ZFC，由 §6）对实数集而言，H_ω₁ 上的 Σ₁ = V 上以 H_ω₁ 元素为参数的 Σ₁。因此 Σ¹₂ ⊆ Σ₁<sup>ZFC</sup>，Π¹₂ ⊆ Π₁<sup>ZFC</sup>；而 Σ¹₁ 和 Π¹₁ 是 Δ₁<sup>ZF</sup> 的，算术命题则是以 ω 为参数的 Δ₀ 命题。</span></div>
+  <div class="toolbar"><span><span class="il"><span class="en">Lévy column evaluated over</span><span class="zh">列维层级的论域</span></span>:</span>
+    <button class="btn small sel" data-univ="Vw">V_ω</button><button class="btn small" data-univ="HC">H_ω₁</button><button class="btn small" data-univ="V">V</button>
+    <span class="muted" style="font-size:13px"><span class="il"><span class="en">then click a cell</span><span class="zh">然后点击格子</span></span></span></div>
+  <div class="stage"><svg id="atlas" viewBox="0 0 760 330" width="760" height="330"></svg></div>
+  <div class="msg info" id="atlasmsg"></div>
+  <div class="pit"><span class="en"><b class="h">⚠ Common pitfall.</b> “Σ¹ₙ ↔ Σₙ” is wrong: the index shifts, Σ¹ₙ₊₁ ↔ Σₙ(H_ω₁), and only for n ≥ 1. Also, the H_ω₁ ↔ V collapse holds only at level 1. For n ≥ 2, Σₙ over V is genuinely stronger, because V contains uncountable sets that H_ω₁ lacks (E6).</span>
+    <span class="zh"><b class="h">⚠ 常见误区.</b> “Σ¹ₙ ↔ Σₙ”是错的：下标要错开一位，Σ¹ₙ₊₁ ↔ Σₙ(H_ω₁)，而且只对 n ≥ 1 成立。另外，H_ω₁ 与 V 的“合并”只在第 1 层成立；n ≥ 2 时，V 上的 Σₙ 确实更强，因为 V 中有 H_ω₁ 没有的不可数集（见 E6）。</span></div>
+  <div class="cy" id="cy10"></div>
+</section>
+
+<!-- ============ EXERCISES ============ -->
+<section class="card" id="exercises">
+  <div class="kicker"><span class="il"><span class="en">Exercises</span><span class="zh">练习</span></span></div>
+  <h2><span class="en">Your turn</span><span class="zh">轮到你了</span></h2>
+  <p class="muted"><span class="en">Progress is saved in your browser. A sidebar ✓ means solved. “Show answer” never counts as solving: once you reveal an exercise, it is not marked as solved during this visit.</span><span class="zh">进度保存在浏览器中，侧栏出现 ✓ 表示已完成。点“显示答案”不计入完成：一道题的答案一旦显示，本次访问中它就不会再被记为完成。</span></p>
+
+  <div class="ex" id="e1" data-prog="L20E1">
+    <h3><span class="tag">E1</span><span class="il"><span class="en">Classify (natural class of the standard definition, modulo ZFC)</span><span class="zh">分类（标准定义的自然层级，模 ZFC）</span></span></h3>
+    <p class="muted"><span class="en">Pick the class that the textbook definition puts the property in (using §3 to absorb bounded quantifiers). For “Δ₁” both a Σ₁ and a Π₁ definition exist.</span><span class="zh">按教科书标准定义（利用 §3 吸收有界量词）选出它所在的层级。选“Δ₁”表示同时有 Σ₁ 定义和 Π₁ 定义。</span></p>
+    <div class="gridq" id="e1grid"></div>
+    <div class="toolbar"><button class="btn primary" id="e1Check"><span class="en">Check</span><span class="zh">检查</span></button><button class="btn ghost" id="e1Show"><span class="en">Show answer</span><span class="zh">显示答案</span></button></div>
+    <div class="msg" id="e1msg"></div>
+  </div>
+
+  <div class="ex" id="e2" data-prog="L20E2">
+    <h3><span class="tag">E2</span><span class="il"><span class="en">Up, down, both, or no guarantee?</span><span class="zh">向上、向下、双向，还是没有保证？</span></span></h3>
+    <p class="muted"><span class="en">M is an arbitrary transitive model of ZFC and the parameters lie in M. What is <b>guaranteed</b> for every such M? “↑” means: true in M ⇒ true in V.</span><span class="zh">M 是 ZFC 的任意传递模型，参数都在 M 中。对所有这样的 M，<b>能保证</b>什么？“↑”表示：M 中真 ⇒ V 中真。</span></p>
+    <div class="gridq" id="e2grid"></div>
+    <div class="toolbar"><button class="btn primary" id="e2Check"><span class="en">Check</span><span class="zh">检查</span></button><button class="btn ghost" id="e2Show"><span class="en">Show answer</span><span class="zh">显示答案</span></button></div>
+    <div class="msg" id="e2msg"></div>
+  </div>
+
+  <div class="ex" id="e3" data-prog="L20E3">
+    <h3><span class="tag">E3</span><span class="il"><span class="en">Which statements are guaranteed to have the same truth value in L and in V?</span><span class="zh">哪些命题在 L 和 V 中保证真值相同？</span></span></h3>
+    <p class="muted"><span class="en">Tick exactly those that ZFC guarantees to be absolute between L and V. Real parameters, if any, are in L.</span><span class="zh">恰好勾选那些 ZFC 能保证在 L 与 V 之间绝对的命题。若有实数参数，均在 L 中。</span></p>
+    <div id="e3list"></div>
+    <div class="toolbar"><button class="btn primary" id="e3Check"><span class="en">Check</span><span class="zh">检查</span></button><button class="btn ghost" id="e3Show"><span class="en">Show answer</span><span class="zh">显示答案</span></button></div>
+    <div class="msg" id="e3msg"></div>
+  </div>
+
+  <div class="ex" id="e4" data-prog="L20E4">
+    <h3><span class="tag">E4</span><span class="il"><span class="en">Put the reflection proof in order</span><span class="zh">给反射定理的证明排序</span></span></h3>
+    <p class="muted"><span class="en">Click the steps in the correct order. Click a numbered step again to unpick it.</span><span class="zh">按正确顺序依次点击各步；再点一次已编号的步骤可撤销。</span></p>
+    <ul class="ordlist" id="e4list"></ul>
+    <div class="toolbar"><button class="btn primary" id="e4Check"><span class="en">Check</span><span class="zh">检查</span></button><button class="btn ghost" id="e4Reset"><span class="en">Reset</span><span class="zh">重置</span></button><button class="btn ghost" id="e4Show"><span class="en">Show answer</span><span class="zh">显示答案</span></button></div>
+    <div class="msg" id="e4msg"></div>
+  </div>
+
+  <div class="ex" id="e5" data-prog="L20E5">
+    <h3><span class="tag">E5</span><span class="il"><span class="en">Shoenfield: true or false?</span><span class="zh">舍恩菲尔德：判断对错</span></span></h3>
+    <div class="gridq" id="e5grid"></div>
+    <div class="toolbar"><button class="btn primary" id="e5Check"><span class="en">Check</span><span class="zh">检查</span></button><button class="btn ghost" id="e5Show"><span class="en">Show answer</span><span class="zh">显示答案</span></button></div>
+    <div class="msg" id="e5msg"></div>
+  </div>
+
+  <div class="ex" id="e6" data-prog="L20E6">
+    <h3><span class="tag">E6</span><span class="il"><span class="en">Where Lévy absoluteness stops</span><span class="zh">列维绝对性止步于何处</span></span></h3>
+    <p><span class="en">Let σ be the sentence “there is an uncountable set”: <span class="m">∃x (x ≠ ∅ ∧ ¬∃f (f is a function from ω onto x))</span>. Answer the three parts.</span>
+       <span class="zh">令 σ 为句子“存在不可数集”：<span class="m">∃x (x ≠ ∅ ∧ ¬∃f (f 是从 ω 到 x 的满射))</span>。回答以下三问。</span></p>
+    <div class="gridq" id="e6grid"></div>
+    <div class="toolbar"><button class="btn primary" id="e6Check"><span class="en">Check</span><span class="zh">检查</span></button><button class="btn ghost" id="e6Show"><span class="en">Show answer</span><span class="zh">显示答案</span></button></div>
+    <div class="msg" id="e6msg"></div>
+  </div>
+</section>
+
+<section class="card">
+  <div class="kicker"><span class="il"><span class="en">Next</span><span class="zh">下一课</span></span></div>
+  <h2><a href="lesson21.html" style="color:inherit"><span class="en">Lesson 21: ordinal notations &amp; fast-growing hierarchies →</span><span class="zh">第 21 课：序数记号与快速增长层级 →</span></a></h2>
+  <p><span class="en">We have measured <i>formulas</i>. Next we measure <i>ordinals</i> and <i>functions</i>: how to name large countable ordinals with finite notations, and how fast functions indexed by them grow. This is the bridge back to what arithmetic can and cannot prove.</span>
+     <span class="zh">这一课我们度量的是<i>公式</i>。下一课度量<i>序数</i>和<i>函数</i>：如何用有限的记号给很大的可数序数命名，以及以它们为下标的函数增长得有多快。这是通往“算术能证明什么、不能证明什么”的桥梁。</span></p>
+</section>
+</main>
+</div>
+
+<script src="assets/logic.js"></script>
+<script src="assets/lesson20.js"></script>
+</body>
+</html>

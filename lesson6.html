@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 6 · Russell's Paradox &amp; the ZF Axioms 罗素悖论与 ZF 公理</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+/* nested-box drawings of hereditarily finite sets */
+.nb { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 3px; padding: 4px; margin: 1px; border: 2px solid; border-radius: 9px; min-width: 18px; min-height: 18px; vertical-align: middle; }
+.nb.e { min-width: 16px; min-height: 16px; padding: 0; border-radius: 5px; background: #fff !important; }
+.nb.d0 { border-color: #3b5bdb; background: #eef2ff; }
+.nb.d1 { border-color: #2f9e44; background: #ebfbee; }
+.nb.d2 { border-color: #f08c00; background: #fff4e6; }
+.nb.d3 { border-color: #ae3ec9; background: #f8f0fc; }
+.nb.d4 { border-color: #0c8599; background: #e3fafc; }
+.nb.d5 { border-color: #e03131; background: #fff5f5; }
+.nb.num { font: 700 13px var(--mono); padding: 0 7px; border-radius: 999px; border-color: #868e96; background: #f1f3f5; min-height: 20px; }
+.setrow { display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-start; }
+.panel { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; min-width: 0; }
+.panel h4 { margin: 0 0 6px; font-size: 13px; color: var(--muted); font-weight: 600; }
+.bigtext { font-family: var(--mono); font-size: 16px; word-break: break-all; }
+.stat { display: inline-block; font-family: var(--mono); font-size: 13px; background: #f1efe7; border-radius: 8px; padding: 2px 8px; margin: 2px 4px 2px 0; }
+/* workspace */
+.ws { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-start; min-height: 80px; }
+.wcard { border: 2px solid var(--line); border-radius: 12px; padding: 8px 10px; background: #fff; cursor: pointer; display: inline-flex; flex-direction: column; gap: 4px; max-width: 100%; transition: border-color .15s, box-shadow .15s; position: relative; }
+.wcard:hover { border-color: #b8c2f0; }
+.wcard.sel { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.wcard .nm { font: 700 12px var(--mono); color: var(--accent); }
+.wcard .nm small { color: var(--muted); font-weight: 400; }
+.wcard .tx { font: 13px var(--mono); word-break: break-all; max-width: 320px; }
+.wcard .x { position: absolute; top: 2px; right: 6px; color: #aaa; font-size: 13px; }
+.wcard .x:hover { color: var(--false); }
+.targets { display: flex; flex-wrap: wrap; gap: 8px; }
+.targets > span { font: 13px var(--mono); padding: 3px 9px; border-radius: 8px; border: 1.5px dashed var(--line); }
+.targets > span.got { border: 1.5px solid var(--true); background: var(--true-soft); }
+.axchips { display: flex; flex-wrap: wrap; gap: 6px; }
+.axcard { margin-top: 10px; }
+.formal { font-family: var(--mono); font-size: 15px; background: #fff; border-radius: 8px; padding: 6px 10px; margin: 6px 0; overflow-x: auto; white-space: nowrap; }
+/* unfold */
+.unf { display: grid; grid-template-columns: 150px 1fr auto; gap: 8px 12px; align-items: center; padding: 8px 0; border-bottom: 1px dashed var(--line); }
+.unf .fm { font-family: var(--mono); font-size: 14.5px; line-height: 1.7; }
+.unf .fm .ab { color: var(--meta); background: var(--meta-soft); border-radius: 4px; padding: 0 2px; font-weight: 700; }
+.unf .fm .in { color: var(--true); font-weight: 700; }
+.unf .bar { height: 5px; background: var(--accent); border-radius: 3px; margin-top: 4px; transition: width .4s; }
+@media (max-width: 700px) { .unf { grid-template-columns: 1fr; } }
+/* sieve */
+.sieve-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; min-height: 46px; padding: 8px; border-radius: 12px; }
+.sieve-row.top { background: #eef2ff; border: 2px solid var(--accent); }
+.sieve-row.bot { background: var(--true-soft); border: 2px solid var(--true); }
+.sieve-line { text-align: center; font-family: var(--mono); color: var(--gold); font-weight: 700; margin: 6px 0; letter-spacing: 2px; }
+.mem { padding: 4px; border-radius: 10px; transition: opacity .3s, transform .3s; border: 2px solid transparent; }
+.mem.look { border-color: var(--gold); transform: translateY(4px); }
+.mem.out { opacity: .3; }
+.mem.pass { border-color: var(--true); }
+/* foundation graph */
+.gnode circle { fill: #fff; stroke: var(--ink); stroke-width: 2; cursor: pointer; transition: fill .2s, stroke .2s; }
+.gnode text { font-size: 16px; font-weight: 700; text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+.gnode.pick circle { stroke: var(--accent); stroke-width: 4; fill: var(--accent-soft); }
+.gnode.cyc circle { stroke: var(--false); fill: var(--false-soft); }
+.gnode.min circle { stroke: var(--true); fill: var(--true-soft); stroke-width: 3; }
+.gedge { stroke: #868e96; stroke-width: 2; fill: none; }
+.gedge.cyc { stroke: var(--false); stroke-width: 3; }
+.chips2 { display: flex; flex-wrap: wrap; gap: 6px; }
+.fam { display: flex; gap: 14px; flex-wrap: wrap; }
+.fbox { border: 2px solid; border-radius: 14px; padding: 10px 12px; display: flex; gap: 8px; align-items: center; min-width: 90px; position: relative; }
+.fbox .dot { width: 26px; height: 26px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font: 700 12px var(--mono); color: #fff; transition: transform .15s, box-shadow .2s; }
+.fbox .dot:hover { transform: scale(1.15); }
+.fbox .dot.ch { box-shadow: 0 0 0 4px #1f2430; }
+.fbox .lb { position: absolute; top: -11px; left: 10px; background: #fff; padding: 0 6px; font: 700 12px var(--mono); }
+.mini-graphs { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+.mini-graphs .g { border: 2px solid var(--line); border-radius: 12px; padding: 8px; background: #fff; text-align: center; }
+.mini-graphs .g.right { border-color: var(--true); background: var(--true-soft); }
+.mini-graphs .g.wrong { border-color: var(--false); background: var(--false-soft); }
+select.sel { font: inherit; font-size: 14px; padding: 5px 8px; border-radius: 8px; border: 1px solid var(--line); background: #fff; }
+.chk { display: inline-block; min-width: 18px; font-weight: 700; }
+</style>
+</head>
+<body class="lang-both">
+<header class="top">
+  <a class="home" href="index.html">∀∃ <span class="il"><span class="en">Logic &amp; Sets</span><span class="zh">逻辑与集合</span></span></a>
+  <span class="muted">/ L6</span>
+  <span class="spacer"></span>
+  <div class="lang-switch">
+    <button data-lang="en">EN</button><button data-lang="zh">中文</button><button data-lang="both">EN + 中</button>
+  </div>
+</header>
+
+<div class="layout">
+<nav class="side">
+  <div class="grp">Lesson 6</div>
+  <a href="index.html">← <span class="il"><span class="en">Course map</span><span class="zh">课程地图</span></span></a>
+  <a href="lesson5.html">← <span class="il"><span class="en">Lesson 5</span><span class="zh">第 5 课</span></span></a>
+  <a href="lesson7.html"><span class="il"><span class="en">Lesson 7</span><span class="zh">第 7 课</span></span> →</a>
+  <a href="#s1">1 · <span class="il"><span class="en">Russell's paradox</span><span class="zh">罗素悖论</span></span></a>
+  <a href="#s2">2 · <span class="il"><span class="en">It's a diagonal</span><span class="zh">它是对角线论证</span></span></a>
+  <a href="#s3">3 · <span class="il"><span class="en">Sets as boxes</span><span class="zh">集合即盒子</span></span></a>
+  <a href="#s4">4 · <span class="il"><span class="en">Only ∈</span><span class="zh">只有 ∈</span></span></a>
+  <a href="#s5">5 · <span class="il"><span class="en">Set builder</span><span class="zh">集合工坊</span></span></a>
+  <a href="#s6">6 · <span class="il"><span class="en">Separation</span><span class="zh">分离公理</span></span></a>
+  <a href="#s7">7 · <span class="il"><span class="en">Replacement</span><span class="zh">替换公理</span></span></a>
+  <a href="#s8">8 · <span class="il"><span class="en">Infinity</span><span class="zh">无穷公理</span></span></a>
+  <a href="#s9">9 · <span class="il"><span class="en">Foundation &amp; Choice</span><span class="zh">正则与选择</span></span></a>
+  <div class="grp"><span class="il"><span class="en">Exercises</span><span class="zh">练习</span></span></div>
+  <a href="#e1" data-prog="L6E1">E1 · ⋃</a>
+  <a href="#e2" data-prog="L6E2">E2 · 𝒫</a>
+  <a href="#e3" data-prog="L6E3">E3 · <span class="il"><span class="en">Which axiom?</span><span class="zh">哪条公理？</span></span></a>
+  <a href="#e4" data-prog="L6E4">E4 · <span class="il"><span class="en">No set of all sets</span><span class="zh">没有全集</span></span></a>
+  <a href="#e5" data-prog="L6E5">E5 · <span class="il"><span class="en">∈-graphs</span><span class="zh">∈ 图</span></span></a>
+  <a href="#e6" data-prog="L6E6">E6 · x ∉ x</a>
+</nav>
+
+<main>
+<div class="hero">
+  <div class="kicker">Part II · Lesson 6</div>
+  <h1><span class="en">Russell's Paradox &amp; the ZF Axioms</span><span class="zh">罗素悖论与 ZF 公理</span></h1>
+  <p><span class="en">“A set is any collection you can describe” sounds harmless, and it is inconsistent. This lesson watches it break, then rebuilds set theory from a short list of safe construction rules, each one a machine you can operate.</span>
+     <span class="zh">“凡能描述的汇集都是集合”，听起来人畜无害，其实自相矛盾。本课先看它怎样崩塌，再用一小组安全的“构造规则”把集合论重建起来。每条规则都是一台可以亲手操作的机器。</span></p>
+</div>
+
+<!-- ============ S1 ============ -->
+<section class="card" id="s1">
+  <div class="kicker">§1</div>
+  <h2><span class="en">Naive comprehension and Russell's paradox</span><span class="zh">朴素概括原则与罗素悖论</span></h2>
+  <div class="def"><span class="en"><b>Naive comprehension (Frege).</b> For every property φ(x) there is a set of exactly the things having it: <span class="m">∃y ∀x (x ∈ y ↔ φ(x))</span>.</span>
+    <span class="zh"><b>朴素概括原则（弗雷格）.</b> 对任意性质 φ(x)，都存在一个集合，恰好由具有该性质的对象组成：<span class="m">∃y ∀x (x ∈ y ↔ φ(x))</span>。</span></div>
+  <p><span class="en">Russell (1901) took φ(x) to be <span class="m">x ∉ x</span>. The box below is <span class="m">R = {x : x ∉ x}</span>. Click each candidate to send it to the door. The doorkeeper admits <span class="m">x</span> exactly when <span class="m">x ∉ x</span>. Save <span class="m">R</span> for last.</span>
+     <span class="zh">罗素（1901）取 φ(x) 为 <span class="m">x ∉ x</span>。下面的方框就是 <span class="m">R = {x : x ∉ x}</span>。点击候选对象送到门口，门卫只在 <span class="m">x ∉ x</span> 时放行。把 <span class="m">R</span> 留到最后。</span></p>
+  <div class="toolbar">
+    <button class="btn ghost" id="rReset"><span class="en">Reset</span><span class="zh">重置</span></button>
+  </div>
+  <div class="stage"><svg id="russell" viewBox="0 0 780 330" width="780" height="330"></svg></div>
+  <div class="msg info" id="rMsg"></div>
+  <div class="def" id="rFormal" style="display:none"><span class="en"><b>The formal version.</b> Comprehension gives a <span class="m">y</span> with <span class="m">∀x (x ∈ y ↔ x ∉ x)</span>. Specialize the universal statement to <span class="m">x := y</span>: <span class="m">y ∈ y ↔ y ∉ y</span>, which is a propositional contradiction (<span class="m">p ↔ ¬p</span> is unsatisfiable, Lesson 1). So naive comprehension proves everything and is useless.</span>
+    <span class="zh"><b>形式化版本.</b> 概括原则给出某个 <span class="m">y</span>，使 <span class="m">∀x (x ∈ y ↔ x ∉ x)</span>。把全称命题特化到 <span class="m">x := y</span>，得 <span class="m">y ∈ y ↔ y ∉ y</span>。这是命题层面的矛盾（第 1 课：<span class="m">p ↔ ¬p</span> 不可满足）。于是朴素概括原则什么都能推出，也就毫无用处。</span></div>
+</section>
+
+<!-- ============ S2 ============ -->
+<section class="card" id="s2">
+  <div class="kicker">§2</div>
+  <h2><span class="en">Russell's paradox is Cantor's diagonal argument</span><span class="zh">罗素悖论就是康托尔对角线论证</span></h2>
+  <p><span class="en">Take any collection of sets <span class="m">x₀, …, x₅</span>. Cell (row <span class="m">xᵢ</span>, column <span class="m">xⱼ</span>) is 1 when <span class="m">xᵢ ∈ xⱼ</span>, so each <b>column</b> is a set, recorded by which rows belong to it. Click cells to change the membership relation however you like. The purple column <span class="m">d</span> is the flipped diagonal: <span class="m">xᵢ ∈ d ⇔ xᵢ ∉ xᵢ</span>. Hover a column.</span>
+     <span class="zh">任取一批集合 <span class="m">x₀, …, x₅</span>。第 <span class="m">xᵢ</span> 行、第 <span class="m">xⱼ</span> 列的格子为 1 当且仅当 <span class="m">xᵢ ∈ xⱼ</span>，于是每一<b>列</b>就是一个集合，记录了哪些行属于它。随意点击格子改变隶属关系。紫色列 <span class="m">d</span> 是把对角线翻转得到的：<span class="m">xᵢ ∈ d ⇔ xᵢ ∉ xᵢ</span>。把鼠标移到某一列上看看。</span></p>
+  <div class="toolbar">
+    <button class="btn" id="mxRand"><span class="en">Random relation 🎲</span><span class="zh">随机关系 🎲</span></button>
+    <button class="btn" id="mxClear"><span class="en">All 0</span><span class="zh">全部清零</span></button>
+  </div>
+  <div class="row">
+    <div class="col" style="flex:0 1 520px"><div class="stage"><svg id="mx" viewBox="0 0 500 340" width="500" height="340"></svg></div></div>
+    <div class="col">
+      <div class="msg info" id="mxMsg"></div>
+      <table class="tt" style="font-size:14px">
+        <tr><th></th><th><span class="il"><span class="en">Cantor</span><span class="zh">康托尔</span></span></th><th><span class="il"><span class="en">Russell</span><span class="zh">罗素</span></span></th></tr>
+        <tr><td><span class="il"><span class="en">rows</span><span class="zh">行</span></span></td><td>a ∈ A</td><td>x ∈ A</td></tr>
+        <tr><td><span class="il"><span class="en">column y</span><span class="zh">第 y 列</span></span></td><td>f(y) ⊆ A</td><td>y ∩ A</td></tr>
+        <tr><td><span class="il"><span class="en">diagonal set</span><span class="zh">对角集</span></span></td><td>{a : a ∉ f(a)}</td><td>{x ∈ A : x ∉ x}</td></tr>
+        <tr><td><span class="il"><span class="en">conclusion</span><span class="zh">结论</span></span></td><td>D ∉ ran f</td><td>R<sub>A</sub> ∉ A</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="def"><span class="en"><b>Theorem (in ZF, no paradox).</b> For every set <span class="m">A</span>, the set <span class="m">R<sub>A</sub> = {x ∈ A : x ∉ x}</span> is <b>not</b> a member of <span class="m">A</span>. <i>Proof:</i> if <span class="m">R<sub>A</sub> ∈ A</span>, then <span class="m">R<sub>A</sub> ∈ R<sub>A</sub> ⇔ R<sub>A</sub> ∉ R<sub>A</sub></span>, which is the diagonal cell. ∎ Russell's paradox is this theorem applied to a nonexistent “set of all sets”.</span>
+    <span class="zh"><b>定理（在 ZF 中，不是悖论）.</b> 对任意集合 <span class="m">A</span>，集合 <span class="m">R<sub>A</sub> = {x ∈ A : x ∉ x}</span> <b>不</b>属于 <span class="m">A</span>。<i>证明：</i>若 <span class="m">R<sub>A</sub> ∈ A</span>，则 <span class="m">R<sub>A</sub> ∈ R<sub>A</sub> ⇔ R<sub>A</sub> ∉ R<sub>A</sub></span>，问题就出在对角线那一格。∎ 罗素悖论不过是把这条定理用到了一个并不存在的“全体集合之集”上。</span></div>
+</section>
+
+<!-- ============ S3 ============ -->
+<section class="card" id="s3">
+  <div class="kicker">§3</div>
+  <h2><span class="en">Sets as nested boxes and membership trees</span><span class="zh">集合即嵌套的盒子与隶属树</span></h2>
+  <p><span class="en">In pure set theory <b>everything is a set</b>, and the empty box <span class="m">∅</span> is where it all starts. A <b>hereditarily finite</b> set is a finite set whose members are hereditarily finite. You can draw one as nested boxes (a box holds its members) or as a tree (children = members). Type one, or pick a preset. (Digits are accepted as shorthand for von Neumann numerals: 0 = ∅, n+1 = n ∪ {n}.)</span>
+     <span class="zh">在纯集合论里<b>一切都是集合</b>，一切从空盒子 <span class="m">∅</span> 开始。<b>遗传有限集</b>是指本身有限、且其元素也都是遗传有限集的集合。可以把它画成嵌套的盒子（盒子里装着它的元素），也可以画成树（子结点＝元素）。输入一个集合，或点选预设。（可以用数字作为冯·诺伊曼自然数的简写：0 = ∅，n+1 = n ∪ {n}。）</span></p>
+  <div class="toolbar">
+    <input class="formula" id="hfIn" value="{∅, {∅}, {{∅}}}" style="min-width:320px">
+    <button class="btn primary" id="hfGo"><span class="en">Draw</span><span class="zh">画出来</span></button>
+  </div>
+  <div class="toolbar" id="hfPresets"></div>
+  <div class="msg" id="hfErr"></div>
+  <div class="setrow">
+    <div class="panel" style="flex:1 1 280px"><h4><span class="il"><span class="en">Nested boxes</span><span class="zh">嵌套盒子</span></span></h4><div id="hfBoxes" style="padding:6px"></div>
+      <div id="hfStats" style="margin-top:8px"></div></div>
+    <div class="panel" style="flex:2 1 380px;overflow-x:auto"><h4><span class="il"><span class="en">Membership tree (root = the set)</span><span class="zh">隶属树（根＝这个集合）</span></span></h4><div id="hfTree"></div></div>
+  </div>
+
+  <h3><span class="en">Extensionality: two drawings, one set</span><span class="zh">外延公理：两幅图，同一个集合</span></h3>
+  <div class="def"><span class="en"><b>Axiom of Extensionality.</b> <span class="m">∀x ∀y (∀z (z ∈ x ↔ z ∈ y) → x = y)</span>. A set is determined by its members alone. Order and repetition in how you <i>write</i> it mean nothing.</span>
+    <span class="zh"><b>外延公理.</b> <span class="m">∀x ∀y (∀z (z ∈ x ↔ z ∈ y) → x = y)</span>。集合完全由它的元素决定，<i>写法</i>上的次序和重复都无关紧要。</span></div>
+  <div class="row">
+    <div class="col"><input class="formula" id="exA" value="{{∅}, ∅, {∅}}" style="width:100%"><div class="stage" id="exAraw" style="margin-top:6px;min-height:60px"></div></div>
+    <div class="col"><input class="formula" id="exB" value="{∅, {∅, ∅}}" style="width:100%"><div class="stage" id="exBraw" style="margin-top:6px;min-height:60px"></div></div>
+  </div>
+  <div class="toolbar"><button class="btn primary" id="exGo"><span class="en">Compare members</span><span class="zh">比较元素</span></button>
+    <button class="btn small" data-ex="{1,0}|{0,1,0}">{1,0} · {0,1,0}</button>
+    <button class="btn small" data-ex="{{∅,{∅}}}|{2}">{{∅,{∅}}} · {2}</button>
+    <button class="btn small" data-ex="{∅}|{{∅}}">{∅} · {{∅}}</button></div>
+  <div id="exOut"></div>
+</section>
+
+<!-- ============ S4 ============ -->
+<section class="card" id="s4">
+  <div class="kicker">§4</div>
+  <h2><span class="en">The language of set theory has just one symbol: ∈</span><span class="zh">集合论的语言只有一个符号：∈</span></h2>
+  <p><span class="en">ZF is a first-order theory (Lessons 3–5) in the language <span class="m">{∈}</span>; equality is part of the logic. Every other symbol (<span class="m">⊆, ∅, ∪, ⋃, 𝒫, (a,b)</span>, “function”) is an <b>abbreviation</b> for a formula in <span class="m">∈</span> and <span class="m">=</span>. Press <b>unfold</b> to expand the purple abbreviations one layer at a time. The bar shows the formula's length.</span>
+     <span class="zh">ZF 是语言 <span class="m">{∈}</span> 上的一阶理论（见第 3–5 课），等号属于逻辑本身。其余一切符号（<span class="m">⊆、∅、∪、⋃、𝒫、(a,b)</span>、“函数”）都只是用 <span class="m">∈</span> 和 <span class="m">=</span> 写成的公式的<b>缩写</b>。按<b>展开</b>，紫色的缩写会一层层被拆开，下方的条表示公式长度。</span></p>
+  <div class="toolbar"><button class="btn" id="unfAll"><span class="en">Unfold everything</span><span class="zh">全部展开</span></button>
+    <button class="btn ghost" id="unfNone"><span class="en">Fold everything</span><span class="zh">全部收起</span></button></div>
+  <div id="unfold"></div>
+  <div class="note"><span class="en">The membership relation is the <i>only</i> structure. A model of ZF is just a pair <span class="m">(M, E)</span> where <span class="m">E</span> is a binary relation on <span class="m">M</span>, so everything in Lessons 3–5 (completeness, compactness, Löwenheim–Skolem) applies to set theory itself. That is why, if ZF is consistent, it has a <b>countable</b> model (Skolem's paradox, revisited in Lesson 14).</span>
+    <span class="zh">隶属关系是<i>唯一</i>的结构。ZF 的模型就是一个二元组 <span class="m">(M, E)</span>，其中 <span class="m">E</span> 是 <span class="m">M</span> 上的二元关系。所以第 3–5 课的一切（完备性、紧致性、勒文海姆–斯科伦定理）都适用于集合论本身。正因如此，若 ZF 一致，则它有<b>可数</b>模型（斯科伦悖论，第 14 课再谈）。</span></div>
+</section>
+
+<!-- ============ S5 ============ -->
+<section class="card" id="s5">
+  <div class="kicker">§5</div>
+  <h2><span class="en">The set builder: Empty set, Pairing, Union, Power set</span><span class="zh">集合工坊：空集、配对、并集、幂集公理</span></h2>
+  <p><span class="en">Click any axiom chip to read its exact statement. The ZF axioms are <b>construction permits</b>: each one says that a certain set exists, given sets you already have.</span>
+     <span class="zh">点击公理标签查看其精确表述。ZF 的公理就是一张张<b>施工许可证</b>：每条都断言，由已有的集合可以造出某个新集合。</span></p>
+  <div class="axchips" id="axChips"></div>
+  <div class="def axcard" id="axCard"></div>
+
+  <h3><span class="en">Workshop</span><span class="zh">工坊</span></h3>
+  <p><span class="en">Start from <span class="m">∅</span> (Empty set axiom). Click one or two cards to select them, then press an axiom. Try to build all the targets.</span>
+     <span class="zh">从 <span class="m">∅</span> 出发（空集公理）。点击一两张卡片选中，再按某条公理。试着把所有目标都造出来。</span></p>
+  <div class="toolbar">
+    <button class="btn primary" id="opPair"><span class="en">Pairing {x, y}</span><span class="zh">配对 {x, y}</span></button>
+    <button class="btn primary" id="opUnion"><span class="en">Union ⋃x</span><span class="zh">并集 ⋃x</span></button>
+    <button class="btn primary" id="opCup"><span class="en">x ∪ y = ⋃{x, y}</span><span class="zh">x ∪ y = ⋃{x, y}</span></button>
+    <button class="btn primary" id="opPow"><span class="en">Power set 𝒫x</span><span class="zh">幂集 𝒫x</span></button>
+    <button class="btn primary" id="opSep"><span class="en">Separation</span><span class="zh">分离</span></button>
+    <select class="sel" id="sepPred"></select>
+    <button class="btn ghost" id="wsReset"><span class="en">Reset</span><span class="zh">重置</span></button>
+  </div>
+  <div class="targets" id="targets"></div>
+  <div class="msg" id="wsMsg"></div>
+  <div class="stage"><div class="ws" id="ws"></div></div>
+
+  <h3><span class="en">The power set as a lattice</span><span class="zh">幂集的格结构</span></h3>
+  <p><span class="en">Here <span class="m">a, b, c, d</span> stand for any distinct sets. <span class="m">𝒫(A)</span> has <span class="m">2<sup>|A|</sup></span> members, ordered by <span class="m">⊆</span>. Click a node: green = its subsets, blue = its supersets.</span>
+     <span class="zh">这里 <span class="m">a, b, c, d</span> 代表任意互不相同的集合。<span class="m">𝒫(A)</span> 有 <span class="m">2<sup>|A|</sup></span> 个元素，按 <span class="m">⊆</span> 排序。点击结点：绿色是它的子集，蓝色是包含它的集合。</span></p>
+  <div class="toolbar">|A| = <input type="range" id="hsN" min="1" max="4" value="3"> <b class="m" id="hsNv">3</b> <span class="m" id="hsCount"></span></div>
+  <div class="stage"><svg id="hasse" viewBox="0 0 700 330" width="700" height="330"></svg></div>
+</section>
+
+<!-- ============ S6 ============ -->
+<section class="card" id="s6">
+  <div class="kicker">§6</div>
+  <h2><span class="en">Separation instead of Comprehension</span><span class="zh">用分离公理代替概括原则</span></h2>
+  <div class="def"><span class="en"><b>Separation schema (Aussonderung).</b> For each formula φ(x, p₁, …, pₙ) in which y is not free: <span class="m">∀p₁…∀pₙ ∀A ∃y ∀x (x ∈ y ↔ (x ∈ A ∧ φ))</span>. You may only <b>filter an existing set</b> <span class="m">A</span>: <span class="m">{x ∈ A : φ(x)}</span>.</span>
+    <span class="zh"><b>分离公理模式.</b> 对每个 y 不在其中自由出现的公式 φ(x, p₁, …, pₙ)：<span class="m">∀p₁…∀pₙ ∀A ∃y ∀x (x ∈ y ↔ (x ∈ A ∧ φ))</span>。只允许<b>对已有的集合</b> <span class="m">A</span> 做筛选：<span class="m">{x ∈ A : φ(x)}</span>。</span></div>
+  <div class="row">
+    <div class="col" style="flex:0 1 330px">
+      <svg viewBox="0 0 320 210" width="320" height="210" id="cmpSvg"></svg>
+    </div>
+    <div class="col">
+      <p><span class="en">Pick a set <span class="m">A</span> and a property, then run the sieve. Members are tested one at a time; only those passing <span class="m">φ</span> drop into the new set.</span>
+         <span class="zh">选一个集合 <span class="m">A</span> 和一个性质，然后启动筛子。元素逐个接受检验，只有满足 <span class="m">φ</span> 的才落入新集合。</span></p>
+      <div class="toolbar"><span class="m">A =</span> <select class="sel" id="svA"></select>
+        <span class="m">φ(x) =</span> <select class="sel" id="svP"></select>
+        <button class="btn primary" id="svGo"><span class="en">Run the sieve ▶</span><span class="zh">启动筛子 ▶</span></button></div>
+    </div>
+  </div>
+  <div class="sieve-row top" id="svTop"></div>
+  <div class="sieve-line" id="svLine"></div>
+  <div class="sieve-row bot" id="svBot"></div>
+  <div class="msg" id="svMsg"></div>
+  <div class="note"><span class="en"><b>How Separation blocks Russell.</b> The best you can form is <span class="m">R<sub>A</sub> = {x ∈ A : x ∉ x}</span>, and §2 shows <span class="m">R<sub>A</sub> ∉ A</span>. The argument no longer yields a contradiction; it yields a <b>theorem</b>: no set contains every set (proved in E4). Collections like “all sets” are <b>proper classes</b>: we may talk about them through formulas, but they are not objects of the theory.</span>
+    <span class="zh"><b>分离公理如何挡住罗素悖论.</b> 我们最多只能造出 <span class="m">R<sub>A</sub> = {x ∈ A : x ∉ x}</span>，而 §2 已证 <span class="m">R<sub>A</sub> ∉ A</span>。同样的论证不再导出矛盾，而是给出一条<b>定理</b>：不存在包含一切集合的集合（证明见 E4）。像“全体集合”这样的汇集叫<b>真类</b>：可以借助公式谈论它们，但它们不是理论中的对象。</span></div>
+</section>
+
+<!-- ============ S7 ============ -->
+<section class="card" id="s7">
+  <div class="kicker">§7</div>
+  <h2><span class="en">Replacement: the image of a set under a definable map</span><span class="zh">替换公理：集合在可定义映射下的像</span></h2>
+  <div class="def"><span class="en"><b>Replacement schema (Fraenkel).</b> For each formula φ(x, y, p₁, …, pₙ): <span class="m">∀p₁…∀pₙ ∀A [∀x ∈ A ∃!y φ(x, y) → ∃B ∀y (y ∈ B ↔ ∃x ∈ A φ(x, y))]</span>. If φ defines a function on <span class="m">A</span>, then its image <span class="m">F[A]</span> is a set.</span>
+    <span class="zh"><b>替换公理模式（弗兰克尔）.</b> 对每个公式 φ(x, y, p₁, …, pₙ)：<span class="m">∀p₁…∀pₙ ∀A [∀x ∈ A ∃!y φ(x, y) → ∃B ∀y (y ∈ B ↔ ∃x ∈ A φ(x, y))]</span>。只要 φ 在 <span class="m">A</span> 上定义了一个函数，它的像 <span class="m">F[A]</span> 就是集合。</span></div>
+  <p><span class="en">Choose a domain and a rule. Arrows go from each <span class="m">x</span> to <span class="m">F(x)</span>; collisions merge (Extensionality). Numerals abbreviate von Neumann sets here.</span>
+     <span class="zh">选定定义域和规则。箭头从每个 <span class="m">x</span> 指向 <span class="m">F(x)</span>；撞到一起的值会合并（外延公理）。这里用数字简写冯·诺伊曼集合。</span></p>
+  <div class="toolbar"><span class="m">A =</span> <select class="sel" id="rpA"></select> <span class="m">F(x) =</span> <select class="sel" id="rpF"></select>
+    <button class="btn primary" id="rpGo"><span class="en">Map it ▶</span><span class="zh">映射 ▶</span></button></div>
+  <div class="stage"><svg id="rp" viewBox="0 0 780 300" width="780" height="300"></svg></div>
+  <div class="msg info" id="rpMsg"></div>
+  <div class="note"><span class="en"><b>Why it is needed.</b> For finite sets, Pairing and Union already give images. Replacement matters for infinite ones: without it you cannot prove that <span class="m">{ω, 𝒫(ω), 𝒫(𝒫(ω)), …}</span> is a set, nor that the ordinal <span class="m">ω + ω</span> exists (Lesson 8). Indeed <span class="m">V<sub>ω+ω</sub></span> satisfies every axiom of Zermelo set theory Z but not Replacement.</span>
+    <span class="zh"><b>为什么需要它.</b> 对有限集，配对加并集就足以得到像。替换公理真正起作用的是无穷集：没有它，就证明不了 <span class="m">{ω, 𝒫(ω), 𝒫(𝒫(ω)), …}</span> 是集合，也证明不了序数 <span class="m">ω + ω</span> 存在（第 8 课）。事实上 <span class="m">V<sub>ω+ω</sub></span> 满足策梅洛集合论 Z 的所有公理，却不满足替换公理。</span></div>
+</section>
+
+<!-- ============ S8 ============ -->
+<section class="card" id="s8">
+  <div class="kicker">§8</div>
+  <h2><span class="en">Infinity: an inductive set exists</span><span class="zh">无穷公理：存在归纳集</span></h2>
+  <div class="def"><span class="en"><b>Axiom of Infinity.</b> <span class="m">∃I (∅ ∈ I ∧ ∀x (x ∈ I → x ∪ {x} ∈ I))</span>. A set with this closure property is called <b>inductive</b>.</span>
+    <span class="zh"><b>无穷公理.</b> <span class="m">∃I (∅ ∈ I ∧ ∀x (x ∈ I → x ∪ {x} ∈ I))</span>。具有这种封闭性的集合叫做<b>归纳集</b>。</span></div>
+  <p><span class="en">Each press applies the successor <span class="m">S(x) = x ∪ {x}</span>: the new box contains copies of all the previous boxes. Switch to Zermelo's successor <span class="m">x ↦ {x}</span> for comparison (it gives onion-like nesting).</span>
+     <span class="zh">每按一次就做一次后继运算 <span class="m">S(x) = x ∪ {x}</span>：新盒子里装着之前所有的盒子。可以切换到策梅洛的后继 <span class="m">x ↦ {x}</span> 作对比（得到洋葱式的层层包裹）。</span></p>
+  <div class="toolbar">
+    <button class="btn primary" id="infStep"><span class="en">Apply S ▶</span><span class="zh">施加 S ▶</span></button>
+    <button class="btn" id="infPlay"><span class="en">Play ▶▶</span><span class="zh">连续播放 ▶▶</span></button>
+    <button class="btn ghost" id="infReset"><span class="en">Reset</span><span class="zh">重置</span></button>
+    <label><input type="radio" name="infMode" value="vn" checked> <span class="il"><span class="en">von Neumann x ∪ {x}</span><span class="zh">冯·诺伊曼 x ∪ {x}</span></span></label>
+    <label><input type="radio" name="infMode" value="z"> <span class="il"><span class="en">Zermelo {x}</span><span class="zh">策梅洛 {x}</span></span></label>
+  </div>
+  <div class="stage"><div id="infRow" class="setrow" style="align-items:flex-end;min-height:120px"></div>
+    <svg id="infStairs" viewBox="0 0 760 120" width="760" height="120" style="margin-top:10px"></svg></div>
+  <div class="msg info" id="infMsg"></div>
+  <div class="note"><span class="en">Every finite stage is a set already, using Pairing and Union. The axiom's real content is the dotted ellipsis: it collects <b>all</b> stages into one set. Without it, the hereditarily finite sets <span class="m">V<sub>ω</sub></span> form a model of all the other ZFC axioms together with “every set is finite”, so (if ZFC is consistent) Infinity is independent of the rest.</span>
+    <span class="zh">每个有限阶段本身已经是集合，配对和并集就能造出来。这条公理真正的内容在于那串省略号：它把<b>所有</b>阶段一网打尽，收进同一个集合。没有它，遗传有限集全体 <span class="m">V<sub>ω</sub></span> 构成其余所有 ZFC 公理外加“每个集合都有限”的模型，所以（若 ZFC 一致）无穷公理独立于其余公理。</span></div>
+</section>
+
+<!-- ============ S9 ============ -->
+<section class="card" id="s9">
+  <div class="kicker">§9</div>
+  <h2><span class="en">Foundation (Regularity), and a preview of Choice</span><span class="zh">正则公理（基础公理），以及选择公理预览</span></h2>
+  <div class="def"><span class="en"><b>Axiom of Foundation.</b> <span class="m">∀x (x ≠ ∅ → ∃y (y ∈ x ∧ y ∩ x = ∅))</span>. Every nonempty set has an <b>∈-minimal</b> member, one sharing no element with the set. Consequences: no <span class="m">x ∈ x</span>, no <span class="m">x ∈ y ∈ x</span>, no infinite descending chain <span class="m">x₀ ∋ x₁ ∋ x₂ ∋ ⋯</span>.</span>
+    <span class="zh"><b>正则公理（基础公理）.</b> <span class="m">∀x (x ≠ ∅ → ∃y (y ∈ x ∧ y ∩ x = ∅))</span>。每个非空集合都有一个 <b>∈-极小</b>元，它与该集合没有公共元素。推论：不存在 <span class="m">x ∈ x</span>，不存在 <span class="m">x ∈ y ∈ x</span>，也不存在无穷递降链 <span class="m">x₀ ∋ x₁ ∋ x₂ ∋ ⋯</span>。</span></div>
+  <p><span class="en">The <b>∈-graph</b>: an arrow <span class="m">u → v</span> means <span class="m">u ∈ v</span>. Click a node, then another, to toggle an arrow (click the same node twice for a loop <span class="m">u ∈ u</span>). Red marks cycles, which Foundation forbids. Green marks ∈-minimal nodes (no arrows coming in).</span>
+     <span class="zh"><b>∈ 图</b>：箭头 <span class="m">u → v</span> 表示 <span class="m">u ∈ v</span>。先点一个结点，再点另一个，即可添加或删除箭头（同一结点连点两次得到自环 <span class="m">u ∈ u</span>）。红色标出环，这是正则公理禁止的；绿色标出 ∈-极小结点（没有箭头指向它）。</span></p>
+  <div class="toolbar" id="fdPresets"></div>
+  <div class="row">
+    <div class="col" style="flex:0 1 480px"><div class="stage"><svg id="fd" viewBox="0 0 460 320" width="460" height="320"></svg></div></div>
+    <div class="col"><div class="msg" id="fdMsg"></div>
+      <div class="note"><span class="en">For a <i>finite</i> graph, “every nonempty subset has a minimal node” is equivalent to “no cycles”. A cycle <span class="m">u₁ ∈ u₂ ∈ ⋯ ∈ u₁</span> is exactly a nonempty set <span class="m">{u₁, …, uₖ}</span> with no ∈-minimal member. For infinite graphs the danger is also an infinite descending path. Foundation is what lets us do ∈-induction and build the cumulative hierarchy <span class="m">V</span> (Lesson 14).</span>
+        <span class="zh">对<i>有限</i>图，“每个非空子集都有极小结点”等价于“没有环”。一个环 <span class="m">u₁ ∈ u₂ ∈ ⋯ ∈ u₁</span> 恰好给出一个没有 ∈-极小元的非空集合 <span class="m">{u₁, …, uₖ}</span>。对无穷图，还要防范无穷递降路径。有了正则公理，才能做 ∈-归纳，才能搭起累积层级 <span class="m">V</span>（第 14 课）。</span></div>
+    </div>
+  </div>
+
+  <h3><span class="en">Preview: the Axiom of Choice</span><span class="zh">预览：选择公理</span></h3>
+  <p><span class="en"><b>AC:</b> every family of nonempty sets has a <b>choice function</b>: <span class="m">f(X) ∈ X</span> for each <span class="m">X</span> in the family. Click one element in each box. For a finite family you can always do this by hand (an induction in ZF). AC asserts it for infinite families where <i>no rule</i> is available. ZF + AC = ZFC, and Lesson 10 is devoted to it.</span>
+     <span class="zh"><b>选择公理：</b>每个由非空集合组成的族都有<b>选择函数</b>：对族中每个 <span class="m">X</span>，<span class="m">f(X) ∈ X</span>。在每个盒子里点选一个元素。有限族总能“手工”选完（在 ZF 中对个数归纳即可）；选择公理断言的是：即使对无穷族、<i>没有任何规则</i>可循，选择函数也存在。ZF 加上选择公理就是 ZFC，第 10 课专门讨论它。</span></p>
+  <div class="fam" id="fam"></div>
+  <div class="toolbar"><button class="btn" id="famShoes"><span class="en">∞ pairs of shoes</span><span class="zh">无穷双鞋</span></button>
+    <button class="btn" id="famSocks"><span class="en">∞ pairs of socks</span><span class="zh">无穷双袜子</span></button>
+    <button class="btn ghost" id="famReset"><span class="en">Reset</span><span class="zh">重置</span></button></div>
+  <div class="stage"><svg id="socks" viewBox="0 0 760 110" width="760" height="110"></svg></div>
+  <div class="msg" id="famMsg"></div>
+</section>
+
+<!-- ============ EXERCISES ============ -->
+<section class="card" id="exercises">
+  <div class="kicker"><span class="il"><span class="en">Exercises</span><span class="zh">练习</span></span></div>
+  <h2><span class="en">Your turn</span><span class="zh">轮到你了</span></h2>
+  <p class="muted"><span class="en">Type sets with ∅, braces and commas (or <span class="m">{}</span> for ∅; digits mean von Neumann numerals). Your input is drawn live as boxes. A sidebar ✓ means solved.</span>
+    <span class="zh">用 ∅、花括号和逗号输入集合（也可用 <span class="m">{}</span> 表示 ∅，数字表示冯·诺伊曼自然数）。输入会实时画成盒子。侧栏出现 ✓ 表示已完成。</span></p>
+  <div class="toolbar"><span class="muted"><span class="il"><span class="en">Insert:</span><span class="zh">插入：</span></span></span> <div class="keys" id="setKeys"></div></div>
+
+  <div class="ex" id="e1" data-prog="L6E1">
+    <h3><span class="tag">E1</span><span class="il"><span class="en">Compute unions</span><span class="zh">计算并集</span></span></h3>
+    <p><span class="en">Recall <span class="m">⋃A = {z : ∃Y ∈ A, z ∈ Y}</span>: open every box of <span class="m">A</span> and pour the contents into one box.</span>
+       <span class="zh">回忆 <span class="m">⋃A = {z : ∃Y ∈ A, z ∈ Y}</span>：把 <span class="m">A</span> 里的每个盒子都打开，把里面的东西倒进同一个盒子。</span></p>
+    <div id="e1List"></div>
+  </div>
+
+  <div class="ex" id="e2" data-prog="L6E2">
+    <h3><span class="tag">E2</span><span class="il"><span class="en">Power sets</span><span class="zh">幂集</span></span></h3>
+    <div id="e2List"></div>
+  </div>
+
+  <div class="ex" id="e3" data-prog="L6E3">
+    <h3><span class="tag">E3</span><span class="il"><span class="en">Which axiom justifies it?</span><span class="zh">由哪条公理保证？</span></span></h3>
+    <p><span class="en">For each fact, pick the <b>one</b> ZFC axiom that is the essential ingredient.</span>
+       <span class="zh">为每条事实选出起关键作用的<b>那一条</b> ZFC 公理。</span></p>
+    <div id="e3List"></div>
+    <div class="toolbar"><button class="btn primary" id="e3Check"><span class="en">Check</span><span class="zh">检查</span></button>
+      <button class="btn ghost" id="e3Show"><span class="en">Show answer</span><span class="zh">显示答案</span></button></div>
+    <div class="msg" id="e3Msg"></div>
+  </div>
+
+  <div class="ex" id="e4" data-prog="L6E4">
+    <h3><span class="tag">E4</span><span class="il"><span class="en">Prove: there is no set of all sets</span><span class="zh">证明：不存在全体集合之集</span></span></h3>
+    <p><span class="en">Try it yourself first, then reveal the proof step by step. To earn the ✓, answer the checkpoint question at the end.</span>
+       <span class="zh">先自己试着证明，再逐步揭晓。回答最后的检查问题即可获得 ✓。</span></p>
+    <div class="steps" id="e4Steps">
+      <div class="step"><div class="blocks"><div class="p">V</div><div><span class="il"><span class="en">assume ∀x (x ∈ V)</span><span class="zh">假设 ∀x (x ∈ V)</span></span></div></div>
+        <p><span class="en"><b>Step 1.</b> Suppose, for contradiction, that some set <span class="m">V</span> satisfies <span class="m">∀x (x ∈ V)</span>.</span><span class="zh"><b>第 1 步.</b> 反设存在集合 <span class="m">V</span>，满足 <span class="m">∀x (x ∈ V)</span>。</span></p></div>
+      <div class="step"><div class="blocks"><div class="p">V</div><div>→ φ(x): x ∉ x →</div><div class="sub">R</div></div>
+        <p><span class="en"><b>Step 2.</b> By <b>Separation</b> with <span class="m">φ(x) ≡ x ∉ x</span>, the set <span class="m">R = {x ∈ V : x ∉ x}</span> exists.</span><span class="zh"><b>第 2 步.</b> 对 <span class="m">φ(x) ≡ x ∉ x</span> 用<b>分离公理</b>，集合 <span class="m">R = {x ∈ V : x ∉ x}</span> 存在。</span></p></div>
+      <div class="step"><p><span class="en"><b>Step 3.</b> <span class="m">R</span> is a set, so <span class="m">R ∈ V</span> by the assumption on <span class="m">V</span>. Hence, by the definition of <span class="m">R</span>: <span class="m">R ∈ R ⇔ (R ∈ V ∧ R ∉ R) ⇔ R ∉ R</span>.</span>
+        <span class="zh"><b>第 3 步.</b> <span class="m">R</span> 是集合，由 <span class="m">V</span> 的假设得 <span class="m">R ∈ V</span>。再由 <span class="m">R</span> 的定义：<span class="m">R ∈ R ⇔ (R ∈ V ∧ R ∉ R) ⇔ R ∉ R</span>。</span></p></div>
+      <div class="step"><p><span class="en"><b>Step 4.</b> <span class="m">p ↔ ¬p</span> is a contradiction, so no such <span class="m">V</span> exists. ∎ Equivalently (§2), <span class="m">R<sub>V</sub> ∉ V</span> for every set <span class="m">V</span>, so no set is universal. Note: we never used Foundation; this works in Z with Separation alone.</span>
+        <span class="zh"><b>第 4 步.</b> <span class="m">p ↔ ¬p</span> 是矛盾式，所以这样的 <span class="m">V</span> 不存在。∎ 换一种说法（§2）：对任意集合 <span class="m">V</span> 都有 <span class="m">R<sub>V</sub> ∉ V</span>，所以没有集合是“全集”。注意：这里完全没用到正则公理，在 Z 中仅凭分离公理就够了。</span></p></div>
+    </div>
+    <div class="toolbar"><button class="btn primary" id="e4Next"><span class="en">Reveal next step</span><span class="zh">揭晓下一步</span></button>
+      <button class="btn ghost" id="e4All"><span class="en">Show whole proof</span><span class="zh">显示完整证明</span></button></div>
+    <p><b><span class="il"><span class="en">Checkpoint:</span><span class="zh">检查问题：</span></span></b> <span class="il"><span class="en">Why does the same argument <i>not</i> refute ZF itself when V is replaced by an arbitrary set A?</span><span class="zh">把 V 换成任意集合 A，同样的论证为什么<i>不会</i>推翻 ZF 本身？</span></span></p>
+    <div id="e4Choice"></div>
+    <div class="toolbar"><button class="btn ghost small" id="e4Show"><span class="en">Show answer</span><span class="zh">看答案</span></button></div>
+    <div class="msg" id="e4Msg"></div>
+  </div>
+
+  <div class="ex" id="e5" data-prog="L6E5">
+    <h3><span class="tag">E5</span><span class="il"><span class="en">Foundation check</span><span class="zh">检验正则公理</span></span></h3>
+    <p><span class="en">Each picture is a finite ∈-graph (arrow <span class="m">u → v</span> means <span class="m">u ∈ v</span>). Could these nodes be actual sets in a model of ZF? Mark each one.</span>
+       <span class="zh">每幅图都是有限 ∈ 图（箭头 <span class="m">u → v</span> 表示 <span class="m">u ∈ v</span>）。这些结点能否是 ZF 某个模型中真实的集合？逐一判断。</span></p>
+    <div class="mini-graphs" id="e5Graphs"></div>
+    <div class="toolbar"><button class="btn ghost" id="e5Show"><span class="en">Show answer</span><span class="zh">显示答案</span></button></div>
+    <div class="msg" id="e5Msg"></div>
+  </div>
+
+  <div class="ex" id="e6" data-prog="L6E6">
+    <h3><span class="tag">E6</span><span class="il"><span class="en">No set is a member of itself</span><span class="zh">没有集合属于自身</span></span></h3>
+    <p><span class="en">Foundation speaks about the members of a nonempty set. To rule out <span class="m">x ∈ x</span>, you must apply it to a cleverly chosen set. <b>(a)</b> Which set?</span>
+       <span class="zh">正则公理说的是非空集合的元素。要排除 <span class="m">x ∈ x</span>，得把它用到一个精心挑选的集合上。<b>(a)</b> 挑哪个集合？</span></p>
+    <div id="e6a"></div><div class="msg" id="e6aMsg"></div>
+    <p><span class="en"><b>(b)</b> And to rule out a 2-cycle <span class="m">x ∈ y ∈ x</span>?</span><span class="zh"><b>(b)</b> 要排除二元环 <span class="m">x ∈ y ∈ x</span> 呢？</span></p>
+    <div id="e6b"></div><div class="msg" id="e6bMsg"></div>
+    <div class="toolbar"><button class="btn ghost" id="e6Show"><span class="en">Show answer &amp; proof</span><span class="zh">看答案与证明</span></button></div>
+    <div class="steps" id="e6Proof"><div class="step def">
+      <span class="en"><b>(a)</b> Apply Foundation to <span class="m">{x}</span> (exists by Pairing). Its only member is <span class="m">x</span>, so <span class="m">x ∩ {x} = ∅</span>, i.e. <span class="m">x ∉ x</span>. ∎<br>
+        <b>(b)</b> Apply it to <span class="m">{x, y}</span>. Some member is disjoint from <span class="m">{x, y}</span>. It cannot be <span class="m">x</span> (since <span class="m">y ∈ x</span>) nor <span class="m">y</span> (since <span class="m">x ∈ y</span>). ∎ The same trick with <span class="m">{x₀, x₁, x₂, …}</span> (a set by Replacement on ω) kills infinite descending chains.</span>
+      <span class="zh"><b>(a)</b> 对 <span class="m">{x}</span>（由配对公理存在）用正则公理。它唯一的元素是 <span class="m">x</span>，于是 <span class="m">x ∩ {x} = ∅</span>，即 <span class="m">x ∉ x</span>。∎<br>
+        <b>(b)</b> 对 <span class="m">{x, y}</span> 用正则公理，得到一个与 <span class="m">{x, y}</span> 不交的元素。它不能是 <span class="m">x</span>（因为 <span class="m">y ∈ x</span>），也不能是 <span class="m">y</span>（因为 <span class="m">x ∈ y</span>）。∎ 用同样的办法处理 <span class="m">{x₀, x₁, x₂, …}</span>（对 ω 用替换公理得到的集合），就能排除无穷递降链。</span>
+    </div></div>
+  </div>
+</section>
+
+<section class="card">
+  <div class="kicker"><span class="il"><span class="en">Next</span><span class="zh">下一课</span></span></div>
+  <h2><a href="lesson7.html" style="color:inherit"><span class="en">Lesson 7: Building ℕ, ℤ, ℚ, ℝ from sets →</span><span class="zh">第 7 课：用集合构造 ℕ、ℤ、ℚ、ℝ →</span></a></h2>
+  <p><span class="en">We now own a small toolkit of safe constructions. Next we use it to build every number system of analysis, starting from the empty box: ordered pairs, ω, then ℤ, ℚ and the Dedekind reals.</span>
+     <span class="zh">现在我们有了一套安全的构造工具。下一课就用它从空盒子出发，搭出分析学里所有的数系：先是有序对和 ω，再是 ℤ、ℚ，最后是戴德金实数。</span></p>
+</section>
+</main>
+</div>
+
+<script src="assets/logic.js"></script>
+<script src="assets/lesson6.js"></script>
+</body>
+</html>

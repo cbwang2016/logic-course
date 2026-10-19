@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 12 · Gödel's Incompleteness Theorems 哥德尔不完全性定理</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  /* ---- bilingual SVG text ---- */
+  .lang-en .bisep, .lang-zh .bisep { display: none; }
+  /* ---- symbol tiles (Gödel numbering) ---- */
+  .symtab { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
+  .sym { width: 46px; border: 1.5px solid var(--line); border-radius: 10px; background: #fff; text-align: center; cursor: pointer; padding: 3px 0; transition: transform .12s, border-color .12s; user-select: none; }
+  .sym:hover { transform: translateY(-2px); border-color: var(--accent); }
+  .sym b { display: block; font-family: var(--mono); font-size: 19px; line-height: 1.3; }
+  .sym small { display: block; font-family: var(--mono); font-size: 11px; color: var(--accent); }
+  .enc { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
+  .enc .cell { border-radius: 10px; border: 2px solid var(--line); background: #fff; padding: 4px 8px; text-align: center; min-width: 52px; font-family: var(--mono); }
+  .enc .cell .s { font-size: 20px; font-weight: 700; }
+  .enc .cell .c { font-size: 11px; color: var(--muted); }
+  .enc .cell .pp { font-size: 15px; color: var(--gold); font-weight: 700; }
+  .enc .cell.hot { border-color: var(--accent); background: var(--accent-soft); }
+  .bignum { font-family: var(--mono); font-size: 15px; word-break: break-all; background: #fffdf8; border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; }
+  input.num { font-family: var(--mono); font-size: 15px; padding: 7px 10px; border: 1.5px solid var(--line); border-radius: 10px; width: 100%; max-width: 640px; background: #fffdf8; }
+  input.num:focus { outline: none; border-color: var(--accent); }
+  /* ---- flip cards ---- */
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; margin: 12px 0; }
+  .fcard { border: 2px solid var(--line); border-radius: 14px; padding: 12px 14px; background: #fff; cursor: pointer; min-height: 112px; transition: all .3s; position: relative; }
+  .fcard:hover { border-color: var(--accent); }
+  .fcard .nm { font-size: 12px; font-weight: 800; color: var(--accent); letter-spacing: .05em; }
+  .fcard .fm { font-family: var(--mono); font-size: 16px; margin: 4px 0; }
+  .fcard .back { display: none; font-size: 14px; color: #444; }
+  .fcard.open .back { display: block; animation: fadein .4s both; }
+  .fcard.open { background: #fbfaff; border-color: var(--accent); }
+  .fcard.ind { border-color: var(--meta); background: var(--meta-soft); }
+  .fcard.dim { opacity: .45; }
+  .fcard.hl { box-shadow: 0 0 0 4px rgba(174,62,201,.35); border-color: var(--meta); }
+  .fcard .hint { position: absolute; right: 10px; top: 8px; font-size: 11px; color: var(--muted); }
+  /* ---- rewriting chain ---- */
+  .rw { font-family: var(--mono); font-size: 17px; }
+  .rw div { padding: 3px 0; }
+  .rw .ax { font-family: var(--sans); font-size: 12px; color: #fff; background: var(--accent); border-radius: 6px; padding: 1px 7px; margin-left: 10px; }
+  .rw .redex { background: var(--gold-soft); border-bottom: 2px solid var(--gold); border-radius: 3px; }
+  /* ---- proof checker ---- */
+  table.pf { border-collapse: collapse; font-family: var(--mono); font-size: 14px; width: 100%; }
+  table.pf td { padding: 3px 6px; border-bottom: 1px dashed var(--line); vertical-align: middle; }
+  table.pf input { font-family: var(--mono); font-size: 14px; border: 1px solid var(--line); border-radius: 7px; padding: 3px 6px; width: 100%; background: #fffdf8; }
+  table.pf td.n { width: 28px; color: var(--muted); text-align: right; }
+  table.pf td.j { width: 100px; }
+  table.pf td.v { width: 34px; text-align: center; font-weight: 800; }
+  table.pf td.why { font-family: var(--sans); font-size: 12px; color: var(--muted); width: 34%; }
+  table.pf tr.ok td.v { color: var(--true); }
+  table.pf tr.bad td.v { color: var(--false); }
+  table.pf tr.bad { background: var(--false-soft); }
+  table.pf tr.scan { background: var(--accent-soft); }
+  .gear { transform-box: fill-box; transform-origin: center; }
+  .gear.spin { animation: spin 1s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  /* ---- chains ---- */
+  .chain { display: flex; flex-direction: column; align-items: flex-start; gap: 0; margin: 10px 0; }
+  .chain .lk { border: 2px solid var(--line); border-radius: 12px; padding: 7px 12px; background: #fff; max-width: 100%; animation: fadein .45s both; }
+  .chain .lk .why { font-size: 12.5px; color: var(--muted); }
+  .chain .lk.pre { border-color: var(--accent); background: var(--accent-soft); }
+  .chain .lk.bad { border-color: var(--false); background: var(--false-soft); font-weight: 700; }
+  .chain .lk.good { border-color: var(--true); background: var(--true-soft); font-weight: 700; }
+  .chain .ar { margin-left: 22px; color: var(--muted); font-size: 18px; line-height: 1.2; animation: fadein .45s both; }
+  /* ---- toggles ---- */
+  .hyp { display: flex; flex-direction: column; gap: 8px; }
+  .hyp .sw { font-family: var(--sans); font-size: 15px; }
+  .hyp .sw > span:first-child { min-width: 0; }
+  /* ---- order game ---- */
+  .ord { display: flex; flex-direction: column; gap: 6px; }
+  .ord .chip { text-align: left; }
+  .ord .chip .k { display: inline-block; min-width: 22px; font-weight: 800; color: var(--accent); }
+  .ordslots { min-height: 60px; border: 2px dashed var(--line); border-radius: 12px; padding: 10px; background: #fbfaf6; }
+  /* ---- misc ---- */
+  .twocol { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 900px) { .twocol { grid-template-columns: 1fr; } }
+  .mini { border: 1.5px solid var(--line); border-radius: 12px; padding: 10px 12px; background: #fff; font-size: 14px; }
+  .mini h4 { margin: 0 0 4px; }
+  .mini.hot { border-color: var(--meta); background: var(--meta-soft); }
+  .tagD { display: inline-block; font-size: 11px; font-weight: 800; color: #fff; background: var(--meta); border-radius: 6px; padding: 0 6px; margin-left: 6px; font-family: var(--sans); }
+  .steps .step.hl { box-shadow: 0 0 0 3px rgba(174,62,201,.35); border-radius: 10px; }
+  .pstep { border-left: 4px solid var(--line); padding: 6px 12px; margin: 8px 0; background: #fff; border-radius: 0 10px 10px 0; }
+  .lane text { font-family: var(--mono); }
+  .fcard.myth { cursor: default; display: flex; flex-direction: column; gap: 6px; }
+  .fcard.myth .btn { margin-right: 4px; }
+  .fcard.myth.good { border-color: var(--true); }
+  .fcard.myth.wrong { border-color: var(--false); }
+  .verdict-ok { color: var(--true); font-weight: 800; }
+  .verdict-bad { color: var(--false); font-weight: 800; }
+  select.sel { font: inherit; font-size: 14px; padding: 5px 8px; border-radius: 9px; border: 1.5px solid var(--line); background: #fff; }
+</style>
+</head>
+<body class="lang-both">
+<header class="top">
+  <a class="home" href="index.html">∀∃ <span class="il"><span class="en">Logic &amp; Sets</span><span class="zh">逻辑与集合</span></span></a>
+  <span class="muted">/ L12</span>
+  <span class="spacer"></span>
+  <div class="lang-switch">
+    <button data-lang="en">EN</button><button data-lang="zh">中文</button><button data-lang="both">EN + 中</button>
+  </div>
+</header>
+
+<div class="layout">
+<nav class="side">
+  <div class="grp">Lesson 12</div>
+  <a href="index.html">← <span class="il"><span class="en">Course map</span><span class="zh">课程地图</span></span></a>
+  <a href="lesson11.html">← <span class="il"><span class="en">Lesson 11</span><span class="zh">第 11 课</span></span></a>
+  <a href="lesson13.html"><span class="il"><span class="en">Lesson 13</span><span class="zh">第 13 课</span></span> →</a>
+  <a href="#s1">1 · <span class="il"><span class="en">Gödel numbering</span><span class="zh">哥德尔编码</span></span></a>
+  <a href="#s2">2 · <span class="il"><span class="en">Q and PA</span><span class="zh">Q 与 PA</span></span></a>
+  <a href="#s3">3 · <span class="il"><span class="en">Proof checker</span><span class="zh">证明检验机</span></span></a>
+  <a href="#s4">4 · <span class="il"><span class="en">Diagonal lemma</span><span class="zh">对角线引理</span></span></a>
+  <a href="#s5">5 · <span class="il"><span class="en">The Gödel sentence</span><span class="zh">哥德尔语句</span></span></a>
+  <a href="#s6">6 · <span class="il"><span class="en">Via halting</span><span class="zh">借道停机问题</span></span></a>
+  <a href="#s7">7 · <span class="il"><span class="en">Second theorem</span><span class="zh">第二不完全性</span></span></a>
+  <a href="#s8">8 · <span class="il"><span class="en">Löb's theorem</span><span class="zh">勒布定理</span></span></a>
+  <a href="#s9">9 · <span class="il"><span class="en">Misconceptions</span><span class="zh">常见误解</span></span></a>
+  <div class="grp"><span class="il"><span class="en">Exercises</span><span class="zh">练习</span></span></div>
+  <a href="#e1" data-prog="L12E1">E1 · ⌜ ⌝</a>
+  <a href="#e2" data-prog="L12E2">E2 · <span class="il"><span class="en">diagonal</span><span class="zh">对角线</span></span></a>
+  <a href="#e3" data-prog="L12E3">E3 · <span class="il"><span class="en">which theories?</span><span class="zh">哪些理论？</span></span></a>
+  <a href="#e4" data-prog="L12E4">E4 · <span class="il"><span class="en">myths</span><span class="zh">辨析</span></span></a>
+  <a href="#e5" data-prog="L12E5">E5 · Con</a>
+  <a href="#e6" data-prog="L12E6">E6 · <span class="il"><span class="en">Henkin</span><span class="zh">亨金语句</span></span></a>
+</nav>
+
+<main>
+<div class="hero">
+  <div class="kicker">Part III · Lesson 12</div>
+  <h1><span class="en">Gödel's Incompleteness Theorems</span><span class="zh">哥德尔不完全性定理</span></h1>
+  <p><span class="en">Arithmetic can talk about numbers, numbers can code formulas, and so arithmetic can talk about its own formulas and proofs. Push that one step further and you get a sentence that says “I am not provable”. Every step below is a machine you can run.</span>
+     <span class="zh">算术能谈论数，数能给公式编码，于是算术就能谈论它自己的公式和证明。再往前走一步，就得到一个说“我不可证”的句子。下面每一步都是一台可以亲手运行的机器。</span></p>
+</div>
+
+<!-- ============ S1 ============ -->
+<section class="card" id="s1">
+  <div class="kicker">§1</div>
+  <h2><span class="en">Gödel numbering: formulas become numbers</span><span class="zh">哥德尔编码：公式变成数</span></h2>
+  <p><span class="en">Give every symbol a code. A string <span class="m">s₁s₂…sₖ</span> gets the number <span class="m">⌜s₁…sₖ⌝ = 2^c(s₁) · 3^c(s₂) · 5^c(s₃) ⋯ pₖ^c(sₖ)</span>, where <span class="m">pₖ</span> is the k-th prime. Unique factorization guarantees we can always decode. Click symbols or type (aliases: <span class="m">* ~ -&gt; A E &amp; |</span>).</span>
+     <span class="zh">给每个符号指定一个代码。符号串 <span class="m">s₁s₂…sₖ</span> 的编码为 <span class="m">⌜s₁…sₖ⌝ = 2^c(s₁) · 3^c(s₂) · 5^c(s₃) ⋯ pₖ^c(sₖ)</span>，其中 <span class="m">pₖ</span> 是第 k 个素数。算术基本定理（唯一分解）保证总能解码回去。点击符号或直接输入（可用替代写法：<span class="m">* ~ -&gt; A E &amp; |</span>）。</span></p>
+  <div class="symtab" id="symtab"></div>
+  <div class="toolbar">
+    <input class="formula" id="gIn" value="S0+S0=SS0" style="min-width:300px">
+    <button class="btn small" id="gBack">⌫</button>
+    <button class="btn small" data-g="0=0">0=0</button>
+    <button class="btn small" data-g="SS0">SS0</button>
+    <button class="btn small" data-g="∀x¬(Sx=0)">∀x¬(Sx=0)</button>
+    <button class="btn small" data-g="∃y(y+y=SS0)">∃y(y+y=SS0)</button>
+  </div>
+  <div class="msg" id="gErr"></div>
+  <div class="enc" id="gEnc"></div>
+  <div class="bignum" id="gNum"></div>
+
+  <h3><span class="en">Decoding: peel off one prime at a time</span><span class="zh">解码：一次剥掉一个素数</span></h3>
+  <p class="muted"><span class="en">Divide out 2 as often as possible, then 3, then 5, … The exponents are the symbol codes. A skipped prime or an unknown exponent means the number codes no string.</span>
+    <span class="zh">先尽量除以 2，再除以 3、5、……，得到的指数就是各符号的代码。若中途跳过某个素数，或指数不是任何符号的代码，这个数就不编码任何符号串。</span></p>
+  <div class="toolbar">
+    <input class="num" id="dIn" style="max-width:420px">
+    <button class="btn primary" id="dGo"><span class="en">Factor &amp; decode ▶</span><span class="zh">分解并解码 ▶</span></button>
+    <button class="btn small" id="dUse"><span class="en">use the number above</span><span class="zh">用上面的数</span></button>
+    <button class="btn small" data-d="180">180</button>
+    <button class="btn small" data-d="2430">2430</button>
+    <button class="btn small" data-d="10">10</button>
+  </div>
+  <div class="stage" id="dStage" style="min-height:190px"></div>
+  <div class="msg" id="dMsg"></div>
+
+  <h3><span class="en">Proofs are numbers too</span><span class="zh">证明也是数</span></h3>
+  <p><span class="en">A proof is a finite sequence of formulas <span class="m">⟨φ₁,…,φₙ⟩</span>; code it as <span class="m">2^⌜φ₁⌝ · 3^⌜φ₂⌝ ⋯ pₙ^⌜φₙ⌝</span>. Below is the 3-line proof of <span class="m">1+1=2</span> from §3. The numbers are absurdly large, but only their <i>existence</i> matters: everything about syntax becomes arithmetic.</span>
+     <span class="zh">证明就是有限的公式序列 <span class="m">⟨φ₁,…,φₙ⟩</span>，把它编码成 <span class="m">2^⌜φ₁⌝ · 3^⌜φ₂⌝ ⋯ pₙ^⌜φₙ⌝</span>。下面是 §3 中 <span class="m">1+1=2</span> 的三行证明。这些数大得离谱，但要紧的只是它们<i>存在</i>：关于语法的一切，都变成了关于数的命题。</span></p>
+  <div id="pfCode"></div>
+</section>
+
+<!-- ============ S2 ============ -->
+<section class="card" id="s2">
+  <div class="kicker">§2</div>
+  <h2><span class="en">The theories: Robinson arithmetic Q and Peano arithmetic PA</span><span class="zh">两个理论：罗宾逊算术 Q 与皮亚诺算术 PA</span></h2>
+  <p><span class="en">Language <span class="m">{0, S, +, ×}</span>. Click a card to see what the axiom is for. Q is tiny (seven axioms, no induction) yet it is all the incompleteness theorem needs. PA adds the induction schema.</span>
+     <span class="zh">语言为 <span class="m">{0, S, +, ×}</span>。点击卡片查看每条公理的作用。Q 很小（七条公理，没有归纳法），却已足够推出不完全性定理。PA 在此基础上加入归纳公理模式。</span></p>
+  <div class="toolbar">
+    <button class="btn sel" id="showQ"><span class="en">Show Q</span><span class="zh">显示 Q</span></button>
+    <button class="btn" id="showPA"><span class="en">Show PA</span><span class="zh">显示 PA</span></button>
+  </div>
+  <div class="cards" id="axCards"></div>
+  <div class="msg info" id="axMsg"></div>
+
+  <h3><span class="en">Q can compute: every true closed equation is a theorem</span><span class="zh">Q 会算数：每个真的闭等式都是定理</span></h3>
+  <p class="muted"><span class="en">Numerals: <span class="m">n̄ = S⋯S0</span> (n copies of S). Pick a sum or product; each step rewrites the highlighted part with one axiom.</span>
+    <span class="zh">数字项：<span class="m">n̄ = S⋯S0</span>（n 个 S）。选一个加法或乘法，每一步都用一条公理改写高亮的部分。</span></p>
+  <div class="toolbar">
+    m = <select class="sel" id="rwM"></select>
+    <select class="sel" id="rwOp"><option value="+">+</option><option value="×">×</option></select>
+    n = <select class="sel" id="rwN"></select>
+    <button class="btn primary" id="rwStep"><span class="en">Rewrite one step ▶</span><span class="zh">改写一步 ▶</span></button>
+    <button class="btn" id="rwAll"><span class="en">Show all</span><span class="zh">全部显示</span></button>
+  </div>
+  <div class="stage rw" id="rwStage"></div>
+  <div class="def"><span class="en"><b>Σ₁-completeness of Q.</b> If σ is a true Σ₁ sentence (of the form <span class="m">∃x₁…∃xₖ δ</span> with δ having only bounded quantifiers), then <span class="m">Q ⊢ σ</span>. Q finds the witnesses by computing, exactly like above. But Q is weak in the other direction: Q ⊬ <span class="m">∀x (0 + x = x)</span>, which needs induction and is provable in PA.</span>
+    <span class="zh"><b>Q 的 Σ₁ 完全性.</b> 若 σ 是真的 Σ₁ 语句（形如 <span class="m">∃x₁…∃xₖ δ</span>，δ 中只有有界量词），则 <span class="m">Q ⊢ σ</span>。Q 靠像上面那样“算”出见证。但反方向上 Q 很弱：Q ⊬ <span class="m">∀x (0 + x = x)</span>，这条需要归纳法，在 PA 中可证。</span></div>
+</section>
+
+<!-- ============ S3 ============ -->
+<section class="card" id="s3">
+  <div class="kicker">§3</div>
+  <h2><span class="en">The proof checker: “x codes a proof of y” is decidable</span><span class="zh">证明检验机：“x 编码了 y 的一个证明”是可判定的</span></h2>
+  <p><span class="en">Checking a proof is purely mechanical: is each line an axiom, or does it follow from earlier lines by a rule? Below is a toy fragment of Q (axioms Q3–Q6 plus a rewriting rule). Edit any line or justification and run the checker. Justifications: <span class="m">Q3</span>…<span class="m">Q6</span>, or <span class="m">Rw i,j</span> = take line j and replace one occurrence of the left side of line i, on the right of “=”, by its right side.</span>
+     <span class="zh">检验证明是纯机械的事：每一行要么是公理，要么由前面的行按规则得到。下面是 Q 的一个玩具片段（公理 Q3–Q6 加一条改写规则）。可以随意改动任何一行或理由，再运行检验机。理由写法：<span class="m">Q3</span>…<span class="m">Q6</span>，或 <span class="m">Rw i,j</span>：取第 j 行，把其等号右边中第 i 行左边那一项的某一处出现换成第 i 行的右边。</span></p>
+  <div class="toolbar">
+    <button class="btn small" data-pf="add"><span class="m">1+1=2</span></button>
+    <button class="btn small" data-pf="mul"><span class="en">2×2=4 (17 lines)</span><span class="zh">2×2=4（17 行）</span></button>
+    <button class="btn small" data-pf="bad"><span class="en">a broken proof</span><span class="zh">一个错误证明</span></button>
+    <button class="btn small" data-pf="fake"><span class="en">a fake axiom</span><span class="zh">一条冒充的公理</span></button>
+  </div>
+  <div class="row">
+    <div class="col" style="flex:1 1 520px"><table class="pf" id="pfTable"></table>
+      <div class="toolbar"><button class="btn small" id="pfAdd">+ <span class="il"><span class="en">line</span><span class="zh">加一行</span></span></button>
+        <button class="btn small" id="pfDel">− <span class="il"><span class="en">line</span><span class="zh">删一行</span></span></button>
+        <button class="btn primary" id="pfRun"><span class="en">Run the checker ▶</span><span class="zh">运行检验机 ▶</span></button></div></div>
+    <div class="col" style="flex:0 1 340px"><svg id="machine" viewBox="0 0 340 300" width="340" height="300"></svg></div>
+  </div>
+  <div class="msg" id="pfMsg"></div>
+  <div class="def"><span class="en"><b>Representability.</b> Every decidable relation <span class="m">R ⊆ ℕᵏ</span> is <b>representable in Q</b>: there is a formula <span class="m">φ_R</span> such that <span class="m">R(n₁,…,nₖ) ⇒ Q ⊢ φ_R(n̄₁,…,n̄ₖ)</span> and <span class="m">¬R(n₁,…,nₖ) ⇒ Q ⊢ ¬φ_R(n̄₁,…,n̄ₖ)</span>. If T has a decidable set of axioms, then <span class="m">Proof_T(x,y)</span> is decidable (and primitive recursive if the axiom set is, as for PA), so it is represented by a formula <span class="m">Prf_T(x,y)</span>. Define the <b>provability predicate</b> <span class="m">Prov_T(y) :≡ ∃x Prf_T(x,y)</span>, a Σ₁ formula.</span>
+    <span class="zh"><b>可表示性.</b> 每个可判定关系 <span class="m">R ⊆ ℕᵏ</span> 都<b>在 Q 中可表示</b>：存在公式 <span class="m">φ_R</span>，使得 <span class="m">R(n₁,…,nₖ) ⇒ Q ⊢ φ_R(n̄₁,…,n̄ₖ)</span>，且 <span class="m">¬R(n₁,…,nₖ) ⇒ Q ⊢ ¬φ_R(n̄₁,…,n̄ₖ)</span>。若 T 的公理集可判定，则 <span class="m">Proof_T(x,y)</span> 是可判定的（若公理集是原始递归的，比如 PA，它还是原始递归的），因而可由某个公式 <span class="m">Prf_T(x,y)</span> 表示。定义<b>可证性谓词</b> <span class="m">Prov_T(y) :≡ ∃x Prf_T(x,y)</span>，它是一个 Σ₁ 公式。</span></div>
+  <div class="note"><span class="en">Notice the asymmetry in the lamps: <span class="m">Prf_T</span> has a YES lamp <i>and</i> a NO lamp (decidable). <span class="m">Prov_T</span> only has a YES lamp: if <span class="m">T ⊢ φ</span> then <span class="m">Q ⊢ Prov_T(⌜φ⌝)</span>, but when <span class="m">T ⊬ φ</span> the search for a proof just runs forever. That gap is where incompleteness lives.</span>
+    <span class="zh">注意两盏灯的不对称：<span class="m">Prf_T</span> 既有“是”灯也有“否”灯（可判定）；<span class="m">Prov_T</span> 只有“是”灯：若 <span class="m">T ⊢ φ</span>，则 <span class="m">Q ⊢ Prov_T(⌜φ⌝)</span>；而当 <span class="m">T ⊬ φ</span> 时，搜索证明的过程只会永远跑下去。不完全性就藏在这道缝里。</span></div>
+</section>
+
+<!-- ============ S4 ============ -->
+<section class="card" id="s4">
+  <div class="kicker">§4</div>
+  <h2><span class="en">The diagonal lemma: a fixed point for every property</span><span class="zh">对角线引理（不动点引理）：每个性质都有不动点</span></h2>
+  <div class="def"><span class="en"><b>Diagonal Lemma.</b> For every formula <span class="m">ψ(x)</span> with one free variable there is a sentence <span class="m">G</span> such that <span class="m">Q ⊢ G ↔ ψ(⌜G⌝)</span>. “G says of itself that it has property ψ.”</span>
+    <span class="zh"><b>对角线引理.</b> 对任意只含一个自由变元的公式 <span class="m">ψ(x)</span>，存在语句 <span class="m">G</span>，使得 <span class="m">Q ⊢ G ↔ ψ(⌜G⌝)</span>。也就是说，G“断言它自己具有性质 ψ”。</span></div>
+  <p><span class="en">The table lists <b>all</b> formulas <span class="m">φₙ(x)</span> (rows) against the codes <span class="m">⌜φₘ⌝</span> (columns). Cell (n, m) is the sentence <span class="m">φₙ(⌜φₘ⌝)</span>. The diagonal cell (n, n) feeds a formula its own code; its code is <span class="m">sub(⌜φₙ⌝, ⌜φₙ⌝)</span>. Click any cell, choose ψ, then build the fixed point.</span>
+     <span class="zh">表格的行是<b>全体</b>公式 <span class="m">φₙ(x)</span>，列是编码 <span class="m">⌜φₘ⌝</span>。第 (n, m) 格是语句 <span class="m">φₙ(⌜φₘ⌝)</span>。对角格 (n, n) 把公式自己的编码喂给它自己，其编码为 <span class="m">sub(⌜φₙ⌝, ⌜φₙ⌝)</span>。点击任意格子，选好 ψ，再构造不动点。</span></p>
+  <div class="toolbar">
+    ψ(x) = <select class="sel" id="psiSel">
+      <option value="0">¬Prov_T(x)</option>
+      <option value="1">Prov_T(x)</option>
+      <option value="2">x is even · x 是偶数</option>
+      <option value="3">¬True(x) (?)</option>
+    </select>
+    <button class="btn primary" id="dlGo"><span class="en">Build the fixed point ▶</span><span class="zh">构造不动点 ▶</span></button>
+    <button class="btn ghost" id="dlReset"><span class="en">Reset</span><span class="zh">重置</span></button>
+  </div>
+  <div class="stage"><svg id="dlSvg" viewBox="0 0 860 470" width="860" height="470"></svg></div>
+  <div class="msg info" id="dlMsg"></div>
+
+  <h3><span class="en">Same diagonal, different twist</span><span class="zh">同一条对角线，不同的“扭转”</span></h3>
+  <div class="row" id="dlCompare"></div>
+
+  <h3><span class="en">The construction, step by step</span><span class="zh">构造过程，逐步展开</span></h3>
+  <div class="steps" id="dlSteps">
+    <div class="step pstep"><span class="en"><b>1.</b> <span class="m">sub(m, n)</span> := the code of the result of substituting the numeral <span class="m">n̄</span> for x in the formula with code m. It is primitive recursive, so it is representable in Q by a formula <span class="m">Sub(x, y, z)</span>: for all m, n, <span class="m">Q ⊢ ∀z (Sub(m̄, n̄, z) ↔ z = k̄)</span> where k = sub(m, n).</span>
+      <span class="zh"><b>1.</b> 令 <span class="m">sub(m, n)</span> 为：把编码为 m 的公式中的 x 替换成数字项 <span class="m">n̄</span> 后所得公式的编码。它是原始递归函数，故在 Q 中可由某个公式 <span class="m">Sub(x, y, z)</span> 表示：对一切 m, n，有 <span class="m">Q ⊢ ∀z (Sub(m̄, n̄, z) ↔ z = k̄)</span>，其中 k = sub(m, n)。</span></div>
+    <div class="step pstep"><span class="en"><b>2.</b> Diagonalize and twist: <span class="m">D(x) :≡ ∃z (Sub(x, x, z) ∧ ψ(z))</span>, informally “ψ(sub(x, x))”.</span>
+      <span class="zh"><b>2.</b> 取对角并“扭转”：<span class="m">D(x) :≡ ∃z (Sub(x, x, z) ∧ ψ(z))</span>，直观上就是“ψ(sub(x, x))”。</span></div>
+    <div class="step pstep"><span class="en"><b>3.</b> D is itself a formula, so it is some row: let <span class="m">d = ⌜D⌝</span>. Put <span class="m">G :≡ D(d̄)</span>, the diagonal cell of row D.</span>
+      <span class="zh"><b>3.</b> D 本身也是一个公式，所以它就是表中的某一行：令 <span class="m">d = ⌜D⌝</span>，再令 <span class="m">G :≡ D(d̄)</span>，即 D 这一行的对角格。</span></div>
+    <div class="step pstep"><span class="en"><b>4.</b> By the definition of sub: <span class="m">sub(d, d) = ⌜D(d̄)⌝ = ⌜G⌝</span>.</span>
+      <span class="zh"><b>4.</b> 由 sub 的定义：<span class="m">sub(d, d) = ⌜D(d̄)⌝ = ⌜G⌝</span>。</span></div>
+    <div class="step pstep"><span class="en"><b>5.</b> By representability, <span class="m">Q ⊢ ∀z (Sub(d̄, d̄, z) ↔ z = ⌜G⌝)</span>. Hence <span class="m">Q ⊢ G ↔ ∃z (z = ⌜G⌝ ∧ ψ(z)) ↔ ψ(⌜G⌝)</span>. ∎ Every T ⊇ Q proves it too.</span>
+      <span class="zh"><b>5.</b> 由可表示性，<span class="m">Q ⊢ ∀z (Sub(d̄, d̄, z) ↔ z = ⌜G⌝)</span>。于是 <span class="m">Q ⊢ G ↔ ∃z (z = ⌜G⌝ ∧ ψ(z)) ↔ ψ(⌜G⌝)</span>。∎ 任何包含 Q 的理论 T 自然也能证明它。</span></div>
+  </div>
+  <div class="toolbar"><button class="btn primary" id="dlNext"><span class="en">Reveal next step</span><span class="zh">揭晓下一步</span></button>
+    <button class="btn ghost" id="dlAll"><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+</section>
+
+<!-- ============ S5 ============ -->
+<section class="card" id="s5">
+  <div class="kicker">§5</div>
+  <h2><span class="en">The Gödel sentence: “I am not provable”</span><span class="zh">哥德尔语句：“我不可证”</span></h2>
+  <p><span class="en">Apply the diagonal lemma to <span class="m">ψ(x) = ¬Prov_T(x)</span>: we get G with <span class="m">T ⊢ G ↔ ¬Prov_T(⌜G⌝)</span>. G looks into the mirror and sees a claim about its own code. Run the three thought experiments.</span>
+     <span class="zh">对 <span class="m">ψ(x) = ¬Prov_T(x)</span> 应用对角线引理，得到 G，满足 <span class="m">T ⊢ G ↔ ¬Prov_T(⌜G⌝)</span>。G 照镜子，看到的是一句关于它自己编码的断言。依次运行下面三个思想实验。</span></p>
+  <div class="stage"><svg id="mirror" viewBox="0 0 820 250" width="820" height="250"></svg></div>
+  <div class="toolbar">
+    <button class="btn" id="gsA"><span class="en">Suppose T ⊢ G</span><span class="zh">假设 T ⊢ G</span></button>
+    <button class="btn" id="gsB"><span class="en">Suppose T ⊢ ¬G</span><span class="zh">假设 T ⊢ ¬G</span></button>
+    <button class="btn" id="gsC"><span class="en">Is G true in ℕ?</span><span class="zh">G 在 ℕ 中为真吗？</span></button>
+    <button class="btn ghost" id="gsAll"><span class="en">Show all three</span><span class="zh">三个全部显示</span></button>
+  </div>
+  <div class="row"><div class="col" id="gsOut1"></div><div class="col" id="gsOut2"></div><div class="col" id="gsOut3"></div></div>
+
+  <div class="def"><span class="en"><b>First Incompleteness Theorem (Gödel 1931, Rosser 1936).</b> Let T be a <b>consistent</b>, <b>recursively axiomatized</b> theory that <b>contains Q</b> (more generally, interprets Q). Then there is a sentence that T neither proves nor refutes (for T in the language of arithmetic, a Π₁ sentence). Gödel's own proof needed ω-consistency for the second half; Rosser's sentence needs only consistency.</span>
+    <span class="zh"><b>第一不完全性定理（哥德尔 1931，罗瑟 1936）.</b> 设 T 是<b>一致的</b>、<b>递归可公理化的</b>、<b>包含 Q</b>（更一般地，能解释 Q）的理论，则存在一个语句，T 既不能证明它，也不能否证它（若 T 的语言就是算术语言，可取为 Π₁ 语句）。哥德尔原来的证明在后一半用到了 ω-一致性；罗瑟的语句只需要一致性。</span></div>
+  <h3><span class="en">Hypothesis switchboard: what if we drop one?</span><span class="zh">假设开关板：去掉一条会怎样？</span></h3>
+  <div class="row">
+    <div class="col hyp" id="hypBox" style="flex:0 1 360px"></div>
+    <div class="col"><div class="msg" id="hypMsg"></div></div>
+  </div>
+
+  <h3><span class="en">Rosser's trick: a race between proofs</span><span class="zh">罗瑟技巧：证明之间的赛跑</span></h3>
+  <p><span class="en">Rosser's sentence R says: <span class="m">∀x (Prf(x, ⌜R⌝) → ∃y &lt; x Prf(y, ⌜¬R⌝))</span>, “if I have a proof, my negation has a <i>shorter</i> one”. Click a lane to place a proof code and see who wins. Bounded checks (<span class="m">∃y &lt; x</span>) are finite, so T can verify them: that is why plain consistency suffices.</span>
+     <span class="zh">罗瑟语句 R 说的是：<span class="m">∀x (Prf(x, ⌜R⌝) → ∃y &lt; x Prf(y, ⌜¬R⌝))</span>，即“如果我有证明，那么我的否定有一个<i>更短的</i>证明”。点击跑道放置证明的编码，看谁先到。有界检验（<span class="m">∃y &lt; x</span>）只涉及有限多个数，T 能逐一核实，所以只需一致性就够了。</span></p>
+  <div class="stage"><svg id="race" viewBox="0 0 820 190" width="820" height="190"></svg></div>
+  <div class="msg" id="raceMsg"></div>
+</section>
+
+<!-- ============ S6 ============ -->
+<section class="card" id="s6">
+  <div class="kicker">§6</div>
+  <h2><span class="en">A second proof, via the halting problem</span><span class="zh">第二种证明：借道停机问题</span></h2>
+  <p><span class="en">From Lesson 11: no algorithm decides whether program e halts on input e. Now imagine T were <b>complete</b> (and sound). Then a machine could answer every halting question just by <b>dovetailing</b> two searches: one for a T-proof of <span class="m">H(ē)</span> (“e halts on e”, a Σ₁ sentence), one for a proof of <span class="m">¬H(ē)</span>. Pick a program and watch the imagined decider.</span>
+     <span class="zh">第 11 课讲过：没有算法能判定程序 e 在输入 e 上是否停机。现在设想 T 是<b>完全的</b>（并且可靠）。那么只要把两个搜索<b>交替进行（dovetailing）</b>就能回答每个停机问题：一路搜 <span class="m">H(ē)</span>（“e 在 e 上停机”，是 Σ₁ 语句）的 T-证明，另一路搜 <span class="m">¬H(ē)</span> 的证明。选一个程序，看这台假想的判定机怎么运转。</span></p>
+  <div class="toolbar" id="hpProgs"></div>
+  <div class="toolbar"><button class="btn primary" id="hpGo"><span class="en">Run the decider ▶</span><span class="zh">运行判定机 ▶</span></button>
+    <button class="btn ghost" id="hpFast"><span class="en">Show result</span><span class="zh">直接看结果</span></button></div>
+  <div class="stage"><svg id="hpSvg" viewBox="0 0 820 230" width="820" height="230"></svg></div>
+  <div class="msg" id="hpMsg"></div>
+  <div class="steps" id="hpSteps">
+    <div class="step pstep"><span class="en"><b>1.</b> Let T be consistent, recursively axiomatized, contain Q, and be <b>sound</b> (all its theorems true in ℕ). Suppose, for contradiction, T is complete.</span>
+      <span class="zh"><b>1.</b> 设 T 一致、递归可公理化、包含 Q，并且<b>可靠</b>（所有定理在 ℕ 中都真）。反设 T 是完全的。</span></div>
+    <div class="step pstep"><span class="en"><b>2.</b> “e halts on input e” can be written as a Σ₁ sentence <span class="m">H(ē) ≡ ∃s Halt(ē, ē, s)</span>, since the step-by-step computation relation is decidable, hence representable.</span>
+      <span class="zh"><b>2.</b> “e 在输入 e 上停机”可写成 Σ₁ 语句 <span class="m">H(ē) ≡ ∃s Halt(ē, ē, s)</span>，因为“第 s 步之内停机”这一关系是可判定的，从而可表示。</span></div>
+    <div class="step pstep"><span class="en"><b>3.</b> If e halts, <span class="m">H(ē)</span> is a true Σ₁ sentence, so <span class="m">Q ⊢ H(ē)</span> and hence <span class="m">T ⊢ H(ē)</span>. If e does not halt, <span class="m">H(ē)</span> is false, so by soundness <span class="m">T ⊬ H(ē)</span>, and by completeness <span class="m">T ⊢ ¬H(ē)</span>.</span>
+      <span class="zh"><b>3.</b> 若 e 停机，则 <span class="m">H(ē)</span> 是真的 Σ₁ 语句，故 <span class="m">Q ⊢ H(ē)</span>，从而 <span class="m">T ⊢ H(ē)</span>。若 e 不停机，则 <span class="m">H(ē)</span> 为假，由可靠性 <span class="m">T ⊬ H(ē)</span>，再由完全性 <span class="m">T ⊢ ¬H(ē)</span>。</span></div>
+    <div class="step pstep"><span class="en"><b>4.</b> T's theorems can be effectively listed, so the dovetailed search always stops and answers correctly. That decides the halting problem, contradicting Lesson 11. Hence T is incomplete. ∎</span>
+      <span class="zh"><b>4.</b> T 的定理可以能行地逐个列出，所以交替搜索总会停下，并且答案正确。这就判定了停机问题，与第 11 课矛盾。所以 T 不完全。∎</span></div>
+    <div class="step note"><span class="en"><b>Fine print.</b> This proof uses <i>soundness</i>, which is stronger than consistency, and it does not exhibit a specific undecided sentence. Replacing the halting set by a pair of <b>recursively inseparable</b> c.e. sets brings the hypothesis down to plain consistency.</span>
+      <span class="zh"><b>注意.</b> 这个证明用到了<i>可靠性</i>，比一致性强，而且它没有给出一个具体的不可判定语句。把停机集换成一对<b>递归不可分</b>的递归可枚举集，就能把假设削弱到仅需一致性。</span></div>
+  </div>
+  <div class="toolbar"><button class="btn primary" id="hpNext"><span class="en">Reveal next step</span><span class="zh">揭晓下一步</span></button>
+    <button class="btn ghost" id="hpAll"><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+</section>
+
+<!-- ============ S7 ============ -->
+<section class="card" id="s7">
+  <div class="kicker">§7</div>
+  <h2><span class="en">The second incompleteness theorem: T cannot prove its own consistency</span><span class="zh">第二不完全性定理：T 证明不了自己的一致性</span></h2>
+  <p><span class="en">Write <span class="m">Con(T) :≡ ¬Prov_T(⌜0 = 1⌝)</span>. The first theorem's argument “if T is consistent, then T ⊬ G” can be carried out <i>inside</i> T, provided Prov_T obeys three <b>derivability conditions</b> (the Hilbert–Bernays–Löb conditions). Click a condition to light up where it is used.</span>
+     <span class="zh">记 <span class="m">Con(T) :≡ ¬Prov_T(⌜0 = 1⌝)</span>。第一定理的论证“若 T 一致，则 T ⊬ G”可以在 T <i>内部</i>重演，前提是 Prov_T 满足三条<b>可推导性条件</b>（希尔伯特–贝尔奈斯–勒布条件）。点击某条条件，看它在证明中的哪里被用到。</span></p>
+  <div class="cards" id="dcCards"></div>
+  <div class="steps" id="g2Steps">
+    <div class="step pstep" data-d="D3"><span class="en"><b>1.</b> D3 with φ = G: <span class="m">T ⊢ Prov(⌜G⌝) → Prov(⌜Prov(⌜G⌝)⌝)</span>.</span><span class="zh"><b>1.</b> 对 φ = G 用 D3：<span class="m">T ⊢ Prov(⌜G⌝) → Prov(⌜Prov(⌜G⌝)⌝)</span>。</span><span class="tagD">D3</span></div>
+    <div class="step pstep" data-d="D1 D2"><span class="en"><b>2.</b> From <span class="m">T ⊢ G → ¬Prov(⌜G⌝)</span> (fixed point), D1 then D2 give <span class="m">T ⊢ Prov(⌜G⌝) → Prov(⌜¬Prov(⌜G⌝)⌝)</span>.</span>
+      <span class="zh"><b>2.</b> 由 <span class="m">T ⊢ G → ¬Prov(⌜G⌝)</span>（不动点），先用 D1 再用 D2，得 <span class="m">T ⊢ Prov(⌜G⌝) → Prov(⌜¬Prov(⌜G⌝)⌝)</span>。</span><span class="tagD">D1</span><span class="tagD">D2</span></div>
+    <div class="step pstep" data-d="D1 D2"><span class="en"><b>3.</b> For any φ, applying D1 to the tautology <span class="m">φ → (¬φ → 0=1)</span> and then D2 twice gives <span class="m">T ⊢ Prov(⌜φ⌝) ∧ Prov(⌜¬φ⌝) → Prov(⌜0=1⌝)</span>. Take <span class="m">φ = Prov(⌜G⌝)</span> and combine with 1 and 2: <span class="m">T ⊢ Prov(⌜G⌝) → Prov(⌜0=1⌝)</span>.</span>
+      <span class="zh"><b>3.</b> 对任意 φ，把 D1 用于重言式 <span class="m">φ → (¬φ → 0=1)</span>，再用两次 D2，得 <span class="m">T ⊢ Prov(⌜φ⌝) ∧ Prov(⌜¬φ⌝) → Prov(⌜0=1⌝)</span>。取 <span class="m">φ = Prov(⌜G⌝)</span>，结合 1 和 2：<span class="m">T ⊢ Prov(⌜G⌝) → Prov(⌜0=1⌝)</span>。</span><span class="tagD">D1</span><span class="tagD">D2</span></div>
+    <div class="step pstep" data-d=""><span class="en"><b>4.</b> Contrapose: <span class="m">T ⊢ Con(T) → ¬Prov(⌜G⌝)</span>, and by the fixed point <span class="m">T ⊢ Con(T) → G</span>. (This is the first theorem, proved inside T.)</span>
+      <span class="zh"><b>4.</b> 取逆否：<span class="m">T ⊢ Con(T) → ¬Prov(⌜G⌝)</span>，再由不动点得 <span class="m">T ⊢ Con(T) → G</span>。（这正是在 T 内部证明的第一定理。）</span></div>
+    <div class="step pstep" data-d=""><span class="en"><b>5.</b> If <span class="m">T ⊢ Con(T)</span>, then <span class="m">T ⊢ G</span>, which is impossible for consistent T by the first theorem. Hence <span class="m">T ⊬ Con(T)</span>. ∎</span>
+      <span class="zh"><b>5.</b> 若 <span class="m">T ⊢ Con(T)</span>，则 <span class="m">T ⊢ G</span>；但由第一定理，一致的 T 证不出 G。所以 <span class="m">T ⊬ Con(T)</span>。∎</span></div>
+  </div>
+  <div class="toolbar"><button class="btn primary" id="g2Next"><span class="en">Reveal next step</span><span class="zh">揭晓下一步</span></button>
+    <button class="btn ghost" id="g2All"><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+  <div class="def"><span class="en"><b>Second Incompleteness Theorem.</b> If T is consistent, recursively axiomatized, and extends PA (a weaker base such as IΣ₁ suffices), with Prov_T the standard provability predicate, then <span class="m">T ⊬ Con(T)</span>.</span>
+    <span class="zh"><b>第二不完全性定理.</b> 若 T 一致、递归可公理化、并且是 PA 的扩张（IΣ₁ 这样更弱的基础理论也够用），Prov_T 取标准的可证性谓词，则 <span class="m">T ⊬ Con(T)</span>。</span></div>
+
+  <h3><span class="en">Hilbert's program meets the consistency tower</span><span class="zh">希尔伯特纲领与“一致性之塔”</span></h3>
+  <p class="muted"><span class="en">Hilbert hoped to prove the consistency of all of mathematics by finitary means. Each press adds <span class="m">Con</span> of the floor below: every floor proves the consistency of those beneath it, never its own.</span>
+    <span class="zh">希尔伯特希望用有穷方法证明全部数学的一致性。每按一次，就把下面一层的 <span class="m">Con</span> 加进来：每一层都能证明下面各层的一致性，却永远证明不了自己的。</span></p>
+  <div class="toolbar"><button class="btn primary" id="towAdd"><span class="en">Add a floor: T ↦ T + Con(T)</span><span class="zh">加一层：T ↦ T + Con(T)</span></button>
+    <button class="btn ghost" id="towReset"><span class="en">Reset</span><span class="zh">重置</span></button></div>
+  <div class="row">
+    <div class="col" style="flex:0 1 460px"><div class="stage"><svg id="tower" viewBox="0 0 440 350" width="440" height="350"></svg></div></div>
+    <div class="col"><div class="note"><span class="en"><b>Consequences.</b> (1) Hilbert's program in its original form is impossible: any consistent T containing finitary arithmetic cannot prove its own consistency, let alone that of stronger theories. (2) <span class="m">PA + ¬Con(PA)</span> is consistent (if PA is), yet it is false in ℕ: a consistent but unsound theory. (3) Consistency proofs still exist, but they must use more: Gentzen proved <span class="m">Con(PA)</span> using induction up to the ordinal ε₀, and ZFC proves <span class="m">Con(PA)</span> outright.</span>
+      <span class="zh"><b>推论.</b> (1) 原始形式的希尔伯特纲领无法实现：任何包含有穷算术的一致理论 T 都证明不了自身的一致性，更不用说更强理论的一致性。(2) <span class="m">PA + ¬Con(PA)</span> 是一致的（只要 PA 一致），但它在 ℕ 中为假：一个一致却不可靠的理论。(3) 一致性证明依然存在，只是必须借助更强的东西：根岑用直到序数 ε₀ 的超限归纳证明了 <span class="m">Con(PA)</span>，ZFC 更是可以直接证明 <span class="m">Con(PA)</span>。</span></div></div>
+  </div>
+</section>
+
+<!-- ============ S8 ============ -->
+<section class="card" id="s8">
+  <div class="kicker">§8</div>
+  <h2><span class="en">Löb's theorem: “if provable then true” is only provable when trivial</span><span class="zh">勒布定理：“可证则真”只有在平凡时才可证</span></h2>
+  <div class="def"><span class="en"><b>Löb's Theorem.</b> Under the derivability conditions: if <span class="m">T ⊢ Prov_T(⌜φ⌝) → φ</span>, then <span class="m">T ⊢ φ</span>.</span>
+    <span class="zh"><b>勒布定理.</b> 在可推导性条件下：若 <span class="m">T ⊢ Prov_T(⌜φ⌝) → φ</span>，则 <span class="m">T ⊢ φ</span>。</span></div>
+  <div class="toolbar">φ = <select class="sel" id="lobSel">
+    <option value="0">0 = 1</option>
+    <option value="1">H, with H ↔ Prov(⌜H⌝)</option>
+    <option value="2">G (Gödel sentence)</option>
+    <option value="3">0 = 0</option>
+  </select>
+  <button class="btn primary" id="lobGo"><span class="en">Feed it to Löb ▶</span><span class="zh">交给勒布定理 ▶</span></button></div>
+  <div class="row"><div class="col" id="lobOut"></div>
+    <div class="col">
+      <div class="steps" id="lobSteps">
+        <div class="step pstep"><span class="en"><b>1.</b> Diagonal lemma with <span class="m">ψ(x) = Prov(x) → φ</span>: get L with <span class="m">T ⊢ L ↔ (Prov(⌜L⌝) → φ)</span>.</span><span class="zh"><b>1.</b> 对 <span class="m">ψ(x) = Prov(x) → φ</span> 用对角线引理，得 L，满足 <span class="m">T ⊢ L ↔ (Prov(⌜L⌝) → φ)</span>。</span></div>
+        <div class="step pstep"><span class="en"><b>2.</b> D1, D2: <span class="m">T ⊢ Prov(⌜L⌝) → (Prov(⌜Prov(⌜L⌝)⌝) → Prov(⌜φ⌝))</span>. With D3: <span class="m">T ⊢ Prov(⌜L⌝) → Prov(⌜φ⌝)</span>.</span><span class="zh"><b>2.</b> 由 D1、D2：<span class="m">T ⊢ Prov(⌜L⌝) → (Prov(⌜Prov(⌜L⌝)⌝) → Prov(⌜φ⌝))</span>。再用 D3：<span class="m">T ⊢ Prov(⌜L⌝) → Prov(⌜φ⌝)</span>。</span></div>
+        <div class="step pstep"><span class="en"><b>3.</b> With the hypothesis <span class="m">T ⊢ Prov(⌜φ⌝) → φ</span>: <span class="m">T ⊢ Prov(⌜L⌝) → φ</span>, i.e. <span class="m">T ⊢ L</span>.</span><span class="zh"><b>3.</b> 结合假设 <span class="m">T ⊢ Prov(⌜φ⌝) → φ</span>，得 <span class="m">T ⊢ Prov(⌜L⌝) → φ</span>，也就是 <span class="m">T ⊢ L</span>。</span></div>
+        <div class="step pstep"><span class="en"><b>4.</b> D1: <span class="m">T ⊢ Prov(⌜L⌝)</span>, so by step 3, <span class="m">T ⊢ φ</span>. ∎</span><span class="zh"><b>4.</b> 由 D1：<span class="m">T ⊢ Prov(⌜L⌝)</span>，再由第 3 步得 <span class="m">T ⊢ φ</span>。∎</span></div>
+      </div>
+      <div class="toolbar"><button class="btn primary" id="lobNext"><span class="en">Reveal next step</span><span class="zh">揭晓下一步</span></button>
+        <button class="btn ghost" id="lobAll"><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ S9 ============ -->
+<section class="card" id="s9">
+  <div class="kicker">§9</div>
+  <h2><span class="en">Myth gallery: what incompleteness does and does not say</span><span class="zh">误解陈列馆：不完全性定理说了什么，没说什么</span></h2>
+  <p class="muted"><span class="en">Judge each claim. Every card has an explanation.</span><span class="zh">逐条判断，每张卡片都附有解释。</span></p>
+  <div id="mythList"></div>
+</section>
+
+<!-- ============ EXERCISES ============ -->
+<section class="card" id="exercises">
+  <div class="kicker"><span class="il"><span class="en">Exercises</span><span class="zh">练习</span></span></div>
+  <h2><span class="en">Your turn</span><span class="zh">轮到你了</span></h2>
+  <p class="muted"><span class="en">Progress is saved in your browser. A sidebar ✓ means solved by you (not by “Show answer”).</span><span class="zh">进度保存在浏览器中。侧栏出现 ✓ 表示你自己做出来了（点“看答案”不算）。</span></p>
+
+  <div class="ex" id="e1" data-prog="L12E1">
+    <h3><span class="tag">E1</span><span class="il"><span class="en">Encode and decode</span><span class="zh">编码与解码</span></span></h3>
+    <p><span class="en">Use the code table from §1 (<span class="m">0↦1, S↦2, =↦5</span>).</span><span class="zh">使用 §1 的代码表（<span class="m">0↦1, S↦2, =↦5</span>）。</span></p>
+    <p><b>(a)</b> <span class="m">⌜0=0⌝ = </span> <input class="formula" id="e1a" style="min-width:120px;width:150px"> <button class="btn small" id="e1aGo"><span class="en">Check</span><span class="zh">检查</span></button></p>
+    <div class="msg" id="e1aMsg"></div>
+    <p><b>(b)</b> <span class="il"><span class="en">Which string has code 180?</span><span class="zh">编码为 180 的符号串是什么？</span></span> <input class="formula" id="e1b" style="min-width:120px;width:150px"> <button class="btn small" id="e1bGo"><span class="en">Check</span><span class="zh">检查</span></button></p>
+    <div class="msg" id="e1bMsg"></div>
+    <p><b>(c)</b> <span class="il"><span class="en">Is 10 the Gödel number of some string?</span><span class="zh">10 是某个符号串的哥德尔数吗？</span></span>
+      <button class="btn small" id="e1cY"><span class="en">Yes</span><span class="zh">是</span></button> <button class="btn small" id="e1cN"><span class="en">No</span><span class="zh">不是</span></button></p>
+    <div class="msg" id="e1cMsg"></div>
+    <div class="toolbar"><button class="btn ghost small" id="e1Show"><span class="en">Show answers</span><span class="zh">看答案</span></button></div>
+  </div>
+
+  <div class="ex" id="e2" data-prog="L12E2">
+    <h3><span class="tag">E2</span><span class="il"><span class="en">Assemble the diagonal lemma</span><span class="zh">拼出对角线引理的证明</span></span></h3>
+    <p><span class="en">Click the steps in the correct order. Click a placed step to send it back.</span><span class="zh">按正确顺序点击各步骤。点击已放好的步骤可以把它退回。</span></p>
+    <div id="e2Game"></div>
+  </div>
+
+  <div class="ex" id="e3" data-prog="L12E3">
+    <h3><span class="tag">E3</span><span class="il"><span class="en">Does the first incompleteness theorem apply?</span><span class="zh">第一不完全性定理适用吗？</span></span></h3>
+    <p class="muted"><span class="en">“Applies” means all hypotheses hold (consistent, recursively axiomatized, contains/interprets Q), so the theory is incomplete.</span><span class="zh">“适用”指全部假设成立（一致、递归可公理化、包含或能解释 Q），因而该理论不完全。</span></p>
+    <div id="e3List"></div>
+  </div>
+
+  <div class="ex" id="e4" data-prog="L12E4">
+    <h3><span class="tag">E4</span><span class="il"><span class="en">True or false?</span><span class="zh">判断对错</span></span></h3>
+    <div id="e4List"></div>
+  </div>
+
+  <div class="ex" id="e5" data-prog="L12E5">
+    <h3><span class="tag">E5</span><span class="il"><span class="en">Consequences of the second theorem</span><span class="zh">第二定理的推论</span></span></h3>
+    <p class="muted"><span class="en">Assume PA is consistent (indeed true in ℕ).</span><span class="zh">假定 PA 一致（事实上它在 ℕ 中为真）。</span></p>
+    <div id="e5List"></div>
+  </div>
+
+  <div class="ex" id="e6" data-prog="L12E6">
+    <h3><span class="tag">E6</span><span class="il"><span class="en">Henkin's question</span><span class="zh">亨金的问题</span></span></h3>
+    <p><span class="en">Let H be a sentence with <span class="m">PA ⊢ H ↔ Prov_PA(⌜H⌝)</span> (“I am provable”). Gödel's sentence is unprovable. What about H?</span>
+      <span class="zh">设 H 满足 <span class="m">PA ⊢ H ↔ Prov_PA(⌜H⌝)</span>（“我是可证的”）。哥德尔语句不可证，那 H 呢？</span></p>
+    <div id="e6Choice"></div>
+    <div class="msg" id="e6Msg"></div>
+    <div class="toolbar"><button class="btn ghost small" id="e6Show"><span class="en">Show answer &amp; proof</span><span class="zh">看答案与证明</span></button></div>
+    <div class="steps" id="e6Proof"><div class="step def"><span class="en"><b>Proof.</b> From <span class="m">PA ⊢ H ↔ Prov(⌜H⌝)</span> we get in particular <span class="m">PA ⊢ Prov(⌜H⌝) → H</span>. That is exactly the hypothesis of Löb's theorem with φ = H, so <span class="m">PA ⊢ H</span>. H is provable (and, PA being sound, true). ∎</span>
+      <span class="zh"><b>证明.</b> 由 <span class="m">PA ⊢ H ↔ Prov(⌜H⌝)</span>，特别地有 <span class="m">PA ⊢ Prov(⌜H⌝) → H</span>。这正是勒布定理在 φ = H 时的前提，所以 <span class="m">PA ⊢ H</span>。H 可证（由于 PA 可靠，它也为真）。∎</span></div></div>
+  </div>
+</section>
+
+<section class="card">
+  <div class="kicker"><span class="il"><span class="en">Next</span><span class="zh">下一课</span></span></div>
+  <h2><a href="lesson13.html" style="color:inherit"><span class="en">Lesson 13: Tarski, truth is undefinable →</span><span class="zh">第 13 课：塔斯基，真不可定义 →</span></a></h2>
+  <p><span class="en">Gödel used <span class="m">ψ = ¬Prov</span>. What happens with <span class="m">ψ = ¬True</span>? The same diagonal machine shows that truth in arithmetic cannot even be <i>expressed</i> in arithmetic.</span>
+     <span class="zh">哥德尔用的是 <span class="m">ψ = ¬Prov</span>。若换成 <span class="m">ψ = ¬True</span> 会怎样？同一台对角线机器将告诉我们：算术中的“真”甚至无法在算术中<i>表达</i>。</span></p>
+</section>
+</main>
+</div>
+
+<script src="assets/logic.js"></script>
+<script src="assets/lesson12.js"></script>
+</body>
+</html>

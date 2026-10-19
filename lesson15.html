@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 15 · Gödel's constructible universe L · 哥德尔可构成宇宙 L</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  .pick { display: inline-block; padding: 4px 9px; margin: 3px; border-radius: 9px; border: 1.5px solid var(--line); background: #fff; cursor: pointer; font-family: var(--mono); font-size: 13px; }
+  .pick.on { border-color: var(--accent); background: var(--accent-soft); }
+  .pick.on2 { border-color: var(--gold); background: var(--gold-soft); }
+  .q { display: inline-block; padding: 0 5px; border-radius: 6px; font-weight: 700; }
+  .q.bd { background: var(--true-soft); color: #1b5e20; }
+  .q.ub { background: var(--accent-soft); color: #23336e; }
+  .ptiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 8px; margin: 10px 0; }
+  .ptile { border-radius: 10px; padding: 8px 6px; text-align: center; font-family: var(--mono); font-size: 13px; background: #eceae3; color: #888; border: 2px solid transparent; transition: all .35s; }
+  .ptile.found { background: var(--true-soft); color: #1b5e20; border-color: var(--true); }
+  .ptile.now { box-shadow: 0 0 0 4px rgba(59,91,219,.35); border-color: var(--accent); }
+  .ptile small { display: block; font-size: 10.5px; color: #6b7280; font-family: var(--sans); margin-top: 2px; word-break: break-all; }
+  .gnode circle { fill: #fff; stroke: var(--ink); stroke-width: 2; transition: fill .3s, stroke .3s; }
+  .gnode.in circle { fill: var(--true-soft); stroke: var(--true); stroke-width: 3; }
+  .gnode text { font-size: 13px; font-weight: 700; text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+  .bigsvg { width: 100%; height: auto; }
+  table.abs { border-collapse: collapse; font-size: 14px; margin: 8px 0; }
+  table.abs th, table.abs td { border-bottom: 1px solid var(--line); padding: 6px 10px; text-align: left; vertical-align: middle; }
+  table.abs th { background: #f1efe7; }
+  table.abs select { font: inherit; font-family: var(--mono); padding: 3px 6px; border-radius: 7px; border: 1.5px solid var(--line); }
+  table.abs select.right { border-color: var(--true); background: var(--true-soft); }
+  table.abs select.wrong { border-color: var(--false); background: var(--false-soft); }
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px; margin: 10px 0; }
+  .acard { border: 2px solid var(--line); border-radius: 12px; padding: 10px 12px; background: #fff; cursor: pointer; transition: all .25s; }
+  .acard:hover { border-color: var(--accent); }
+  .acard .why { display: none; font-size: 13.5px; margin-top: 6px; color: #333; }
+  .acard.open { border-color: var(--true); background: #f6fdf7; }
+  .acard.open .why { display: block; animation: fadein .4s ease both; }
+  .acard .ttl { font-weight: 700; }
+  .fbox rect { fill: #fff; stroke: #c9c3b3; stroke-width: 2; transition: all .35s; }
+  .fbox.on rect { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 3; }
+  .fbox.done rect { fill: var(--true-soft); stroke: var(--true); }
+  .fbox text { font-size: 12.5px; text-anchor: middle; font-family: var(--sans); }
+  .farrow { stroke: #adb5bd; stroke-width: 2; }
+  .seq { display: flex; flex-direction: column; gap: 6px; margin: 8px 0; }
+  .seq .chip { text-align: left; }
+  .chip.used { opacity: .35; pointer-events: none; }
+  input[type=range] { width: 320px; vertical-align: middle; }
+  .board { display: grid; grid-template-columns: 180px 1fr 1fr; gap: 8px; max-width: 760px; margin: 10px 0; }
+  .board > div { border-radius: 12px; padding: 12px; border: 2px solid var(--line); background: #fff; }
+  .board .hd { font-weight: 700; background: #f1efe7; border-color: transparent; }
+  .board .cell { cursor: pointer; min-height: 96px; }
+  .board .cell.yes { border-color: var(--true); background: var(--true-soft); }
+  .board .cell.todo { border-color: var(--meta); background: var(--meta-soft); border-style: dashed; }
+  .stamp { font-size: 20px; font-weight: 800; }
+</style>
+</head>
+<body class="lang-both">
+<header class="top">
+  <a class="home" href="index.html">∀∃ <span class="il"><span class="en">Logic &amp; Sets</span><span class="zh">逻辑与集合</span></span></a>
+  <span class="muted">/ L15</span>
+  <span class="spacer"></span>
+  <div class="lang-switch">
+    <button data-lang="en">EN</button><button data-lang="zh">中文</button><button data-lang="both">EN + 中</button>
+  </div>
+</header>
+
+<div class="layout">
+<nav class="side">
+  <div class="grp">Lesson 15</div>
+  <a href="index.html">← <span class="il"><span class="en">Course map</span><span class="zh">课程地图</span></span></a>
+  <a href="lesson14.html">← <span class="il"><span class="en">Lesson 14</span><span class="zh">第 14 课</span></span></a>
+  <a href="lesson16.html"><span class="il"><span class="en">Lesson 16</span><span class="zh">第 16 课</span></span> →</a>
+  <a href="#s1">1 · <span class="il"><span class="en">Def(X)</span><span class="zh">可定义幂集</span></span></a>
+  <a href="#s2">2 · <span class="il"><span class="en">The L-hierarchy</span><span class="zh">L 层级</span></span></a>
+  <a href="#s3">3 · <span class="il"><span class="en">L inside V</span><span class="zh">V 中的 L</span></span></a>
+  <a href="#s4">4 · <span class="il"><span class="en">Smallest inner model</span><span class="zh">最小内模型</span></span></a>
+  <a href="#s5">5 · <span class="il"><span class="en">L ⊨ AC</span><span class="zh">L 满足 AC</span></span></a>
+  <a href="#s6">6 · <span class="il"><span class="en">L ⊨ GCH</span><span class="zh">L 满足 GCH</span></span></a>
+  <a href="#s7">7 · <span class="il"><span class="en">Con(ZFC + GCH)</span><span class="zh">相对一致性</span></span></a>
+  <a href="#s8">8 · <span class="il"><span class="en">V = L and beyond</span><span class="zh">V = L 及其他</span></span></a>
+  <div class="grp"><span class="il"><span class="en">Exercises</span><span class="zh">练习</span></span></div>
+  <a href="#e1" data-prog="L15E1">E1 · Def(3)</a>
+  <a href="#e2" data-prog="L15E2">E2 · |L<sub>α</sub>|</a>
+  <a href="#e3" data-prog="L15E3">E3 · GCH<sup>L</sup></a>
+  <a href="#e4" data-prog="L15E4">E4 · L ⊨ ?</a>
+  <a href="#e5" data-prog="L15E5">E5 · <span class="il"><span class="en">first stage</span><span class="zh">首次出现</span></span></a>
+  <a href="#e6" data-prog="L15E6">E6 · ¬CH?</a>
+</nav>
+
+<main>
+<div class="hero">
+  <div class="kicker">Part IV · Lesson 15</div>
+  <h1><span class="en">Gödel's Constructible Universe L</span><span class="zh">哥德尔可构成宇宙 L</span></h1>
+  <p><span class="en">Build the universe again, but at each successor step keep only the subsets you can <b>define</b>. The result, L, is a thin inner model in which AC and GCH hold. This gives Gödel's 1938 theorem: if ZF is consistent, so is ZFC + GCH. In particular CH cannot be disproved.</span>
+     <span class="zh">把宇宙重新造一遍，但每到后继步只保留那些<b>可定义</b>的子集。得到的 L 是一个“瘦”的内模型，AC 和 GCH 在其中都成立。由此得到哥德尔 1938 年的定理：若 ZF 一致，则 ZFC + GCH 也一致。特别地，CH 不可能被否证。</span></p>
+</div>
+
+<!-- ============ S1 ============ -->
+<section class="card" id="s1">
+  <div class="kicker">§1</div>
+  <h2><span class="en">Def(X): the definable power set</span><span class="zh">Def(X)：可定义幂集</span></h2>
+  <div class="def"><span class="en"><b>Definition.</b> For a set X, <span class="m">Def(X) = { {x ∈ X : (X, ∈) ⊨ φ[x, a₁, …, aₙ]} : φ a formula of {∈}, a₁, …, aₙ ∈ X }</span>. These are the subsets of X that can be <b>defined over (X, ∈) with parameters from X</b>. Always Def(X) ⊆ 𝒫(X). Note that the quantifiers of φ range over X only.</span>
+    <span class="zh"><b>定义.</b> 对集合 X，<span class="m">Def(X) = { {x ∈ X : (X, ∈) ⊨ φ[x, a₁, …, aₙ]} : φ 为 {∈} 语言的公式，a₁, …, aₙ ∈ X }</span>，即<b>在结构 (X, ∈) 上、以 X 中元素为参数可定义</b>的 X 的子集全体。总有 Def(X) ⊆ 𝒫(X)。注意 φ 中的量词只在 X 中取值。</span></div>
+  <p><span class="en">Pick X, type a formula φ(x) (x free; parameters are written as sets such as <span class="m">2</span> or <span class="m">{1}</span>), and see the defined subset light up. Every subset you define is collected in the grid of all 2<sup>|X|</sup> subsets. Can you collect them all?</span>
+     <span class="zh">选一个 X，输入公式 φ(x)（x 为自由变元；参数直接写成集合，如 <span class="m">2</span> 或 <span class="m">{1}</span>），看被定义的子集亮起来。你定义出的每个子集都会收进下方 2<sup>|X|</sup> 个子集的格子里。能集齐吗？</span></p>
+  <div class="toolbar">
+    <span class="m">X =</span>
+    <button class="btn small" data-x="3">3 = {0, 1, 2}</button>
+    <button class="btn small" data-x="V3">V₃ = {0, 1, {1}, 2}</button>
+    <button class="btn small" data-x="odd">{1, {1}, 3}</button>
+  </div>
+  <div class="row">
+    <div class="col" style="flex:0 1 330px"><div class="stage"><svg id="dxSvg" viewBox="0 0 330 260" class="bigsvg"></svg></div>
+      <div class="muted" style="font-size:12px"><span class="en">arrow a → b means a ∈ b (inside X)</span><span class="zh">箭头 a → b 表示 a ∈ b（在 X 内部）</span></div></div>
+    <div class="col">
+      <div class="toolbar"><span class="m">φ(x) =</span><input class="formula" id="dxIn" value="∃y∈x (y = y)" style="min-width:300px">
+        <button class="btn primary" id="dxGo"><span class="en">Define</span><span class="zh">定义</span></button></div>
+      <div class="keys" id="dxKeys"></div>
+      <div class="toolbar" id="dxPresets"></div>
+      <div class="msg" id="dxOut"></div>
+    </div>
+  </div>
+  <div class="toolbar">
+    <b id="dxCount" class="m"></b>
+    <button class="btn" id="dxAll"><span class="en">Define them all (with parameters) ▶</span><span class="zh">全部定义出来（用参数）▶</span></button>
+    <button class="btn ghost" id="dxReset"><span class="en">Reset collection</span><span class="zh">清空收集</span></button>
+  </div>
+  <div class="ptiles" id="dxTiles"></div>
+  <div class="note"><span class="en"><b>For finite X, Def(X) = 𝒫(X).</b> Any S = {s₁, …, sₖ} ⊆ X is defined by <span class="m">x = s₁ ∨ … ∨ x = sₖ</span> with parameters s₁, …, sₖ (and ∅ by <span class="m">x ≠ x</span>). The two operations only part ways on <b>infinite</b> sets, where there are just |X| formulas-with-parameters but 2<sup>|X|</sup> subsets.</span>
+    <span class="zh"><b>X 有限时 Def(X) = 𝒫(X)。</b>任一 S = {s₁, …, sₖ} ⊆ X 都可由 <span class="m">x = s₁ ∨ … ∨ x = sₖ</span>（以 s₁, …, sₖ 为参数）定义，∅ 则由 <span class="m">x ≠ x</span> 定义。两种运算只在<b>无穷</b>集上分道扬镳：带参数的公式只有 |X| 个，子集却有 2<sup>|X|</sup> 个。</span></div>
+</section>
+
+<!-- ============ S2 ============ -->
+<section class="card" id="s2">
+  <div class="kicker">§2</div>
+  <h2><span class="en">The constructible hierarchy L<sub>α</sub></span><span class="zh">可构成层级 L<sub>α</sub></span></h2>
+  <div class="def"><span class="en"><b>Definition (Gödel 1938).</b> <span class="m">L₀ = ∅</span>, &nbsp; <span class="m">L<sub>α+1</sub> = Def(L<sub>α</sub>)</span>, &nbsp; <span class="m">L<sub>λ</sub> = ⋃<sub>α&lt;λ</sub> L<sub>α</sub></span> (λ limit), &nbsp; <span class="m">L = ⋃<sub>α∈Ord</sub> L<sub>α</sub></span>. Compare V: the only change is 𝒫 ↦ Def. Each L<sub>α</sub> is transitive, L<sub>α</sub> ⊆ V<sub>α</sub>, and L<sub>α</sub> ∩ Ord = α.</span>
+    <span class="zh"><b>定义（哥德尔 1938）.</b> <span class="m">L₀ = ∅</span>，<span class="m">L<sub>α+1</sub> = Def(L<sub>α</sub>)</span>，λ 为极限序数时 <span class="m">L<sub>λ</sub> = ⋃<sub>α&lt;λ</sub> L<sub>α</sub></span>，<span class="m">L = ⋃<sub>α∈Ord</sub> L<sub>α</sub></span>。与 V 相比，唯一的改动是 𝒫 ↦ Def。每个 L<sub>α</sub> 都是传递集，L<sub>α</sub> ⊆ V<sub>α</sub>，且 L<sub>α</sub> ∩ Ord = α。</span></div>
+  <p><span class="en">Slide α. For finite α the two hierarchies coincide (§1), so <span class="m">L<sub>ω</sub> = V<sub>ω</sub></span>. From ω+1 on, Cantor separates them: <span class="m">|L<sub>α</sub>| = |α|</span> for infinite α, while V jumps by a power set at every step.</span>
+     <span class="zh">拖动 α。α 有限时两个层级完全重合（§1），所以 <span class="m">L<sub>ω</sub> = V<sub>ω</sub></span>。从 ω+1 起，康托尔定理把它们分开：α 无穷时 <span class="m">|L<sub>α</sub>| = |α|</span>，而 V 每一步都要取一次幂集。</span></p>
+  <div class="toolbar">α = <input type="range" id="szR" min="0" max="11" value="6"> <b class="m" id="szA"></b></div>
+  <div class="row">
+    <div class="col" style="flex:1 1 460px"><div class="stage"><svg id="szSvg" viewBox="0 0 560 300" class="bigsvg"></svg></div></div>
+    <div class="col" style="flex:0 1 330px"><div class="msg info" id="szMsg"></div></div>
+  </div>
+  <h3><span class="en">Why |Def(X)| = |X| for infinite X: names versus subsets</span><span class="zh">为什么无穷 X 有 |Def(X)| = |X|：名字与子集</span></h3>
+  <p><span class="en">Every element of Def(X) has a <b>name</b>: a formula together with a finite tuple of parameters. For X = L<sub>ω</sub> there are only countably many names. Press <b>Name a set</b> to watch names produce subsets of ω, then <b>Diagonalize</b> against the list of all names.</span>
+     <span class="zh">Def(X) 的每个元素都有一个<b>名字</b>：一个公式加上一组有限的参数。对 X = L<sub>ω</sub>，名字只有可数多个。按 <b>取一个名字</b> 看名字如何生成 ω 的子集，再按 <b>对角化</b>，针对全体名字的列表做对角线论证。</span></p>
+  <div class="toolbar"><button class="btn primary" id="nmGo"><span class="en">Name a set ▶</span><span class="zh">取一个名字 ▶</span></button>
+    <button class="btn" id="nmDiag"><span class="en">Diagonalize ▶</span><span class="zh">对角化 ▶</span></button>
+    <button class="btn ghost" id="nmReset"><span class="en">Reset</span><span class="zh">重置</span></button></div>
+  <div class="stage"><svg id="nmSvg" viewBox="0 0 760 330" class="bigsvg"></svg></div>
+  <div class="msg info" id="nmMsg"></div>
+  <div class="note"><span class="en"><b>Tarski meets Gödel.</b> L<sub>ω+1</sub> ∩ 𝒫(ω) is exactly the family of <b>arithmetical</b> sets, since (V<sub>ω</sub>, ∈) and (ℕ, +, ×) define the same sets. The set of (codes of) true arithmetic sentences is not arithmetical (Lesson 13), so it is not in L<sub>ω+1</sub>. It is definable over L<sub>ω+1</sub>, though, so it lies in L<sub>ω+2</sub>.</span>
+    <span class="zh"><b>塔斯基遇见哥德尔.</b> L<sub>ω+1</sub> ∩ 𝒫(ω) 恰好是全体<b>算术</b>集，因为 (V<sub>ω</sub>, ∈) 与 (ℕ, +, ×) 可定义的集合相同。真算术语句（的编码）之集不是算术集（第 13 课），因此不在 L<sub>ω+1</sub> 中；但它在 L<sub>ω+1</sub> 上可定义，所以属于 L<sub>ω+2</sub>。</span></div>
+</section>
+
+<!-- ============ S3 ============ -->
+<section class="card" id="s3">
+  <div class="kicker">§3</div>
+  <h2><span class="en">L inside V: two cones, one spine</span><span class="zh">V 中的 L：两个锥，一根脊柱</span></h2>
+  <p><span class="en">L is a thin cone inside V. They agree up to ω, and both contain <b>every ordinal</b>: α ⊆ L<sub>α</sub> and α = {x ∈ L<sub>α</sub> : x is an ordinal}, which is Δ₀-definable, so α ∈ L<sub>α+1</sub>. Slide the stage, then toggle the hypothesis V = L and follow a real r ⊆ ω.</span>
+     <span class="zh">L 是 V 里面一个细长的锥。两者在 ω 以下完全一致，而且都含有<b>所有序数</b>：α ⊆ L<sub>α</sub>，且 α = {x ∈ L<sub>α</sub> : x 是序数}，这是 Δ₀ 可定义的，所以 α ∈ L<sub>α+1</sub>。拖动层级，再切换假设 V = L，跟踪一个实数 r ⊆ ω。</span></p>
+  <div class="toolbar">α = <input type="range" id="ccR" min="0" max="6" value="2"> <b class="m" id="ccA"></b>
+    <button class="btn" id="ccVL"><span class="en">Assume V = L</span><span class="zh">假设 V = L</span></button>
+    <button class="btn sel" id="ccNo"><span class="en">Don't assume it</span><span class="zh">不作此假设</span></button></div>
+  <div class="row">
+    <div class="col" style="flex:1 1 460px"><div class="stage"><svg id="ccSvg" viewBox="0 0 560 430" class="bigsvg"></svg></div></div>
+    <div class="col" style="flex:0 1 330px"><div class="msg info" id="ccMsg"></div><div class="msg" id="ccR2"></div></div>
+  </div>
+</section>
+
+<!-- ============ S4 ============ -->
+<section class="card" id="s4">
+  <div class="kicker">§4</div>
+  <h2><span class="en">L is the smallest inner model, and L ⊨ V = L</span><span class="zh">L 是最小的内模型，并且 L ⊨ V = L</span></h2>
+  <div class="def"><span class="en"><b>Theorem (ZF).</b> (1) L is a transitive class containing all ordinals, and L ⊨ ZF: for each axiom σ of ZF, ZF ⊢ σ<sup>L</sup>. (2) If M is a transitive class with Ord ⊆ M and M ⊨ ZF, then L ⊆ M. (3) L ⊨ V = L.</span>
+    <span class="zh"><b>定理（ZF）.</b> (1) L 是包含全体序数的传递类，并且 L ⊨ ZF：对 ZF 的每条公理 σ 都有 ZF ⊢ σ<sup>L</sup>。(2) 若 M 是传递类，Ord ⊆ M 且 M ⊨ ZF，则 L ⊆ M。(3) L ⊨ V = L。</span></div>
+  <p><span class="en"><b>(1) Click each axiom</b> to see why it holds in L.</span><span class="zh"><b>(1) 点击每条公理</b>，看它为什么在 L 中成立。</span></p>
+  <div class="cards" id="axCards"></div>
+  <p><span class="en"><b>(2)–(3) Build L inside another inner model M.</b> The recursion α ↦ L<sub>α</sub> uses only Def, and Def is absolute for transitive models of ZF. So M, building its own L step by step, gets exactly the same L<sub>α</sub>'s.</span>
+     <span class="zh"><b>(2)–(3) 在另一个内模型 M 里构造 L。</b>递归 α ↦ L<sub>α</sub> 只用到 Def，而 Def 对 ZF 的传递模型绝对。所以 M 一步步造出的“它自己的 L”，每一层 L<sub>α</sub> 都与真正的一样。</span></p>
+  <div class="toolbar"><button class="btn primary" id="imGo"><span class="en">Build L<sup>M</sup> ▶</span><span class="zh">构造 L<sup>M</sup> ▶</span></button></div>
+  <div class="row">
+    <div class="col" style="flex:0 1 420px"><div class="stage"><svg id="imSvg" viewBox="0 0 420 330" class="bigsvg"></svg></div></div>
+    <div class="col">
+      <div class="steps" id="imSteps">
+        <div class="step def"><span class="en"><b>Def is absolute.</b> Code formulas as elements of V<sub>ω</sub>. “S = Def(X)” is defined by recursion on formulas through the satisfaction relation of (X, ∈), using only bounded quantifiers and ω-recursion. Such notions are Δ₁<sup>ZF</sup>, hence absolute for transitive models of ZF (a finite fragment is enough).</span>
+          <span class="zh"><b>Def 是绝对的.</b> 把公式编码为 V<sub>ω</sub> 的元素。“S = Def(X)”是借助 (X, ∈) 的满足关系、对公式递归定义的，只用到有界量词和 ω 上的递归。这类概念是 Δ₁<sup>ZF</sup> 的，因而对 ZF 的传递模型绝对（有限片段就够了）。</span></div>
+        <div class="step def"><span class="en"><b>So α ↦ L<sub>α</sub> is absolute.</b> Absolute operations stay absolute under transfinite recursion. Hence L<sub>α</sub><sup>M</sup> = L<sub>α</sub> for every ordinal α ∈ M.</span>
+          <span class="zh"><b>所以 α ↦ L<sub>α</sub> 是绝对的.</b> 绝对的运算经超限递归后仍然绝对。因此对每个序数 α ∈ M 都有 L<sub>α</sub><sup>M</sup> = L<sub>α</sub>。</span></div>
+        <div class="step def"><span class="en"><b>Minimality.</b> If Ord ⊆ M, then L<sup>M</sup> = ⋃<sub>α</sub> L<sub>α</sub><sup>M</sup> = ⋃<sub>α</sub> L<sub>α</sub> = L, and L<sup>M</sup> ⊆ M. For a <i>set</i> model M the same argument gives L<sup>M</sup> = L<sub>o(M)</sub>, where o(M) = M ∩ Ord.</span>
+          <span class="zh"><b>最小性.</b> 若 Ord ⊆ M，则 L<sup>M</sup> = ⋃<sub>α</sub> L<sub>α</sub><sup>M</sup> = ⋃<sub>α</sub> L<sub>α</sub> = L，而 L<sup>M</sup> ⊆ M。对<i>集合</i>模型 M，同样的论证给出 L<sup>M</sup> = L<sub>o(M)</sub>，其中 o(M) = M ∩ Ord。</span></div>
+        <div class="step def"><span class="en"><b>L ⊨ V = L.</b> Take M = L: then L<sup>L</sup> = L, i.e. L ⊨ “every set is constructible”. Running the construction again inside L creates nothing new.</span>
+          <span class="zh"><b>L ⊨ V = L.</b> 取 M = L，则 L<sup>L</sup> = L，即 L ⊨ “每个集合都可构成”。在 L 内部再做一遍构造，什么新东西也造不出来。</span></div>
+      </div>
+      <div class="toolbar"><button class="btn primary" id="imNext"><span class="en">Next step</span><span class="zh">下一步</span></button>
+        <button class="btn ghost" id="imAll"><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ S5 ============ -->
+<section class="card" id="s5">
+  <div class="kicker">§5</div>
+  <h2><span class="en">L ⊨ AC: a definable well-order <span class="m">&lt;<sub>L</sub></span></span><span class="zh">L ⊨ AC：可定义的良序 <span class="m">&lt;<sub>L</sub></span></span></h2>
+  <div class="def"><span class="en"><b>The order.</b> Every x ∈ L first appears at some stage L<sub>α+1</sub>, defined over L<sub>α</sub> by some formula φ with parameters. Put <span class="m">x &lt;<sub>L</sub> y</span> iff (i) x appears at an earlier stage; or (ii) same stage, and the least formula code defining x is smaller; or (iii) same stage and formula, and x's least parameter tuple is <span class="m">&lt;<sub>L</sub></span>-lexicographically smaller (using the order already built on L<sub>α</sub>). By recursion on α this well-orders L, and the definition is absolute, so <b>L ⊨ “V is well-ordered”</b>. No choice is needed: every choice is made by the formula.</span>
+    <span class="zh"><b>这个序.</b> 每个 x ∈ L 都在某个阶段 L<sub>α+1</sub> 首次出现，由 L<sub>α</sub> 上某个带参数的公式 φ 定义。令 <span class="m">x &lt;<sub>L</sub> y</span> 当且仅当：(i) x 出现的阶段更早；或 (ii) 阶段相同，而定义 x 的最小公式编码更小；或 (iii) 阶段与公式都相同，而 x 的最小参数组按 <span class="m">&lt;<sub>L</sub></span> 的字典序更小（这里用到 L<sub>α</sub> 上已经造好的序）。对 α 递归可知它是 L 的良序，并且这个定义是绝对的，所以 <b>L ⊨ “V 可良序”</b>。整个过程无需选择公理：每一次“选择”都由公式替我们做了。</span></div>
+  <p><span class="en"><b>Toy ladder for L₄ = V₄.</b> We use only the formulas “x ≠ x” (code 0) and “x = p₁ ∨ … ∨ x = pₖ” (code k) with p₁ &lt;<sub>L</sub> … &lt;<sub>L</sub> pₖ. At finite stages these define every subset, so this is an honest instance of (i)–(iii). Press <b>Sort</b>, then pick a nonempty A ⊆ L₄ below: the choice function picks its <span class="m">&lt;<sub>L</sub></span>-least element.</span>
+     <span class="zh"><b>L₄ = V₄ 上的玩具阶梯.</b> 这里只用公式“x ≠ x”（编码 0）和“x = p₁ ∨ … ∨ x = pₖ”（编码 k），并要求 p₁ &lt;<sub>L</sub> … &lt;<sub>L</sub> pₖ。在有限阶段，这些公式已经能定义每个子集，所以这是 (i)–(iii) 的一个忠实实例。按 <b>排序</b>，再在下方选一个非空的 A ⊆ L₄：选择函数挑出它的 <span class="m">&lt;<sub>L</sub></span>-最小元。</span></p>
+  <div class="toolbar"><button class="btn primary" id="ldSort"><span class="en">Sort ▶</span><span class="zh">排序 ▶</span></button>
+    <button class="btn ghost" id="ldShuffle"><span class="en">Shuffle</span><span class="zh">打乱</span></button></div>
+  <div class="row">
+    <div class="col" style="flex:1 1 520px"><div class="stage"><svg id="ldSvg" viewBox="0 0 640 560" class="bigsvg"></svg></div></div>
+    <div class="col" style="flex:0 1 300px">
+      <div class="muted" style="font-size:13px"><span class="en">A = (click to toggle)</span><span class="zh">A =（点击切换）</span></div>
+      <div id="ldChips"></div>
+      <div class="msg" id="ldMsg"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ S6 ============ -->
+<section class="card" id="s6">
+  <div class="kicker">§6</div>
+  <h2><span class="en">L ⊨ GCH: condensation</span><span class="zh">L ⊨ GCH：凝聚引理</span></h2>
+  <div class="def"><span class="en"><b>Condensation Lemma.</b> If δ is a limit ordinal and X ≺ (L<sub>δ</sub>, ∈), then the Mostowski collapse of X is L<sub>γ</sub> for some γ ≤ δ.<br><b>Theorem.</b> Assume V = L. Then for every infinite cardinal κ, <span class="m">𝒫(κ) ⊆ L<sub>κ⁺</sub></span>, hence <span class="m">2<sup>κ</sup> = κ⁺</span>. Since L ⊨ V = L, we get <b>L ⊨ GCH</b>.</span>
+    <span class="zh"><b>凝聚引理.</b> 若 δ 为极限序数且 X ≺ (L<sub>δ</sub>, ∈)，则 X 的莫斯托夫斯基坍塌是某个 L<sub>γ</sub>，γ ≤ δ。<br><b>定理.</b> 设 V = L。则对每个无穷基数 κ 有 <span class="m">𝒫(κ) ⊆ L<sub>κ⁺</sub></span>，从而 <span class="m">2<sup>κ</sup> = κ⁺</span>。由于 L ⊨ V = L，得 <b>L ⊨ GCH</b>。</span></div>
+  <p><span class="en">Step through the proof. The picture follows one subset A ⊆ κ, which might first appear very high up, and shows why it must in fact appear below κ⁺.</span>
+     <span class="zh">逐步走一遍证明。图中跟踪一个子集 A ⊆ κ：它也许在很高的地方才首次出现，下面说明它其实必定在 κ⁺ 以下就已出现。</span></p>
+  <div class="row">
+    <div class="col" style="flex:0 1 430px"><div class="stage"><svg id="gcSvg" viewBox="0 0 430 420" class="bigsvg"></svg></div></div>
+    <div class="col">
+      <div class="steps" id="gcSteps">
+        <div class="step def"><span class="en"><b>1 · Where is A?</b> Let A ⊆ κ. By V = L, A ∈ L<sub>δ</sub> for some limit δ &gt; κ. A priori δ could be enormous, far above κ⁺.</span>
+          <span class="zh"><b>1 · A 在哪里？</b> 设 A ⊆ κ。由 V = L，存在极限序数 δ &gt; κ 使 A ∈ L<sub>δ</sub>。先验地看，δ 可能极大，远在 κ⁺ 之上。</span></div>
+        <div class="step def"><span class="en"><b>2 · Shrink (Löwenheim–Skolem).</b> Take an elementary submodel X ≺ (L<sub>δ</sub>, ∈) with κ ∪ {A} ⊆ X and |X| = κ. X is scattered across all of L<sub>δ</sub>, but it is small.</span>
+          <span class="zh"><b>2 · 缩小（勒文海姆–斯科伦）.</b> 取初等子模型 X ≺ (L<sub>δ</sub>, ∈)，使 κ ∪ {A} ⊆ X 且 |X| = κ。X 散布在整个 L<sub>δ</sub> 中，但它很小。</span></div>
+        <div class="step def"><span class="en"><b>3 · Collapse (Mostowski).</b> ∈ on X is well-founded and extensional (X ≺ L<sub>δ</sub>), so there is π : (X, ∈) ≅ (M, ∈) with M transitive. The dots fall down.</span>
+          <span class="zh"><b>3 · 坍塌（莫斯托夫斯基）.</b> X 上的 ∈ 良基且外延（因 X ≺ L<sub>δ</sub>），故存在 π : (X, ∈) ≅ (M, ∈)，M 传递。图中的点纷纷落下。</span></div>
+        <div class="step def"><span class="en"><b>4 · Nothing below κ moves.</b> Since κ ⊆ X, induction gives π(α) = {π(β) : β ∈ α ∩ X} = α for all α &lt; κ. Hence π(A) = {π(α) : α ∈ A} = A, so A ∈ M.</span>
+          <span class="zh"><b>4 · κ 以下纹丝不动.</b> 由于 κ ⊆ X，归纳可得对所有 α &lt; κ 有 π(α) = {π(β) : β ∈ α ∩ X} = α。于是 π(A) = {π(α) : α ∈ A} = A，所以 A ∈ M。</span></div>
+        <div class="step def"><span class="en"><b>5 · Condensation.</b> M = L<sub>γ</sub> for some γ. Since |γ| ≤ |L<sub>γ</sub>| = |M| = κ, we have γ &lt; κ⁺. So A ∈ L<sub>γ</sub> ⊆ L<sub>κ⁺</sub>.</span>
+          <span class="zh"><b>5 · 凝聚.</b> M = L<sub>γ</sub> 对某个 γ 成立。由 |γ| ≤ |L<sub>γ</sub>| = |M| = κ 得 γ &lt; κ⁺。所以 A ∈ L<sub>γ</sub> ⊆ L<sub>κ⁺</sub>。</span></div>
+        <div class="step def"><span class="en"><b>6 · Count.</b> A was arbitrary, so 𝒫(κ) ⊆ L<sub>κ⁺</sub>, and |L<sub>κ⁺</sub>| = κ⁺ (§2). Therefore 2<sup>κ</sup> ≤ κ⁺, and by Cantor 2<sup>κ</sup> = κ⁺. ∎</span>
+          <span class="zh"><b>6 · 计数.</b> A 是任意的，所以 𝒫(κ) ⊆ L<sub>κ⁺</sub>，而 |L<sub>κ⁺</sub>| = κ⁺（§2）。因此 2<sup>κ</sup> ≤ κ⁺，再由康托尔定理得 2<sup>κ</sup> = κ⁺。∎</span></div>
+      </div>
+      <div class="toolbar"><button class="btn primary" id="gcNext"><span class="en">Next step</span><span class="zh">下一步</span></button>
+        <button class="btn ghost" id="gcAll"><span class="en">Show all</span><span class="zh">全部显示</span></button>
+        <button class="btn ghost" id="gcReset"><span class="en">Restart</span><span class="zh">重新开始</span></button></div>
+    </div>
+  </div>
+  <div class="note"><span class="en">For κ = ω this says that every constructible real appears before stage ω₁. That is the heart of “L ⊨ CH”: the reals of L are lined up by the order of their first appearance, in order type at most ω₁.</span>
+    <span class="zh">取 κ = ω：每个可构成实数都在第 ω₁ 层之前出现。这正是“L ⊨ CH”的核心：L 中的实数按首次出现的先后排队，序型至多为 ω₁。</span></div>
+</section>
+
+<!-- ============ S7 ============ -->
+<section class="card" id="s7">
+  <div class="kicker">§7</div>
+  <h2><span class="en">Con(ZF) ⇒ Con(ZFC + GCH): CH cannot be disproved</span><span class="zh">Con(ZF) ⇒ Con(ZFC + GCH)：CH 无法被否证</span></h2>
+  <p><span class="en">This is Route A of Lesson 14 with N = L. Run it.</span><span class="zh">这正是第 14 课的路线 A，取 N = L。运行看看。</span></p>
+  <div class="toolbar"><button class="btn primary" id="flRun"><span class="en">Run ▶</span><span class="zh">运行 ▶</span></button>
+    <button class="btn ghost" id="flAll"><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+  <div class="stage"><svg id="flSvg" viewBox="0 0 760 330" class="bigsvg"></svg></div>
+  <div class="msg info" id="flMsg"></div>
+  <h3><span class="en">The independence scoreboard</span><span class="zh">独立性记分牌</span></h3>
+  <p class="muted"><span class="en">Click a cell.</span><span class="zh">点击格子。</span></p>
+  <div class="board" id="board"></div>
+  <div class="msg info" id="boardMsg"></div>
+  <div class="note"><span class="en"><b>Why L cannot give ¬CH.</b> Inner models only shrink the universe. If V = L, then by minimality the only inner model containing all ordinals is L itself, which satisfies CH. So no inner-model construction can ever produce ¬CH: if a definable class N provably gave an inner model of ¬CH, then carrying out the construction inside L would give an inner model of L containing all ordinals, hence L itself, satisfying ¬CH. Cohen's idea was to go the other way: <b>enlarge</b> a model by adding new reals. That is forcing.</span>
+    <span class="zh"><b>L 为何给不出 ¬CH.</b> 内模型只会把宇宙变小。若 V = L，由最小性，包含全体序数的内模型只有 L 自己，而 L 满足 CH。所以任何内模型构造都造不出 ¬CH：若某个可定义类 N 可证地给出 ¬CH 的内模型，那么在 L 内部执行这一构造，就得到 L 的一个包含全体序数的内模型，也就是 L 本身，它却满足 ¬CH。科恩的想法是反其道而行之：给模型<b>添加</b>新的实数，把它放大。这就是力迫法。</span></div>
+</section>
+
+<!-- ============ S8 ============ -->
+<section class="card" id="s8">
+  <div class="kicker">§8</div>
+  <h2><span class="en">V = L and beyond: a teaser</span><span class="zh">V = L 及其他：预告</span></h2>
+  <p><span class="en">The axiom V = L is consistent relative to ZF, and it settles many questions that ZFC leaves open. Click the cards.</span><span class="zh">公理 V = L 相对于 ZF 是一致的，而且它能判定许多 ZFC 无法判定的问题。点开卡片看看。</span></p>
+  <div class="cards" id="vlCards"></div>
+  <p><span class="en">But most set theorists do not believe V = L, because it is incompatible with large cardinals from measurable cardinals upward (small ones such as inaccessibles are compatible with it). Toggle the two pictures. Which one holds is decided by whether the real <b>0<sup>♯</sup></b> exists.</span>
+     <span class="zh">但大多数集合论学者并不相信 V = L，因为它与可测基数及更强的大基数不相容（不可达基数这样较小的大基数则与它相容）。切换下面两幅图。究竟哪一幅成立，取决于实数 <b>0<sup>♯</sup></b> 是否存在。</span></p>
+  <div class="toolbar"><button class="btn sel" id="zsNo"><span class="en">0<sup>♯</sup> does not exist</span><span class="zh">0<sup>♯</sup> 不存在</span></button>
+    <button class="btn" id="zsYes"><span class="en">0<sup>♯</sup> exists</span><span class="zh">0<sup>♯</sup> 存在</span></button></div>
+  <div class="row">
+    <div class="col" style="flex:0 1 420px"><div class="stage"><svg id="zsSvg" viewBox="0 0 420 330" class="bigsvg"></svg></div></div>
+    <div class="col"><div class="msg info" id="zsMsg"></div></div>
+  </div>
+</section>
+
+<!-- ============ EXERCISES ============ -->
+<section class="card" id="exercises">
+  <div class="kicker"><span class="il"><span class="en">Exercises</span><span class="zh">练习</span></span></div>
+  <h2><span class="en">Your turn</span><span class="zh">轮到你了</span></h2>
+  <p class="muted"><span class="en">Progress is saved in your browser. A sidebar ✓ means you solved it yourself (showing the answer does not count).</span><span class="zh">进度保存在浏览器中。侧栏出现 ✓ 表示你独立解出（查看答案不计入）。</span></p>
+
+  <div class="ex" id="e1" data-prog="L15E1">
+    <h3><span class="tag">E1</span><span class="il"><span class="en">Parameter-free definitions over 3</span><span class="zh">在 3 上不带参数地定义</span></span></h3>
+    <p><span class="en">X = 3 = {0, 1, 2}. Define each target subset over (3, ∈) <b>without parameters</b>: only variables, no set constants. Quantifiers range over 3.</span>
+       <span class="zh">X = 3 = {0, 1, 2}。在 (3, ∈) 上<b>不带参数</b>地定义每个目标子集：只能用变元，不能出现集合常元。量词只在 3 中取值。</span></p>
+    <div class="keys" id="e1Keys"></div>
+    <div id="e1List"></div>
+    <div class="toolbar"><button class="btn ghost" id="e1Show"><span class="en">Show answer</span><span class="zh">显示答案</span></button></div>
+    <div class="msg" id="e1Msg"></div>
+  </div>
+
+  <div class="ex" id="e2" data-prog="L15E2">
+    <h3><span class="tag">E2</span><span class="il"><span class="en">|L<sub>α</sub>| versus |V<sub>α</sub>|</span><span class="zh">|L<sub>α</sub>| 与 |V<sub>α</sub>|</span></span></h3>
+    <p><span class="en">Fill in the cardinalities (provable in ZFC, no GCH assumed).</span><span class="zh">填出各个基数（在 ZFC 中可证，不假设 GCH）。</span></p>
+    <div id="e2Table"></div>
+    <div class="toolbar"><button class="btn primary" id="e2Check"><span class="en">Check</span><span class="zh">检查</span></button>
+      <button class="btn ghost" id="e2Show"><span class="en">Show answer</span><span class="zh">显示答案</span></button></div>
+    <div class="msg" id="e2Msg"></div>
+  </div>
+
+  <div class="ex" id="e3" data-prog="L15E3">
+    <h3><span class="tag">E3</span><span class="il"><span class="en">Put the GCH proof in order</span><span class="zh">把 GCH 的证明排好顺序</span></span></h3>
+    <p><span class="en">Click the steps in the order the proof uses them. Click a step in your list to send it back.</span><span class="zh">按证明中使用的顺序依次点击各步。点击已选列表中的某步可以撤回。</span></p>
+    <div class="row"><div class="col zone tray"><h4><span class="il"><span class="en">Steps</span><span class="zh">步骤</span></span></h4><div class="seq" id="e3Pool"></div></div>
+      <div class="col zone obj"><h4><span class="il"><span class="en">Your proof</span><span class="zh">你的证明</span></span></h4><div class="seq" id="e3Seq"></div></div></div>
+    <div class="toolbar"><button class="btn primary" id="e3Check"><span class="en">Check</span><span class="zh">检查</span></button>
+      <button class="btn ghost" id="e3Show"><span class="en">Show answer</span><span class="zh">显示答案</span></button></div>
+    <div class="msg" id="e3Msg"></div>
+  </div>
+
+  <div class="ex" id="e4" data-prog="L15E4">
+    <h3><span class="tag">E4</span><span class="il"><span class="en">What holds in L?</span><span class="zh">L 中什么成立？</span></span></h3>
+    <p class="muted"><span class="en">For each statement σ, decide whether ZF ⊢ σ<sup>L</sup> or ZF ⊢ ¬σ<sup>L</sup>.</span><span class="zh">对每个命题 σ，判断是 ZF ⊢ σ<sup>L</sup> 还是 ZF ⊢ ¬σ<sup>L</sup>。</span></p>
+    <div id="e4List"></div>
+  </div>
+
+  <div class="ex" id="e5" data-prog="L15E5">
+    <h3><span class="tag">E5</span><span class="il"><span class="en">When does a set first appear?</span><span class="zh">集合何时首次出现？</span></span></h3>
+    <p><span class="en">For each x, give the least α with x ∈ L<sub>α</sub>. Write ω as ω or w, e.g. <span class="m">w+1</span>.</span><span class="zh">对每个 x，写出使 x ∈ L<sub>α</sub> 的最小 α。ω 可写作 ω 或 w，如 <span class="m">w+1</span>。</span></p>
+    <div id="e5List"></div>
+    <div class="toolbar"><button class="btn primary" id="e5Check"><span class="en">Check</span><span class="zh">检查</span></button>
+      <button class="btn ghost" id="e5Show"><span class="en">Show answer</span><span class="zh">显示答案</span></button></div>
+    <div class="msg" id="e5Msg"></div>
+  </div>
+
+  <div class="ex" id="e6" data-prog="L15E6">
+    <h3><span class="tag">E6</span><span class="il"><span class="en">Why not ¬CH from L?</span><span class="zh">为什么不能从 L 得到 ¬CH？</span></span></h3>
+    <p><span class="en">Which statement best explains why this lesson's method cannot prove Con(ZFC) ⇒ Con(ZFC + ¬CH)?</span><span class="zh">下列哪一项最好地解释了：为什么本课的方法证明不了 Con(ZFC) ⇒ Con(ZFC + ¬CH)？</span></p>
+    <div id="e6Choices"></div>
+    <div class="toolbar"><button class="btn ghost" id="e6Show"><span class="en">Show answer</span><span class="zh">显示答案</span></button></div>
+    <div class="msg" id="e6Msg"></div>
+  </div>
+</section>
+
+<section class="card">
+  <div class="kicker"><span class="il"><span class="en">Next</span><span class="zh">下一课</span></span></div>
+  <h2><a href="lesson16.html" style="color:inherit"><span class="en">Lesson 16: Forcing, and why CH is independent →</span><span class="zh">第 16 课：力迫法，连续统假设为何独立 →</span></a></h2>
+  <p><span class="en">Start from a countable transitive model M (Lesson 14, Route B), add a generic set G of new reals, and build M[G] ⊨ ZFC + ¬CH. Combined with this lesson: CH is independent of ZFC.</span>
+     <span class="zh">从可数传递模型 M 出发（第 14 课路线 B），添加一个由新实数构成的脱殊集 G，造出 M[G] ⊨ ZFC + ¬CH。结合本课的结论：CH 独立于 ZFC。</span></p>
+</section>
+</main>
+</div>
+
+<script src="assets/logic.js"></script>
+<script src="assets/lesson15.js"></script>
+</body>
+</html>

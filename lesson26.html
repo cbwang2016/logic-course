@@ -1,0 +1,478 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 26 · The big picture 全景：逻辑与基础</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+.prereq { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 13px; color: var(--muted); margin: -2px 0 12px; }
+.prereq a.chip { text-decoration: none; color: var(--ink); padding: 2px 10px; font-size: 12.5px; }
+.prereq a.chip:hover { border-color: var(--accent); }
+.lang-both .prereq .chip .zh { font-size: 12px; }
+.idea { font-size: 15.5px; border-left: 4px solid var(--meta); background: var(--meta-soft); padding: 8px 14px; border-radius: 0 10px 10px 0; margin: 6px 0 14px; }
+.pit { border-left-color: var(--false); background: #fff1f1; }
+.pit b.h { color: #a61e1e; }
+.cy { border: 1.5px dashed var(--accent); border-radius: 12px; padding: 10px 14px 4px; margin: 16px 0 0; background: #fbfcff; }
+.cy .q { font-weight: 600; margin-bottom: 4px; }
+.cy .opts { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0; }
+.cy .opts .btn.right, .tfrow .btn.right { border-color: var(--true); background: var(--true-soft); }
+.cy .opts .btn.wrongc, .tfrow .btn.wrongc { border-color: var(--false); background: var(--false-soft); }
+.status { display: inline-block; font-size: 12px; font-weight: 700; border-radius: 999px; padding: 1px 9px; margin: 0 4px 0 0; color: #fff; vertical-align: 1px; white-space: nowrap; }
+.lang-both .status .zh { display: inline; color: #fff; font-size: 11px; }
+.lang-both .status .zh::before { content: " · "; }
+.st-thm { background: var(--true); }
+.st-ind { background: var(--meta); }
+.st-open { background: var(--gold); }
+.st-phil { background: #1098ad; }
+.st-hist { background: #868e96; }
+.svgbox { background: #fbfaf6; border: 1px dashed var(--line); border-radius: 14px; padding: 8px; overflow-x: auto; }
+.svgbox svg { margin: 0 auto; }
+svg text.lbl, svg .sans { font-family: var(--sans); }
+.tl-dot { cursor: pointer; transition: r .2s; }
+.tl-dot:hover { stroke: var(--ink); stroke-width: 2; }
+.infopanel { border: 1.5px solid var(--line); border-radius: 14px; background: #fff; padding: 12px 16px; margin-top: 10px; min-height: 150px; }
+.infopanel h3 { margin: 0 0 4px; }
+.infopanel .why { border-left: 4px solid var(--gold); background: var(--gold-soft); padding: 6px 12px; border-radius: 0 8px 8px 0; margin: 8px 0; }
+.lchips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.lchips a.chip { text-decoration: none; color: var(--ink); padding: 2px 10px; font-size: 12.5px; }
+.legend2 { display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px; margin: 6px 0; }
+.legend2 span { cursor: pointer; user-select: none; }
+.legend2 span.off { opacity: .35; text-decoration: line-through; }
+.legend2 i { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 5px; vertical-align: -1px; }
+.layer { cursor: default; }
+.pnode { cursor: pointer; }
+.pnode rect, .pnode circle { transition: stroke-width .2s, filter .2s; }
+.pnode.sel rect, .pnode.sel circle { stroke-width: 5; filter: drop-shadow(0 0 6px rgba(0,0,0,.25)); }
+.pedge { cursor: pointer; }
+.pedge path.vis { transition: stroke-width .2s, opacity .2s; }
+.pedge:hover path.vis, .pedge.sel path.vis { stroke-width: 6; }
+.pedge text { pointer-events: none; }
+.dimmed { opacity: .18; }
+.seg { display: inline-flex; flex-wrap: wrap; gap: 6px; }
+.cards3 { display: grid; grid-template-columns: repeat(auto-fill, minmax(255px, 1fr)); gap: 12px; }
+.ocard { border: 1.5px solid var(--line); border-radius: 14px; padding: 12px 14px; background: #fff; cursor: pointer; transition: transform .15s, border-color .15s; }
+.ocard:hover { transform: translateY(-2px); border-color: var(--accent); }
+.ocard .more { display: none; font-size: 14px; margin-top: 6px; }
+.ocard.open { border-color: var(--accent); }
+.ocard.open .more { display: block; animation: fadein .4s ease both; }
+.ocard .hd { font-weight: 700; }
+.ocard .sub { font-size: 12.5px; color: var(--muted); }
+.ocard.hide { display: none; }
+.arrowflow { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-size: 13px; margin: 4px 0; }
+.arrowflow b { background: var(--accent-soft); border-radius: 6px; padding: 1px 7px; }
+table.mini { border-collapse: collapse; font-size: 14px; margin: 8px 0; width: 100%; }
+table.mini td, table.mini th { border-bottom: 1px solid var(--line); padding: 6px 8px; text-align: left; vertical-align: top; }
+table.mini th { background: #f1efe7; position: sticky; top: 0; }
+table.mini tr.hl td { background: var(--accent-soft); }
+table.mini td.rowh { font-weight: 700; min-width: 120px; }
+table.mini td { min-width: 110px; }
+table.mini { font-size: 13.5px; }
+.cmpcols { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; }
+table.imat { border-collapse: separate; border-spacing: 4px; font-size: 14px; }
+table.imat th { font-size: 13px; padding: 4px 8px; text-align: center; }
+table.imat td.cell { min-width: 120px; text-align: center; padding: 8px 6px; border-radius: 10px; cursor: pointer; font-weight: 700; border: 2px solid transparent; transition: transform .15s; }
+table.imat td.cell:hover { transform: scale(1.04); }
+table.imat td.cell.sel { border-color: var(--ink); }
+table.imat td.c-prov { background: var(--true-soft); color: #1b5e20; }
+table.imat td.c-ind { background: var(--meta-soft); color: #7a1f8f; }
+table.imat td.c-open { background: var(--gold-soft); color: #6b4500; }
+table.imat td.c-na { background: #eee; color: #888; }
+table.imat td.c-hid { background: #f6f4ee; color: #bbb; }
+table.imat td.st { font-family: var(--mono); font-size: 14px; padding-right: 10px; }
+.lang-both table.imat td.cell .zh { font-size: 11.5px; font-weight: 500; }
+.quizq { border-bottom: 1px dashed var(--line); padding: 8px 0; }
+.quizq .opts { display: flex; flex-direction: column; gap: 5px; margin-top: 6px; }
+.quizq .opts .btn { text-align: left; }
+.bars { display: grid; grid-template-columns: 190px 1fr 40px; gap: 6px 10px; align-items: center; font-size: 14px; max-width: 720px; }
+.bars .bar { height: 18px; border-radius: 6px; background: var(--accent); transition: width .6s cubic-bezier(.2,.9,.3,1); }
+.bars .trk { background: #f1efe7; border-radius: 6px; }
+.order-list { display: flex; flex-direction: column; gap: 6px; max-width: 720px; }
+.order-list .chip { display: flex; align-items: center; gap: 10px; cursor: default; }
+.order-list .chip .num { font-family: var(--mono); font-weight: 800; color: var(--accent); width: 22px; }
+.order-list .chip .sp { flex: 1; }
+.order-list .chip button { font: inherit; font-size: 13px; border: 1px solid var(--line); background: #fff; border-radius: 7px; cursor: pointer; padding: 0 8px; }
+.matchrow { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 7px 0; border-bottom: 1px dashed var(--line); }
+.matchrow .cond { flex: 1 1 300px; font-size: 15px; }
+.matchrow select { font: inherit; font-size: 14px; padding: 4px 8px; border-radius: 8px; border: 1.5px solid var(--line); max-width: 100%; }
+.matchrow select.right { border-color: var(--true); background: var(--true-soft); }
+.matchrow select.wrong { border-color: var(--false); background: var(--false-soft); }
+.tfrow { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; padding: 9px 0; border-bottom: 1px dashed var(--line); }
+.tfrow .stmt { flex: 1 1 320px; font-size: 15px; }
+.tfrow .msg { flex-basis: 100%; margin: 4px 0 0; }
+input[type=range] { vertical-align: middle; }
+.frontier { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+.fcol { border-radius: 14px; padding: 12px 14px; border: 2px solid var(--line); background: #fff; }
+.fcol h4 { margin: 0 0 6px; }
+.fq { padding: 6px 8px; border-radius: 8px; margin: 4px 0; cursor: pointer; font-size: 14px; }
+.fq:hover { background: #f6f4ee; }
+.fq .more { display: none; font-size: 13.5px; color: #444; margin-top: 4px; }
+.fq.open .more { display: block; animation: fadein .4s ease both; }
+.bridge-btns .btn.sel { background: var(--ink); color: #fff; }
+</style>
+</head>
+<body class="lang-both">
+<header class="top">
+  <a class="home" href="index.html">∀∃ <span class="il"><span class="en">Logic &amp; Sets</span><span class="zh">逻辑与集合</span></span></a>
+  <span class="muted">/ L26</span>
+  <span class="spacer"></span>
+  <div class="lang-switch">
+    <button data-lang="en">EN</button><button data-lang="zh">中文</button><button data-lang="both">EN + 中</button>
+  </div>
+</header>
+
+<div class="layout">
+<nav class="side">
+  <div class="grp">Lesson 26</div>
+  <a href="index.html">← <span class="il"><span class="en">Course map</span><span class="zh">课程地图</span></span></a>
+  <a href="lesson25.html">← <span class="il"><span class="en">Lesson 25</span><span class="zh">第 25 课</span></span></a>
+  <a href="lesson27.html"><span class="il"><span class="en">Lesson 27</span><span class="zh">第 27 课</span></span> →</a>
+  <a href="#s1">1 · <span class="il"><span class="en">Timeline</span><span class="zh">时间轴</span></span></a>
+  <a href="#s2">2 · <span class="il"><span class="en">Why foundations?</span><span class="zh">为何研究基础</span></span></a>
+  <a href="#s3">3 · <span class="il"><span class="en">Four pillars</span><span class="zh">四大支柱</span></span></a>
+  <a href="#s4">4 · <span class="il"><span class="en">Diagonal method</span><span class="zh">对角线方法</span></span></a>
+  <a href="#s5">5 · <span class="il"><span class="en">⊢ vs ⊨</span><span class="zh">语法与语义</span></span></a>
+  <a href="#s6">6 · <span class="il"><span class="en">Ladders everywhere</span><span class="zh">处处是阶梯</span></span></a>
+  <a href="#s7">7 · <span class="il"><span class="en">Independence</span><span class="zh">独立性</span></span></a>
+  <a href="#s8">8 · <span class="il"><span class="en">Mainstream math</span><span class="zh">与主流数学</span></span></a>
+  <a href="#s9">9 · <span class="il"><span class="en">Philosophy</span><span class="zh">哲学立场</span></span></a>
+  <a href="#s10">10 · <span class="il"><span class="en">Alternative foundations</span><span class="zh">其他基础</span></span></a>
+  <a href="#s11">11 · <span class="il"><span class="en">Research today</span><span class="zh">今日研究</span></span></a>
+  <div class="grp"><span class="il"><span class="en">Exercises</span><span class="zh">练习</span></span></div>
+  <a href="#e1" data-prog="L26E1">E1 · <span class="il"><span class="en">Who &amp; when</span><span class="zh">人物与年代</span></span></a>
+  <a href="#e2" data-prog="L26E2">E2 · <span class="il"><span class="en">Order events</span><span class="zh">事件排序</span></span></a>
+  <a href="#e3" data-prog="L26E3">E3 · <span class="il"><span class="en">Bridges</span><span class="zh">桥梁定理</span></span></a>
+  <a href="#e4" data-prog="L26E4">E4 · <span class="il"><span class="en">Myths</span><span class="zh">误区辨析</span></span></a>
+  <a href="#e5" data-prog="L26E5">E5 · <span class="il"><span class="en">Status</span><span class="zh">判定状态</span></span></a>
+  <a href="#e6" data-prog="L26E6">E6 · <span class="il"><span class="en">Which subfield?</span><span class="zh">属于哪个分支</span></span></a>
+</nav>
+
+<main>
+<div class="hero">
+  <div class="kicker">Part VI · Lesson 26</div>
+  <h1><span class="en">The big picture: why logic &amp; foundations, and how the field fits together</span><span class="zh">全景：为什么要研究逻辑与基础，各分支如何拼成一体</span></h1>
+  <p><span class="en">You have climbed 25 lessons of detail. This lesson steps back and looks at the whole map: <b>where</b> the subject came from, <b>what problems</b> drove it, <b>how</b> its four branches are wired together, and <b>what</b> it does for the rest of mathematics. Lessons 27 and 28 then go to the open frontiers.</span>
+     <span class="zh">你已经爬过了 25 课的细节。这一课退后一步看整张地图：这门学科<b>从哪里来</b>，<b>被什么问题</b>推动，四个分支<b>怎样</b>连成一体，它又为数学的其他部分<b>做了什么</b>。第 27、28 课再去看前沿的未解问题。</span></p>
+  <div class="note"><span class="en"><b>Status legend.</b> Every claim on this page is tagged. These labels mean different things and must not be mixed up:</span><span class="zh"><b>状态标记。</b>本页每个论断都带标签，几种标签含义不同，不能混为一谈：</span>
+    <div style="margin-top:6px;line-height:2.1">
+      <span class="status st-thm"><span class="en">theorem</span><span class="zh">定理</span></span> <span class="il"><span class="en">proved (who, when)</span><span class="zh">已证明（谁、何时）</span></span> &nbsp;
+      <span class="status st-ind"><span class="en">independent</span><span class="zh">独立</span></span> <span class="il"><span class="en">proved unprovable and unrefutable in a stated theory</span><span class="zh">已证明在指定理论中既不可证也不可驳</span></span> &nbsp;
+      <span class="status st-open"><span class="en">open</span><span class="zh">未解决</span></span> <span class="il"><span class="en">nobody knows</span><span class="zh">尚无人知道</span></span> &nbsp;
+      <span class="status st-phil"><span class="en">position</span><span class="zh">哲学立场</span></span> <span class="il"><span class="en">a philosophical view, not a theorem</span><span class="zh">哲学观点，不是定理</span></span> &nbsp;
+      <span class="status st-hist"><span class="en">history</span><span class="zh">史实</span></span> <span class="il"><span class="en">a historical event</span><span class="zh">历史事件</span></span> &nbsp;
+      <span class="status st-open"><span class="en">program</span><span class="zh">研究纲领</span></span> <span class="il"><span class="en">an ongoing research program</span><span class="zh">进行中的研究纲领</span></span>
+    </div></div>
+</div>
+
+<!-- ============ S1 ============ -->
+<section class="card" id="s1">
+  <div class="kicker">§1</div>
+  <h2><span class="en">A scrubbable timeline, 1870 to today</span><span class="zh">可拖动的时间轴：1870 年至今</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Related</span><span class="zh">相关</span></span>:
+    <a class="chip" href="lesson6.html">L6 · <span class="il"><span class="en">Russell &amp; ZF</span><span class="zh">罗素与 ZF</span></span></a>
+    <a class="chip" href="lesson12.html">L12 · <span class="il"><span class="en">incompleteness</span><span class="zh">不完全性</span></span></a>
+    <a class="chip" href="lesson16.html">L16 · <span class="il"><span class="en">forcing</span><span class="zh">力迫法</span></span></a></div>
+  <div class="idea"><span class="en"><b>One idea.</b> Almost every major result in logic was an answer to a concrete question someone was stuck on. Read the history as a chain of <i>problems</i>, not a list of names.</span>
+    <span class="zh"><b>核心思想。</b>逻辑学里几乎每个重大结果，都是在回答某人卡住的一个具体问题。把这段历史读成一串<i>问题</i>，而不是一串人名。</span></div>
+  <p><span class="en">Drag the slider (or press ▶) to move through time. Each dot is an event, and its row tells you which branch it belongs to. Click a dot to see <b>what problem they were trying to solve</b>, what was established, and which lesson covers it. Click a branch in the legend to hide or show it.</span>
+     <span class="zh">拖动滑块（或按 ▶）在时间中穿行。每个点是一个事件，所在的行表示它属于哪个分支。点击圆点，可以看到<b>他们当时想解决什么问题</b>、得到了什么结论、对应哪一课。点击图例中的分支名可以隐藏或显示该行。</span></p>
+  <div class="legend2" id="tlLegend"></div>
+  <div class="toolbar">
+    <button class="btn small" id="tlPrev">◀</button>
+    <input type="range" id="tlSlider" min="1870" max="2025" value="1870" style="width:420px">
+    <button class="btn small" id="tlNext">▶</button>
+    <button class="btn small" id="tlPlay"><span class="en">Play</span><span class="zh">播放</span></button>
+    <b class="m" id="tlYear"></b>
+  </div>
+  <div class="svgbox"><svg id="tlSvg" viewBox="0 0 1000 300" width="1000" height="300"></svg></div>
+  <div class="infopanel" id="tlInfo"></div>
+  <div class="def"><span class="en"><b>Summary.</b> Roughly: 1870–1910 the infinite becomes mathematics and paradoxes appear; 1910–1940 axioms are fixed and the <i>limits</i> of formal methods are proved (completeness, incompleteness, undecidability, undefinability of truth); 1940–1975 independence and the four branches mature; 1975–today large cardinals and determinacy, deep applications to algebra, geometry, number theory and analysis, and machine-checked mathematics.</span>
+    <span class="zh"><b>小结。</b>大致说来：1870–1910 年，无穷成为数学对象，悖论随之出现；1910–1940 年，公理被确立下来，形式方法的<i>极限</i>被证明（完备性、不完全性、不可判定性、真的不可定义性）；1940–1975 年，独立性结果出现，四大分支走向成熟；1975 年至今，大基数与决定性理论成形，逻辑在代数、几何、数论、分析中获得深刻应用，计算机验证的数学兴起。</span></div>
+  <div class="note pit"><span class="en"><b class="h">⚠ Common pitfall.</b> “Hilbert's program was refuted in 1931, so it was a failure.” Gödel showed the <i>original</i> goal (a finitary consistency proof of all of mathematics) is impossible. But the program created proof theory, and modified versions (Gentzen's ordinal analysis, reverse mathematics) are still active research.</span>
+    <span class="zh"><b class="h">⚠ 常见误区。</b>“希尔伯特纲领 1931 年被驳倒了，所以是失败的。”哥德尔证明的是<i>原始</i>目标（用有穷方法证明全部数学的一致性）不可能实现。但这个纲领催生了证明论，它的修正版本（根岑的序数分析、反推数学）至今仍是活跃的研究方向。</span></div>
+  <div class="cy" id="cy1"></div>
+</section>
+
+<!-- ============ S2 ============ -->
+<section class="card" id="s2">
+  <div class="kicker">§2</div>
+  <h2><span class="en">Why foundations? The “crisis”, told carefully, and three motivations</span><span class="zh">为什么研究基础？审慎地讲“危机”，以及三种动机</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Related</span><span class="zh">相关</span></span>:
+    <a class="chip" href="lesson6.html">L6 · <span class="il"><span class="en">Russell's paradox</span><span class="zh">罗素悖论</span></span></a>
+    <a class="chip" href="lesson8.html">L8 · <span class="il"><span class="en">ordinals</span><span class="zh">序数</span></span></a>
+    <a class="chip" href="lesson10.html">L10 · <span class="il"><span class="en">choice</span><span class="zh">选择公理</span></span></a></div>
+  <div class="idea"><span class="en"><b>One idea.</b> The paradoxes broke <b>specific</b> systems (naive comprehension, Frege's Basic Law V), not mathematics as a whole. The lasting motivations for foundations are three: <b>securing</b> mathematics, <b>understanding the power and limits</b> of formal methods, and <b>studying the infinite</b> for its own sake.</span>
+    <span class="zh"><b>核心思想。</b>悖论击垮的是<b>具体的</b>系统（朴素概括原则、弗雷格的第五基本定律），而不是整个数学。研究基础的持久动机有三：<b>为数学奠定可靠基础</b>，<b>弄清形式方法的能力与极限</b>，以及<b>把无穷本身当作数学来研究</b>。</span></div>
+
+  <h3><span class="en">Part A · What actually cracked?</span><span class="zh">A 部分 · 到底是什么裂开了？</span></h3>
+  <p><span class="en">The building has three floors. Click an episode and watch which floor is hit.</span>
+     <span class="zh">这座楼有三层。点击一段历史，看哪一层受到冲击。</span></p>
+  <div class="toolbar seg" id="crisisBtns"></div>
+  <div class="svgbox"><svg id="crisisSvg" viewBox="0 0 900 300" width="900" height="300"></svg></div>
+  <div class="msg info" id="crisisInfo"></div>
+  <div class="note pit"><span class="en"><b class="h">⚠ Historical care.</b> The word “crisis” (<i>Grundlagenkrise</i>) was popularized by Hermann Weyl's 1921 paper “On the new foundational crisis of mathematics”, which sided with Brouwer; Hilbert replied in 1922. Most working mathematicians did not stop proving theorems. Calculus, number theory and algebra were never shown to be inconsistent. What the paradoxes showed is that <i>unrestricted</i> set formation is contradictory, so the rules for forming sets must be stated precisely.</span>
+    <span class="zh"><b class="h">⚠ 史实要审慎。</b>“危机”（<i>Grundlagenkrise</i>）一词因赫尔曼·外尔 1921 年的论文《论数学的新基础危机》而流行，该文站在布劳威尔一边；希尔伯特于 1922 年作出回应。大多数数学家并没有停下来不证定理，微积分、数论、代数也从未被证明是矛盾的。悖论真正说明的是：<i>不加限制地</i>构造集合会导致矛盾，所以构造集合的规则必须精确地写出来。</span></div>
+
+  <h3><span class="en">Part B · Three motivations: place each result</span><span class="zh">B 部分 · 三种动机：给每个结果找位置</span></h3>
+  <p><span class="en">Each circle is a motivation. Click a result chip to see where it lives and why. Many results serve more than one motivation, which is why the circles overlap.</span>
+     <span class="zh">每个圆代表一种动机。点击一个结果，看它落在哪里、为什么。很多结果同时服务于几种动机，所以圆会重叠。</span></p>
+  <div class="row">
+    <div class="col" style="flex:0 1 520px"><div class="svgbox"><svg id="vennSvg" viewBox="0 0 500 455" width="500" height="455"></svg></div></div>
+    <div class="col"><div class="chips" id="vennChips"></div><div class="msg info" id="vennInfo"></div></div>
+  </div>
+  <div class="def"><span class="en"><b>Summary.</b> (1) <b>Security</b>: fix precise axioms (ZFC) and ask whether they are consistent. Gödel's second theorem (1931) says a consistent, effectively axiomatized theory containing enough arithmetic cannot prove its own consistency, so security becomes a matter of <i>relative</i> consistency and evidence. (2) <b>Power and limits</b>: what can be proved, computed, defined? Answers: completeness, incompleteness, undecidability, undefinability of truth. (3) <b>The infinite as mathematics</b>: ordinals, cardinals, large cardinals, determinacy, forcing.</span>
+    <span class="zh"><b>小结。</b>(1) <b>可靠性</b>：确立精确的公理（ZFC），追问它是否一致。哥德尔第二不完全性定理（1931）表明：一致的、能行公理化的、包含足够算术的理论不能证明自身的一致性，于是“可靠”只能以<i>相对</i>一致性和各种证据的形式出现。(2) <b>能力与极限</b>：什么能证明、能计算、能定义？答案是完备性、不完全性、不可判定性、真的不可定义性。(3) <b>作为数学的无穷</b>：序数、基数、大基数、决定性、力迫法。</span></div>
+  <div class="cy" id="cy2"></div>
+</section>
+
+<!-- ============ S3 ============ -->
+<section class="card" id="s3">
+  <div class="kicker">§3</div>
+  <h2><span class="en">The four pillars and the bridges between them</span><span class="zh">四大支柱以及连接它们的桥梁</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Related</span><span class="zh">相关</span></span>:
+    <a class="chip" href="lesson4.html">L4 · <span class="il"><span class="en">completeness</span><span class="zh">完备性</span></span></a>
+    <a class="chip" href="lesson11.html">L11 · <span class="il"><span class="en">computability</span><span class="zh">可计算性</span></span></a>
+    <a class="chip" href="lesson14.html">L14 · <span class="il"><span class="en">models of ZFC</span><span class="zh">ZFC 的模型</span></span></a></div>
+  <div class="idea"><span class="en"><b>One idea.</b> Set theory, model theory, computability theory and proof theory (the traditional four, as in the 1977 <i>Handbook of Mathematical Logic</i>) are not separate subjects. They are four viewpoints on one object, the relation between <b>formal language</b> and <b>mathematical structure</b>, and their deepest theorems are <b>bridges</b>.</span>
+    <span class="zh"><b>核心思想。</b>集合论、模型论、可计算性理论、证明论（传统的四分法，见 1977 年的《数理逻辑手册》）并不是彼此孤立的学科。它们是从四个角度观察同一个对象，即<b>形式语言</b>与<b>数学结构</b>之间的关系；它们最深刻的定理往往就是<b>桥梁</b>。</span></div>
+  <p><span class="en">Click a <b>pillar</b> for its core question, tools, flagship theorems and lessons. Click an <b>edge</b> (a labeled bridge) to see the theorem that connects two pillars.</span>
+     <span class="zh">点击<b>支柱</b>，查看它的核心问题、主要工具、代表性定理和相关课程。点击<b>连线</b>（带标签的桥），查看把两根支柱连起来的定理。</span></p>
+  <div class="svgbox"><svg id="mapSvg" viewBox="0 0 960 560" width="960" height="560"></svg></div>
+  <div class="infopanel" id="mapInfo"></div>
+  <div class="def"><span class="en"><b>Summary.</b> Model theory: <i>truth in structures</i>. Proof theory: <i>proofs as objects</i>. Computability: <i>what algorithms can do</i>. Set theory: <i>the universe of sets and the infinite</i>. Bridges: completeness (proofs ↔ models), incompleteness ↔ undecidability (proofs ↔ algorithms), Boolean-valued models / ultrapowers / infinitary compactness (models ↔ sets), ordinal analysis (proofs ↔ ordinals), effective descriptive set theory (algorithms ↔ definable sets of reals), large cardinals ↔ determinacy.</span>
+    <span class="zh"><b>小结。</b>模型论研究<i>结构中的真</i>；证明论研究<i>作为对象的证明</i>；可计算性理论研究<i>算法能做什么</i>；集合论研究<i>集合宇宙与无穷</i>。桥梁：完备性定理（证明 ↔ 模型），不完全性 ↔ 不可判定性（证明 ↔ 算法），布尔值模型、超幂、无穷语言的紧致性（模型 ↔ 集合），序数分析（证明 ↔ 序数），能行描述集合论（算法 ↔ 可定义实数集），大基数 ↔ 决定性。</span></div>
+  <div class="note pit"><span class="en"><b class="h">⚠ Common pitfall.</b> The four-way split is a convenient teaching map, not a law of nature. Many researchers work on bridges (e.g. computable model theory, set-theoretic model theory, proof mining), and some areas (constructive mathematics, type theory, categorical logic) do not fit neatly into any single pillar.</span>
+    <span class="zh"><b class="h">⚠ 常见误区。</b>四分法只是便于教学的地图，不是自然规律。许多研究者恰恰在桥上工作（如可计算模型论、集合论化的模型论、证明挖掘），也有一些领域（构造性数学、类型论、范畴逻辑）很难归入某一根支柱。</span></div>
+  <div class="cy" id="cy3"></div>
+</section>
+
+<!-- ============ S4 ============ -->
+<section class="card" id="s4">
+  <div class="kicker">§4</div>
+  <h2><span class="en">Recurring theme 1: the diagonal method</span><span class="zh">反复出现的主题一：对角线方法</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Related</span><span class="zh">相关</span></span>:
+    <a class="chip" href="lesson1.html">L1 §8</a>
+    <a class="chip" href="lesson11.html">L11 · <span class="il"><span class="en">halting problem</span><span class="zh">停机问题</span></span></a>
+    <a class="chip" href="lesson12.html">L12 · <span class="il"><span class="en">Gödel</span><span class="zh">哥德尔</span></span></a>
+    <a class="chip" href="lesson13.html">L13 · <span class="il"><span class="en">Tarski</span><span class="zh">塔斯基</span></span></a>
+    <a class="chip" href="lesson16.html">L16 · <span class="il"><span class="en">forcing</span><span class="zh">力迫法</span></span></a></div>
+  <div class="idea"><span class="en"><b>One idea.</b> Take a list indexed by the same things it talks about, look at the diagonal, and flip it. The flipped diagonal cannot be on the list. The same move proves Cantor's theorem, Russell's paradox, the halting problem, Gödel's and Tarski's theorems.</span>
+    <span class="zh"><b>核心思想。</b>拿一张“用它所谈论的对象本身来编号”的表，看对角线，再把它翻转。翻转后的对角线不可能出现在表里。同一个动作证明了康托尔定理、罗素悖论、停机问题、哥德尔定理和塔斯基定理。</span></div>
+  <p><span class="en">Pick an instance. The grid relabels itself; press “Flip the diagonal” to watch the argument run.</span>
+     <span class="zh">选一个实例，网格会换上相应的标签；按“翻转对角线”观看论证过程。</span></p>
+  <div class="toolbar seg" id="diagBtns"></div>
+  <div class="toolbar"><button class="btn primary" id="diagRun"><span class="en">Flip the diagonal ▶</span><span class="zh">翻转对角线 ▶</span></button></div>
+  <div class="row">
+    <div class="col" style="flex:0 1 470px"><div class="svgbox"><svg id="diagSvg" viewBox="0 0 450 420" width="450" height="420"></svg></div></div>
+    <div class="col"><div class="infopanel" id="diagInfo"></div></div>
+  </div>
+  <div class="def"><span class="en"><b>Summary (Lawvere's fixed-point theorem, 1969, abstracts the pattern).</b> If <span class="m">e : A → (A → B)</span> is surjective (every function <span class="m">A → B</span> is some row), then every map <span class="m">f : B → B</span> has a fixed point. Contrapositive: if some <span class="m">f</span> has no fixed point (like <span class="m">0 ↦ 1, 1 ↦ 0</span>), no list can be complete. Gödel and Tarski use the positive form: the diagonal lemma <i>produces</i> a fixed point (a self-referential sentence).</span>
+    <span class="zh"><b>小结（劳维尔不动点定理，1969，把这一模式抽象出来）。</b>若 <span class="m">e : A → (A → B)</span> 是满射（每个函数 <span class="m">A → B</span> 都是表中某一行），则每个映射 <span class="m">f : B → B</span> 都有不动点。逆否形式：只要某个 <span class="m">f</span> 没有不动点（如 <span class="m">0 ↦ 1, 1 ↦ 0</span>），任何表都不可能完备。哥德尔和塔斯基用的是正面形式：对角线引理<i>造出</i>一个不动点（一个自指语句）。</span></div>
+  <div class="note pit"><span class="en"><b class="h">⚠ Common pitfall.</b> Forcing is <i>not</i> literally a diagonal argument. The analogy is that a generic object is built to meet countably many requirements (dense sets) of a countable model, and in particular it differs from every real in that model. That “defeat each requirement in turn” idea is diagonalization in the broad sense, as is the priority method in computability theory.</span>
+    <span class="zh"><b class="h">⚠ 常见误区。</b>力迫法<i>并不</i>严格是对角线论证。相似之处在于：泛型对象被构造来满足可数模型中可数多个要求（稠密集），特别地，它与该模型中的每个实数都不同。“逐个击破要求”正是广义的对角化思想，可计算性理论中的优先方法也是如此。</span></div>
+  <div class="cy" id="cy4"></div>
+</section>
+
+<!-- ============ S5 ============ -->
+<section class="card" id="s5">
+  <div class="kicker">§5</div>
+  <h2><span class="en">Recurring theme 2: syntax vs semantics (⊢ vs ⊨)</span><span class="zh">反复出现的主题二：语法与语义（⊢ 与 ⊨）</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Related</span><span class="zh">相关</span></span>:
+    <a class="chip" href="lesson2.html">L2 · <span class="il"><span class="en">soundness, completeness</span><span class="zh">可靠性、完备性</span></span></a>
+    <a class="chip" href="lesson4.html">L4 · <span class="il"><span class="en">Gödel completeness</span><span class="zh">哥德尔完备性</span></span></a>
+    <a class="chip" href="lesson12.html">L12 · <span class="il"><span class="en">incompleteness</span><span class="zh">不完全性</span></span></a></div>
+  <div class="idea"><span class="en"><b>One idea.</b> There are two notions of consequence: <b>⊢</b> (there is a finite formal proof) and <b>⊨</b> (true in every model). Whether they coincide depends on the logic, and “complete” means two different things in the completeness and incompleteness theorems.</span>
+    <span class="zh"><b>核心思想。</b>后承有两种：<b>⊢</b>（存在有限的形式证明）与 <b>⊨</b>（在所有模型中为真）。二者是否重合取决于所用的逻辑；而且“完备”在完备性定理与不完全性定理里是两个不同的意思。</span></div>
+  <p><span class="en">Choose a setting. Green bridges hold, red bridges are provably broken.</span>
+     <span class="zh">选择一种情形。绿色的桥成立，红色的桥已被证明是断的。</span></p>
+  <div class="toolbar seg" id="ssBtns"></div>
+  <div class="svgbox"><svg id="ssSvg" viewBox="0 0 900 270" width="900" height="270"></svg></div>
+  <div class="msg info" id="ssInfo"></div>
+  <div class="def"><span class="en"><b>Summary.</b> <b>Completeness theorem</b> <span class="status st-thm">Gödel 1929/30</span>: for first-order logic, <span class="m">T ⊢ φ ⇔ T ⊨ φ</span> (φ holds in <i>every</i> model of T). <b>First incompleteness theorem</b> <span class="status st-thm">Gödel 1931</span>: a consistent, effectively axiomatized T containing enough arithmetic is not <i>complete</i>, i.e. some sentence φ has <span class="m">T ⊬ φ</span> and <span class="m">T ⊬ ¬φ</span>. These are compatible: such a φ is true in some models of T and false in others.</span>
+    <span class="zh"><b>小结。</b><b>完备性定理</b> <span class="status st-thm"><span class="en">Gödel 1929/30</span><span class="zh">哥德尔 1929/30</span></span>：在一阶逻辑中，<span class="m">T ⊢ φ ⇔ T ⊨ φ</span>（φ 在 T 的<i>每个</i>模型中成立）。<b>第一不完全性定理</b> <span class="status st-thm"><span class="en">Gödel 1931</span><span class="zh">哥德尔 1931</span></span>：一致、能行公理化且包含足够算术的理论 T 不是<i>完全的</i>，即存在语句 φ 使 <span class="m">T ⊬ φ</span> 且 <span class="m">T ⊬ ¬φ</span>。两者并不矛盾：这样的 φ 在 T 的某些模型中为真，在另一些模型中为假。</span></div>
+  <div class="cy" id="cy5"></div>
+</section>
+
+<!-- ============ S6 ============ -->
+<section class="card" id="s6">
+  <div class="kicker">§6</div>
+  <h2><span class="en">Recurring theme 3: ladders everywhere</span><span class="zh">反复出现的主题三：处处是阶梯</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Related</span><span class="zh">相关</span></span>:
+    <a class="chip" href="lesson17.html">L17</a><a class="chip" href="lesson18.html">L18</a><a class="chip" href="lesson19.html">L19</a><a class="chip" href="lesson20.html">L20</a><a class="chip" href="lesson21.html">L21</a><a class="chip" href="lesson23.html">L23</a><a class="chip" href="lesson24.html">L24</a><a class="chip" href="lesson25.html">L25</a></div>
+  <div class="idea"><span class="en"><b>One idea.</b> Logic measures complexity by <b>hierarchies</b>: count quantifier alternations, iterate the jump, climb the ordinals, add stronger axioms. Part V built seven such ladders; the surprise is that they are <b>linked rung by rung</b> by precise theorems.</span>
+    <span class="zh"><b>核心思想。</b>逻辑用<b>层级</b>来度量复杂性：数量词交替的次数、迭代图灵跳跃、沿序数往上爬、加入更强的公理。第五部分建起了七架这样的阶梯；令人惊讶的是，它们被精确的定理<b>一级一级地连在一起</b>。</span></div>
+  <p><span class="en">Click a bridge button to light up the rungs it connects. Click any rung to jump to its lesson.</span>
+     <span class="zh">点击桥梁按钮，点亮它所连接的梯级。点击任一梯级可跳到对应课程。</span></p>
+  <div class="toolbar seg bridge-btns" id="ladBtns"></div>
+  <div class="svgbox"><svg id="ladSvg" viewBox="0 0 1000 470" width="1000" height="470"></svg></div>
+  <div class="msg info" id="ladInfo"></div>
+  <div class="def"><span class="en"><b>Summary.</b> Post's theorem: <span class="m">Σ⁰ₙ₊₁</span> = c.e. relative to <span class="m">0⁽ⁿ⁾</span>. Kleene / Suslin: <span class="m">Δ¹₁</span> = hyperarithmetic, and boldface <span class="m">Δ¹₁</span> = Borel. Shoenfield: <span class="m">Σ¹₂</span> statements are absolute (a Lévy-<span class="m">Σ₁</span>-type phenomenon). Gentzen: <span class="m">ε₀</span> measures PA. Martin, Martin–Steel: measurable ⇒ <span class="m">Σ¹₁</span>-determinacy; n Woodin cardinals with a measurable above ⇒ <span class="m">Π¹ₙ₊₁</span>-determinacy.</span>
+    <span class="zh"><b>小结。</b>波斯特定理：<span class="m">Σ⁰ₙ₊₁</span> = 相对于 <span class="m">0⁽ⁿ⁾</span> 可计算枚举。克莱尼／苏斯林：<span class="m">Δ¹₁</span> = 超算术，粗体 <span class="m">Δ¹₁</span> = 博雷尔。勋菲尔德：<span class="m">Σ¹₂</span> 命题是绝对的（与列维 <span class="m">Σ₁</span> 绝对性同类的现象）。根岑：<span class="m">ε₀</span> 度量 PA 的强度。马丁、马丁–斯蒂尔：可测基数 ⇒ <span class="m">Σ¹₁</span> 决定性；n 个伍丁基数加其上一个可测基数 ⇒ <span class="m">Π¹ₙ₊₁</span> 决定性。</span></div>
+  <div class="note pit"><span class="en"><b class="h">⚠ Common pitfall.</b> The ladders are drawn side by side, but their rungs are not “equal”. A bridge is a <i>specific theorem</i> linking specific rungs; heights in the picture are only schematic.</span>
+    <span class="zh"><b class="h">⚠ 常见误区。</b>这些阶梯并排画着，但梯级之间并不“相等”。每座桥都是连接特定梯级的<i>具体定理</i>；图中的高度只是示意。</span></div>
+  <div class="cy" id="cy6"></div>
+</section>
+
+<!-- ============ S7 ============ -->
+<section class="card" id="s7">
+  <div class="kicker">§7</div>
+  <h2><span class="en">Recurring theme 4: independence as a phenomenon</span><span class="zh">反复出现的主题四：作为现象的独立性</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Related</span><span class="zh">相关</span></span>:
+    <a class="chip" href="lesson12.html">L12</a><a class="chip" href="lesson15.html">L15 · L</a><a class="chip" href="lesson16.html">L16 · <span class="il"><span class="en">forcing</span><span class="zh">力迫法</span></span></a><a class="chip" href="lesson25.html">L25 · PD</a></div>
+  <div class="idea"><span class="en"><b>One idea.</b> “Independent” is always <b>relative to a theory</b>. Moving to a stronger theory can settle a statement (Goodstein's theorem, Con(PA), PD) or leave it open (CH, by all known large cardinals). Independence is a precise theorem, not a shrug.</span>
+    <span class="zh"><b>核心思想。</b>“独立”永远是<b>相对于某个理论</b>而言的。换成更强的理论，有的命题就被判定了（古德斯坦定理、Con(PA)、PD），有的仍然悬而未决（CH，已知的大基数都判定不了）。独立性是一个精确的定理，而不是一句“说不清”。</span></div>
+  <p><span class="en">Each row is a statement, each column a theory. Reveal cells one at a time (click), or reveal a whole column. Click a revealed cell for the justification.</span>
+     <span class="zh">每行是一个命题，每列是一个理论。逐格点击揭晓，或整列揭晓。再次点击已揭晓的格子可查看依据。</span></p>
+  <div class="toolbar seg" id="indBtns"></div>
+  <div class="svgbox" style="background:#fff"><table class="imat" id="indTab"></table></div>
+  <div class="msg info" id="indInfo"></div>
+  <div class="def"><span class="en"><b>Summary.</b> “S is independent of T” means <span class="m">T ⊬ S</span> and <span class="m">T ⊬ ¬S</span> (usually proved under a consistency hypothesis). For arithmetic sentences of the simplest form (<span class="m">Π⁰₁</span>, like Goldbach), independence from a true theory that contains basic arithmetic (e.g. PA or ZFC) would imply <b>truth</b> in ℕ. For CH there is no such shortcut, and whether it has a definite answer is debated (L27).</span>
+    <span class="zh"><b>小结。</b>“S 独立于 T”是指 <span class="m">T ⊬ S</span> 且 <span class="m">T ⊬ ¬S</span>（通常是在某个一致性假设下证明的）。对于最简单形式（<span class="m">Π⁰₁</span>，如哥德巴赫猜想）的算术语句，若它独立于某个包含基本算术的真理论（如 PA 或 ZFC），则它在 ℕ 中必然<b>为真</b>。对 CH 没有这样的捷径，它是否有确定答案仍有争论（见第 27 课）。</span></div>
+  <div class="note pit"><span class="en"><b class="h">⚠ Common pitfalls.</b> “Independence = no answer” and “CH is meaningless” are both <i>philosophical positions</i>, not theorems. Many set theorists think CH has a definite truth value and look for well-justified new axioms to decide it; others (multiverse views) think different universes with different answers are equally legitimate.</span>
+    <span class="zh"><b class="h">⚠ 常见误区。</b>“独立 = 没有答案”和“CH 没有意义”都是<i>哲学立场</i>，不是定理。许多集合论学家认为 CH 有确定的真值，并寻找有充分理由的新公理来判定它；另一些人（多重宇宙观）则认为给出不同答案的各个宇宙同样合法。</span></div>
+  <div class="cy" id="cy7"></div>
+</section>
+
+<!-- ============ S8 ============ -->
+<section class="card" id="s8">
+  <div class="kicker">§8</div>
+  <h2><span class="en">What logic does for mainstream mathematics</span><span class="zh">逻辑为主流数学做了什么</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Related</span><span class="zh">相关</span></span>:
+    <a class="chip" href="lesson5.html">L5 · <span class="il"><span class="en">compactness</span><span class="zh">紧致性</span></span></a>
+    <a class="chip" href="lesson19.html">L19 · <span class="il"><span class="en">Borel sets</span><span class="zh">博雷尔集</span></span></a>
+    <a class="chip" href="lesson28.html">L28</a></div>
+  <div class="idea"><span class="en"><b>One idea.</b> Logic is not only about logic. Model theory proves theorems in number theory and geometry, set theory decides (or shows undecidable) questions in algebra and analysis, computability shows some natural problems have no algorithm, and proof theory extracts numbers from non-constructive proofs.</span>
+    <span class="zh"><b>核心思想。</b>逻辑不只研究逻辑本身。模型论证明了数论和几何中的定理，集合论判定（或证明不可判定）代数和分析中的问题，可计算性理论表明一些自然的问题没有算法，证明论则能从非构造性证明中提取出具体的数值。</span></div>
+  <p><span class="en">Filter by the pillar that does the work, then click a card.</span>
+     <span class="zh">按“出力”的支柱筛选，然后点开卡片。</span></p>
+  <div class="toolbar seg" id="appBtns"></div>
+  <div class="cards3" id="appCards"></div>
+  <div class="def"><span class="en"><b>Summary.</b> Patterns: (a) <b>transfer</b> (Ax–Kochen: a statement true in one class of fields transfers to another for all but finitely many p); (b) <b>tameness</b> (o-minimality, stability: definable sets behave well, so counting or geometry works); (c) <b>independence</b> (Whitehead's problem); (d) <b>impossibility</b> (Hilbert's 10th problem; non-classifiability of ergodic transformations); (e) <b>calibration and extraction</b> (reverse mathematics, proof mining); (f) <b>certainty</b> (formal verification).</span>
+    <span class="zh"><b>小结。</b>几种模式：(a) <b>转移</b>（Ax–Kochen：在一类域中成立的命题，除有限多个 p 外可转移到另一类域）；(b) <b>驯顺性</b>（o-极小性、稳定性：可定义集性质良好，于是计数或几何论证得以进行）；(c) <b>独立性</b>（怀特海问题）；(d) <b>不可能性</b>（希尔伯特第十问题；遍历变换不可分类）；(e) <b>校准与提取</b>（反推数学、证明挖掘）；(f) <b>确定性</b>（形式化验证）。</span></div>
+  <div class="note pit"><span class="en"><b class="h">⚠ Common pitfall.</b> Ax–Kochen did <b>not</b> prove Artin's conjecture; the conjecture is false in general (Terjanian, 1966). They proved that it holds for each degree d for all but finitely many primes p.</span>
+    <span class="zh"><b class="h">⚠ 常见误区。</b>Ax–Kochen <b>并没有</b>证明阿廷猜想；该猜想一般来说是错的（Terjanian，1966）。他们证明的是：对每个次数 d，除有限多个素数 p 外猜想成立。</span></div>
+  <div class="cy" id="cy8"></div>
+</section>
+
+<!-- ============ S9 ============ -->
+<section class="card" id="s9">
+  <div class="kicker">§9</div>
+  <h2><span class="en">Philosophical positions: where do you stand?</span><span class="zh">哲学立场：你站在哪里？</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Related</span><span class="zh">相关</span></span>:
+    <a class="chip" href="lesson12.html">L12</a><a class="chip" href="lesson16.html">L16</a><a class="chip" href="lesson27.html">L27 · CH</a></div>
+  <div class="idea"><span class="en"><b>One idea.</b> Theorems do not settle philosophy. Platonists, formalists, intuitionists, structuralists, multiverse theorists and naturalists all accept the same theorems of ZFC (intuitionists: their constructive versions), and disagree about what the theorems are <i>about</i> and which new axioms are justified.</span>
+    <span class="zh"><b>核心思想。</b>定理并不能裁决哲学。柏拉图主义者、形式主义者、直觉主义者、结构主义者、多重宇宙论者和自然主义者都接受同样的 ZFC 定理（直觉主义者接受的是其构造性版本），他们分歧在于这些定理<i>谈论的是什么</i>，以及哪些新公理是有道理的。</span></div>
+  <p><span class="en">Answer the five questions. Your answers are scored against six positions. There is no right answer, and the descriptions below are written to be neutral.</span>
+     <span class="zh">回答五个问题，你的答案会和六种立场比对计分。这里没有标准答案，下面的介绍力求中立。</span></p>
+  <div id="quiz"></div>
+  <div class="toolbar"><button class="btn primary" id="quizGo"><span class="en">Show my profile</span><span class="zh">显示我的倾向</span></button><button class="btn ghost" id="quizReset"><span class="en">Reset</span><span class="zh">重置</span></button></div>
+  <div class="bars" id="quizBars"></div>
+  <div class="msg" id="quizMsg"></div>
+  <h3><span class="en">The six positions (click to expand)</span><span class="zh">六种立场（点击展开）</span></h3>
+  <div class="cards3" id="posCards"></div>
+  <div class="def"><span class="en"><b>Summary.</b> These are <span class="status st-phil">positions</span>, not theorems. They overlap (e.g. one can be a structuralist and a realist). Their practical bite shows up in two places: which <b>methods</b> count as proof (intuitionism rejects the law of excluded middle in general), and how to <b>justify new axioms</b> such as large cardinals or answers to CH.</span>
+    <span class="zh"><b>小结。</b>这些都是<span class="status st-phil"><span class="en">position</span><span class="zh">立场</span></span>，不是定理。它们之间可以重叠（例如既是结构主义者又是实在论者）。它们在实践中的分歧主要体现在两处：哪些<b>方法</b>算作证明（直觉主义一般地拒绝排中律），以及如何<b>为新公理辩护</b>（例如大基数，或对 CH 的回答）。</span></div>
+  <div class="cy" id="cy9"></div>
+</section>
+
+<!-- ============ S10 ============ -->
+<section class="card" id="s10">
+  <div class="kicker">§10</div>
+  <h2><span class="en">Alternative foundations</span><span class="zh">其他的数学基础</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Related</span><span class="zh">相关</span></span>:
+    <a class="chip" href="lesson6.html">L6 · ZF</a><a class="chip" href="lesson10.html">L10 · AC</a><a class="chip" href="lesson1.html">L1 · <span class="il"><span class="en">Peirce's law</span><span class="zh">皮尔士定律</span></span></a></div>
+  <div class="idea"><span class="en"><b>One idea.</b> ZFC is the standard reference foundation, but not the only one. Other foundations take a different primitive notion (types, functions/morphisms, homotopy types, constructions) because they care about different things: computation, invariance under isomorphism, or machine checking. Most mathematics can be done in all of them, and their relative strengths are well studied.</span>
+    <span class="zh"><b>核心思想。</b>ZFC 是标准的参照基础，但不是唯一的基础。其他基础以不同的概念为原始概念（类型、函数／态射、同伦类型、构造），因为它们关心的东西不同：可计算性、同构不变性或机器检验。大多数数学在这些框架里都能做，它们之间的相对强度也已被深入研究。</span></div>
+  <p><span class="en">Click a foundation to highlight its row; click a column heading to compare all foundations on one aspect.</span>
+     <span class="zh">点击某种基础以高亮该行；点击列标题可在某一方面比较所有基础。</span></p>
+  <div class="cmpcols seg" id="altCols"></div>
+  <div style="overflow-x:auto"><table class="mini" id="altTab"></table></div>
+  <div class="msg info" id="altInfo"></div>
+  <div class="def"><span class="en"><b>Summary.</b> Type theories and HoTT are motivated by computation and formal proof; category-theoretic foundations by “structure is what matters”; Bishop-style constructive mathematics by computational content. None of them “refutes” ZFC: each can be compared with ZFC by interpretations and consistency-strength results.</span>
+    <span class="zh"><b>小结。</b>类型论与 HoTT 的动机来自计算和形式证明；范畴论基础的动机是“结构才是关键”；毕晓普式构造性数学的动机是计算内容。它们都没有“驳倒”ZFC：每一种都可以通过解释和一致性强度的结果与 ZFC 作比较。</span></div>
+  <div class="note pit"><span class="en"><b class="h">⚠ Common pitfall.</b> “Constructive mathematics says excluded middle is false.” Bishop's constructive mathematics simply does not <i>use</i> it; every theorem is also classically valid. Brouwer's intuitionism is different: it adds principles (e.g. continuity principles) that contradict classical mathematics.</span>
+    <span class="zh"><b class="h">⚠ 常见误区。</b>“构造性数学认为排中律是错的。”毕晓普的构造性数学只是<i>不使用</i>排中律，其每个定理在经典意义下也成立。布劳威尔的直觉主义则不同：它加入了与经典数学相矛盾的原则（如连续性原则）。</span></div>
+  <div class="cy" id="cy10"></div>
+</section>
+
+<!-- ============ S11 ============ -->
+<section class="card" id="s11">
+  <div class="kicker">§11</div>
+  <h2><span class="en">What research looks like today</span><span class="zh">今天的研究是什么样的</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Next</span><span class="zh">后续</span></span>:
+    <a class="chip" href="lesson27.html">L27 · <span class="il"><span class="en">set theory frontiers</span><span class="zh">集合论前沿</span></span></a>
+    <a class="chip" href="lesson28.html">L28 · <span class="il"><span class="en">model theory, computability, proof theory frontiers</span><span class="zh">模型论、可计算性、证明论前沿</span></span></a></div>
+  <div class="idea"><span class="en"><b>One idea.</b> Each subfield has a few “big questions” that organize its research. Here each is compressed into one sentence, with a status tag; the next two lessons unpack them.</span>
+    <span class="zh"><b>核心思想。</b>每个分支都有几个统领研究的“大问题”。这里把每个问题压缩成一句话并标明状态；接下来的两课再逐一展开。</span></div>
+  <p><span class="en">Click a question for one more sentence of context.</span><span class="zh">点击问题，查看一句补充说明。</span></p>
+  <div class="frontier" id="frontier"></div>
+  <div class="def"><span class="en"><b>Summary.</b> The open problems are of three kinds: <b>mathematical</b> (a precise statement, true or false, e.g. Martin's conjecture), <b>programmatic</b> (find the right axioms or methods, e.g. inner models for supercompact cardinals), and <b>foundational</b> (what counts as a justified axiom, e.g. CH). Keep the three apart.</span>
+    <span class="zh"><b>小结。</b>未解问题有三类：<b>数学问题</b>（精确的命题，非真即假，如马丁猜想）、<b>纲领性问题</b>（找到合适的公理或方法，如超紧基数的内模型）、<b>基础性问题</b>（什么才算有理由的公理，如 CH）。三者要分开看待。</span></div>
+  <div class="cy" id="cy11"></div>
+</section>
+
+<!-- ============ EXERCISES ============ -->
+<section class="card" id="exercises">
+  <div class="kicker"><span class="il"><span class="en">Exercises</span><span class="zh">练习</span></span></div>
+  <h2><span class="en">Your turn</span><span class="zh">轮到你了</span></h2>
+  <p class="muted"><span class="en">Progress is saved in your browser. A sidebar ✓ means solved. Every exercise has a “Show answer” button; showing the answer does not count as solving.</span><span class="zh">进度保存在浏览器中，侧栏出现 ✓ 表示已完成。每道题都有“显示答案”按钮；看答案不计为完成。</span></p>
+
+  <div class="ex" id="e1" data-prog="L26E1">
+    <h3><span class="tag">E1</span><span class="il"><span class="en">Who proved what, and when?</span><span class="zh">谁在何时证明了什么？</span></span></h3>
+    <p><span class="en">Match each person to their result and date.</span><span class="zh">为每个人选出对应的结果与年代。</span></p>
+    <div id="e1List"></div>
+    <div class="toolbar"><button class="btn primary" id="e1Check"><span class="en">Check</span><span class="zh">检查</span></button><button class="btn ghost" id="e1Show"><span class="en">Show answer</span><span class="zh">显示答案</span></button></div>
+    <div class="msg" id="e1Msg"></div>
+  </div>
+
+  <div class="ex" id="e2" data-prog="L26E2">
+    <h3><span class="tag">E2</span><span class="il"><span class="en">Put the events in order</span><span class="zh">给事件排序</span></span></h3>
+    <p><span class="en">Use ▲ ▼ to sort these events from earliest (top) to latest.</span><span class="zh">用 ▲ ▼ 把事件按时间从早（上）到晚排好。</span></p>
+    <div class="order-list" id="e2List"></div>
+    <div class="toolbar"><button class="btn primary" id="e2Check"><span class="en">Check</span><span class="zh">检查</span></button><button class="btn" id="e2Shuffle"><span class="en">Shuffle</span><span class="zh">打乱</span></button><button class="btn ghost" id="e2Show"><span class="en">Show answer</span><span class="zh">显示答案</span></button></div>
+    <div class="msg" id="e2Msg"></div>
+  </div>
+
+  <div class="ex" id="e3" data-prog="L26E3">
+    <h3><span class="tag">E3</span><span class="il"><span class="en">Which pillars does each theorem connect?</span><span class="zh">每个定理连接哪两根支柱？</span></span></h3>
+    <div id="e3List"></div>
+    <div class="toolbar"><button class="btn primary" id="e3Check"><span class="en">Check</span><span class="zh">检查</span></button><button class="btn ghost" id="e3Show"><span class="en">Show answer</span><span class="zh">显示答案</span></button></div>
+    <div class="msg" id="e3Msg"></div>
+  </div>
+
+  <div class="ex" id="e4" data-prog="L26E4">
+    <h3><span class="tag">E4</span><span class="il"><span class="en">Misconception gallery: true or false?</span><span class="zh">误区画廊：对还是错？</span></span></h3>
+    <div id="e4List"></div>
+    <div class="toolbar"><button class="btn ghost" id="e4Show"><span class="en">Show all answers</span><span class="zh">显示全部答案</span></button></div>
+    <div class="msg" id="e4Msg"></div>
+  </div>
+
+  <div class="ex" id="e5" data-prog="L26E5">
+    <h3><span class="tag">E5</span><span class="il"><span class="en">Theorem, independent, open, or position?</span><span class="zh">定理、独立、未解决，还是立场？</span></span></h3>
+    <p><span class="en">Classify each claim's status (as of today).</span><span class="zh">判断每个论断（就目前而言）的状态。</span></p>
+    <div id="e5List"></div>
+    <div class="toolbar"><button class="btn primary" id="e5Check"><span class="en">Check</span><span class="zh">检查</span></button><button class="btn ghost" id="e5Show"><span class="en">Show answer</span><span class="zh">显示答案</span></button></div>
+    <div class="msg" id="e5Msg"></div>
+  </div>
+
+  <div class="ex" id="e6" data-prog="L26E6">
+    <h3><span class="tag">E6</span><span class="il"><span class="en">Which subfield asks this question?</span><span class="zh">这个问题属于哪个分支？</span></span></h3>
+    <div id="e6List"></div>
+    <div class="toolbar"><button class="btn primary" id="e6Check"><span class="en">Check</span><span class="zh">检查</span></button><button class="btn ghost" id="e6Show"><span class="en">Show answer</span><span class="zh">显示答案</span></button></div>
+    <div class="msg" id="e6Msg"></div>
+  </div>
+</section>
+
+<section class="card">
+  <div class="kicker"><span class="il"><span class="en">Next</span><span class="zh">下一课</span></span></div>
+  <h2><a href="lesson27.html" style="color:inherit"><span class="en">Lesson 27: frontiers of set theory: CH, Ultimate L, forcing axioms, HOD, pcf →</span><span class="zh">第 27 课：集合论前沿：连续统假设、终极 L、力迫公理、HOD、pcf →</span></a></h2>
+  <p><span class="en">You now have the whole map. Next we zoom in on the set-theoretic frontier: can CH be decided by new axioms, and which ones? Then Lesson 28 does the same for model theory, computability and proof theory.</span>
+     <span class="zh">现在你手里有了整张地图。下一课放大集合论的前沿：CH 能否由新公理判定？用哪些公理？第 28 课再对模型论、可计算性和证明论做同样的事。</span></p>
+</section>
+</main>
+</div>
+
+<script src="assets/logic.js"></script>
+<script src="assets/lesson26.js"></script>
+</body>
+</html>

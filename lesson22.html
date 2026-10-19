@@ -1,0 +1,458 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 22 · Ordinal definable sets: OD &amp; HOD 序数可定义集</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  .pre { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 13px; color: var(--muted); margin: -4px 0 12px; }
+  .pre a.pchip { display: inline-block; padding: 1px 9px; border-radius: 999px; border: 1px solid var(--line); background: #fbfaf6; color: var(--accent); text-decoration: none; font-size: 12.5px; }
+  .pre a.pchip:hover { border-color: var(--accent); }
+  .lang-both .pre .zh, .lang-both .pre a.pchip .zh { display: inline; font-size: 1em; }
+  .lang-both .pre .il .zh::before { content: " · "; }
+  .cy { border: 1.5px dashed #c9c3b0; border-radius: 12px; padding: 10px 14px; margin: 16px 0 4px; background: #fffef8; }
+  .cy .cyh { font-size: 12px; font-weight: 800; letter-spacing: .08em; color: var(--gold); text-transform: uppercase; }
+  .pit { border-left: 4px solid var(--false); background: #fff5f5; padding: 10px 14px; border-radius: 0 10px 10px 0; margin: 14px 0; }
+  .pit b.h { color: var(--false); }
+  .intu { border-left: 4px solid var(--true); background: #f1fbf3; padding: 10px 14px; border-radius: 0 10px 10px 0; margin: 14px 0; }
+  .status { display: inline-block; font-size: 11.5px; font-weight: 800; padding: 1px 8px; border-radius: 999px; margin-right: 6px; vertical-align: 1px; letter-spacing: .03em; }
+  .status.thm { background: var(--true); color: #fff; }
+  .status.con { background: var(--accent); color: #fff; }
+  .status.open { background: var(--false); color: #fff; }
+  .status.cond { background: var(--gold); color: #fff; }
+  .lang-both .status .zh { display: inline; color: #fff; font-size: 1em; }
+  .lang-both .status .zh::before { content: " · "; }
+  .lamps { list-style: none; padding: 0; margin: 8px 0; font-size: 14.5px; }
+  .lamps li { padding: 4px 8px; border-radius: 8px; margin: 3px 0; background: #f1efe7; transition: background .3s; }
+  .lamps li.on { background: var(--true-soft); }
+  .lamps li.off { background: var(--false-soft); }
+  .lamps li .dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 8px; background: #bbb; vertical-align: -1px; }
+  .lamps li.on .dot { background: var(--true); }
+  .lamps li.off .dot { background: var(--false); }
+  .ladder { position: relative; height: 520px; }
+  .rung { position: absolute; left: 0; width: 100%; max-width: 640px; height: 44px; border-radius: 10px; border: 1.5px solid var(--line); background: #fff;
+          display: flex; align-items: center; gap: 12px; padding: 0 12px; cursor: pointer; transition: transform .7s cubic-bezier(.3,1.2,.4,1), border-color .2s, background .2s; font-size: 14px; }
+  .rung .set { font-family: var(--mono); font-weight: 700; min-width: 92px; }
+  .rung .key { font-family: var(--mono); color: var(--muted); font-size: 13px; }
+  .rung .pos { font-family: var(--mono); font-weight: 800; color: var(--accent); min-width: 36px; opacity: 0; transition: opacity .4s; }
+  .ladder.sorted .rung .pos { opacity: 1; }
+  .rung.pick { border-color: var(--meta); background: var(--meta-soft); }
+  .rung.hl { border-color: var(--gold); background: var(--gold-soft); }
+  .ordbar { display: flex; flex-wrap: wrap; gap: 4px; margin: 6px 0; }
+  .ordbar button { font-family: var(--mono); }
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .seg button { border: 0; border-right: 1px solid var(--line); background: #fff; padding: 3px 10px; cursor: pointer; font: inherit; font-size: 13px; }
+  .seg button:last-child { border-right: 0; }
+  .seg button.on { background: var(--ink); color: #fff; }
+  .seg button.on .zh { color: #ddd; }
+  .lang-both .seg .zh { display: inline; font-size: 1em; }
+  .lang-both .seg .zh::before { content: " · "; }
+  .order-pool .chip, .order-done .chip { display: block; margin: 6px 0; }
+  .order-done { min-height: 60px; border: 2px dashed var(--line); border-radius: 12px; padding: 8px; background: #fbfaf6; }
+  .order-done .chip { cursor: default; }
+  .order-done .chip .n { font-weight: 800; color: var(--accent); margin-right: 6px; }
+  table.odt { border-collapse: collapse; font-size: 14.5px; margin: 8px 0; }
+  table.odt th, table.odt td { padding: 6px 10px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: middle; }
+  table.odt td.ans { white-space: nowrap; }
+  table.odt td.right { background: var(--true-soft); }
+  table.odt td.wrong { background: var(--false-soft); }
+  .ov { text-decoration: overline; }
+  .tog { font-family: var(--mono); min-width: 52px; }
+  svg .lab { font-family: var(--sans); }
+  .arrowrow { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; padding: 6px 0; border-bottom: 1px dashed var(--line); }
+  .arrowrow .stmt { flex: 1 1 280px; font-family: var(--mono); }
+  .multi .chip.sel { border-color: var(--meta); background: var(--meta-soft); }
+</style>
+</head>
+<body class="lang-both">
+<header class="top">
+  <a class="home" href="index.html">∀∃ <span class="il"><span class="en">Logic &amp; Sets</span><span class="zh">逻辑与集合</span></span></a>
+  <span class="muted">/ L22</span>
+  <span class="spacer"></span>
+  <div class="lang-switch">
+    <button data-lang="en">EN</button><button data-lang="zh">中文</button><button data-lang="both">EN + 中</button>
+  </div>
+</header>
+
+<div class="layout">
+<nav class="side">
+  <div class="grp">Lesson 22</div>
+  <a href="index.html">← <span class="il"><span class="en">Course map</span><span class="zh">课程地图</span></span></a>
+  <a href="lesson21.html">← <span class="il"><span class="en">Lesson 21</span><span class="zh">第 21 课</span></span></a>
+  <a href="lesson23.html"><span class="il"><span class="en">Lesson 23</span><span class="zh">第 23 课</span></span> →</a>
+  <div class="grp"><span class="il"><span class="en">Steps</span><span class="zh">步骤</span></span></div>
+  <a href="#s1">1 · <span class="il"><span class="en">Ordinal parameters</span><span class="zh">序数参数</span></span></a>
+  <a href="#s2">2 · <span class="il"><span class="en">Tarski's wall</span><span class="zh">塔斯基之墙</span></span></a>
+  <a href="#s3">3 · <span class="il"><span class="en">Reflection fix</span><span class="zh">用反射绕过去</span></span></a>
+  <a href="#s4">4 · <span class="il"><span class="en">Climbing α</span><span class="zh">攀登 α</span></span></a>
+  <a href="#s5">5 · <span class="il"><span class="en">Well-ordering OD</span><span class="zh">OD 的良序</span></span></a>
+  <a href="#s6">6 · <span class="il"><span class="en">OD is not transitive</span><span class="zh">OD 不传递</span></span></a>
+  <a href="#s7">7 · <span class="il"><span class="en">HOD</span><span class="zh">HOD</span></span></a>
+  <a href="#s8">8 · <span class="il"><span class="en">HOD ⊨ ZFC</span><span class="zh">HOD ⊨ ZFC</span></span></a>
+  <a href="#s9">9 · <span class="il"><span class="en">V = HOD?</span><span class="zh">V = HOD？</span></span></a>
+  <a href="#s10">10 · <span class="il"><span class="en">Large cardinals</span><span class="zh">大基数</span></span></a>
+  <div class="grp"><span class="il"><span class="en">Exercises</span><span class="zh">练习</span></span></div>
+  <a href="#e1" data-prog="L22E1">E1 · OD / HOD ?</a>
+  <a href="#e2" data-prog="L22E2">E2 · <span class="il"><span class="en">Proof order</span><span class="zh">证明排序</span></span></a>
+  <a href="#e3" data-prog="L22E3">E3 · Tarski</a>
+  <a href="#e4" data-prog="L22E4">E4 · ⇒ ?</a>
+  <a href="#e5" data-prog="L22E5">E5 · ⊆ Ord</a>
+  <a href="#e6" data-prog="L22E6">E6 · <span class="il"><span class="en">Extensionality</span><span class="zh">外延性</span></span></a>
+</nav>
+
+<main>
+<div class="hero">
+  <div class="kicker">Part V · Lesson 22</div>
+  <h1><span class="en">Ordinal definable sets: OD &amp; HOD</span><span class="zh">序数可定义集：OD 与 HOD</span></h1>
+  <p><span class="en">L collects the sets that can be built by definitions from earlier stages of a construction. Gödel suggested a more generous notion: a set counts if <b>some</b> first-order formula, with <b>ordinals</b> as parameters, picks it out in the whole universe V. The first formal problem is that “definable in V” cannot be written down directly (Tarski). The reflection theorem gets around it. What comes out is HOD, an inner model of ZFC that the ZF axioms alone produce and that sits between L and V.</span>
+     <span class="zh">L 收集的是在构造过程中由前面各层逐步“定义出来”的集合。哥德尔提出了一个更宽松的想法：只要在整个宇宙 V 中能用<b>某个</b>一阶公式、以<b>序数</b>为参数把它唯一刻画出来，就算数。第一道形式化难关是“在 V 中可定义”无法直接写成公式（塔斯基定理），而反射原理恰好能绕过它。最后得到的是 HOD：一个仅凭 ZF 公理就能造出来的 ZFC 内模型，介于 L 与 V 之间。</span></p>
+</div>
+
+<!-- ============ S1 ============ -->
+<section class="card" id="s1">
+  <div class="kicker"><span class="il"><span class="en">Step 1</span><span class="zh">第 1 步</span></span></div>
+  <h2><span class="en">From L to OD: let ordinals be parameters, and define over V</span><span class="zh">从 L 到 OD：允许序数作参数，在 V 上定义</span></h2>
+  <div class="pre"><span class="il"><span class="en">Prerequisites</span><span class="zh">预备</span></span>:
+    <a class="pchip" href="lesson14.html">L14 · V<sub>α</sub></a><a class="pchip" href="lesson15.html">L15 · L, Def</a></div>
+  <p><span class="en">In L (Lesson 15), stage <span class="m">L<sub>α+1</sub> = Def(L<sub>α</sub>)</span> only contains sets definable <i>over the small structure</i> <span class="m">L<sub>α</sub></span>. Gödel's broader idea changes two things. First, you may define <b>over V itself</b>, so a formula can quantify over all sets, all reals included. Second, any <b>ordinals</b> may appear as parameters. Pick an ordinal β and a formula template below. Each choice defines one set from the single parameter β, so the set is “ordinal definable”. Then look at whether it has to be in L.</span>
+     <span class="zh">在 L 中（第 15 课），<span class="m">L<sub>α+1</sub> = Def(L<sub>α</sub>)</span> 只含在<i>小结构</i> <span class="m">L<sub>α</sub></span> 上可定义的集合。哥德尔的新想法改了两处：其一，允许<b>在 V 本身上</b>定义，公式中的量词可以跑遍所有集合（包括所有实数）；其二，任何<b>序数</b>都可以作参数。在下面选一个序数 β 和一个公式模板，每种选择都用唯一的参数 β 定义出一个集合，所以它是“序数可定义”的。再看看它是否一定属于 L。</span></p>
+  <div class="toolbar"><b class="m">β =</b> <div class="ordbar" id="lensOrd"></div></div>
+  <div class="toolbar"><b class="m">φ(z, β):</b> <div class="ordbar" id="lensTpl"></div></div>
+  <div class="stage" style="display:flex;justify-content:center"><svg id="lensSvg" viewBox="0 0 700 400" width="700" height="400"></svg></div>
+  <div class="msg info" id="lensInfo"></div>
+  <div class="def"><span class="en"><b>Informal definition (Gödel 1946).</b> A set <span class="m">x</span> is <b>ordinal definable</b> if there are a formula <span class="m">φ(z, y<sub>1</sub>,…,y<sub>n</sub>)</span> and ordinals <span class="m">β<sub>1</sub>,…,β<sub>n</sub></span> such that <span class="m">x</span> is the <b>unique</b> set with <span class="m">φ(x, β<sub>1</sub>,…,β<sub>n</sub>)</span>, where all quantifiers of φ range over <b>V</b>. Step 2 explains why this is not yet a definition inside ZF, and Step 3 repairs it.</span>
+    <span class="zh"><b>非正式定义（哥德尔，1946）.</b> 若存在公式 <span class="m">φ(z, y<sub>1</sub>,…,y<sub>n</sub>)</span> 和序数 <span class="m">β<sub>1</sub>,…,β<sub>n</sub></span>，使得 <span class="m">x</span> 是满足 <span class="m">φ(x, β<sub>1</sub>,…,β<sub>n</sub>)</span> 的<b>唯一</b>集合（φ 的量词跑遍 <b>V</b>），则称 <span class="m">x</span> 为<b>序数可定义</b>的。第 2 步说明为什么这还不是 ZF 内部的定义，第 3 步给出修正。</span></div>
+  <div class="pit"><span class="en"><b class="h">⚠ Common pitfall.</b> “Ordinal definable” does <i>not</i> mean “definable without parameters”. A meta-theoretic count gives only countably many parameter-free definitions, yet every ordinal is OD, since <span class="m">β</span> is defined by <span class="m">z = β</span> with parameter β. Parameters other than ordinals (say an arbitrary real) are <b>not</b> allowed.</span>
+    <span class="zh"><b class="h">⚠ 常见误区.</b> “序数可定义”<i>不是</i>“无参数可定义”。在元理论中数一数，无参数的定义只有可数多个，但每个序数都是 OD 的：用公式 <span class="m">z = β</span> 以 β 为参数即可。序数以外的参数（比如任意一个实数）<b>不</b>允许使用。</span></div>
+  <div class="cy" id="cy1"></div>
+</section>
+
+<!-- ============ S2 ============ -->
+<section class="card" id="s2">
+  <div class="kicker"><span class="il"><span class="en">Step 2</span><span class="zh">第 2 步</span></span></div>
+  <h2><span class="en">Tarski's wall: “definable over V” is not one formula</span><span class="zh">塔斯基之墙：“在 V 上可定义”不是一条公式</span></h2>
+  <div class="pre"><span class="il"><span class="en">Prerequisites</span><span class="zh">预备</span></span>:
+    <a class="pchip" href="lesson13.html">L13 · Tarski</a><a class="pchip" href="lesson20.html">L20 · Σ<sub>n</sub>-Sat</a><a class="pchip" href="#s1">§1</a></div>
+  <p><span class="en">To turn the informal definition into a class <span class="m">{x : x is OD}</span> we would need one formula <span class="m">D(x)</span> saying “there is a formula φ and ordinals <span class="ov">β</span> such that φ(·, <span class="ov">β</span>) defines x in V”. That quantifies over <b>formulas</b> (as codes ⌜φ⌝ ∈ ω) and then has to evaluate their <b>truth in V</b>, so it needs a truth predicate <span class="m">Sat<sub>V</sub>(⌜φ⌝, ā)</span> for V. For a <b>set</b>-sized structure such a predicate exists: it is built by recursion on formulas, and the result is a set. Switch the domain below and watch.</span>
+     <span class="zh">要把非正式定义变成一个类 <span class="m">{x : x 是 OD}</span>，就需要一条公式 <span class="m">D(x)</span> 表达“存在公式 φ 和序数 <span class="ov">β</span>，使 φ(·, <span class="ov">β</span>) 在 V 中定义出 x”。这要对<b>公式</b>（即编码 ⌜φ⌝ ∈ ω）作量词，再判断它们<b>在 V 中是否为真</b>，也就是需要 V 的真谓词 <span class="m">Sat<sub>V</sub>(⌜φ⌝, ā)</span>。对<b>集合</b>大小的结构，这样的谓词是存在的：沿公式递归构造，得到的是一个集合。切换下面的论域看看。</span></p>
+  <div class="toolbar"><div class="seg" id="satSeg"></div><button class="btn small" id="satRun"><span class="en">Fill the table ▶</span><span class="zh">填表 ▶</span></button></div>
+  <div class="stage" style="display:flex;justify-content:center"><svg id="satSvg" viewBox="0 0 700 270" width="700" height="270"></svg></div>
+  <div class="msg" id="satMsg"></div>
+  <div class="def"><span class="en"><b>Facts.</b> (i) There is a single formula <span class="m">Sat(M, E, k, s)</span> such that ZF proves: for every <b>set</b> structure <span class="m">(M, E)</span>, formula code <span class="m">k ∈ ω</span> and assignment <span class="m">s</span>, Sat holds iff <span class="m">(M,E) ⊨ k[s]</span> (Tarski's clauses, recursion on k). For each actual formula φ, ZF proves <span class="m">Sat(M, ∈, ⌜φ⌝, ā) ↔ φ<sup>M</sup>(ā)</span>.<br>
+    (ii) <b>Tarski (L13):</b> no formula <span class="m">T(k, s)</span> satisfies <span class="m">T(⌜φ⌝, ā) ↔ φ(ā)</span> in V for <i>all</i> φ.<br>
+    (iii) For each fixed n ≥ 1, Σ<sub>n</sub>-truth in V <i>is</i> definable by a Σ<sub>n</sub> formula (L20). So the obstruction is uniformity over all n, not any single level.</span>
+    <span class="zh"><b>事实.</b> (i) 存在单独一条公式 <span class="m">Sat(M, E, k, s)</span>，ZF 证明：对任意<b>集合</b>结构 <span class="m">(M, E)</span>、公式编码 <span class="m">k ∈ ω</span> 和赋值 <span class="m">s</span>，Sat 成立当且仅当 <span class="m">(M,E) ⊨ k[s]</span>（塔斯基条款，对 k 递归）。对每条具体公式 φ，ZF 证明 <span class="m">Sat(M, ∈, ⌜φ⌝, ā) ↔ φ<sup>M</sup>(ā)</span>。<br>
+    (ii) <b>塔斯基（第 13 课）：</b>不存在公式 <span class="m">T(k, s)</span> 使得对<i>所有</i> φ 都有 <span class="m">T(⌜φ⌝, ā) ↔ φ(ā)</span> 在 V 中成立。<br>
+    (iii) 对每个固定的 n ≥ 1，V 中的 Σ<sub>n</sub> 真<i>是</i>可以用一条 Σ<sub>n</sub> 公式定义的（第 20 课）。所以障碍在于对所有 n 一致地定义，而不在任何单独一层。</span></div>
+  <div class="pit"><span class="en"><b class="h">⚠ Common pitfall.</b> Tarski does not say that the class OD is undefinable. It says the <i>naive route</i>, which goes through truth in V, is blocked. Step 3 takes another route to the same class.</span>
+    <span class="zh"><b class="h">⚠ 常见误区.</b> 塔斯基定理并没有说 OD 这个类不可定义，它只说明经过“V 中的真”这条<i>朴素路线</i>走不通。第 3 步换一条路，得到的是同一个类。</span></div>
+  <div class="cy" id="cy2"></div>
+</section>
+
+<!-- ============ S3 ============ -->
+<section class="card" id="s3">
+  <div class="kicker"><span class="il"><span class="en">Step 3</span><span class="zh">第 3 步</span></span></div>
+  <h2><span class="en">The fix: reflect the definition down to some V<sub>α</sub></span><span class="zh">修正：把定义反射到某个 V<sub>α</sub> 上</span></h2>
+  <div class="pre"><span class="il"><span class="en">Prerequisites</span><span class="zh">预备</span></span>:
+    <a class="pchip" href="lesson20.html">L20 · <span class="il"><span class="en">reflection theorem</span><span class="zh">反射原理</span></span></a><a class="pchip" href="lesson14.html">L14 · V<sub>α</sub></a><a class="pchip" href="#s2">§2</a></div>
+  <p><span class="en">Suppose a formula φ (one actual formula, fixed in the metatheory) defines <span class="m">x</span> in V from ordinals <span class="m">β<sub>1</sub>, β<sub>2</sub></span>. The <b>reflection theorem</b> says that for any β there is <span class="m">α &gt; β</span> such that φ is <b>absolute</b> between V<sub>α</sub> and V. Climb α. A level counts only when three lamps are green at once. When they are, V<sub>α</sub> is a <i>set</i> whose own truth already pins down x.</span>
+     <span class="zh">设某条公式 φ（元理论中固定的一条具体公式）在 V 中以序数 <span class="m">β<sub>1</sub>, β<sub>2</sub></span> 为参数定义出 <span class="m">x</span>。<b>反射原理</b>说：对任意 β，存在 <span class="m">α &gt; β</span> 使 φ 在 V<sub>α</sub> 与 V 之间<b>绝对</b>。来攀登 α。只有三盏灯同时变绿，这一层才算数。那时 V<sub>α</sub> 是一个<i>集合</i>，而它自己的真已经足以确定 x。</span></p>
+  <div class="row">
+    <div class="col" style="flex:0 1 470px"><div class="stage"><svg id="reflSvg" viewBox="0 0 460 430" width="460" height="430"></svg></div></div>
+    <div class="col">
+      <div class="toolbar">
+        <button class="btn small" id="reflDown">α −</button>
+        <button class="btn small" id="reflUp">α +</button>
+        <button class="btn primary" id="reflClimb"><span class="en">Climb until all green ▶</span><span class="zh">一直爬到全绿 ▶</span></button>
+        <button class="btn ghost small" id="reflReset"><span class="en">Reset</span><span class="zh">重置</span></button>
+      </div>
+      <div class="m" style="font-size:18px" id="reflAlpha"></div>
+      <ul class="lamps" id="reflLamps"></ul>
+      <div class="msg" id="reflMsg"></div>
+      <p class="muted" style="font-size:13px"><span class="en">Illustration: the heights are schematic. In reality the reflecting α form a closed unbounded class of (limit) ordinals.</span><span class="zh">示意图：高度只是示意。实际上能反射 φ 的 α 构成一个闭无界的（极限）序数类。</span></p>
+    </div>
+  </div>
+  <div class="def"><span class="en"><b>Definition (in ZF, one formula).</b>
+    <span class="m">x ∈ OD :⇔ ∃α ∃k∈ω ∃<span class="ov">β</span> ∈ α<sup>&lt;ω</sup> [ x ∈ V<sub>α</sub> ∧ ∀z∈V<sub>α</sub> ( Sat(V<sub>α</sub>, ∈, k, z, <span class="ov">β</span>) ↔ z = x ) ]</span>.<br>
+    In words, x is OD iff x is definable over some set-structure <span class="m">(V<sub>α</sub>, ∈)</span> from ordinals &lt; α. Here <span class="ov">β</span> ranges over <b>finite sequences</b> of ordinals &lt; α (a single variable, since n may vary), and Sat takes the assignment z⌢<span class="ov">β</span>. Only Sat for set structures occurs, so this is a legitimate (in fact Σ<sub>2</sub>) formula and OD is a <b>definable class</b>.<br>
+    <b>Metatheorem (schema).</b> For each formula <span class="m">φ(z, y<sub>1</sub>,…,y<sub>n</sub>)</span>, ZF proves:
+    <span class="m">∀<span class="ov">β</span> ∈ Ord ∀x [ ∀z (φ(z, <span class="ov">β</span>) ↔ z = x) → x ∈ OD ]</span>.<br>
+    <b>Conversely</b> (a single theorem of ZF, no schema): if x ∈ OD, witnessed by α, k, <span class="ov">β</span>, then x is defined in V by the single formula <span class="m">χ(z, α, k, <span class="ov">β</span>) :≡ z ∈ V<sub>α</sub> ∧ ∀z′∈V<sub>α</sub>(Sat(V<sub>α</sub>,∈,k,z′,<span class="ov">β</span>) ↔ z′ = z)</span>, whose parameters α, k, <span class="ov">β</span> are ordinals or a finite sequence of ordinals. (k ∈ ω is an ordinal too, and a finite sequence of ordinals can be coded by one ordinal via the definable pairing of Ord × Ord with Ord.)</span>
+    <span class="zh"><b>定义（在 ZF 中，一条公式）.</b>
+    <span class="m">x ∈ OD :⇔ ∃α ∃k∈ω ∃<span class="ov">β</span> ∈ α<sup>&lt;ω</sup> [ x ∈ V<sub>α</sub> ∧ ∀z∈V<sub>α</sub> ( Sat(V<sub>α</sub>, ∈, k, z, <span class="ov">β</span>) ↔ z = x ) ]</span>。<br>
+    也就是说，x 是 OD 当且仅当 x 在某个集合结构 <span class="m">(V<sub>α</sub>, ∈)</span> 上以小于 α 的序数为参数可定义。这里 <span class="ov">β</span> 跑遍由小于 α 的序数组成的<b>有限序列</b>（用单个变元表示，因为长度 n 可变），Sat 使用赋值 z⌢<span class="ov">β</span>。式中只出现集合结构的 Sat，所以这是一条合法的公式（实际上是 Σ<sub>2</sub> 公式），OD 是一个<b>可定义类</b>。<br>
+    <b>元定理（模式）.</b> 对每条公式 <span class="m">φ(z, y<sub>1</sub>,…,y<sub>n</sub>)</span>，ZF 证明：
+    <span class="m">∀<span class="ov">β</span> ∈ Ord ∀x [ ∀z (φ(z, <span class="ov">β</span>) ↔ z = x) → x ∈ OD ]</span>。<br>
+    <b>反之</b>（ZF 的单独一条定理，不是模式）：若 x ∈ OD，由 α, k, <span class="ov">β</span> 见证，则 x 在 V 中由单独一条公式 <span class="m">χ(z, α, k, <span class="ov">β</span>) :≡ z ∈ V<sub>α</sub> ∧ ∀z′∈V<sub>α</sub>(Sat(V<sub>α</sub>,∈,k,z′,<span class="ov">β</span>) ↔ z′ = z)</span> 定义，其参数 α、k、<span class="ov">β</span> 是序数或序数的有限序列（k ∈ ω 也是序数；序数的有限序列可借助 Ord × Ord 与 Ord 之间的可定义配对编码成单个序数）。</span></div>
+  <h3><span class="en">Proof of the schema, step by step</span><span class="zh">模式的证明，逐步展开</span></h3>
+  <div class="steps" id="reflSteps">
+    <div class="step"><p><span class="en"><b>1.</b> Fix, in the metatheory, a formula φ(z, ȳ). Work in ZF: let <span class="ov">β</span> be ordinals and x a set with <span class="m">∀z (φ(z, <span class="ov">β</span>) ↔ z = x)</span>.</span>
+      <span class="zh"><b>1.</b> 在元理论中固定一条公式 φ(z, ȳ)。在 ZF 中推理：设 <span class="ov">β</span> 是序数，x 是满足 <span class="m">∀z (φ(z, <span class="ov">β</span>) ↔ z = x)</span> 的集合。</span></p></div>
+    <div class="step"><p><span class="en"><b>2. Reflection (this is where it is used).</b> The reflection theorem for the single formula φ (with its subformulas) gives some <span class="m">α &gt; max(rank(x), β<sub>1</sub>,…,β<sub>n</sub>)</span> such that <span class="m">∀z, ȳ ∈ V<sub>α</sub> (φ<sup>V<sub>α</sub></sup>(z, ȳ) ↔ φ(z, ȳ))</span>. Then <span class="m">x ∈ V<sub>α</sub></span> and <span class="m"><span class="ov">β</span> ∈ V<sub>α</sub></span>.</span>
+      <span class="zh"><b>2. 反射（用在这里）.</b> 对这一条公式 φ（连同其子公式）应用反射原理，得到某个 <span class="m">α &gt; max(rank(x), β<sub>1</sub>,…,β<sub>n</sub>)</span>，使 <span class="m">∀z, ȳ ∈ V<sub>α</sub> (φ<sup>V<sub>α</sub></sup>(z, ȳ) ↔ φ(z, ȳ))</span>。于是 <span class="m">x ∈ V<sub>α</sub></span>，<span class="m"><span class="ov">β</span> ∈ V<sub>α</sub></span>。</span></p></div>
+    <div class="step"><p><span class="en"><b>3.</b> For <span class="m">z ∈ V<sub>α</sub></span>: <span class="m">φ<sup>V<sub>α</sub></sup>(z, <span class="ov">β</span>) ⇔ φ(z, <span class="ov">β</span>) ⇔ z = x</span>. So x is the unique element of V<sub>α</sub> satisfying φ<sup>V<sub>α</sub></sup>(·, <span class="ov">β</span>). Uniqueness inside V<sub>α</sub> also needed absoluteness: without it, V<sub>α</sub> could contain a “fake” z′ ≠ x with φ<sup>V<sub>α</sub></sup>(z′, <span class="ov">β</span>).</span>
+      <span class="zh"><b>3.</b> 对 <span class="m">z ∈ V<sub>α</sub></span>：<span class="m">φ<sup>V<sub>α</sub></sup>(z, <span class="ov">β</span>) ⇔ φ(z, <span class="ov">β</span>) ⇔ z = x</span>。所以 x 是 V<sub>α</sub> 中唯一满足 φ<sup>V<sub>α</sub></sup>(·, <span class="ov">β</span>) 的元素。V<sub>α</sub> 内部的唯一性同样要用到绝对性：没有它，V<sub>α</sub> 里可能出现某个满足 φ<sup>V<sub>α</sub></sup>(z′, <span class="ov">β</span>) 的“冒牌” z′ ≠ x。</span></p></div>
+    <div class="step"><p><span class="en"><b>4.</b> By fact (i) of Step 2, <span class="m">φ<sup>V<sub>α</sub></sup>(z, <span class="ov">β</span>) ↔ Sat(V<sub>α</sub>, ∈, ⌜φ⌝, z, <span class="ov">β</span>)</span>. Taking <span class="m">k = ⌜φ⌝</span> witnesses the defining formula of OD, so <span class="m">x ∈ OD</span>. ∎</span>
+      <span class="zh"><b>4.</b> 由第 2 步事实 (i)，<span class="m">φ<sup>V<sub>α</sub></sup>(z, <span class="ov">β</span>) ↔ Sat(V<sub>α</sub>, ∈, ⌜φ⌝, z, <span class="ov">β</span>)</span>。取 <span class="m">k = ⌜φ⌝</span> 即满足 OD 的定义公式，故 <span class="m">x ∈ OD</span>。∎</span></p></div>
+    <div class="step"><p><span class="en"><b>5. The converse needs no reflection.</b> If x ∈ OD via (α, k, <span class="ov">β</span>), the formula χ above defines x in V. χ talks only about the set V<sub>α</sub>, so no truth predicate for V is involved.</span>
+      <span class="zh"><b>5. 反方向不需要反射.</b> 若 x 由 (α, k, <span class="ov">β</span>) 见证属于 OD，上面的 χ 就在 V 中定义了 x。χ 只谈论集合 V<sub>α</sub>，不涉及 V 的真谓词。</span></p></div>
+  </div>
+  <div class="toolbar"><button class="btn primary" id="reflNext"><span class="en">Reveal next step</span><span class="zh">揭晓下一步</span></button><button class="btn ghost" id="reflAll"><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+  <div class="pit"><span class="en"><b class="h">⚠ Common pitfall: schema vs single theorem.</b> “Every set definable in V from ordinals is OD” is <b>not</b> one theorem of ZF. It is infinitely many theorems, one for each φ (each proof uses reflection for that φ). Also, inside ZF the variable <span class="m">k</span> ranges over the set ω of formula codes. In a model whose ω is nonstandard, k may be a nonstandard “formula”; the class OD of that model is still perfectly well defined.</span>
+    <span class="zh"><b class="h">⚠ 常见误区：模式与单条定理.</b> “在 V 中由序数可定义的集合都是 OD”<b>不是</b> ZF 的一条定理，而是无穷多条定理，每个 φ 一条（每条的证明都对那个 φ 用一次反射）。另外，在 ZF 内部变元 <span class="m">k</span> 跑遍的是公式编码的集合 ω。在 ω 非标准的模型中，k 可能是非标准的“公式”，但该模型里的类 OD 依然定义得好好的。</span></div>
+  <div class="cy" id="cy3"></div>
+</section>
+
+<!-- ============ S4 ============ -->
+<section class="card" id="s4">
+  <div class="kicker"><span class="il"><span class="en">Step 4</span><span class="zh">第 4 步</span></span></div>
+  <h2><span class="en">The Wikipedia formulation: S is defined in V<sub>α₁</sub> from α₂, …, αₙ</span><span class="zh">维基百科的表述：S 在 V<sub>α₁</sub> 中由 α₂, …, αₙ 定义</span></h2>
+  <div class="pre"><span class="il"><span class="en">Prerequisites</span><span class="zh">预备</span></span>:
+    <a class="pchip" href="#s3">§3</a><a class="pchip" href="lesson14.html">L14 · rank</a></div>
+  <div class="def"><span class="en"><b>Equivalent definition.</b> S ∈ OD iff there are ordinals <span class="m">α<sub>1</sub>, …, α<sub>n</sub></span> and a formula φ such that S is the <b>unique</b> <span class="m">z ∈ V<sub>α₁</sub></span> with <span class="m">(V<sub>α₁</sub>, ∈) ⊨ φ[z, α<sub>2</sub>, …, α<sub>n</sub>]</span>. Here <span class="m">α<sub>2</sub>,…,α<sub>n</sub> &lt; α<sub>1</sub></span> is forced, because parameters must be elements of the structure and an ordinal β lies in V<sub>α₁</sub> iff β &lt; α₁. This is Step 3's definition with α₁ = α.</span>
+    <span class="zh"><b>等价定义.</b> S ∈ OD 当且仅当存在序数 <span class="m">α<sub>1</sub>, …, α<sub>n</sub></span> 和公式 φ，使 S 是 <span class="m">V<sub>α₁</sub></span> 中满足 <span class="m">(V<sub>α₁</sub>, ∈) ⊨ φ[z, α<sub>2</sub>, …, α<sub>n</sub>]</span> 的<b>唯一</b> z。这里必然有 <span class="m">α<sub>2</sub>,…,α<sub>n</sub> &lt; α<sub>1</sub></span>：参数必须是结构中的元素，而序数 β 属于 V<sub>α₁</sub> 当且仅当 β &lt; α₁。这正是第 3 步的定义，只是把 α 记作 α₁。</span></div>
+  <p><span class="en">Choose a target set S and climb α₁. Two things must be true at once: S has to be <b>in</b> the structure (rank(S) &lt; α₁), and so do the parameters. The formulas used here are absolute for all V<sub>α₁</sub> above the threshold, so once a level works, every higher level on this ruler works too. That holds for these formulas, not for formulas in general (compare Step 3).</span>
+     <span class="zh">选一个目标集合 S，然后攀登 α₁。两件事要同时成立：S 必须<b>在</b>结构里（rank(S) &lt; α₁），参数也必须在。这里用到的公式对门槛以上的所有 V<sub>α₁</sub> 都是绝对的，所以某一层一旦成功，尺子上更高的层也都成功。这是这些公式的性质，一般的公式未必如此（对照第 3 步）。</span></p>
+  <div class="toolbar"><b>S =</b> <div class="ordbar" id="climbTargets"></div></div>
+  <div class="toolbar">
+    <button class="btn small" id="climbDown">α₁ −</button><button class="btn small" id="climbUp">α₁ +</button>
+    <button class="btn primary" id="climbGo"><span class="en">Climb ▶</span><span class="zh">攀登 ▶</span></button>
+  </div>
+  <div class="stage"><svg id="climbSvg" viewBox="0 0 720 190" width="720" height="190"></svg></div>
+  <div class="msg" id="climbMsg"></div>
+  <div class="cy" id="cy4"></div>
+</section>
+
+<!-- ============ S5 ============ -->
+<section class="card" id="s5">
+  <div class="kicker"><span class="il"><span class="en">Step 5</span><span class="zh">第 5 步</span></span></div>
+  <h2><span class="en">OD has a definable well-ordering</span><span class="zh">OD 有一个可定义的良序</span></h2>
+  <div class="pre"><span class="il"><span class="en">Prerequisites</span><span class="zh">预备</span></span>:
+    <a class="pchip" href="#s3">§3</a><a class="pchip" href="lesson8.html">L8 · <span class="il"><span class="en">well-orders</span><span class="zh">良序</span></span></a></div>
+  <p><span class="en">Every OD set has many definitions. Give each one its <b>least</b> definition. A definition is a triple <span class="m">(α, k, <span class="ov">β</span>)</span>, where α is least such that x is definable over V<sub>α</sub>, then k is the least formula code that works over that V<sub>α</sub>, then <span class="ov">β</span> is the lexicographically least parameter tuple for that k. Sorting by these keys orders all of OD. Press “Sort”, then click two rungs to see which key decides between them.</span>
+     <span class="zh">每个 OD 集合都有许多定义，给它挑出<b>最小</b>的那个。一个定义是三元组 <span class="m">(α, k, <span class="ov">β</span>)</span>：先取最小的 α 使 x 在 V<sub>α</sub> 上可定义，再取在该 V<sub>α</sub> 上可用的最小公式编码 k，最后取该 k 下字典序最小的参数组 <span class="ov">β</span>。按这些关键字排序，就把整个 OD 排好了。点“排序”，再点两级梯子，看看是哪个关键字分出先后。</span></p>
+  <div class="toolbar">
+    <button class="btn primary" id="ladSort"><span class="en">Sort ▶</span><span class="zh">排序 ▶</span></button>
+    <button class="btn ghost" id="ladShuffle"><span class="en">Shuffle</span><span class="zh">打乱</span></button>
+  </div>
+  <div class="stage"><div class="ladder" id="ladder"></div></div>
+  <div class="msg info" id="ladMsg"></div>
+  <p class="muted" style="font-size:13px"><span class="en">The codes #k and the exact least α are made up for the picture. Real values depend on a fixed Gödel numbering. What matters is that every OD set has exactly one least key. The rung numbers only rank these ten sets: in the full order infinitely many OD sets lie between, e.g., 2 and ω.</span>
+    <span class="zh">图中的编码 #k 和最小 α 只是为了作图而设定的，真实数值取决于选定的哥德尔编码。要紧的是：每个 OD 集合恰有一个最小关键字。梯级编号只是这十个集合之间的名次：在完整的序里，例如 2 和 ω 之间还夹着无穷多个 OD 集合。</span></p>
+  <div class="def"><span class="en"><b>Theorem (ZF).</b> Let <span class="m">key(x) = (α<sub>x</sub>, k<sub>x</sub>, <span class="ov">β</span><sub>x</sub>)</span> be the least witness as above, and put <span class="m">x &lt;<sub>OD</sub> y</span> iff key(x) precedes key(y) lexicographically (α first, then k, then <span class="ov">β</span> lexicographically; the length n of <span class="ov">β</span> is determined by k).
+    Then <span class="m">&lt;<sub>OD</sub></span> is a <b>definable well-ordering</b> of the class OD. Each initial segment <span class="m">{y : y &lt;<sub>OD</sub> x}</span> is a set (a subset of V<sub>α<sub>x</sub>+1</sub>). Hence the map <span class="m">F(x) = </span>order type of <span class="m">{y : y &lt;<sub>OD</sub> x}</span> is a <b>definable injection OD → Ord</b>. It is in fact a bijection onto Ord, because OD ⊇ Ord is a proper class (Jech Ch. 13).</span>
+    <span class="zh"><b>定理（ZF）.</b> 令 <span class="m">key(x) = (α<sub>x</sub>, k<sub>x</sub>, <span class="ov">β</span><sub>x</sub>)</span> 为上述最小见证，定义 <span class="m">x &lt;<sub>OD</sub> y</span> 当且仅当 key(x) 按字典序先于 key(y)（先比 α，再比 k，再按字典序比 <span class="ov">β</span>；<span class="ov">β</span> 的长度 n 由 k 决定）。
+    则 <span class="m">&lt;<sub>OD</sub></span> 是类 OD 上的一个<b>可定义良序</b>。每个前段 <span class="m">{y : y &lt;<sub>OD</sub> x}</span> 都是集合（是 V<sub>α<sub>x</sub>+1</sub> 的子集）。因此映射 <span class="m">F(x) = </span><span class="m">{y : y &lt;<sub>OD</sub> x}</span> 的序型，是一个<b>从 OD 到 Ord 的可定义单射</b>。由于 OD ⊇ Ord 是真类，它其实是到 Ord 上的双射（Jech 第 13 章）。</span></div>
+  <div class="pit"><span class="en"><b class="h">⚠ Common pitfall.</b> The lexicographic order on <i>all</i> finite sequences of ordinals is <b>not</b> a well-order: (1) &gt; (0,1) &gt; (0,0,1) &gt; … descends forever. It is fine here because k fixes the length n, and lexicographic order on n-tuples of ordinals <i>is</i> a well-order. Also, this ordering uses <b>no choice</b>: every step is “take the least”.</span>
+    <span class="zh"><b class="h">⚠ 常见误区.</b> <i>所有</i>有限序数序列上的字典序<b>不是</b>良序：(1) &gt; (0,1) &gt; (0,0,1) &gt; … 可以无穷下降。这里没问题，是因为 k 固定了长度 n，而 n 元序数组上的字典序<i>是</i>良序。此外，这个排序<b>完全不用选择公理</b>：每一步都只是“取最小”。</span></div>
+  <div class="cy" id="cy5"></div>
+</section>
+
+<!-- ============ S6 ============ -->
+<section class="card" id="s6">
+  <div class="kicker"><span class="il"><span class="en">Step 6</span><span class="zh">第 6 步</span></span></div>
+  <h2><span class="en">OD is not transitive, and (OD, ∈) can fail Extensionality</span><span class="zh">OD 不传递，(OD, ∈) 还可能违反外延公理</span></h2>
+  <div class="pre"><span class="il"><span class="en">Prerequisites</span><span class="zh">预备</span></span>:
+    <a class="pchip" href="#s4">§4</a><a class="pchip" href="lesson16.html">L16 · <span class="il"><span class="en">Cohen reals</span><span class="zh">科恩实数</span></span></a></div>
+  <p><span class="en">ℝ (here <span class="m">ℝ = P(ω)</span>) is OD: it is defined without parameters. Its <i>elements</i> need not be OD. Start from L and add one Cohen real c. In <span class="m">L[c]</span> the OD reals are exactly the constructible ones, and c is not OD. (This follows from the homogeneity of Cohen forcing: <span class="m">HOD<sup>L[c]</sup> = L</span>. See the theory of weakly homogeneous forcing in Jech.) Toggle the universe, then put on “OD glasses”, which show only OD sets.</span>
+     <span class="zh">ℝ（这里取 <span class="m">ℝ = P(ω)</span>）是 OD 的：不用任何参数就能定义。但它的<i>元素</i>未必是 OD 的。从 L 出发添加一个科恩实数 c。在 <span class="m">L[c]</span> 中，OD 实数恰好就是可构成的实数，而 c 不是 OD 的。（这来自科恩力迫的齐性：<span class="m">HOD<sup>L[c]</sup> = L</span>，见 Jech 中关于弱齐性力迫的部分。）切换宇宙，再戴上只看得见 OD 集合的“OD 眼镜”。</span></p>
+  <div class="toolbar"><div class="seg" id="realsSeg"></div>
+    <button class="btn" id="realsGlasses"><span class="en">👓 OD glasses</span><span class="zh">👓 OD 眼镜</span></button></div>
+  <div class="stage" style="display:flex;justify-content:center"><svg id="realsSvg" viewBox="0 0 720 330" width="720" height="330"></svg></div>
+  <div class="msg info" id="realsMsg"></div>
+  <div class="def"><span class="en"><b>Facts (ZF).</b> (a) OD need not be transitive: in L[c], <span class="m">ℝ ∈ OD</span> but <span class="m">c ∈ ℝ</span>, <span class="m">c ∉ OD</span>.
+    (b) The structure <span class="m">(OD, ∈)</span> can fail Extensionality. In L[c], both <span class="m">∅</span> and <span class="m">ℝ ∖ OD</span> are OD, since OD is a definable class and so <span class="m">ℝ ∖ OD = {r ∈ ℝ : r ∉ OD}</span> is definable without parameters. They are different sets, but neither has an OD element.
+    (c) OD is closed under definability: anything definable from finitely many OD sets and ordinals is OD (combine their definitions).</span>
+    <span class="zh"><b>事实（ZF）.</b> (a) OD 未必传递：在 L[c] 中 <span class="m">ℝ ∈ OD</span>，但 <span class="m">c ∈ ℝ</span> 且 <span class="m">c ∉ OD</span>。
+    (b) 结构 <span class="m">(OD, ∈)</span> 可能违反外延公理。在 L[c] 中，<span class="m">∅</span> 与 <span class="m">ℝ ∖ OD</span> 都是 OD：OD 是可定义类，所以 <span class="m">ℝ ∖ OD = {r ∈ ℝ : r ∉ OD}</span> 无需参数即可定义。两者是不同的集合，却都没有 OD 元素。
+    (c) OD 对可定义性封闭：由有限个 OD 集合和序数可定义的集合仍是 OD（把它们的定义合起来即可）。</span></div>
+  <div class="pit"><span class="en"><b class="h">⚠ Common pitfall.</b> “c is not OD” is a theorem <i>about L[c]</i>. In L itself every set is OD (V = L ⇒ V = OD). Whether a given real is OD depends on the universe you work in. Also, “every OD set of reals is a set of OD reals” is false: ℝ in L[c] is a counterexample.</span>
+    <span class="zh"><b class="h">⚠ 常见误区.</b> “c 不是 OD”是<i>关于 L[c]</i> 的定理。在 L 中每个集合都是 OD（V = L ⇒ V = OD）。一个实数是否为 OD，取决于你在哪个宇宙里工作。另外，“每个 OD 实数集都只含 OD 实数”是错的：L[c] 中的 ℝ 就是反例。</span></div>
+  <div class="cy" id="cy6"></div>
+</section>
+
+<!-- ============ S7 ============ -->
+<section class="card" id="s7">
+  <div class="kicker"><span class="il"><span class="en">Step 7</span><span class="zh">第 7 步</span></span></div>
+  <h2><span class="en">HOD: hereditarily ordinal definable sets</span><span class="zh">HOD：遗传序数可定义集</span></h2>
+  <div class="pre"><span class="il"><span class="en">Prerequisites</span><span class="zh">预备</span></span>:
+    <a class="pchip" href="#s6">§6</a><a class="pchip" href="lesson14.html">L14 · <span class="il"><span class="en">transitive closure</span><span class="zh">传递闭包</span></span></a></div>
+  <div class="def"><span class="en"><b>Definition.</b> <span class="m">x ∈ HOD :⇔ trcl({x}) ⊆ OD</span>, i.e. x is OD, its elements are OD, their elements are OD, and so on all the way down.</span>
+    <span class="zh"><b>定义.</b> <span class="m">x ∈ HOD :⇔ trcl({x}) ⊆ OD</span>，即 x 是 OD，x 的元素是 OD，元素的元素也是 OD，一直到底。</span></div>
+  <p><span class="en">Choose a set (universe: L[c]). The checker walks down its ∈-tree, which is <span class="m">trcl({x})</span> drawn with infinitely many elements grouped. Every node it visits must be OD.</span>
+     <span class="zh">选一个集合（宇宙：L[c]）。检查器沿它的 ∈-树往下走，这棵树就是 <span class="m">trcl({x})</span>，无穷多个元素按类归并画出。访问到的每个节点都必须是 OD。</span></p>
+  <div class="toolbar"><div class="ordbar" id="hodTargets"></div></div>
+  <div class="stage" style="display:flex;justify-content:center"><svg id="hodSvg" viewBox="0 0 720 250" width="720" height="250"></svg></div>
+  <div class="msg" id="hodMsg"></div>
+  <h3><span class="en">Where HOD sits</span><span class="zh">HOD 的位置</span></h3>
+  <div class="toolbar"><button class="btn" id="conesGo"><span class="en">Build the cones ▶</span><span class="zh">搭出锥体 ▶</span></button></div>
+  <div class="stage" style="display:flex;justify-content:center"><svg id="conesSvg" viewBox="0 0 720 330" width="720" height="330"></svg></div>
+  <div class="def"><span class="en"><b>Theorem (ZF).</b> (1) HOD is a <b>transitive</b> class: if x ∈ HOD and y ∈ x then trcl({y}) ⊆ trcl({x}) ⊆ OD. (2) <span class="m">Ord ⊆ HOD</span>, since each ordinal is OD and its elements are ordinals. (3) <span class="m">HOD ⊆ OD</span>, but in general <span class="m">OD ⊄ HOD</span> (ℝ in L[c]). (4) <span class="m">L ⊆ HOD ⊆ V</span>: HOD is an inner model (Step 8), and L is the smallest inner model.</span>
+    <span class="zh"><b>定理（ZF）.</b> (1) HOD 是<b>传递</b>类：若 x ∈ HOD 且 y ∈ x，则 trcl({y}) ⊆ trcl({x}) ⊆ OD。(2) <span class="m">Ord ⊆ HOD</span>：每个序数都是 OD，而它的元素也都是序数。(3) <span class="m">HOD ⊆ OD</span>，但一般 <span class="m">OD ⊄ HOD</span>（L[c] 中的 ℝ）。(4) <span class="m">L ⊆ HOD ⊆ V</span>：HOD 是内模型（第 8 步），而 L 是最小的内模型。</span></div>
+  <div class="intu"><span class="en"><b>Intuition.</b> OD is “ordinal definable at the top level only”. HOD asks the same at every level of the tree. That repairs both defects of Step 6: transitivity, and with it Extensionality.</span>
+    <span class="zh"><b>直观.</b> OD 只要求“最上面一层”序数可定义，HOD 则要求树的每一层都如此。这就修补了第 6 步的两个缺陷：传递性，以及随之而来的外延性。</span></div>
+  <div class="cy" id="cy7"></div>
+</section>
+
+<!-- ============ S8 ============ -->
+<section class="card" id="s8">
+  <div class="kicker"><span class="il"><span class="en">Step 8</span><span class="zh">第 8 步</span></span></div>
+  <h2><span class="en">HOD ⊨ ZFC, even when V ⊭ AC</span><span class="zh">HOD ⊨ ZFC，即使 V ⊭ AC</span></h2>
+  <div class="pre"><span class="il"><span class="en">Prerequisites</span><span class="zh">预备</span></span>:
+    <a class="pchip" href="#s5">§5</a><a class="pchip" href="#s7">§7</a><a class="pchip" href="lesson15.html">L15 · <span class="il"><span class="en">Gödel operations</span><span class="zh">哥德尔运算</span></span></a><a class="pchip" href="lesson10.html">L10 · AC</a></div>
+  <div class="def"><span class="en"><span class="status thm">ZF ⊢</span><b>Theorem (Gödel; Myhill–Scott; Jech Thm 13.26).</b> HOD is a transitive class model of ZFC containing all ordinals. Precisely, for each axiom σ of ZFC, <span class="m">ZF ⊢ σ<sup>HOD</sup></span>. <b>Corollary:</b> Con(ZF) ⇒ Con(ZFC). This is a second proof, alongside the one via L.</span>
+    <span class="zh"><span class="status thm">ZF ⊢</span><b>定理（哥德尔；Myhill–Scott；Jech 定理 13.26）.</b> HOD 是包含所有序数的传递类模型，且满足 ZFC。确切地说，对 ZFC 的每条公理 σ，都有 <span class="m">ZF ⊢ σ<sup>HOD</sup></span>。<b>推论：</b>Con(ZF) ⇒ Con(ZFC)。这是继 L 之后的第二个证明。</span></div>
+  <div class="steps" id="hodSteps">
+    <div class="step"><p><span class="en"><b>1. Transitive and contains Ord.</b> Shown in Step 7.</span><span class="zh"><b>1. 传递且包含 Ord.</b> 见第 7 步。</span></p></div>
+    <div class="step"><p><span class="en"><b>2. Closed under Gödel operations.</b> If x, y ∈ HOD then each Gödel operation G<sub>i</sub>(x, y) is definable from x and y, so it is OD (Step 6(c)). Its elements are built from elements of trcl({x, y}) by the same operations (pairs, products, …), so they are OD as well, and G<sub>i</sub>(x, y) ∈ HOD.</span>
+      <span class="zh"><b>2. 对哥德尔运算封闭.</b> 若 x, y ∈ HOD，则每个哥德尔运算 G<sub>i</sub>(x, y) 都由 x、y 可定义，因而是 OD（第 6 步 (c)）。它的元素由 trcl({x, y}) 中的元素经同样的运算（配对、乘积……）造出，也都是 OD，所以 G<sub>i</sub>(x, y) ∈ HOD。</span></p></div>
+    <div class="step"><p><span class="en"><b>3. Almost universal.</b> If X ⊆ HOD is a set, pick α with X ⊆ V<sub>α</sub>. Then <span class="m">Y = HOD ∩ V<sub>α</sub></span> is OD (definable from α), all its elements are in HOD, so Y ∈ HOD and X ⊆ Y.</span>
+      <span class="zh"><b>3. 几乎全域.</b> 若 X ⊆ HOD 是集合，取 α 使 X ⊆ V<sub>α</sub>。则 <span class="m">Y = HOD ∩ V<sub>α</sub></span> 由 α 可定义，是 OD；它的元素都在 HOD 中，所以 Y ∈ HOD，且 X ⊆ Y。</span></p></div>
+    <div class="step"><p><span class="en"><b>4. ZF.</b> A transitive class closed under Gödel operations and almost universal is a model of ZF (Jech Thm 13.9; this is the same criterion used for L).</span>
+      <span class="zh"><b>4. ZF.</b> 对哥德尔运算封闭且几乎全域的传递类是 ZF 的模型（Jech 定理 13.9；L 用的也是这一判据）。</span></p></div>
+    <div class="step"><p><span class="en"><b>5. AC, without using AC.</b> Let x ∈ HOD. The relation <span class="m">R = &lt;<sub>OD</sub> ∩ (x × x)</span> is a well-ordering of x (x ⊆ HOD ⊆ OD). R is OD (definable from x), and its elements are ordered pairs of HOD sets, so R ∈ HOD. HOD therefore sees a well-ordering of every set. No choice was used anywhere: Step 5's ordering only takes least elements.</span>
+      <span class="zh"><b>5. 选择公理，而且不用选择公理.</b> 设 x ∈ HOD。关系 <span class="m">R = &lt;<sub>OD</sub> ∩ (x × x)</span> 是 x 上的良序（x ⊆ HOD ⊆ OD）。R 由 x 可定义，是 OD；它的元素是 HOD 集合构成的有序对，所以 R ∈ HOD。于是 HOD 能看到每个集合上的良序。整个过程没有用选择：第 5 步的排序只是“取最小”。</span></p></div>
+  </div>
+  <div class="toolbar"><button class="btn primary" id="hodNext"><span class="en">Reveal next step</span><span class="zh">揭晓下一步</span></button><button class="btn ghost" id="hodAll"><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+
+  <h3><span class="en">Where do failures of AC live? Outside HOD: Cohen's symmetric model</span><span class="zh">选择公理的失效在哪里？在 HOD 之外：科恩的对称模型</span></h3>
+  <p><span class="en">Cohen's model of ZF + ¬AC: force over L to add Cohen reals <span class="m">a<sub>0</sub>, a<sub>1</sub>, …</span>, and let <span class="m">A = {a<sub>n</sub> : n ∈ ω}</span> (an <i>unordered</i> set). The model N consists of the sets <b>hereditarily definable in L[G] from ordinals, A, and finitely many elements of A</b>. This is a relative HOD; Jech presents it equivalently as a symmetric model. Each set in N has a finite <b>support</b> S ⊆ A, and it is fixed by every automorphism that fixes S pointwise. (Formally the automorphisms permute the coordinates of the forcing and act on names.) Pin a support, then apply automorphisms.</span>
+     <span class="zh">科恩的 ZF + ¬AC 模型：在 L 上力迫加入科恩实数 <span class="m">a<sub>0</sub>, a<sub>1</sub>, …</span>，令 <span class="m">A = {a<sub>n</sub> : n ∈ ω}</span>（一个<i>无序</i>集合）。模型 N 由<b>在 L[G] 中由序数、A 以及 A 的有限个元素遗传可定义的集合</b>组成。这是一个相对化的 HOD，Jech 用等价的对称模型方式来表述它。N 中每个集合都有一个有限<b>支撑</b> S ⊆ A，凡逐点固定 S 的自同构都保持它不变。（形式上，这些自同构置换力迫的坐标，并作用在名字上。）先钉住一个支撑，再施加自同构。</span></p>
+  <div class="toolbar"><button class="btn primary" id="symGo"><span class="en">Apply an automorphism fixing the pins ↻</span><span class="zh">施加一个固定钉子的自同构 ↻</span></button>
+    <button class="btn ghost small" id="symClear"><span class="en">Clear pins</span><span class="zh">清除钉子</span></button></div>
+  <div class="row">
+    <div class="col" style="flex:0 1 360px"><div class="stage"><svg id="symSvg" viewBox="0 0 340 300" width="340" height="300"></svg></div></div>
+    <div class="col"><div id="symTable"></div><div class="msg" id="symMsg"></div></div>
+  </div>
+  <div class="intu"><span class="en"><b>Moral.</b> A well-ordering of A would have a finite support S. Take two reals outside S and swap them: the ordering is moved, which is a contradiction. So N ⊨ “A cannot be well-ordered”, while <span class="m">HOD<sup>N</sup> ⊨ ZFC</span> still holds by the theorem above. A itself is not in HOD<sup>N</sup>: otherwise HOD<sup>N</sup> ⊨ AC would give a well-ordering of A that lies in HOD<sup>N</sup> ⊆ N. The failure of AC lives outside HOD.</span>
+    <span class="zh"><b>启示.</b> A 上若有良序，它就有有限支撑 S。在 S 之外取两个实数对换，这个良序就被移动了，矛盾。所以 N ⊨ “A 不可良序化”，而由上面的定理，<span class="m">HOD<sup>N</sup> ⊨ ZFC</span> 依然成立。A 本身不在 HOD<sup>N</sup> 中：否则由 HOD<sup>N</sup> ⊨ AC，A 会有一个属于 HOD<sup>N</sup> ⊆ N 的良序。选择公理的失效发生在 HOD 之外。</span></div>
+  <div class="pit"><span class="en"><b class="h">⚠ Common pitfall.</b> Do not read “HOD ⊨ AC” as “HOD proves AC holds in V”. AC is a statement about all sets of V, and HOD may miss many of them. Also, ZF + ¬AC is <i>not</i> obtained from HOD; HOD only yields models of AC. ¬AC needs forcing (symmetric models).</span>
+    <span class="zh"><b class="h">⚠ 常见误区.</b> 不要把“HOD ⊨ AC”读成“HOD 证明了 V 中 AC 成立”。AC 谈的是 V 中所有集合，而 HOD 可能漏掉很多集合。另外，ZF + ¬AC 的模型<i>不是</i>从 HOD 得到的，HOD 只能给出满足 AC 的模型；¬AC 要靠力迫（对称模型）。</span></div>
+  <div class="cy" id="cy8"></div>
+</section>
+
+<!-- ============ S9 ============ -->
+<section class="card" id="s9">
+  <div class="kicker"><span class="il"><span class="en">Step 9</span><span class="zh">第 9 步</span></span></div>
+  <h2><span class="en">V = HOD: equivalences, separations, non-absoluteness</span><span class="zh">V = HOD：等价形式、分离例子与非绝对性</span></h2>
+  <div class="pre"><span class="il"><span class="en">Prerequisites</span><span class="zh">预备</span></span>:
+    <a class="pchip" href="#s8">§8</a><a class="pchip" href="lesson15.html">L15 · V = L</a><a class="pchip" href="lesson16.html">L16 · <span class="il"><span class="en">forcing</span><span class="zh">力迫</span></span></a></div>
+  <div class="def"><span class="en"><span class="status thm">ZF ⊢</span><b>Theorem.</b> The following are equivalent: (a) V = OD; (b) V = HOD; (c) there is a well-ordering of V definable with ordinal parameters; (d) there is a well-ordering of V definable without parameters. Moreover <span class="m">V = L ⇒ V = HOD ⇒ AC</span>.</span>
+    <span class="zh"><span class="status thm">ZF ⊢</span><b>定理.</b> 以下等价：(a) V = OD；(b) V = HOD；(c) V 上存在一个以序数为参数可定义的良序；(d) V 上存在一个无参数可定义的良序。此外 <span class="m">V = L ⇒ V = HOD ⇒ AC</span>。</span></div>
+  <div class="steps" id="eqSteps">
+    <div class="step"><p><span class="en"><b>(a)⇔(b).</b> HOD ⊆ OD always. If V = OD, every element of every trcl is OD, so V = HOD.</span><span class="zh"><b>(a)⇔(b).</b> 总有 HOD ⊆ OD。若 V = OD，则任何传递闭包的元素都是 OD，故 V = HOD。</span></p></div>
+    <div class="step"><p><span class="en"><b>(a)⇒(d).</b> &lt;<sub>OD</sub> is parameter-free definable (Step 5) and is then a well-ordering of all of V.</span><span class="zh"><b>(a)⇒(d).</b> &lt;<sub>OD</sub> 无需参数即可定义（第 5 步），这时它就是整个 V 的良序。</span></p></div>
+    <div class="step"><p><span class="en"><b>(c)⇒(a).</b> Let ◁ be a well-ordering of V defined by ψ(·,·,<span class="ov">γ</span>). Given x, let α = rank(x)+1. Then x is the δ-th element of V<sub>α</sub> under ◁ for some ordinal δ, so x is defined in V from the ordinals α, δ, <span class="ov">γ</span>. By Step 3, x ∈ OD.</span><span class="zh"><b>(c)⇒(a).</b> 设 ◁ 是由 ψ(·,·,<span class="ov">γ</span>) 定义的 V 的良序。给定 x，令 α = rank(x)+1，则对某个序数 δ，x 是 V<sub>α</sub> 在 ◁ 下的第 δ 个元素，于是 x 在 V 中由序数 α、δ、<span class="ov">γ</span> 定义。由第 3 步，x ∈ OD。</span></p></div>
+    <div class="step"><p><span class="en"><b>V = L ⇒ V = HOD.</b> L ⊆ HOD always. <b>V = HOD ⇒ AC.</b> HOD ⊨ AC and HOD = V.</span><span class="zh"><b>V = L ⇒ V = HOD.</b> 总有 L ⊆ HOD。<b>V = HOD ⇒ AC.</b> HOD ⊨ AC，而 HOD = V。</span></p></div>
+  </div>
+  <div class="toolbar"><button class="btn primary" id="eqNext"><span class="en">Reveal next step</span><span class="zh">揭晓下一步</span></button><button class="btn ghost" id="eqAll"><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+  <h3><span class="en">The converses fail: pick a universe</span><span class="zh">逆命题不成立：选一个宇宙看看</span></h3>
+  <div class="toolbar"><div class="seg" id="uniSeg"></div></div>
+  <div class="stage" style="display:flex;justify-content:center"><svg id="uniSvg" viewBox="0 0 720 300" width="720" height="300"></svg></div>
+  <div class="msg info" id="uniMsg"></div>
+  <div class="pit"><span class="en"><b class="h">⚠ Common pitfall: “V = HOD” is not absolute.</b> L always satisfies V = L, because L<sup>L</sup> = L. HOD need not satisfy V = HOD, because HOD computed <i>inside</i> HOD may be smaller. <span class="status con">Con</span> McAloon (1974) built models in which the iterated HODs <span class="m">HOD<sup>1</sup> = HOD, HOD<sup>n+1</sup> = HOD<sup>HOD<sup>n</sup></sup></span> strictly decrease for every n. In particular <span class="m">HOD<sup>HOD</sup> ≠ HOD</span> is consistent. (Harrington further showed that the intersection need not even be a class; the result appears in Zadrożny 1983. See Hamkins–Kirmayer–Perlmutter.)</span>
+    <span class="zh"><b class="h">⚠ 常见误区：“V = HOD”不是绝对的.</b> L 总满足 V = L，因为 L<sup>L</sup> = L。但 HOD 未必满足 V = HOD：在 HOD <i>内部</i>计算的 HOD 可能更小。<span class="status con">Con</span> McAloon（1974）构造了这样的模型：迭代 HOD <span class="m">HOD<sup>1</sup> = HOD, HOD<sup>n+1</sup> = HOD<sup>HOD<sup>n</sup></sup></span> 对每个 n 都严格递减。特别地，<span class="m">HOD<sup>HOD</sup> ≠ HOD</span> 是一致的。（Harrington 进一步证明了它们的交甚至可以不是类，该结果发表于 Zadrożny 1983；见 Hamkins–Kirmayer–Perlmutter。）</span></div>
+  <div class="cy" id="cy9"></div>
+</section>
+
+<!-- ============ S10 ============ -->
+<section class="card" id="s10">
+  <div class="kicker"><span class="il"><span class="en">Step 10</span><span class="zh">第 10 步</span></span></div>
+  <h2><span class="en">HOD and large cardinals: the HOD dichotomy and the HOD Conjecture</span><span class="zh">HOD 与大基数：HOD 二分定理与 HOD 猜想</span></h2>
+  <div class="pre"><span class="il"><span class="en">Prerequisites</span><span class="zh">预备</span></span>:
+    <a class="pchip" href="#s9">§9</a><a class="pchip" href="lesson9.html">L9 · <span class="il"><span class="en">singular / regular</span><span class="zh">奇异 / 正则</span></span></a><a class="pchip" href="lesson23.html">L23–25 · <span class="il"><span class="en">large cardinals (ahead)</span><span class="zh">大基数（后续）</span></span></a></div>
+  <p><span class="en">L cannot contain a measurable cardinal (Scott), so L is “far” from V once large cardinals exist. HOD is different. Every large cardinal axiom known to be compatible with AC was, classically, also known to be compatible with V = HOD (via McAloon-style coding forcing), so HOD can hold essentially all known large cardinals. Fine-structural <b>core models</b>, by contrast, have not yet been constructed for cardinals as strong as a supercompact. Two cautions. HOD need not <i>inherit</i> V's large cardinals: a supercompact of V can fail to be even weakly compact in HOD (Cheng–Friedman–Hamkins 2015). And in 2024 Aguilera–Bagaria–Lücke proposed new “exacting” cardinals that imply V ≠ HOD. Click the two branches.</span>
+     <span class="zh">L 中不可能有可测基数（Scott），所以一旦有大基数，L 就离 V“很远”。HOD 不一样：按经典认识，凡是已知与 AC 相容的大基数公理，也都已知与 V = HOD 相容（用 McAloon 式的编码力迫），所以 HOD 能容纳几乎所有已知的大基数。相比之下，精细结构的<b>核心模型</b>至今还没能为超紧基数这样强的基数构造出来。有两点要注意。第一，HOD 未必<i>继承</i> V 的大基数：V 中的超紧基数在 HOD 中可以连弱紧都不是（Cheng–Friedman–Hamkins 2015）。第二，2024 年 Aguilera–Bagaria–Lücke 提出了新的“exacting”基数，它蕴涵 V ≠ HOD。点击两个分支。</span></p>
+  <div class="stage" style="display:flex;justify-content:center"><svg id="dichSvg" viewBox="0 0 720 300" width="720" height="300"></svg></div>
+  <div class="msg info" id="dichMsg"></div>
+  <div class="def"><span class="en"><span class="status thm">ZFC ⊢</span><b>HOD Dichotomy (Woodin).</b> Suppose δ is an extendible cardinal. Then exactly one of the following holds.<br>
+    (1) <b>HOD is close to V:</b> every singular cardinal γ &gt; δ is singular in HOD, and <span class="m">(γ<sup>+</sup>)<sup>HOD</sup> = γ<sup>+</sup></span>.<br>
+    (2) <b>HOD is far from V:</b> every regular cardinal &gt; δ is measurable in HOD. (Woodin's sharper form: they are ω-strongly measurable in HOD.)<br>
+    In case (1), HOD is moreover a weak extender model for the supercompactness of δ. This is an analogue of Jensen's covering dichotomy for L, but with no “0<sup>#</sup> for HOD” known.</span>
+    <span class="zh"><span class="status thm">ZFC ⊢</span><b>HOD 二分定理（Woodin）.</b> 设 δ 是可扩张基数，则以下恰有一条成立。<br>
+    (1) <b>HOD 离 V 很近：</b>每个奇异基数 γ &gt; δ 在 HOD 中仍奇异，且 <span class="m">(γ<sup>+</sup>)<sup>HOD</sup> = γ<sup>+</sup></span>。<br>
+    (2) <b>HOD 离 V 很远：</b>每个大于 δ 的正则基数在 HOD 中都是可测基数。（Woodin 的更强形式：它们在 HOD 中是 ω-强可测的。）<br>
+    在情形 (1) 中，HOD 还是 δ 的超紧性的弱扩张子模型。这类似于 L 的詹森覆盖二分，只是目前不知道有任何“HOD 的 0<sup>#</sup>”。</span></div>
+  <div class="def"><span class="en"><span class="status open">OPEN</span><b>HOD Hypothesis.</b> There is a proper class of regular cardinals that are not ω-strongly measurable in HOD.<br>
+    <b>HOD Conjecture (Woodin).</b> The HOD Hypothesis is provable in ZFC + “there is an extendible cardinal”. Given an extendible, this amounts to saying that case (2) never occurs. The naming varies: some papers call the Hypothesis itself “the HOD Conjecture”. Whether the HOD Hypothesis is provable (from ZFC, or from ZFC plus large cardinals) is <b>open</b>.<br>
+    <span class="status cond">Conditional</span> Aguilera–Bagaria–Lücke (arXiv 2024–25): an exacting cardinal above an extendible yields case (2). So <i>if</i> that hypothesis is consistent, the HOD Conjecture fails. Its consistency is not known.</span>
+    <span class="zh"><span class="status open">未解决</span><b>HOD 假设.</b> 存在真类多个在 HOD 中不是 ω-强可测的正则基数。<br>
+    <b>HOD 猜想（Woodin）.</b> HOD 假设可以在 ZFC + “存在可扩张基数”中证明。在有可扩张基数的前提下，这等于说情形 (2) 永远不会出现。名称并不统一：有些文献直接把“HOD 假设”叫作“HOD 猜想”。HOD 假设能否被证明（从 ZFC，或从 ZFC 加大基数公理）<b>尚未解决</b>。<br>
+    <span class="status cond">有条件</span> Aguilera–Bagaria–Lücke（arXiv 2024–25）：可扩张基数之上的一个 exacting 基数会导致情形 (2)。所以<i>如果</i>这一假设是一致的，HOD 猜想就不成立。但它是否一致，目前并不知道。</span></div>
+  <div class="pit"><span class="en"><b class="h">⚠ Common pitfall.</b> Do not say “Woodin proved HOD is close to V” or “the HOD Conjecture was refuted”. Woodin proved the <i>dichotomy</i>, a ZFC theorem under an extendible. Which side holds is the open problem, and the 2024 work is a <i>conditional</i> refutation.</span>
+    <span class="zh"><b class="h">⚠ 常见误区.</b> 不要说“Woodin 证明了 HOD 离 V 很近”，也不要说“HOD 猜想已被推翻”。Woodin 证明的是<i>二分定理</i>，即在有可扩张基数时的一条 ZFC 定理。究竟哪一边成立，才是未解决的问题；2024 年的工作只是<i>有条件的</i>反驳。</span></div>
+  <div class="cy" id="cy10"></div>
+</section>
+
+<!-- ============ EXERCISES ============ -->
+<section class="card" id="exercises">
+  <div class="kicker"><span class="il"><span class="en">Exercises</span><span class="zh">练习</span></span></div>
+  <h2><span class="en">Your turn</span><span class="zh">轮到你了</span></h2>
+  <p class="muted"><span class="en">Progress is saved in your browser. A sidebar ✓ means solved. Every exercise has a “Show answer” button. Revealed answers do not count as solved.</span><span class="zh">进度保存在浏览器中，侧栏出现 ✓ 表示已完成。每道题都有“显示答案”按钮，看答案不计为完成。</span></p>
+
+  <div class="ex" id="e1" data-prog="L22E1">
+    <h3><span class="tag">E1</span><span class="il"><span class="en">OD? HOD?</span><span class="zh">是 OD 吗？是 HOD 吗？</span></span></h3>
+    <p><span class="en">Click the toggles (? → yes → no). Unless stated, the answer must hold in every model of ZFC. “In L[c]” means c is Cohen generic over L.</span>
+       <span class="zh">点击切换（? → 是 → 否）。除非另有说明，答案要在 ZFC 的每个模型中都成立。“在 L[c] 中”指 c 是 L 上的科恩泛型实数。</span></p>
+    <div id="e1Table"></div>
+    <div class="toolbar"><button class="btn primary" id="e1Check"><span class="en">Check</span><span class="zh">检查</span></button><button class="btn ghost" id="e1Show"><span class="en">Show answer</span><span class="zh">显示答案</span></button></div>
+    <div class="msg" id="e1Msg"></div>
+  </div>
+
+  <div class="ex" id="e2" data-prog="L22E2">
+    <h3><span class="tag">E2</span><span class="il"><span class="en">Order the proof</span><span class="zh">给证明排序</span></span></h3>
+    <p><span class="en">Put the steps of “definable in V from ordinals (via φ) ⇒ x ∈ OD” in order by clicking them one after another.</span>
+       <span class="zh">依次点击，把“（经 φ）在 V 中由序数可定义 ⇒ x ∈ OD”的证明步骤排好顺序。</span></p>
+    <div class="row"><div class="col order-pool" id="e2Pool"></div><div class="col"><div class="order-done" id="e2Done"></div></div></div>
+    <div class="toolbar"><button class="btn primary" id="e2Check"><span class="en">Check</span><span class="zh">检查</span></button><button class="btn ghost" id="e2Reset"><span class="en">Reset</span><span class="zh">重置</span></button><button class="btn ghost" id="e2Show"><span class="en">Show answer</span><span class="zh">显示答案</span></button></div>
+    <div class="msg" id="e2Msg"></div>
+  </div>
+
+  <div class="ex" id="e3" data-prog="L22E3">
+    <h3><span class="tag">E3</span><span class="il"><span class="en">Why no clash with Tarski?</span><span class="zh">为什么与塔斯基定理不冲突？</span></span></h3>
+    <div id="e3Box"></div>
+  </div>
+
+  <div class="ex" id="e4" data-prog="L22E4">
+    <h3><span class="tag">E4</span><span class="il"><span class="en">Implication diagram</span><span class="zh">蕴涵关系图</span></span></h3>
+    <p><span class="en">Base theory: ZF, assumed consistent. For each arrow choose <b>provable</b> (ZF proves the implication) or <b>not provable</b> (the hypothesis plus the negation of the conclusion is consistent). The diagram colors itself as you answer.</span>
+       <span class="zh">基础理论：ZF，并假定它一致。对每个箭头选<b>可证</b>（ZF 证明该蕴涵）或<b>不可证</b>（前件加上后件的否定是一致的）。随着作答，图会自动着色。</span></p>
+    <div class="stage" style="display:flex;justify-content:center"><svg id="e4Svg" viewBox="0 0 720 230" width="720" height="230"></svg></div>
+    <div id="e4Rows"></div>
+    <div class="toolbar"><button class="btn primary" id="e4Check"><span class="en">Check</span><span class="zh">检查</span></button><button class="btn ghost" id="e4Show"><span class="en">Show answer</span><span class="zh">显示答案</span></button></div>
+    <div class="msg" id="e4Msg"></div>
+  </div>
+
+  <div class="ex" id="e5" data-prog="L22E5">
+    <h3><span class="tag">E5</span><span class="il"><span class="en">Sets of ordinals and sets of reals</span><span class="zh">序数集与实数集</span></span></h3>
+    <p><span class="en">True or false (in ZF)?</span><span class="zh">判断对错（在 ZF 中）。</span></p>
+    <div id="e5List"></div>
+    <div class="toolbar"><button class="btn ghost" id="e5Show"><span class="en">Show answer &amp; proof</span><span class="zh">显示答案与证明</span></button></div>
+    <div class="steps" id="e5Proof"><div class="step def"><span class="en"><b>Proof of (a).</b> Let x ⊆ Ord be OD. trcl({x}) = {x} ∪ x ∪ ⋃x ∪ … consists of x and ordinals (elements of ordinals are ordinals). Ordinals are OD, so trcl({x}) ⊆ OD and x ∈ HOD. The same argument works for x ⊆ ω, i.e. for reals, and for any OD set whose transitive closure, apart from x itself, lies in HOD. ∎</span>
+      <span class="zh"><b>(a) 的证明.</b> 设 x ⊆ Ord 是 OD。trcl({x}) = {x} ∪ x ∪ ⋃x ∪ … 由 x 和序数组成（序数的元素仍是序数）。序数都是 OD，所以 trcl({x}) ⊆ OD，x ∈ HOD。同样的论证适用于 x ⊆ ω（即实数），也适用于除自身以外传递闭包都落在 HOD 中的任何 OD 集合。∎</span></div></div>
+  </div>
+
+  <div class="ex" id="e6" data-prog="L22E6">
+    <h3><span class="tag">E6</span><span class="il"><span class="en">Breaking Extensionality in (OD, ∈)</span><span class="zh">在 (OD, ∈) 中打破外延性</span></span></h3>
+    <p><span class="en">Work in L[c]. Select <b>all</b> pairs (x, y) that witness the failure of Extensionality in (OD, ∈): x ≠ y, both OD, and they have the same OD elements.</span>
+       <span class="zh">在 L[c] 中考虑。选出<b>所有</b>能见证 (OD, ∈) 违反外延公理的对 (x, y)：x ≠ y，两者都是 OD，且它们的 OD 元素相同。</span></p>
+    <div class="chips multi" id="e6Chips"></div>
+    <div class="toolbar"><button class="btn primary" id="e6Check"><span class="en">Check</span><span class="zh">检查</span></button><button class="btn ghost" id="e6Show"><span class="en">Show answer</span><span class="zh">显示答案</span></button></div>
+    <div class="msg" id="e6Msg"></div>
+  </div>
+</section>
+
+<section class="card">
+  <div class="kicker"><span class="il"><span class="en">Next</span><span class="zh">下一课</span></span></div>
+  <h2><a href="lesson23.html" style="color:inherit"><span class="en">Lesson 23: Large cardinals I: inaccessible to weakly compact →</span><span class="zh">第 23 课：大基数（一）：从不可达到弱紧 →</span></a></h2>
+  <p><span class="en">HOD gave us an inner model with choice that is compatible with essentially all known large cardinals. Next we meet the large cardinals themselves, starting with inaccessibles, which are exactly the κ for which V<sub>κ</sub> ⊨ ZFC (taking second-order replacement).</span>
+     <span class="zh">HOD 给了我们一个满足选择公理、又与几乎所有已知大基数相容的内模型。下一课正式认识大基数本身，从不可达基数开始：它们恰好就是使 V<sub>κ</sub> ⊨ ZFC 的 κ（替换公理取二阶形式）。</span></p>
+</section>
+</main>
+</div>
+
+<script src="assets/logic.js"></script>
+<script src="assets/lesson22.js"></script>
+</body>
+</html>

@@ -1,0 +1,497 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 19 · Borel &amp; Projective Hierarchies 博雷尔层级与投影层级</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+.pre { font-size: 13px; color: var(--muted); margin: -2px 0 12px; }
+.pre a { display: inline-block; padding: 1px 10px; margin: 2px 3px; border-radius: 999px; background: #f1efe7; border: 1px solid var(--line); color: var(--ink); text-decoration: none; }
+.pre a:hover { border-color: var(--accent); }
+.lang-both .pre .zh { display: inline; }
+.lang-both .pre .zh::before { content: " · "; color: var(--muted); }
+.cy { border: 1.5px dashed var(--accent); border-radius: 12px; padding: 10px 14px; margin-top: 18px; background: #fbfcff; }
+.cy .q { font-weight: 600; margin-bottom: 6px; }
+.cy .q::before { content: "✎ "; color: var(--accent); }
+.pit { border-left-color: var(--false); background: #fff1f1; }
+.pit b.h { color: var(--false); }
+.hist { border-left-color: var(--meta); background: var(--meta-soft); }
+.svgbtn { cursor: pointer; }
+.tnd { cursor: pointer; }
+.tnd circle { transition: fill .25s, stroke .25s, r .25s; }
+.tedge2 { transition: stroke .25s, stroke-width .25s, opacity .25s; }
+.bigclass { display: inline-block; font-family: var(--mono); font-size: 30px; font-weight: 800; padding: 4px 18px; border-radius: 14px; background: var(--accent-soft); color: var(--accent); min-width: 90px; text-align: center; transition: transform .25s; }
+.bigclass.bump { animation: bump .45s ease; }
+@keyframes bump { 40% { transform: scale(1.25); } }
+.hist-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; font-family: var(--mono); font-size: 13px; }
+.hist-chips span { background: #f1efe7; border-radius: 8px; padding: 2px 8px; }
+.ex-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+.ex-chips .chip.sel { border-color: var(--accent); background: var(--accent-soft); }
+.reg { border-collapse: separate; border-spacing: 4px; font-size: 14px; }
+.reg th { font-weight: 600; padding: 4px 8px; text-align: center; }
+.reg td.cell { cursor: pointer; border-radius: 8px; background: #f1efe7; min-width: 128px; padding: 6px 4px; text-align: center; font-family: var(--mono); transition: background .3s, transform .2s; }
+.reg td.cell:hover { transform: translateY(-2px); }
+.reg td.cell span.v { display: inline-block; width: 36px; border-radius: 6px; margin: 0 2px; font-weight: 800; }
+.reg span.Y { background: var(--true-soft); color: var(--true); }
+.reg span.N { background: var(--false-soft); color: var(--false); }
+.reg span.Q { background: var(--gold-soft); color: #9a5b00; }
+.reg td.cell.pick { outline: 3px solid var(--accent); }
+.reg tr.hd th { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+.mrow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 9px 0; border-bottom: 1px dashed var(--line); }
+.mrow .stmt { flex: 1 1 300px; }
+.mrow .opts { display: flex; flex-wrap: wrap; gap: 5px; }
+.mrow .opts .btn.right { border-color: var(--true); background: var(--true-soft); }
+.mrow .opts .btn.wrongc { border-color: var(--false); background: var(--false-soft); }
+.mrow .fb { flex-basis: 100%; }
+.cmp { border-collapse: collapse; font-size: 14px; margin: 8px 0; }
+.cmp th, .cmp td { border-bottom: 1px solid var(--line); padding: 6px 10px; text-align: left; vertical-align: top; }
+.cmp th { background: #f1efe7; }
+.gridE4 rect { cursor: pointer; }
+.wboard { font-family: var(--mono); }
+.lang-both svg text .zh { display: inline; }
+</style>
+</head>
+<body class="lang-both">
+<header class="top">
+  <a class="home" href="index.html">∀∃ <span class="il"><span class="en">Logic &amp; Sets</span><span class="zh">逻辑与集合</span></span></a>
+  <span class="muted">/ L19</span>
+  <span class="spacer"></span>
+  <div class="lang-switch">
+    <button data-lang="en">EN</button><button data-lang="zh">中文</button><button data-lang="both">EN + 中</button>
+  </div>
+</header>
+
+<div class="layout">
+<nav class="side">
+  <div class="grp">Lesson 19</div>
+  <a href="index.html">← <span class="il"><span class="en">Course map</span><span class="zh">课程地图</span></span></a>
+  <a href="lesson18.html">← <span class="il"><span class="en">Lesson 18</span><span class="zh">第 18 课</span></span></a>
+  <a href="lesson20.html"><span class="il"><span class="en">Lesson 20</span><span class="zh">第 20 课</span></span> →</a>
+  <a href="#s1">1 · <span class="il"><span class="en">Spaces as trees</span><span class="zh">空间即树</span></span></a>
+  <a href="#s2">2 · <span class="il"><span class="en">Climbing Σ⁰/Π⁰</span><span class="zh">攀登 Σ⁰/Π⁰</span></span></a>
+  <a href="#s3">3 · <span class="il"><span class="en">The diamond</span><span class="zh">菱形图</span></span></a>
+  <a href="#s4">4 · <span class="il"><span class="en">ℚ is not G_δ</span><span class="zh">ℚ 不是 G_δ</span></span></a>
+  <a href="#s5">5 · <span class="il"><span class="en">Strictness</span><span class="zh">层级严格性</span></span></a>
+  <a href="#s6">6 · <span class="il"><span class="en">Lightface vs boldface</span><span class="zh">细体与粗体</span></span></a>
+  <a href="#s7">7 · <span class="il"><span class="en">Analytic sets</span><span class="zh">解析集</span></span></a>
+  <a href="#s8">8 · <span class="il"><span class="en">Projective ladder</span><span class="zh">投影阶梯</span></span></a>
+  <a href="#s9">9 · <span class="il"><span class="en">Regularity</span><span class="zh">正则性质</span></span></a>
+  <a href="#s10">10 · <span class="il"><span class="en">Wadge</span><span class="zh">Wadge 层级</span></span></a>
+  <div class="grp"><span class="il"><span class="en">Exercises</span><span class="zh">练习</span></span></div>
+  <a href="#e1" data-prog="L19E1">E1 · Σ⁰ / Π⁰ ?</a>
+  <a href="#e2" data-prog="L19E2">E2 · <span class="il"><span class="en">operations</span><span class="zh">运算</span></span></a>
+  <a href="#e3" data-prog="L19E3">E3 · ZFC / L / PD</a>
+  <a href="#e4" data-prog="L19E4">E4 · ∃ / ∀ <span class="il"><span class="en">shadows</span><span class="zh">影子</span></span></a>
+  <a href="#e5" data-prog="L19E5">E5 · ℵ₀ / 2^ℵ₀</a>
+</nav>
+
+<main>
+<div class="hero">
+  <div class="kicker">Part V · Lesson 19</div>
+  <h1><span class="en">Borel &amp; Projective Hierarchies</span><span class="zh">博雷尔层级与投影层级</span></h1>
+  <p><span class="en">In L17–L18 we classified sets of <i>natural numbers</i> and reals by how many quantifiers a <i>computable</i> definition needs. Now we allow an arbitrary real number as a parameter. The result is the <b>boldface</b> hierarchy of descriptive set theory. It measures how hard a set of reals is to build from open sets by complements, countable unions and projections.</span>
+     <span class="zh">在第 17–18 课里，我们按照<i>可计算</i>定义需要多少个量词，对<i>自然数</i>集和实数集做了分类。现在允许用任意一个实数作参数，得到的就是描述集合论中的<b>粗体（boldface）</b>层级。它衡量的是：从开集出发，经过取补、可数并、投影，要多少步才能造出一个实数集。</span></p>
+</div>
+
+<!-- ============ S1 ============ -->
+<section class="card" id="s1">
+  <div class="kicker">§1</div>
+  <h2><span class="en">Polish spaces: Cantor space and Baire space as infinite trees</span><span class="zh">波兰空间：把康托尔空间与贝尔空间看成无穷树</span></h2>
+  <div class="pre"><span class="en">Prerequisites:</span><span class="zh">前置：</span>
+    <a href="lesson7.html"><span class="en">L7 building ℝ</span><span class="zh">第 7 课 构造 ℝ</span></a>
+    <a href="lesson17.html"><span class="en">L17 reals as sequences</span><span class="zh">第 17 课 实数即序列</span></a></div>
+  <p><span class="en">A point of Cantor space <span class="m">2^ω</span> is an infinite 0/1 sequence, so it is an infinite path through the full binary tree. A finite string <span class="m">s</span> is a node, and the <b>basic open set</b> <span class="m">N_s</span> is the set of all paths through <span class="m">s</span>, i.e. the whole <b>cone</b> (subtree) above <span class="m">s</span>. Each node sits exactly above its piece of the Cantor middle-thirds set, so you can see the homeomorphism.</span>
+     <span class="zh">康托尔空间 <span class="m">2^ω</span> 的一个点就是一个无穷 0/1 序列，也就是满二叉树上的一条无穷路径。有限串 <span class="m">s</span> 是一个节点，<b>基本开集</b> <span class="m">N_s</span> 就是经过 <span class="m">s</span> 的所有路径，即 <span class="m">s</span> 上方整棵<b>锥</b>（子树）。每个节点都正好画在它所对应的那一段康托尔三分集上方，同胚关系一目了然。</span></p>
+  <div class="toolbar">
+    <button class="btn sel" data-tmode="cone"><span class="en">Cantor 2^ω: click a node → cone N_s</span><span class="zh">康托尔 2^ω：点节点 → 锥 N_s</span></button>
+    <button class="btn" data-tmode="prune"><span class="en">Prune: closed set = branches [T]</span><span class="zh">剪枝：闭集 = 分支集 [T]</span></button>
+    <button class="btn" data-tmode="baire"><span class="en">Baire ω^ω: infinitely branching</span><span class="zh">贝尔空间 ω^ω：无穷分叉</span></button>
+  </div>
+  <div class="toolbar" id="pruneTools" style="display:none">
+    <button class="btn small" id="pruneZero"><span class="en">Make {0^∞}: remove 1, 01, 001, …</span><span class="zh">造出 {0^∞}：剪掉 1, 01, 001, …</span></button>
+    <button class="btn small ghost" id="pruneReset"><span class="en">Reset</span><span class="zh">重置</span></button>
+  </div>
+  <div class="stage"><svg id="treeSvg" viewBox="0 0 760 400" width="760" height="400"></svg></div>
+  <div class="msg info" id="treeInfo"></div>
+  <div class="def"><span class="en"><b>Definitions.</b> A <b>Polish space</b> is a separable topological space whose topology comes from some <i>complete</i> metric. <b>Baire space</b> <span class="m">𝒩 = ω^ω</span> carries the product of discrete topologies, with complete metric <span class="m">d(x,y) = 2^(−n)</span>, where <span class="m">n</span> is least with <span class="m">x(n) ≠ y(n)</span>. For <span class="m">s ∈ ω^{&lt;ω}</span>, <span class="m">N_s = {x : s ⊂ x}</span>; these sets form a countable basis. A <b>tree</b> is a set <span class="m">T ⊆ ω^{&lt;ω}</span> closed under initial segments, and <span class="m">[T] = {x : ∀n x↾n ∈ T}</span> is its set of infinite branches.<br>
+    <b>Facts.</b> (1) <span class="m">F ⊆ ω^ω</span> is closed ⇔ <span class="m">F = [T]</span> for some tree <span class="m">T</span>. (2) <span class="m">2^ω</span> is compact and homeomorphic to the Cantor set. <span class="m">ω^ω</span> is homeomorphic to the irrationals, via continued fractions <span class="m">x ↦ [0; 1+x(0), 1+x(1), …]</span>. (3) Every Polish space is a continuous image of <span class="m">ω^ω</span> (if nonempty), and every uncountable Polish space contains a homeomorphic copy of <span class="m">2^ω</span>.</span>
+    <span class="zh"><b>定义.</b> <b>波兰空间</b>是可分的拓扑空间，且其拓扑可由某个<i>完备</i>度量诱导。<b>贝尔空间</b> <span class="m">𝒩 = ω^ω</span> 取离散拓扑的乘积拓扑，完备度量为 <span class="m">d(x,y) = 2^(−n)</span>，其中 <span class="m">n</span> 是使 <span class="m">x(n) ≠ y(n)</span> 的最小者。对 <span class="m">s ∈ ω^{&lt;ω}</span>，令 <span class="m">N_s = {x : s ⊂ x}</span>，这些集合构成一组可数拓扑基。<b>树</b>是对初始段封闭的集合 <span class="m">T ⊆ ω^{&lt;ω}</span>，<span class="m">[T] = {x : ∀n x↾n ∈ T}</span> 是它的无穷分支集。<br>
+    <b>事实.</b> (1) <span class="m">F ⊆ ω^ω</span> 是闭集 ⇔ 存在树 <span class="m">T</span> 使 <span class="m">F = [T]</span>。(2) <span class="m">2^ω</span> 紧致，且同胚于康托尔集；<span class="m">ω^ω</span> 通过连分数 <span class="m">x ↦ [0; 1+x(0), 1+x(1), …]</span> 同胚于无理数集。(3) 每个非空波兰空间都是 <span class="m">ω^ω</span> 的连续像；每个不可数波兰空间都含有 <span class="m">2^ω</span> 的同胚拷贝。</span></div>
+  <div class="note pit"><span class="en"><b class="h">⚠ Common pitfall.</b> “Polish” is a property of the <i>topology</i>, not of a chosen metric. The irrationals with the usual metric are not complete, yet they form a Polish space, since another compatible metric (transported from <span class="m">ω^ω</span>) is complete. Also, <span class="m">N_s</span> is <b>clopen</b>: its complement is the finite union of the cones <span class="m">N_t</span> with <span class="m">|t| = |s|, t ≠ s</span>.</span>
+    <span class="zh"><b class="h">⚠ 常见误区.</b> “波兰”是<i>拓扑</i>的性质，不是某个选定度量的性质。无理数集在通常度量下不完备，但它仍是波兰空间，因为另有一个相容度量（从 <span class="m">ω^ω</span> 搬过来）是完备的。另外，<span class="m">N_s</span> 是<b>既开又闭</b>的：它的补集是有限个锥 <span class="m">N_t</span>（<span class="m">|t| = |s|, t ≠ s</span>）之并。</span></div>
+  <div class="cy" id="cy1"></div>
+</section>
+
+<!-- ============ S2 ============ -->
+<section class="card" id="s2">
+  <div class="kicker">§2</div>
+  <h2><span class="en">The boldface Borel hierarchy: complement, then countable union</span><span class="zh">粗体博雷尔层级：先取补，再取可数并</span></h2>
+  <div class="pre"><span class="en">Prerequisites:</span><span class="zh">前置：</span>
+    <a href="#s1">§1</a>
+    <a href="lesson8.html"><span class="en">L8 ordinals</span><span class="zh">第 8 课 序数</span></a>
+    <a href="lesson9.html"><span class="en">L9 ω₁, cofinality</span><span class="zh">第 9 课 ω₁ 与共尾性</span></a>
+    <a href="lesson10.html"><span class="en">L10 choice</span><span class="zh">第 10 课 选择公理</span></a></div>
+  <p><span class="en">Start from the open sets. Two moves are allowed: <b>take complements</b>, and <b>take countable unions</b>. Each time a countable union has to swallow sets of the opposite kind, you go up one level. Press the operations below and watch what class the result is <i>guaranteed</i> to lie in.</span>
+     <span class="zh">从开集出发，只允许两种动作：<b>取补集</b>、<b>取可数并</b>。每当可数并要吞下“对面那一类”的集合时，层级就上升一级。点击下面的运算，看看结果<i>保证</i>落在哪一类。</span></p>
+  <div class="row">
+    <div class="col" style="flex:0 1 360px">
+      <div style="margin:6px 0"><span class="muted"><span class="il"><span class="en">Every set in the class</span><span class="zh">该类中的每个集合</span></span>:</span><br><span class="bigclass" id="clBig">Σ⁰₁</span> <span id="clName" class="muted"></span></div>
+      <div class="toolbar">
+        <button class="btn small" data-op="comp">X ∖ A</button>
+        <button class="btn small" data-op="cu">⋃ₙ Aₙ</button>
+        <button class="btn small" data-op="ci">⋂ₙ Aₙ</button>
+        <button class="btn small" data-op="fin">A ∪ B, A ∩ B</button>
+        <button class="btn small" data-op="pre">f⁻¹[A]</button>
+        <button class="btn small ghost" id="clReset"><span class="en">Restart</span><span class="zh">重来</span></button>
+      </div>
+      <div class="hist-chips" id="clHist"></div>
+      <div class="msg" id="clMsg"></div>
+    </div>
+    <div class="col"><div class="stage"><svg id="miniDia" viewBox="0 0 420 330" width="420" height="330"></svg></div></div>
+  </div>
+  <div class="def"><span class="en"><b>Definition</b> (X metrizable, e.g. Polish; <span class="m">1 ≤ α &lt; ω₁</span>).
+    <span class="m">Σ⁰₁(X)</span> = open sets. <span class="m">Π⁰_α(X) = {X ∖ A : A ∈ Σ⁰_α(X)}</span>.
+    For <span class="m">α &gt; 1</span>: <span class="m">A ∈ Σ⁰_α(X)</span> ⇔ <span class="m">A = ⋃ₙ Aₙ</span> with each <span class="m">Aₙ ∈ Π⁰_{βₙ}(X)</span> for some <span class="m">βₙ &lt; α</span>.
+    <span class="m">Δ⁰_α = Σ⁰_α ∩ Π⁰_α</span>. Classical names: <span class="m">Σ⁰₂ = F_σ, Π⁰₂ = G_δ, Σ⁰₃ = G_δσ, Π⁰₃ = F_σδ</span>.<br>
+    <b>Theorem.</b> (i) <span class="m">Σ⁰_α ∪ Π⁰_α ⊆ Δ⁰_{α+1}</span>, and the classes increase with α. (ii) <span class="m">Σ⁰_α</span> is closed under countable unions, finite intersections and continuous preimages, and <span class="m">Π⁰_α</span> dually. (iii) <b>(ZFC)</b> <span class="m">B(X) = ⋃_{α&lt;ω₁} Σ⁰_α(X) = ⋃_{α&lt;ω₁} Π⁰_α(X)</span>, where <span class="m">B(X)</span>, the Borel sets, is the smallest σ-algebra containing the open sets.</span>
+    <span class="zh"><b>定义</b>（X 可度量化，例如波兰空间；<span class="m">1 ≤ α &lt; ω₁</span>）。
+    <span class="m">Σ⁰₁(X)</span> = 开集；<span class="m">Π⁰_α(X) = {X ∖ A : A ∈ Σ⁰_α(X)}</span>；
+    当 <span class="m">α &gt; 1</span>：<span class="m">A ∈ Σ⁰_α(X)</span> ⇔ <span class="m">A = ⋃ₙ Aₙ</span>，其中每个 <span class="m">Aₙ ∈ Π⁰_{βₙ}(X)</span>，<span class="m">βₙ &lt; α</span>。
+    <span class="m">Δ⁰_α = Σ⁰_α ∩ Π⁰_α</span>。经典记号：<span class="m">Σ⁰₂ = F_σ, Π⁰₂ = G_δ, Σ⁰₃ = G_δσ, Π⁰₃ = F_σδ</span>。<br>
+    <b>定理.</b> (i) <span class="m">Σ⁰_α ∪ Π⁰_α ⊆ Δ⁰_{α+1}</span>，且各类随 α 递增。(ii) <span class="m">Σ⁰_α</span> 对可数并、有限交、连续原像封闭，<span class="m">Π⁰_α</span> 对偶地封闭。(iii) <b>（ZFC）</b><span class="m">B(X) = ⋃_{α&lt;ω₁} Σ⁰_α(X) = ⋃_{α&lt;ω₁} Π⁰_α(X)</span>，其中博雷尔集族 <span class="m">B(X)</span> 是包含全体开集的最小 σ-代数。</span></div>
+  <div class="steps" id="pf2">
+    <div class="step"><span class="en"><b>Step 1</b> (closed ⇒ G_δ). If <span class="m">F</span> is closed and nonempty, <span class="m">F = ⋂ₙ {x : d(x,F) &lt; 1/n}</span>, an intersection of open sets. (If <span class="m">F = ∅</span>, it is open anyway.) So <span class="m">Π⁰₁ ⊆ Π⁰₂</span>, and dually <span class="m">Σ⁰₁ ⊆ Σ⁰₂</span>. <b>This uses the metric.</b></span><span class="zh"><b>第 1 步</b>（闭集 ⇒ G_δ）。若 <span class="m">F</span> 是非空闭集，则 <span class="m">F = ⋂ₙ {x : d(x,F) &lt; 1/n}</span>，是开集的交（<span class="m">F = ∅</span> 时它本身就是开集）。故 <span class="m">Π⁰₁ ⊆ Π⁰₂</span>，对偶地 <span class="m">Σ⁰₁ ⊆ Σ⁰₂</span>。<b>这一步用到了度量。</b></span></div>
+    <div class="step"><span class="en"><b>Step 2.</b> For α &gt; 1, the definition puts every <span class="m">Π⁰_β</span> (β &lt; α) inside <span class="m">Σ⁰_α</span> (a one-term union). Combined with Step 1 and induction, <span class="m">Σ⁰_β ⊆ Σ⁰_α</span> and <span class="m">Π⁰_β ⊆ Π⁰_α</span> for <span class="m">β ≤ α</span>. Hence <span class="m">Σ⁰_α ⊆ Π⁰_{α+1}</span> and <span class="m">Π⁰_α ⊆ Σ⁰_{α+1}</span>, which gives (i).</span><span class="zh"><b>第 2 步.</b> 当 α &gt; 1 时，按定义每个 <span class="m">Π⁰_β</span>（β &lt; α）都含于 <span class="m">Σ⁰_α</span>（只取一项的并）。结合第 1 步做归纳，得 <span class="m">β ≤ α</span> 时 <span class="m">Σ⁰_β ⊆ Σ⁰_α</span>、<span class="m">Π⁰_β ⊆ Π⁰_α</span>。于是 <span class="m">Σ⁰_α ⊆ Π⁰_{α+1}</span>，<span class="m">Π⁰_α ⊆ Σ⁰_{α+1}</span>，这就是 (i)。</span></div>
+    <div class="step"><span class="en"><b>Step 3</b> (why ω₁ suffices). The union <span class="m">⋃_{α&lt;ω₁} Σ⁰_α</span> contains the open sets and is closed under complements. Given <span class="m">Aₙ ∈ Σ⁰_{αₙ}</span>, the ordinal <span class="m">β = sup(αₙ + 1)</span> is <span class="m">&lt; ω₁</span> because <b>ω₁ is regular</b>. Then <span class="m">Aₙ ∈ Π⁰_{αₙ+1}</span> with <span class="m">αₙ + 1 ≤ β &lt; β+1</span>, so <span class="m">⋃Aₙ ∈ Σ⁰_{β+1}</span>. So the union is a σ-algebra, and it is contained in every σ-algebra containing the open sets. Play with the ruler below.</span><span class="zh"><b>第 3 步</b>（为什么到 ω₁ 就够了）。并集 <span class="m">⋃_{α&lt;ω₁} Σ⁰_α</span> 包含开集，且对补集封闭。给定 <span class="m">Aₙ ∈ Σ⁰_{αₙ}</span>，由于 <b>ω₁ 是正则基数</b>，序数 <span class="m">β = sup(αₙ + 1) &lt; ω₁</span>。此时 <span class="m">Aₙ ∈ Π⁰_{αₙ+1}</span>，且 <span class="m">αₙ + 1 ≤ β &lt; β+1</span>，所以 <span class="m">⋃Aₙ ∈ Σ⁰_{β+1}</span>。因此这个并集是 σ-代数；而它又含于任何包含开集的 σ-代数之中。下面的尺子可以动手试试。</span></div>
+  </div>
+  <div class="toolbar"><button class="btn primary" data-next="pf2"><span class="en">Reveal next step</span><span class="zh">揭晓下一步</span></button><button class="btn ghost" data-all="pf2"><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+  <h3><span class="en">The ω₁ ruler: countably many levels never reach ω₁</span><span class="zh">ω₁ 标尺：可数多个层级永远够不到 ω₁</span></h3>
+  <div class="toolbar">
+    <button class="btn small" data-seq="0"><span class="m">αₙ = n</span></button>
+    <button class="btn small" data-seq="1"><span class="m">αₙ = ω + n</span></button>
+    <button class="btn small" data-seq="2"><span class="m">αₙ = ω·n</span></button>
+    <button class="btn small" data-seq="3"><span class="m">αₙ = ω^n</span></button>
+  </div>
+  <div class="stage"><svg id="ruler" viewBox="0 0 760 150" width="760" height="150"></svg></div>
+  <div class="msg info" id="rulerMsg"></div>
+  <div class="note pit"><span class="en"><b class="h">⚠ Common pitfall.</b> “ω₁ is regular” is <b>not</b> provable in ZF alone. It uses countable choice (a countable union of countable sets is countable), and choosing a witness level for each <span class="m">Aₙ</span> uses choice again. In the Feferman–Lévy model of ZF, ℝ is a countable union of countable sets and ω₁ is singular, so the stratification above breaks down. Throughout this lesson we work in ZFC.</span>
+    <span class="zh"><b class="h">⚠ 常见误区.</b> “ω₁ 是正则的”单靠 ZF <b>证不出来</b>。它要用可数选择（可数个可数集之并可数），而为每个 <span class="m">Aₙ</span> 挑一个见证层级也要用选择。在 ZF 的 Feferman–Lévy 模型中，ℝ 是可数个可数集之并，ω₁ 是奇异的，上面的分层就失效了。本课始终在 ZFC 中工作。</span></div>
+  <div class="cy" id="cy2"></div>
+</section>
+
+<!-- ============ S3 ============ -->
+<section class="card" id="s3">
+  <div class="kicker">§3</div>
+  <h2><span class="en">The nested-diamond picture, with sets at exact levels</span><span class="zh">嵌套菱形图：把集合放到它“恰好”所在的层</span></h2>
+  <div class="pre"><span class="en">Prerequisites:</span><span class="zh">前置：</span><a href="#s1">§1</a><a href="#s2">§2</a>
+    <a href="lesson17.html"><span class="en">L17 arithmetical diamond</span><span class="zh">第 17 课 算术层级菱形</span></a></div>
+  <p><span class="en">A set is at an <b>exact level</b> when we know both an <i>upper bound</i> (it is in the class) and a <i>lower bound</i> (it is not in the dual class). Click an example: the classes that contain it light up green, and the explanation gives both bounds.</span>
+     <span class="zh">要说一个集合<b>恰好</b>在某一层，需要两件事：<i>上界</i>（它属于该类）与<i>下界</i>（它不属于对偶类）。点一个例子：包含它的类会亮成绿色，说明文字给出上下两个界。</span></p>
+  <div class="ex-chips" id="diaChips"></div>
+  <div class="row">
+    <div class="col" style="flex:0 1 480px"><div class="stage"><svg id="bigDia" viewBox="0 0 470 560" width="470" height="560"></svg></div></div>
+    <div class="col"><div class="msg info" id="diaMsg"></div></div>
+  </div>
+  <div class="def"><span class="en"><b>Exact level.</b> A is <b>properly</b> <span class="m">Σ⁰_α</span> if <span class="m">A ∈ Σ⁰_α ∖ Π⁰_α</span>. Then A also lies in <span class="m">Δ⁰_{α+1}</span>, <span class="m">Σ⁰_β</span>, <span class="m">Π⁰_β</span> for all <span class="m">β &gt; α</span>, but in none of <span class="m">Π⁰_α</span>, <span class="m">Δ⁰_α</span>, or any lower class. A is properly <span class="m">Δ⁰_α</span> if <span class="m">A ∈ Δ⁰_α</span> but <span class="m">A ∉ ⋃_{β&lt;α}(Σ⁰_β ∪ Π⁰_β)</span>.</span>
+    <span class="zh"><b>恰好层级.</b> 若 <span class="m">A ∈ Σ⁰_α ∖ Π⁰_α</span>，称 A <b>恰为</b> <span class="m">Σ⁰_α</span>。此时 A 也属于 <span class="m">Δ⁰_{α+1}</span> 以及所有 <span class="m">β &gt; α</span> 的 <span class="m">Σ⁰_β</span>、<span class="m">Π⁰_β</span>，但不属于 <span class="m">Π⁰_α</span>、<span class="m">Δ⁰_α</span>，也不属于任何更低的类。若 <span class="m">A ∈ Δ⁰_α</span> 但 <span class="m">A ∉ ⋃_{β&lt;α}(Σ⁰_β ∪ Π⁰_β)</span>，称 A 恰为 <span class="m">Δ⁰_α</span>。</span></div>
+  <div class="note pit"><span class="en"><b class="h">⚠ Common pitfall.</b> “Countable ⇒ simple” is only half true. Every countable set is <span class="m">Σ⁰₂</span> (a countable union of closed singletons). But a countable <i>dense</i> subset of a perfect Polish space, such as ℚ or “eventually 0”, is <b>never</b> <span class="m">Π⁰₂</span> (§4). Level is about topology, not size.</span>
+    <span class="zh"><b class="h">⚠ 常见误区.</b> “可数 ⇒ 简单”只对了一半。每个可数集都是 <span class="m">Σ⁰₂</span>（可数个闭单点集之并）。但完全波兰空间中的可数<i>稠密</i>子集（比如 ℚ、“最终为 0”）<b>永远不是</b> <span class="m">Π⁰₂</span>（见 §4）。层级刻画的是拓扑复杂度，而不是大小。</span></div>
+  <div class="cy" id="cy3"></div>
+</section>
+
+<!-- ============ S4 ============ -->
+<section class="card" id="s4">
+  <div class="kicker">§4</div>
+  <h2><span class="en">An exact level, proved: ℚ is Σ⁰₂ but not Π⁰₂</span><span class="zh">证明一个恰好层级：ℚ 是 Σ⁰₂ 而不是 Π⁰₂</span></h2>
+  <div class="pre"><span class="en">Prerequisites:</span><span class="zh">前置：</span><a href="#s2">§2</a><a href="#s3">§3</a>
+    <a href="lesson7.html"><span class="en">L7 completeness of ℝ</span><span class="zh">第 7 课 ℝ 的完备性</span></a></div>
+  <p><span class="en"><b>Upper bound:</b> <span class="m">ℚ ∩ [0,1] = ⋃ₙ Fₙ</span> with <span class="m">Fₙ = {k/n : 0 ≤ k ≤ n}</span> (<span class="m">n ≥ 1</span>) finite, hence closed. <b>Lower bound:</b> suppose <span class="m">ℚ = ⋂ₙ Uₙ</span> with <span class="m">Uₙ</span> open. Each <span class="m">Uₙ ⊇ ℚ</span> is dense. Also <span class="m">ℝ ∖ {q}</span> is dense open for each rational <span class="m">q</span>. Interleave the two families and shrink closed intervals so that each interval sits inside the next dense open set. By completeness the intervals share a point, and that point would be rational and irrational at once.</span>
+     <span class="zh"><b>上界：</b><span class="m">ℚ ∩ [0,1] = ⋃ₙ Fₙ</span>，其中 <span class="m">Fₙ = {k/n : 0 ≤ k ≤ n}</span>（<span class="m">n ≥ 1</span>）是有限集，因而是闭集。<b>下界：</b>设 <span class="m">ℚ = ⋂ₙ Uₙ</span>，<span class="m">Uₙ</span> 为开集。每个 <span class="m">Uₙ ⊇ ℚ</span> 都稠密；对每个有理数 <span class="m">q</span>，<span class="m">ℝ ∖ {q}</span> 也是稠密开集。把两族集合交错排列，逐步缩小闭区间，让每个区间都落在下一个稠密开集里。由完备性，这些区间有公共点，而这个点既是有理数又是无理数。</span></p>
+  <div class="toolbar">
+    <button class="btn" id="qBuild"><span class="en">① Build ℚ∩[0,1] = ⋃ Fₙ ▶</span><span class="zh">① 搭出 ℚ∩[0,1] = ⋃ Fₙ ▶</span></button>
+    <button class="btn primary" id="qStep"><span class="en">② Assume ℚ = ⋂Uₙ: next interval ▶</span><span class="zh">② 假设 ℚ = ⋂Uₙ：下一个区间 ▶</span></button>
+    <button class="btn ghost" id="qReset"><span class="en">Reset</span><span class="zh">重置</span></button>
+  </div>
+  <div class="stage"><svg id="qSvg" viewBox="0 0 760 290" width="760" height="290"></svg></div>
+  <div class="msg info" id="qMsg"></div>
+  <div class="def"><span class="en"><b>Baire Category Theorem</b> (ZF + DC suffices; for separable spaces even ZF). In a complete metric space, a countable intersection of dense open sets is dense, in particular nonempty.<br>
+    <b>Corollary.</b> <span class="m">ℚ ∈ Σ⁰₂(ℝ) ∖ Π⁰₂(ℝ)</span>, and dually <span class="m">ℝ∖ℚ ∈ Π⁰₂ ∖ Σ⁰₂</span>. The same proof works for any countable dense set in a Polish space without isolated points. For example, <span class="m">{x ∈ 2^ω : x is eventually 0}</span> is properly <span class="m">Σ⁰₂</span>.</span>
+    <span class="zh"><b>贝尔纲定理</b>（ZF + DC 即可；对可分空间甚至 ZF 就够）。在完备度量空间中，可数个稠密开集之交仍稠密，特别地非空。<br>
+    <b>推论.</b> <span class="m">ℚ ∈ Σ⁰₂(ℝ) ∖ Π⁰₂(ℝ)</span>；对偶地，<span class="m">ℝ∖ℚ ∈ Π⁰₂ ∖ Σ⁰₂</span>。同样的证明适用于任何无孤立点的波兰空间中的可数稠密集，例如 <span class="m">{x ∈ 2^ω : x 最终为 0}</span> 恰为 <span class="m">Σ⁰₂</span>。</span></div>
+  <div class="steps" id="pf4">
+    <div class="step"><span class="en"><b>Step 1.</b> Suppose <span class="m">ℚ = ⋂ₙ Uₙ</span>, each <span class="m">Uₙ</span> open. Since <span class="m">ℚ ⊆ Uₙ</span> and ℚ is dense, every <span class="m">Uₙ</span> is dense open.</span><span class="zh"><b>第 1 步.</b> 设 <span class="m">ℚ = ⋂ₙ Uₙ</span>，每个 <span class="m">Uₙ</span> 为开集。由于 <span class="m">ℚ ⊆ Uₙ</span> 且 ℚ 稠密，每个 <span class="m">Uₙ</span> 都是稠密开集。</span></div>
+    <div class="step"><span class="en"><b>Step 2.</b> Enumerate <span class="m">ℚ = {q₀, q₁, …}</span>. Each <span class="m">Vₖ = ℝ ∖ {qₖ}</span> is dense open, and <span class="m">⋂ₖ Vₖ = ℝ ∖ ℚ</span>.</span><span class="zh"><b>第 2 步.</b> 把 ℚ 枚举为 <span class="m">{q₀, q₁, …}</span>。每个 <span class="m">Vₖ = ℝ ∖ {qₖ}</span> 都是稠密开集，且 <span class="m">⋂ₖ Vₖ = ℝ ∖ ℚ</span>。</span></div>
+    <div class="step"><span class="en"><b>Step 3.</b> Baire: <span class="m">U₀ ∩ V₀ ∩ U₁ ∩ V₁ ∩ ⋯</span> is nonempty. (The animation is exactly its proof: nested closed intervals <span class="m">I₀ ⊇ I₁ ⊇ ⋯</span>, lengths → 0, with <span class="m">I_{2n} ⊆ Uₙ</span>, <span class="m">I_{2k+1} ⊆ Vₖ</span>.)</span><span class="zh"><b>第 3 步.</b> 由贝尔纲定理，<span class="m">U₀ ∩ V₀ ∩ U₁ ∩ V₁ ∩ ⋯</span> 非空。（动画演示的正是它的证明：一列套闭区间 <span class="m">I₀ ⊇ I₁ ⊇ ⋯</span>，长度趋于 0，且 <span class="m">I_{2n} ⊆ Uₙ</span>，<span class="m">I_{2k+1} ⊆ Vₖ</span>。）</span></div>
+    <div class="step"><span class="en"><b>Step 4.</b> But that intersection is <span class="m">ℚ ∩ (ℝ∖ℚ) = ∅</span>. Contradiction, so ℚ is not <span class="m">G_δ</span>. ∎</span><span class="zh"><b>第 4 步.</b> 然而这个交集等于 <span class="m">ℚ ∩ (ℝ∖ℚ) = ∅</span>，矛盾。所以 ℚ 不是 <span class="m">G_δ</span>。∎</span></div>
+  </div>
+  <div class="toolbar"><button class="btn primary" data-next="pf4"><span class="en">Reveal next step</span><span class="zh">揭晓下一步</span></button><button class="btn ghost" data-all="pf4"><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+  <div class="cy" id="cy4"></div>
+</section>
+
+<!-- ============ S5 ============ -->
+<section class="card" id="s5">
+  <div class="kicker">§5</div>
+  <h2><span class="en">The hierarchy never collapses: universal sets + diagonalization</span><span class="zh">层级永不坍缩：万有集 + 对角线</span></h2>
+  <div class="pre"><span class="en">Prerequisites:</span><span class="zh">前置：</span><a href="#s1">§1</a><a href="#s2">§2</a>
+    <a href="lesson1.html#s8"><span class="en">L1 diagonal</span><span class="zh">第 1 课 对角线</span></a>
+    <a href="lesson17.html"><span class="en">L17 hierarchy theorem</span><span class="zh">第 17 课 层级定理</span></a></div>
+  <p><span class="en">This is the same trick as in L17, with real codes in place of program indices. Fix an enumeration <span class="m">s₀ = 0, s₁ = 1, s₂ = 00, s₃ = 01, …</span> of all binary strings. A real <span class="m">y ∈ 2^ω</span> <b>codes</b> the open set <span class="m">U_y = ⋃{N_{sₙ} : y(n) = 1}</span>. Every open set has a code. Each row of the matrix is one coded open set, each column is a point, and a ✓ means “point ∈ set”. Points and codes are both elements of <span class="m">2^ω</span>, so the matrix has a <b>diagonal</b>.</span>
+     <span class="zh">这和第 17 课是同一个把戏，只是把程序编号换成了实数编码。固定所有二进制串的一个枚举 <span class="m">s₀ = 0, s₁ = 1, s₂ = 00, s₃ = 01, …</span>。实数 <span class="m">y ∈ 2^ω</span> <b>编码</b>开集 <span class="m">U_y = ⋃{N_{sₙ} : y(n) = 1}</span>，每个开集都有编码。矩阵的每一行是一个被编码的开集，每一列是一个点，✓ 表示“点 ∈ 集合”。点和编码都是 <span class="m">2^ω</span> 的元素，所以矩阵有<b>对角线</b>。</span></p>
+  <div class="toolbar">
+    <button class="btn primary" id="dgGo"><span class="en">Run the diagonal ▶</span><span class="zh">跑对角线 ▶</span></button>
+    <button class="btn ghost" id="dgNew"><span class="en">New codes</span><span class="zh">换一批编码</span></button>
+  </div>
+  <div class="stage"><svg id="dgSvg" viewBox="0 0 760 470" width="760" height="470"></svg></div>
+  <div class="msg info" id="dgMsg"></div>
+  <div class="def"><span class="en"><b>Definition.</b> <span class="m">U ⊆ 2^ω × X</span> is <b>universal</b> for a class <span class="m">Γ(X)</span> if <span class="m">U ∈ Γ(2^ω × X)</span> and <span class="m">Γ(X) = {U_y : y ∈ 2^ω}</span>, where <span class="m">U_y = {x : (y,x) ∈ U}</span>.<br>
+    <b>Theorem</b> (Lebesgue 1905). For X separable metrizable and <span class="m">1 ≤ α &lt; ω₁</span>, <span class="m">Σ⁰_α(X)</span> and <span class="m">Π⁰_α(X)</span> have <span class="m">2^ω</span>-universal sets. If X is an <b>uncountable Polish</b> space, then <span class="m">Σ⁰_α(X) ≠ Π⁰_α(X)</span> for every <span class="m">1 ≤ α &lt; ω₁</span>. Hence <span class="m">Δ⁰_α ⊊ Σ⁰_α ⊊ Δ⁰_{α+1}</span>, and the hierarchy has exactly ω₁ distinct levels.</span>
+    <span class="zh"><b>定义.</b> 若 <span class="m">U ∈ Γ(2^ω × X)</span> 且 <span class="m">Γ(X) = {U_y : y ∈ 2^ω}</span>（其中 <span class="m">U_y = {x : (y,x) ∈ U}</span>），则称 <span class="m">U ⊆ 2^ω × X</span> 是类 <span class="m">Γ(X)</span> 的<b>万有集</b>。<br>
+    <b>定理</b>（Lebesgue 1905）。设 X 可分可度量化，<span class="m">1 ≤ α &lt; ω₁</span>，则 <span class="m">Σ⁰_α(X)</span> 与 <span class="m">Π⁰_α(X)</span> 都有 <span class="m">2^ω</span>-万有集。若 X 是<b>不可数波兰空间</b>，则对每个 <span class="m">1 ≤ α &lt; ω₁</span> 都有 <span class="m">Σ⁰_α(X) ≠ Π⁰_α(X)</span>。因此 <span class="m">Δ⁰_α ⊊ Σ⁰_α ⊊ Δ⁰_{α+1}</span>，层级恰有 ω₁ 个互不相同的层。</span></div>
+  <div class="steps" id="pf5">
+    <div class="step"><span class="en"><b>Step 1</b> (α = 1). <span class="m">U = ⋃ₙ ({y : y(n)=1} × N_{sₙ})</span> is open in <span class="m">2^ω × 2^ω</span> and universal for <span class="m">Σ⁰₁(2^ω)</span>. Its complement is universal for <span class="m">Π⁰₁</span>.</span><span class="zh"><b>第 1 步</b>（α = 1）。<span class="m">U = ⋃ₙ ({y : y(n)=1} × N_{sₙ})</span> 是 <span class="m">2^ω × 2^ω</span> 中的开集，且对 <span class="m">Σ⁰₁(2^ω)</span> 万有；它的补集对 <span class="m">Π⁰₁</span> 万有。</span></div>
+    <div class="step"><span class="en"><b>Step 2</b> (induction). Fix <span class="m">βₙ &lt; α</span> with every <span class="m">β &lt; α</span> occurring infinitely often, and universal sets <span class="m">Vₙ</span> for <span class="m">Π⁰_{βₙ}</span>. Split <span class="m">y</span> into countably many reals <span class="m">(y)ₙ(k) = y(⟨n,k⟩)</span>. Then <span class="m">U = {(y,x) : ∃n ((y)ₙ, x) ∈ Vₙ}</span> is <span class="m">Σ⁰_α</span> and universal for <span class="m">Σ⁰_α</span>.</span><span class="zh"><b>第 2 步</b>（归纳）。取 <span class="m">βₙ &lt; α</span>，使每个 <span class="m">β &lt; α</span> 都出现无穷多次，并取 <span class="m">Π⁰_{βₙ}</span> 的万有集 <span class="m">Vₙ</span>。把 <span class="m">y</span> 拆成可数多个实数 <span class="m">(y)ₙ(k) = y(⟨n,k⟩)</span>。则 <span class="m">U = {(y,x) : ∃n ((y)ₙ, x) ∈ Vₙ}</span> 属于 <span class="m">Σ⁰_α</span>，且对 <span class="m">Σ⁰_α</span> 万有。</span></div>
+    <div class="step"><span class="en"><b>Step 3</b> (diagonal). Let <span class="m">D = {y : (y,y) ∉ U}</span>. It is the preimage of the <span class="m">Π⁰_α</span> set <span class="m">U^c</span> under the continuous map <span class="m">y ↦ (y,y)</span>, so <span class="m">D ∈ Π⁰_α</span>. If <span class="m">D ∈ Σ⁰_α</span>, then <span class="m">D = U_{y₀}</span> for some <span class="m">y₀</span>, and <span class="m">y₀ ∈ D ⇔ (y₀,y₀) ∉ U ⇔ y₀ ∉ D</span>. Contradiction. So <span class="m">D ∈ Π⁰_α(2^ω) ∖ Σ⁰_α(2^ω)</span>.</span><span class="zh"><b>第 3 步</b>（对角线）。令 <span class="m">D = {y : (y,y) ∉ U}</span>。它是 <span class="m">Π⁰_α</span> 集 <span class="m">U^c</span> 在连续映射 <span class="m">y ↦ (y,y)</span> 下的原像，所以 <span class="m">D ∈ Π⁰_α</span>。若 <span class="m">D ∈ Σ⁰_α</span>，则有 <span class="m">y₀</span> 使 <span class="m">D = U_{y₀}</span>，于是 <span class="m">y₀ ∈ D ⇔ (y₀,y₀) ∉ U ⇔ y₀ ∉ D</span>，矛盾。故 <span class="m">D ∈ Π⁰_α(2^ω) ∖ Σ⁰_α(2^ω)</span>。</span></div>
+    <div class="step"><span class="en"><b>Step 4</b> (transfer). An uncountable Polish X contains a closed copy K of <span class="m">2^ω</span>. Traces on a closed subspace satisfy <span class="m">Σ⁰_α(K) = {A ∩ K : A ∈ Σ⁰_α(X)}</span>, and likewise for Π. So <span class="m">Σ⁰_α(X) = Π⁰_α(X)</span> would force <span class="m">Σ⁰_α(K) = Π⁰_α(K)</span>, contradicting Step 3. ∎</span><span class="zh"><b>第 4 步</b>（迁移）。不可数波兰空间 X 含有 <span class="m">2^ω</span> 的闭拷贝 K。闭子空间上的迹满足 <span class="m">Σ⁰_α(K) = {A ∩ K : A ∈ Σ⁰_α(X)}</span>，Π 同理。所以若 <span class="m">Σ⁰_α(X) = Π⁰_α(X)</span>，则 <span class="m">Σ⁰_α(K) = Π⁰_α(K)</span>，与第 3 步矛盾。∎</span></div>
+  </div>
+  <div class="toolbar"><button class="btn primary" data-next="pf5"><span class="en">Reveal next step</span><span class="zh">揭晓下一步</span></button><button class="btn ghost" data-all="pf5"><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+  <div class="note pit"><span class="en"><b class="h">⚠ Common pitfall.</b> Countable spaces are different: in ω or ℚ every subset is <span class="m">Σ⁰₂</span>, so the hierarchy collapses. Strictness needs an <i>uncountable</i> Polish space. Also, Δ⁰₁ has no universal set: the same diagonal argument shows that.</span>
+    <span class="zh"><b class="h">⚠ 常见误区.</b> 可数空间不一样：在 ω 或 ℚ 里，每个子集都是 <span class="m">Σ⁰₂</span>，层级坍缩了。严格性需要<i>不可数</i>波兰空间。另外，Δ⁰₁ 没有万有集，同一个对角线论证就能说明这一点。</span></div>
+  <div class="cy" id="cy5"></div>
+</section>
+
+<!-- ============ S6 ============ -->
+<section class="card" id="s6">
+  <div class="kicker">§6</div>
+  <h2><span class="en">Lightface vs boldface: “boldface = lightface + a real parameter”</span><span class="zh">细体与粗体：“粗体 = 细体 + 一个实数参数”</span></h2>
+  <div class="pre"><span class="en">Prerequisites:</span><span class="zh">前置：</span>
+    <a href="lesson11.html"><span class="en">L11 c.e. sets</span><span class="zh">第 11 课 可计算可枚举集</span></a>
+    <a href="lesson17.html"><span class="en">L17 Σ⁰ₙ</span><span class="zh">第 17 课 Σ⁰ₙ</span></a>
+    <a href="lesson18.html"><span class="en">L18 Σ¹ₙ, HYP</span><span class="zh">第 18 课 Σ¹ₙ 与 HYP</span></a><a href="#s5">§5</a></div>
+  <p><span class="en">A <b>lightface</b> Σ⁰₁ set is an <i>effectively</i> open set: a union of cones <span class="m">N_{sₙ}</span> over a computably enumerable set of indices n. A <b>boldface</b> Σ⁰₁ set may use any set of indices. That set is just a real <span class="m">a</span>, and given <span class="m">a</span> as an oracle, the union is Σ⁰₁(a). Flip the bits of the parameter and watch the open set change.</span>
+     <span class="zh"><b>细体</b> Σ⁰₁ 集就是<i>能行</i>开集：对一个可计算可枚举的指标集取锥 <span class="m">N_{sₙ}</span> 之并。<b>粗体</b> Σ⁰₁ 集允许任意的指标集。这个指标集本身就是一个实数 <span class="m">a</span>，把 <span class="m">a</span> 当作神谕，这个并就是 Σ⁰₁(a)。拨动参数的各个比特，看开集如何变化。</span></p>
+  <div class="switches" id="aSw"></div>
+  <div class="toolbar"><span class="muted"><span class="il"><span class="en">Tail a(8), a(9), …</span><span class="zh">尾部 a(8), a(9), …</span></span>:</span>
+    <button class="btn small sel" data-tail="0"><span class="en">all 0</span><span class="zh">全为 0</span></button>
+    <button class="btn small" data-tail="K"><span class="en">a(n)=1 ⇔ n ∈ K (halting set)</span><span class="zh">a(n)=1 ⇔ n ∈ K（停机集）</span></button></div>
+  <div class="stage"><svg id="aSvg" viewBox="0 0 760 150" width="760" height="150"></svg></div>
+  <div class="msg info" id="aMsg"></div>
+  <table class="cmp">
+    <tr><th></th><th><span class="il"><span class="en">Lightface (L17–L18)</span><span class="zh">细体（第 17–18 课）</span></span></th><th><span class="il"><span class="en">Boldface (this lesson)</span><span class="zh">粗体（本课）</span></span></th></tr>
+    <tr><td><span class="il"><span class="en">finite levels</span><span class="zh">有限层</span></span></td><td class="m">Σ⁰ₙ: ∃∀∃… + computable matrix</td><td class="m"><b>𝚺⁰ₙ = ⋃_{a∈ω^ω} Σ⁰ₙ(a)</b></td></tr>
+    <tr><td><span class="il"><span class="en">how many sets?</span><span class="zh">集合个数</span></span></td><td class="m">ℵ₀</td><td class="m">2^ℵ₀</td></tr>
+    <tr><td><span class="il"><span class="en">transfinite levels run up to</span><span class="zh">超穷层延伸到</span></span></td><td class="m">ω₁^CK</td><td class="m">ω₁</td></tr>
+    <tr><td><span class="il"><span class="en">Σ¹ ∩ Π¹ at level 1</span><span class="zh">第 1 层的 Σ¹ ∩ Π¹</span></span></td><td class="m">Δ¹₁ = HYP (Kleene)</td><td class="m"><b>𝚫¹₁ = Borel (Suslin)</b></td></tr>
+    <tr><td><span class="il"><span class="en">projective levels</span><span class="zh">投影层</span></span></td><td class="m">Σ¹ₙ</td><td class="m"><b>𝚺¹ₙ = ⋃ₐ Σ¹ₙ(a)</b></td></tr>
+  </table>
+  <div class="def"><span class="en"><b>Theorem</b> (relativization). For <span class="m">X ∈ {ω^ω, 2^ω}</span> (or products of these with powers of ω) and <span class="m">1 ≤ n &lt; ω</span>: <span class="m">A ∈ 𝚺⁰ₙ(X)</span> ⇔ <span class="m">A ∈ Σ⁰ₙ(a)</span> for some <span class="m">a ∈ ω^ω</span>. Likewise <span class="m">𝚺¹ₙ = ⋃ₐ Σ¹ₙ(a)</span>. The <b>effective Suslin–Kleene theorem</b> says <span class="m">Δ¹₁(a)</span> = sets with a Borel code in <span class="m">Δ¹₁(a)</span>. Taking the union over all a gives back Suslin's theorem <span class="m">𝚫¹₁ = Borel</span> (§7).</span>
+    <span class="zh"><b>定理</b>（相对化）。设 <span class="m">X ∈ {ω^ω, 2^ω}</span>（或它们与 ω 的幂的乘积），<span class="m">1 ≤ n &lt; ω</span>，则 <span class="m">A ∈ 𝚺⁰ₙ(X)</span> ⇔ 存在 <span class="m">a ∈ ω^ω</span> 使 <span class="m">A ∈ Σ⁰ₙ(a)</span>。同理 <span class="m">𝚺¹ₙ = ⋃ₐ Σ¹ₙ(a)</span>。<b>能行 Suslin–Kleene 定理</b>说：<span class="m">Δ¹₁(a)</span> 恰是具有 <span class="m">Δ¹₁(a)</span> 博雷尔编码的集合。对所有 a 取并，就重新得到 Suslin 定理 <span class="m">𝚫¹₁ = 博雷尔</span>（§7）。</span></div>
+  <div class="note pit"><span class="en"><b class="h">⚠ Common pitfall.</b> “Lightface” means <i>some</i> code is effective, not that a given code is. With the tail set to K, the code <span class="m">a</span> is not computable, yet <span class="m">⋃_{n∈K} N_{sₙ}</span> is lightface Σ⁰₁, because K is c.e. and that is all Σ⁰₁ needs. <b>Notation:</b> outside this section, unadorned <span class="m">Σ⁰_α, Π¹ₙ, Δ¹ₙ, …</span> always mean the <b>boldface</b> classes (many books print them in bold, 𝚺, 𝚷, 𝚫). Lightface classes are named explicitly.</span>
+    <span class="zh"><b class="h">⚠ 常见误区.</b> “细体”指的是<i>存在</i>某个能行的编码，而不是某个给定的编码能行。尾部取 K 时，编码 <span class="m">a</span> 不可计算，但 <span class="m">⋃_{n∈K} N_{sₙ}</span> 仍是细体 Σ⁰₁，因为 K 可计算可枚举，而 Σ⁰₁ 只需要这一点。<b>记号：</b>除本节外，本课中不加修饰的 <span class="m">Σ⁰_α, Π¹ₙ, Δ¹ₙ, …</span> 一律指<b>粗体</b>类（许多书用粗体印刷：𝚺、𝚷、𝚫）；细体类会明确标出。</span></div>
+  <div class="cy" id="cy6"></div>
+</section>
+
+<!-- ============ S7 ============ -->
+<section class="card" id="s7">
+  <div class="kicker">§7</div>
+  <h2><span class="en">Analytic sets: shadows of closed sets, and Suslin's theorem</span><span class="zh">解析集：闭集的影子，以及 Suslin 定理</span></h2>
+  <div class="pre"><span class="en">Prerequisites:</span><span class="zh">前置：</span><a href="#s1">§1</a><a href="#s2">§2</a>
+    <a href="lesson18.html"><span class="en">L18 Σ¹₁ = ∃ real</span><span class="zh">第 18 课 Σ¹₁ = ∃ 实数</span></a></div>
+  <p><span class="en">Shine light straight down on a closed set <span class="m">C ⊆ X × ω^ω</span>. Its <b>shadow</b> on X is <span class="m">p[C] = {x : ∃y (x,y) ∈ C}</span>. Drag the vertical scan line: x is in the shadow exactly when the line meets C, i.e. the <i>section</i> <span class="m">C_x</span> is nonempty. The existential quantifier <span class="m">∃y</span> ranges over a <i>real</i>, which is the extra power of Σ¹₁ over Borel.</span>
+     <span class="zh">用光垂直向下照射一个闭集 <span class="m">C ⊆ X × ω^ω</span>，它在 X 上的<b>影子</b>就是 <span class="m">p[C] = {x : ∃y (x,y) ∈ C}</span>。拖动竖直扫描线：x 在影子里，当且仅当扫描线碰到 C，也就是<i>截面</i> <span class="m">C_x</span> 非空。存在量词 <span class="m">∃y</span> 跑遍的是一个<i>实数</i>，这正是 Σ¹₁ 比博雷尔多出来的能力。</span></p>
+  <div class="toolbar">
+    <button class="btn small sel" data-shape="0"><span class="en">Blobs</span><span class="zh">团块</span></button>
+    <button class="btn small" data-shape="1"><span class="en">Comb</span><span class="zh">梳子</span></button>
+    <button class="btn primary small" id="sunBtn"><span class="en">☀ Shine the light</span><span class="zh">☀ 打光</span></button>
+    <button class="btn small" id="lebBtn"><span class="en">Lebesgue's step: ⋂ of a decreasing sequence</span><span class="zh">勒贝格那一步：递减列之交</span></button>
+  </div>
+  <div class="stage"><svg id="projSvg" viewBox="0 0 760 360" width="760" height="360"></svg></div>
+  <div class="msg info" id="projMsg"></div>
+  <div class="def"><span class="en"><b>Definition / Theorem</b> (X Polish, A ⊆ X). The following are equivalent, and A is then called <b>analytic</b> (<span class="m">Σ¹₁</span>):
+    (i) <span class="m">A = ∅</span> or <span class="m">A = f[ω^ω]</span> for a continuous <span class="m">f</span>;
+    (ii) <span class="m">A = p[F]</span> for a closed <span class="m">F ⊆ X × ω^ω</span>;
+    (iii) <span class="m">A = p[B]</span> for a Borel <span class="m">B ⊆ X × Y</span>, Y Polish;
+    (iv) <span class="m">A = f[B]</span>, B Borel in a Polish Y, f continuous (or just Borel).
+    <span class="m">Π¹₁</span> (<b>coanalytic</b>) = complements; <span class="m">Δ¹₁ = Σ¹₁ ∩ Π¹₁</span>.<br>
+    <b>Lusin Separation Theorem.</b> Disjoint analytic sets A, B are separated by a Borel set C: <span class="m">A ⊆ C, C ∩ B = ∅</span>.<br>
+    <b>Suslin's Theorem</b> (1917). <span class="m">Borel(X) = Δ¹₁(X)</span>. If X is uncountable, <span class="m">Σ¹₁(X) ≠ Π¹₁(X)</span>, so some analytic sets are not Borel. Example: on the space of trees on ω, <span class="m">IF = {T : [T] ≠ ∅} = {T : ∃y ∀n y↾n ∈ T}</span> is <span class="m">Σ¹₁</span> but not Borel, and its complement WF is <span class="m">Π¹₁</span> but not Borel.</span>
+    <span class="zh"><b>定义 / 定理</b>（X 为波兰空间，A ⊆ X）。下列条件等价，满足时称 A 为<b>解析集</b>（<span class="m">Σ¹₁</span>）：
+    (i) <span class="m">A = ∅</span> 或存在连续 <span class="m">f</span> 使 <span class="m">A = f[ω^ω]</span>；
+    (ii) 存在闭集 <span class="m">F ⊆ X × ω^ω</span> 使 <span class="m">A = p[F]</span>；
+    (iii) 存在波兰空间 Y 与博雷尔集 <span class="m">B ⊆ X × Y</span> 使 <span class="m">A = p[B]</span>；
+    (iv) <span class="m">A = f[B]</span>，B 为某波兰空间 Y 中的博雷尔集，f 连续（或仅为博雷尔函数）。
+    <span class="m">Π¹₁</span>（<b>余解析集</b>）是解析集的补集；<span class="m">Δ¹₁ = Σ¹₁ ∩ Π¹₁</span>。<br>
+    <b>卢津分离定理.</b> 不相交的解析集 A、B 可被博雷尔集 C 分离：<span class="m">A ⊆ C</span>，<span class="m">C ∩ B = ∅</span>。<br>
+    <b>Suslin 定理</b>（1917）。<span class="m">Borel(X) = Δ¹₁(X)</span>。若 X 不可数，则 <span class="m">Σ¹₁(X) ≠ Π¹₁(X)</span>，所以存在非博雷尔的解析集。例：在 ω 上的树构成的空间中，<span class="m">IF = {T : [T] ≠ ∅} = {T : ∃y ∀n y↾n ∈ T}</span> 是 <span class="m">Σ¹₁</span> 但不是博雷尔集；它的补集 WF 是 <span class="m">Π¹₁</span> 但不是博雷尔集。</span></div>
+  <div class="steps" id="pf7">
+    <div class="step"><span class="en"><b>Step 1</b> (countable unions are harmless). If each <span class="m">Aₘ</span> is Borel-separable from each <span class="m">Bₙ</span> (by <span class="m">Cₘₙ</span>), then <span class="m">⋃Aₘ</span> is separated from <span class="m">⋃Bₙ</span> by <span class="m">⋃ₘ⋂ₙ Cₘₙ</span>. Contrapositive: if <span class="m">⋃Aₘ, ⋃Bₙ</span> are not separable, some pair <span class="m">Aₘ, Bₙ</span> is not.</span><span class="zh"><b>第 1 步</b>（可数并无碍）。若每个 <span class="m">Aₘ</span> 都能与每个 <span class="m">Bₙ</span> 被博雷尔集 <span class="m">Cₘₙ</span> 分离，则 <span class="m">⋃ₘ⋂ₙ Cₘₙ</span> 分离 <span class="m">⋃Aₘ</span> 与 <span class="m">⋃Bₙ</span>。逆否：若 <span class="m">⋃Aₘ, ⋃Bₙ</span> 不可分离，则必有某一对 <span class="m">Aₘ, Bₙ</span> 不可分离。</span></div>
+    <div class="step"><span class="en"><b>Step 2</b> (descend the trees). Write <span class="m">A = f[ω^ω]</span>, <span class="m">B = g[ω^ω]</span> (both nonempty; otherwise trivial). Suppose they are not separable. Since <span class="m">f[N_s] = ⋃ₖ f[N_{s⌢k}]</span>, Step 1 lets us pick <span class="m">s₀ ⊂ s₁ ⊂ ⋯</span> and <span class="m">t₀ ⊂ t₁ ⊂ ⋯</span> with <span class="m">|sₖ| = |tₖ| = k</span> and <span class="m">f[N_{sₖ}]</span>, <span class="m">g[N_{tₖ}]</span> never separable.</span><span class="zh"><b>第 2 步</b>（沿树下降）。写 <span class="m">A = f[ω^ω]</span>，<span class="m">B = g[ω^ω]</span>（二者非空，否则平凡）。设它们不可分离。由于 <span class="m">f[N_s] = ⋃ₖ f[N_{s⌢k}]</span>，用第 1 步可以选出 <span class="m">s₀ ⊂ s₁ ⊂ ⋯</span> 与 <span class="m">t₀ ⊂ t₁ ⊂ ⋯</span>，<span class="m">|sₖ| = |tₖ| = k</span>，且 <span class="m">f[N_{sₖ}]</span> 与 <span class="m">g[N_{tₖ}]</span> 始终不可分离。</span></div>
+    <div class="step"><span class="en"><b>Step 3</b> (contradiction). Let <span class="m">x = ⋃sₖ, y = ⋃tₖ</span>. Then <span class="m">f(x) ∈ A</span>, <span class="m">g(y) ∈ B</span>, so <span class="m">f(x) ≠ g(y)</span>. Take disjoint open <span class="m">U ∋ f(x), V ∋ g(y)</span>. By continuity, <span class="m">f[N_{sₖ}] ⊆ U</span> and <span class="m">g[N_{tₖ}] ⊆ V</span> for large k, so the open (hence Borel) set U separates them. Contradiction. This proves Lusin separation.</span><span class="zh"><b>第 3 步</b>（矛盾）。令 <span class="m">x = ⋃sₖ, y = ⋃tₖ</span>。则 <span class="m">f(x) ∈ A</span>，<span class="m">g(y) ∈ B</span>，故 <span class="m">f(x) ≠ g(y)</span>。取不相交开集 <span class="m">U ∋ f(x), V ∋ g(y)</span>。由连续性，k 充分大时 <span class="m">f[N_{sₖ}] ⊆ U</span>，<span class="m">g[N_{tₖ}] ⊆ V</span>，于是开集（从而是博雷尔集）U 把它们分开了，矛盾。卢津分离定理得证。</span></div>
+    <div class="step"><span class="en"><b>Step 4</b> (Suslin). If A and X∖A are both analytic, separate them by a Borel C: <span class="m">A ⊆ C ⊆ A</span>, so <span class="m">A = C</span> is Borel. Conversely, Borel sets are analytic (by (iii) with <span class="m">B</span> itself), and their complements are Borel too. Hence <span class="m">Δ¹₁ = Borel</span>. ∎</span><span class="zh"><b>第 4 步</b>（Suslin）。若 A 与 X∖A 都是解析集，用博雷尔集 C 分离它们：<span class="m">A ⊆ C ⊆ A</span>，所以 <span class="m">A = C</span> 是博雷尔集。反之，博雷尔集是解析集（由 (iii)，取 B 为它自身），它们的补集也是博雷尔集。故 <span class="m">Δ¹₁ = 博雷尔</span>。∎</span></div>
+  </div>
+  <div class="toolbar"><button class="btn primary" data-next="pf7"><span class="en">Reveal next step</span><span class="zh">揭晓下一步</span></button><button class="btn ghost" data-all="pf7"><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+  <div class="note hist"><span class="en"><b>📜 Lebesgue's famous mistake.</b> In his 1905 memoir on analytically representable functions, Lebesgue “proved” that the projection of a Borel subset of the plane is Borel. The argument assumed that projection commutes with <i>decreasing intersections</i>, as it does with unions. Press <b>Lebesgue's step</b> above for a counterexample. In 1916 the young <b>Suslin</b>, a student in <b>Lusin</b>'s Moscow seminar, found the error. His 1917 note introduced analytic sets and proved that some are not Borel. In his preface to Lusin's 1930 book, Lebesgue wrote that the proof was “simple, short, but false”, and called it a fruitful error.</span>
+    <span class="zh"><b>📜 勒贝格的著名错误.</b> 勒贝格在 1905 年关于可解析表示函数的长文中“证明”了：平面博雷尔集的投影仍是博雷尔集。论证默认投影与<i>递减交</i>可交换，就像它与并可交换一样。点击上面的<b>勒贝格那一步</b>可以看到反例。1916 年，<b>卢津</b>莫斯科讨论班上的年轻学生 <b>苏斯林</b>发现了这个错误，并在 1917 年的短文中引入解析集，证明了存在非博雷尔的解析集。勒贝格后来在为卢津 1930 年专著所写的序言中说，那个证明“简单、简短，但是错的”，并称之为一个富有成果的错误。</span></div>
+  <div class="note pit"><span class="en"><b class="h">⚠ Common pitfall.</b> The picture is only schematic. The hidden axis must be <span class="m">ω^ω</span> (or ℝ with closed replaced by <span class="m">G_δ</span>), <b>not</b> a compact interval. A projection of a closed subset of <span class="m">ℝ × ℝ</span> is <span class="m">σ</span>-compact, hence just <span class="m">Σ⁰₂</span>. All the non-Borel complexity comes from projecting along a non-σ-compact factor.</span>
+    <span class="zh"><b class="h">⚠ 常见误区.</b> 这幅图只是示意。被投影掉的那根轴必须是 <span class="m">ω^ω</span>（或者用 ℝ 但把闭集换成 <span class="m">G_δ</span>），<b>而不能</b>是紧区间。<span class="m">ℝ × ℝ</span> 中闭集的投影是 <span class="m">σ</span>-紧的，因而只是 <span class="m">Σ⁰₂</span>。非博雷尔的复杂性完全来自沿非 σ-紧因子做投影。</span></div>
+  <div class="cy" id="cy7"></div>
+</section>
+
+<!-- ============ S8 ============ -->
+<section class="card" id="s8">
+  <div class="kicker">§8</div>
+  <h2><span class="en">The projective hierarchy: project, complement, project, …</span><span class="zh">投影层级：投影、取补、再投影……</span></h2>
+  <div class="pre"><span class="en">Prerequisites:</span><span class="zh">前置：</span><a href="#s7">§7</a>
+    <a href="lesson18.html"><span class="en">L18 analytical hierarchy</span><span class="zh">第 18 课 分析层级</span></a></div>
+  <p><span class="en">Projection adds an existential real quantifier <span class="m">∃y</span>, and complement turns <span class="m">∃</span> into <span class="m">∀</span>. Alternate them and you climb the <b>projective ladder</b>. Press the buttons, or let the token climb by itself. Watch for the move that <i>does not</i> climb.</span>
+     <span class="zh">投影添上一个实数存在量词 <span class="m">∃y</span>，取补把 <span class="m">∃</span> 变成 <span class="m">∀</span>。两者交替进行，就爬上了<b>投影阶梯</b>。点按钮，或者让小球自己爬。注意哪一步<i>不会</i>上升。</span></p>
+  <div class="row">
+    <div class="col" style="flex:0 1 400px"><div class="stage"><svg id="ladSvg" viewBox="0 0 390 440" width="390" height="440"></svg></div></div>
+    <div class="col">
+      <div class="toolbar">
+        <button class="btn" data-lop="E"><span class="en">∃y: project</span><span class="zh">∃y：投影</span></button>
+        <button class="btn" data-lop="A"><span class="en">∀y: co-project</span><span class="zh">∀y：余投影</span></button>
+        <button class="btn" data-lop="N"><span class="en">¬: complement</span><span class="zh">¬：取补</span></button>
+        <button class="btn" data-lop="U"><span class="en">countable ⋃ / ⋂</span><span class="zh">可数 ⋃ / ⋂</span></button>
+      </div>
+      <div class="toolbar"><button class="btn primary" id="ladAuto"><span class="en">Auto-climb ▶</span><span class="zh">自动攀登 ▶</span></button><button class="btn ghost" id="ladReset"><span class="en">Back to Borel</span><span class="zh">回到博雷尔</span></button></div>
+      <div style="margin:8px 0"><span class="bigclass" id="ladBig">Δ¹₁</span></div>
+      <div class="m" id="ladForm" style="font-size:15px;min-height:48px"></div>
+      <div class="msg" id="ladMsg"></div>
+    </div>
+  </div>
+  <div class="def"><span class="en"><b>Definition</b> (X Polish, n ≥ 1). <span class="m">Π¹ₙ(X)</span> = complements of <span class="m">Σ¹ₙ(X)</span> sets. <span class="m">A ∈ Σ¹ₙ₊₁(X)</span> ⇔ <span class="m">A = p[C]</span> for some <span class="m">C ∈ Π¹ₙ(X × ω^ω)</span>. <span class="m">Δ¹ₙ = Σ¹ₙ ∩ Π¹ₙ</span>. <b>Projective</b> sets: <span class="m">⋃ₙ Σ¹ₙ</span>.<br>
+    <b>Normal form.</b> <span class="m">A ∈ Σ¹ₙ</span> ⇔ <span class="m">x ∈ A ⇔ ∃y₁ ∀y₂ ∃y₃ ⋯ Q yₙ (x, y₁, …, yₙ) ∈ B</span> with B Borel and <span class="m">yᵢ ∈ ω^ω</span>. (B can even be taken closed or open, depending on the parity of n.)<br>
+    <b>Theorem</b> (ZFC). Each <span class="m">Σ¹ₙ</span> is closed under countable unions and intersections, Borel preimages and <span class="m">∃^{ω^ω}</span>; <span class="m">Π¹ₙ</span> under <span class="m">∀^{ω^ω}</span>. <span class="m">Σ¹ₙ ∪ Π¹ₙ ⊆ Δ¹ₙ₊₁</span>. For uncountable X, <span class="m">Σ¹ₙ ≠ Π¹ₙ</span> for every n (universal sets + diagonal, as in §5).</span>
+    <span class="zh"><b>定义</b>（X 为波兰空间，n ≥ 1）。<span class="m">Π¹ₙ(X)</span> 是 <span class="m">Σ¹ₙ(X)</span> 集的补集；<span class="m">A ∈ Σ¹ₙ₊₁(X)</span> ⇔ 存在 <span class="m">C ∈ Π¹ₙ(X × ω^ω)</span> 使 <span class="m">A = p[C]</span>；<span class="m">Δ¹ₙ = Σ¹ₙ ∩ Π¹ₙ</span>。<b>投影集</b>：<span class="m">⋃ₙ Σ¹ₙ</span>。<br>
+    <b>范式.</b> <span class="m">A ∈ Σ¹ₙ</span> ⇔ <span class="m">x ∈ A ⇔ ∃y₁ ∀y₂ ∃y₃ ⋯ Q yₙ (x, y₁, …, yₙ) ∈ B</span>，其中 B 为博雷尔集，<span class="m">yᵢ ∈ ω^ω</span>（按 n 的奇偶，B 甚至可取为闭集或开集）。<br>
+    <b>定理</b>（ZFC）。每个 <span class="m">Σ¹ₙ</span> 对可数并、可数交、博雷尔原像以及 <span class="m">∃^{ω^ω}</span> 封闭；<span class="m">Π¹ₙ</span> 对 <span class="m">∀^{ω^ω}</span> 封闭。<span class="m">Σ¹ₙ ∪ Π¹ₙ ⊆ Δ¹ₙ₊₁</span>。若 X 不可数，则对每个 n 都有 <span class="m">Σ¹ₙ ≠ Π¹ₙ</span>（万有集 + 对角线，同 §5）。</span></div>
+  <div class="note pit"><span class="en"><b class="h">⚠ Common pitfall.</b> Two projections in a row do <b>not</b> climb: <span class="m">∃y₁∃y₂</span> collapses to one <span class="m">∃y</span>, because <span class="m">ω^ω × ω^ω ≅ ω^ω</span> (interleave the digits). Only <i>alternation</i> of ∃ and ∀ counts, exactly as with number quantifiers in L17.</span>
+    <span class="zh"><b class="h">⚠ 常见误区.</b> 连续两次投影<b>不会</b>上升：<span class="m">∃y₁∃y₂</span> 可以合并成一个 <span class="m">∃y</span>，因为 <span class="m">ω^ω × ω^ω ≅ ω^ω</span>（把两串数字交错排列）。只有 ∃ 与 ∀ 的<i>交替</i>才算数，这和第 17 课中数量词的情形完全一样。</span></div>
+  <div class="cy" id="cy8"></div>
+</section>
+
+<!-- ============ S9 ============ -->
+<section class="card" id="s9">
+  <div class="kicker">§9</div>
+  <h2><span class="en">Regularity properties: where ZFC stops, and what L and large cardinals say</span><span class="zh">正则性质：ZFC 管到哪里为止，L 与大基数又怎么说</span></h2>
+  <div class="pre"><span class="en">Prerequisites:</span><span class="zh">前置：</span><a href="#s7">§7</a><a href="#s8">§8</a>
+    <a href="lesson10.html"><span class="en">L10 Vitali set</span><span class="zh">第 10 课 维塔利集</span></a>
+    <a href="lesson15.html"><span class="en">L15 L</span><span class="zh">第 15 课 L</span></a>
+    <a href="lesson25.html"><span class="en">L25 determinacy</span><span class="zh">第 25 课 决定性</span></a></div>
+  <p><span class="en">Three “niceness” properties of a set of reals. Pick a theory (column header) to see what it <b>proves</b> (✓), <b>refutes</b> (✗), or leaves <b>undecided</b> (?). Click any cell for the reason. The pattern: ZFC settles level 1, and the fight starts one level up.</span>
+     <span class="zh">实数集的三种“良好”性质。选一个理论（列标题），看它<b>证明</b>了什么（✓）、<b>否证</b>了什么（✗）、又对什么<b>不置可否</b>（?）。点任一格可看理由。规律是：ZFC 搞定第 1 层，再往上一层就开始争夺了。</span></p>
+  <div class="toolbar" id="regTabs"></div>
+  <div class="stage"><table class="reg" id="regTable"></table></div>
+  <div class="msg info" id="regMsg"></div>
+  <div class="def"><span class="en"><b>Definitions</b> (A ⊆ ℝ, or any Polish space). <b>PSP</b>: A is countable or contains a nonempty perfect (closed, no isolated points) subset, so <span class="m">|A| ≤ ℵ₀</span> or <span class="m">|A| = 2^ℵ₀</span>. <b>LM</b>: A is Lebesgue measurable. <b>BP</b>: <span class="m">A △ U</span> is meager for some open U.<br>
+    <b>ZFC theorems.</b> Every <span class="m">Σ¹₁</span> set has PSP (Suslin), and is LM and BP (Lusin–Sierpiński). Hence <span class="m">Π¹₁</span> sets are LM and BP (closed under complement). By AC, some sets have none of the three (Vitali set, Bernstein set).<br>
+    <b>V = L</b> (Gödel). There is a <span class="m">Δ¹₂</span> (lightface!) well-ordering of ℝ. From it come a <span class="m">Δ¹₂</span> set that is neither LM nor BP, and an uncountable <span class="m">Π¹₁</span> set with no perfect subset.<br>
+    <b>Large cardinals.</b> A measurable cardinal implies that all <span class="m">Σ¹₂</span> sets have all three properties (Solovay). <b>PD</b> (projective determinacy) implies that all projective sets do; PD follows from infinitely many Woodin cardinals (Martin–Steel 1989; see L25).</span>
+    <span class="zh"><b>定义</b>（A ⊆ ℝ，或任一波兰空间）。<b>完美集性质 PSP</b>：A 可数，或含有非空完美子集（闭且无孤立点），从而 <span class="m">|A| ≤ ℵ₀</span> 或 <span class="m">|A| = 2^ℵ₀</span>。<b>LM</b>：A 勒贝格可测。<b>BP</b>（Baire 性质）：存在开集 U 使 <span class="m">A △ U</span> 是贫集。<br>
+    <b>ZFC 定理.</b> 每个 <span class="m">Σ¹₁</span> 集都有 PSP（Suslin），且 LM、BP（卢津–谢尔品斯基）。因此 <span class="m">Π¹₁</span> 集也 LM 且 BP（这两条性质对补集封闭）。由选择公理，存在三条性质都不满足的集合（维塔利集、伯恩斯坦集）。<br>
+    <b>V = L</b>（哥德尔）。存在 ℝ 的 <span class="m">Δ¹₂</span>（细体！）良序。由它可以得到一个既不 LM 也不 BP 的 <span class="m">Δ¹₂</span> 集，以及一个不含完美子集的不可数 <span class="m">Π¹₁</span> 集。<br>
+    <b>大基数.</b> 存在可测基数蕴涵所有 <span class="m">Σ¹₂</span> 集三条性质都有（Solovay）。<b>PD</b>（投影决定性）蕴涵所有投影集都有；而 PD 可由无穷多个伍丁基数推出（Martin–Steel 1989；见第 25 课）。</span></div>
+  <div class="note pit"><span class="en"><b class="h">⚠ Common pitfall.</b> “?” does not mean “unknown to mathematicians”. It means <b>independent of that theory</b>, assuming suitable consistency. E.g. ZFC does not prove PSP for <span class="m">Π¹₁</span> sets (it fails in L). Conversely, by Solovay, “every <span class="m">Π¹₁</span> set has PSP” ⇔ <span class="m">ω₁^{L[a]} &lt; ω₁</span> for all reals a, which implies that ω₁ is inaccessible in L. So its consistency needs (and is equiconsistent with) an inaccessible cardinal.</span>
+    <span class="zh"><b class="h">⚠ 常见误区.</b> “?” 不是“数学家还不知道”，而是<b>独立于该理论</b>（在适当的一致性假设下）。例如 ZFC 证不出 <span class="m">Π¹₁</span> 集都有 PSP（它在 L 中不成立）。反过来，由 Solovay，“每个 <span class="m">Π¹₁</span> 集都有 PSP” ⇔ 对所有实数 a 有 <span class="m">ω₁^{L[a]} &lt; ω₁</span>，这蕴涵 ω₁ 在 L 中是不可达基数。所以它的一致性需要（并且等一致于）一个不可达基数。</span></div>
+  <div class="cy" id="cy9"></div>
+</section>
+
+<!-- ============ S10 ============ -->
+<section class="card" id="s10">
+  <div class="kicker">§10</div>
+  <h2><span class="en">Wadge's hierarchy (a glimpse): comparing sets by a game</span><span class="zh">Wadge 层级（一瞥）：用博弈比较集合</span></h2>
+  <div class="pre"><span class="en">Prerequisites:</span><span class="zh">前置：</span><a href="#s3">§3</a><a href="#s5">§5</a>
+    <a href="lesson25.html"><span class="en">L25 determinacy</span><span class="zh">第 25 课 决定性</span></a></div>
+  <p><span class="en"><b>Lipschitz game</b> <span class="m">G_L(A,B)</span>: players I and II alternate bits. I builds <span class="m">x</span>, II builds <span class="m">y</span>, and II wins iff <span class="m">x ∈ A ⇔ y ∈ B</span>. A winning strategy for II is a recipe that turns x into y continuously (each output bit depends only on the bits seen so far), i.e. a reduction of A to B. You play I below. II reduces <span class="m">A</span> = “x contains a 1” (open) to <span class="m">B</span> = “y has infinitely many 1s” (<span class="m">Π⁰₂</span>).</span>
+     <span class="zh"><b>Lipschitz 博弈</b> <span class="m">G_L(A,B)</span>：玩家 I 与 II 轮流写比特，I 写出 <span class="m">x</span>，II 写出 <span class="m">y</span>；II 获胜当且仅当 <span class="m">x ∈ A ⇔ y ∈ B</span>。II 的必胜策略就是一个把 x 连续地变成 y 的方法（每个输出比特只依赖已看到的比特），也就是从 A 到 B 的一个归约。下面你来当 I，II 把 <span class="m">A</span> =“x 含有 1”（开集）归约到 <span class="m">B</span> =“y 有无穷多个 1”（<span class="m">Π⁰₂</span>）。</span></p>
+  <div class="toolbar">
+    <button class="btn" data-wplay="0"><span class="en">I plays 0</span><span class="zh">I 下 0</span></button>
+    <button class="btn" data-wplay="1"><span class="en">I plays 1</span><span class="zh">I 下 1</span></button>
+    <button class="btn ghost" id="wReset"><span class="en">New game</span><span class="zh">新的一局</span></button>
+  </div>
+  <div class="stage"><svg id="wSvg" viewBox="0 0 760 140" width="760" height="140"></svg></div>
+  <div class="msg info" id="wMsg"></div>
+  <div class="row">
+    <div class="col" style="flex:0 1 360px"><div class="stage"><svg id="wdSvg" viewBox="0 0 340 330" width="340" height="330"></svg></div></div>
+    <div class="col">
+      <div class="def"><span class="en"><b>Definition.</b> <span class="m">A ≤_W B</span> iff <span class="m">A = f⁻¹[B]</span> for some continuous <span class="m">f: ω^ω → ω^ω</span> (the same definitions and results hold in <span class="m">2^ω</span>, which the demo uses). A winning strategy for II in <span class="m">G_L(A,B)</span> gives <span class="m">A ≤_W B</span>. A winning strategy for I gives <span class="m">B ≤_W ω^ω ∖ A</span>.<br>
+        <b>Wadge's Lemma.</b> If <span class="m">G_L(A,B)</span> is determined, then <span class="m">A ≤_W B</span> or <span class="m">B ≤_W ω^ω ∖ A</span>. In ZFC this holds for all <b>Borel</b> A, B (Martin's Borel determinacy). Under PD it holds for projective sets, and under AD (which contradicts AC) for all sets. <b>Martin–Monk:</b> under the same determinacy, <span class="m">≤_W</span> is well-founded.<br>
+        <b>Picture.</b> Antichains have size ≤ 2. The degrees form a well-ordered tower of pairs <span class="m">{[A], [¬A]}</span> (non-self-dual) and single self-dual degrees. The Borel hierarchy levels reappear as particular rungs: for Borel <span class="m">A ⊆ ω^ω</span> with <span class="m">A ∈ Σ⁰_α ∖ Π⁰_α</span>, every <span class="m">Σ⁰_α</span> subset of <span class="m">ω^ω</span> is <span class="m">≤_W A</span> (A is <span class="m">Σ⁰_α</span>-complete).</span>
+        <span class="zh"><b>定义.</b> <span class="m">A ≤_W B</span> 当且仅当存在连续 <span class="m">f: ω^ω → ω^ω</span> 使 <span class="m">A = f⁻¹[B]</span>（在 <span class="m">2^ω</span> 中定义与结论完全相同，上面的演示用的就是 <span class="m">2^ω</span>）。II 在 <span class="m">G_L(A,B)</span> 中有必胜策略可得 <span class="m">A ≤_W B</span>；I 有必胜策略可得 <span class="m">B ≤_W ω^ω ∖ A</span>。<br>
+        <b>Wadge 引理.</b> 若 <span class="m">G_L(A,B)</span> 是决定的，则 <span class="m">A ≤_W B</span> 或 <span class="m">B ≤_W ω^ω ∖ A</span>。在 ZFC 中它对所有<b>博雷尔集</b> A、B 成立（Martin 的博雷尔决定性定理）；在 PD 下对投影集成立；在 AD（与选择公理矛盾）下对所有集合成立。<b>Martin–Monk：</b>在同样的决定性假设下，<span class="m">≤_W</span> 是良基的。<br>
+        <b>图景.</b> 反链大小 ≤ 2。Wadge 度排成一座良序的塔，塔上交替出现成对的 <span class="m">{[A], [¬A]}</span>（非自对偶）和单独的自对偶度。博雷尔层级作为塔上特定的横档重新出现：若博雷尔集 <span class="m">A ⊆ ω^ω</span> 满足 <span class="m">A ∈ Σ⁰_α ∖ Π⁰_α</span>，则 <span class="m">ω^ω</span> 的每个 <span class="m">Σ⁰_α</span> 子集都 <span class="m">≤_W A</span>（A 是 <span class="m">Σ⁰_α</span>-完全的）。</span></div>
+    </div>
+  </div>
+  <div class="note pit"><span class="en"><b class="h">⚠ Common pitfall.</b> Wadge's lemma is <b>not</b> a ZFC theorem about arbitrary sets. With AC one can diagonalize against all 2^ℵ₀ continuous maps and build sets that violate its conclusion. Its scope is exactly as wide as the determinacy you have.</span>
+    <span class="zh"><b class="h">⚠ 常见误区.</b> Wadge 引理<b>不是</b>关于任意集合的 ZFC 定理。借助选择公理，可以对全部 2^ℵ₀ 个连续映射做对角线，构造出违反其结论的集合。你有多大范围的决定性，它就在多大范围内成立。</span></div>
+  <div class="cy" id="cy10"></div>
+</section>
+
+<!-- ============ EXERCISES ============ -->
+<section class="card" id="exercises">
+  <div class="kicker"><span class="il"><span class="en">Exercises</span><span class="zh">练习</span></span></div>
+  <h2><span class="en">Your turn</span><span class="zh">轮到你了</span></h2>
+  <p class="muted"><span class="en">Progress is saved in your browser. A sidebar ✓ means solved. Every exercise has a “Show answer” button.</span><span class="zh">进度保存在浏览器中，侧栏出现 ✓ 表示已完成。每道题都有“显示答案”按钮。</span></p>
+
+  <div class="ex" id="e1" data-prog="L19E1">
+    <h3><span class="tag">E1</span><span class="il"><span class="en">Exact Borel levels</span><span class="zh">恰好的博雷尔层级</span></span></h3>
+    <p><span class="en">For each subset of <span class="m">2^ω</span> (or of <span class="m">2^{ω×ω}</span> for the last one), pick its <b>exact</b> class.</span>
+       <span class="zh">对下列 <span class="m">2^ω</span>（最后一个是 <span class="m">2^{ω×ω}</span>）的子集，选出它<b>恰好</b>所在的类。</span></p>
+    <div id="e1List"></div>
+    <div class="toolbar"><button class="btn ghost" id="e1Show"><span class="en">Show answer</span><span class="zh">显示答案</span></button></div>
+    <div class="msg" id="e1Msg"></div>
+  </div>
+
+  <div class="ex" id="e2" data-prog="L19E2">
+    <h3><span class="tag">E2</span><span class="il"><span class="en">Which operation climbs?</span><span class="zh">哪种运算会上升？</span></span></h3>
+    <p><span class="en">Give the smallest class that is <i>guaranteed</i> to contain the result (X uncountable Polish).</span>
+       <span class="zh">给出<i>保证</i>包含运算结果的最小类（X 为不可数波兰空间）。</span></p>
+    <div id="e2List"></div>
+    <div class="toolbar"><button class="btn ghost" id="e2Show"><span class="en">Show answer</span><span class="zh">显示答案</span></button></div>
+    <div class="msg" id="e2Msg"></div>
+  </div>
+
+  <div class="ex" id="e3" data-prog="L19E3">
+    <h3><span class="tag">E3</span><span class="il"><span class="en">ZFC vs L vs PD: true or false?</span><span class="zh">ZFC、L、PD：判断对错</span></span></h3>
+    <div id="e3List"></div>
+    <div class="toolbar"><button class="btn ghost" id="e3Show"><span class="en">Show answer</span><span class="zh">显示答案</span></button></div>
+    <div class="msg" id="e3Msg"></div>
+  </div>
+
+  <div class="ex" id="e4" data-prog="L19E4">
+    <h3><span class="tag">E4</span><span class="il"><span class="en">Draw the shadows: ∃y and ∀y</span><span class="zh">画影子：∃y 与 ∀y</span></span></h3>
+    <p><span class="en">The dark cells form a set <span class="m">C ⊆ X × Y</span> (a finite cartoon: 16 columns x, 7 rows y). Click the cells of the two bottom strips to mark <span class="m">∃y C = {x : ∃y (x,y) ∈ C}</span> (the shadow, Σ-style) and <span class="m">∀y C = {x : ∀y (x,y) ∈ C}</span> (Π-style). Note that <span class="m">∀y C = X ∖ ∃y (X×Y ∖ C)</span>.</span>
+       <span class="zh">深色格子构成集合 <span class="m">C ⊆ X × Y</span>（有限示意图：16 列 x，7 行 y）。点击底部两条格子，分别标出 <span class="m">∃y C = {x : ∃y (x,y) ∈ C}</span>（影子，Σ 型）与 <span class="m">∀y C = {x : ∀y (x,y) ∈ C}</span>（Π 型）。注意 <span class="m">∀y C = X ∖ ∃y (X×Y ∖ C)</span>。</span></p>
+    <div class="stage"><svg id="e4Svg" class="gridE4" viewBox="0 0 760 330" width="760" height="330"></svg></div>
+    <div class="toolbar">
+      <button class="btn primary" id="e4Check"><span class="en">Check</span><span class="zh">检查</span></button>
+      <button class="btn" id="e4New"><span class="en">New set C</span><span class="zh">换一个 C</span></button>
+      <button class="btn ghost" id="e4Show"><span class="en">Show answer</span><span class="zh">显示答案</span></button>
+    </div>
+    <div class="msg" id="e4Msg"></div>
+  </div>
+
+  <div class="ex" id="e5" data-prog="L19E5">
+    <h3><span class="tag">E5</span><span class="il"><span class="en">Counting classes (ZFC)</span><span class="zh">数一数各类有多少个集合（ZFC）</span></span></h3>
+    <p><span class="en">How many sets are there in each collection? Use codes: a real can code an open set (§5), a Borel set, a closed set to be projected, …</span>
+       <span class="zh">下面每个集族中各有多少个集合？用编码来想：一个实数可以编码一个开集（§5）、一个博雷尔集、一个待投影的闭集……</span></p>
+    <div id="e5List"></div>
+    <div class="toolbar"><button class="btn ghost" id="e5Show"><span class="en">Show answer</span><span class="zh">显示答案</span></button></div>
+    <div class="msg" id="e5Msg"></div>
+  </div>
+</section>
+
+<section class="card">
+  <div class="kicker"><span class="il"><span class="en">Next</span><span class="zh">下一课</span></span></div>
+  <h2><a href="lesson20.html" style="color:inherit"><span class="en">Lesson 20: the Lévy hierarchy &amp; absoluteness →</span><span class="zh">第 20 课：列维层级与绝对性 →</span></a></h2>
+  <p><span class="en">Why does V = L decide so much about <span class="m">Σ¹₂</span> sets, while forcing cannot change the truth of a <span class="m">Σ¹₂</span> statement? The answer is <b>Shoenfield absoluteness</b>. Next lesson measures the complexity of <i>set-theoretic</i> formulas (Σₙ in the Lévy hierarchy) and explains which statements survive the passage between models.</span>
+     <span class="zh">为什么 V = L 能对 <span class="m">Σ¹₂</span> 集定下那么多事，而力迫却改变不了 <span class="m">Σ¹₂</span> 命题的真假？答案是 <b>Shoenfield 绝对性</b>。下一课衡量<i>集合论</i>公式的复杂度（列维层级中的 Σₙ），并解释哪些命题在模型之间传递时保持不变。</span></p>
+</section>
+</main>
+</div>
+
+<script src="assets/logic.js"></script>
+<script src="assets/lesson19.js"></script>
+</body>
+</html>

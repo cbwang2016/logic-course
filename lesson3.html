@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 3 · First-Order Logic 一阶逻辑</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+/* ---------- lesson 3 specific ---------- */
+.gsvg { background: #fff; border-radius: 12px; touch-action: manipulation; }
+.gnode { cursor: pointer; }
+.gnode circle.body { fill: #fff; stroke: var(--ink); stroke-width: 2; transition: fill .25s, stroke .25s; }
+.gnode text.lab { font-size: 15px; font-weight: 700; text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+.gnode.sel circle.body { stroke: var(--accent); stroke-width: 4; fill: var(--accent-soft); }
+.gnode.hl circle.body { fill: var(--gold-soft); stroke: var(--gold); stroke-width: 3.5; }
+.gnode.out circle.body { fill: #f3f1ea; stroke: #b9b4a6; }
+.gnode.cur circle.body { stroke: var(--meta); stroke-width: 4; }
+.gedge { stroke: #555; fill: none; stroke-width: 2; }
+.gprobe { fill: none; stroke-width: 3.5; stroke-dasharray: 6 5; }
+.gprobe.ok { stroke: var(--true); }
+.gprobe.no { stroke: var(--false); }
+.gtag rect { fill: var(--meta); }
+.gtag text { fill: #fff; font-size: 12px; font-weight: 700; text-anchor: middle; dominant-baseline: central; }
+.ghint { font-size: 12px; fill: #9a968a; }
+
+.sigbox { border-radius: 14px; padding: 12px 14px; }
+.sigbox.logic { background: #f1efe7; border: 2px dashed #cfc9b8; }
+.sigbox.nonlogic { background: var(--accent-soft); border: 2px solid var(--accent); }
+.sigbox h4 { margin: 0 0 8px; font-size: 14px; }
+.sym { display: inline-flex; align-items: center; gap: 4px; font-family: var(--mono); font-size: 16px; padding: 3px 10px; margin: 3px; border-radius: 9px; background: #fff; border: 1.5px solid var(--line); }
+.sym.c { border-color: var(--gold); background: var(--gold-soft); }
+.sym.f { border-color: var(--accent); }
+.sym.r { border-color: var(--meta); background: var(--meta-soft); }
+.sym sup { font-size: 11px; color: var(--muted); }
+.sym .x { cursor: pointer; color: var(--muted); font-size: 13px; margin-left: 2px; }
+.sym .x:hover { color: var(--false); }
+.samp { display: inline-block; font-family: var(--mono); font-size: 15px; padding: 3px 10px; margin: 3px; border-radius: 8px; background: #fff; border: 1px solid var(--line); }
+.samp.t { border-color: var(--accent); }
+.samp.a { border-color: var(--meta); }
+select, input.num { font: inherit; font-size: 14px; padding: 5px 8px; border: 1.5px solid var(--line); border-radius: 8px; background: #fffdf8; }
+input.num { width: 64px; }
+
+.bind { position: relative; padding: 78px 10px 34px; overflow-x: auto; overflow-y: hidden; }
+.bind .fline { font-family: var(--mono); font-size: 24px; white-space: nowrap; position: relative; z-index: 1; display: inline-block; }
+.bind svg.arcs { position: absolute; left: 0; top: 0; pointer-events: none; overflow: visible; z-index: 0; }
+.bind .seg.var { padding: 0 1px; border-radius: 4px; transition: background .2s, opacity .2s; }
+.bind .seg.q { color: var(--accent); font-weight: 700; cursor: default; border-radius: 4px; }
+.bind .seg.free { color: var(--false); font-weight: 700; text-decoration: underline wavy var(--false); text-underline-offset: 5px; }
+.bind .seg.bound { font-weight: 700; }
+.bind .seg.cap { background: var(--false-soft); outline: 2px solid var(--false); }
+.bind .seg.sub { animation: subin .7s ease both; }
+@keyframes subin { from { background: var(--gold); color: #fff; transform: translateY(-14px); } to { } }
+.bind.dim .seg.var:not(.lit), .bind.dim .seg.q:not(.lit) { opacity: .3; }
+.bind .seg.click { cursor: pointer; outline: 1px dashed #c9c2ab; outline-offset: 2px; }
+.bind .seg.marked { background: var(--false-soft); color: var(--false); }
+.bind .seg.right { background: var(--true-soft) !important; }
+.bind .seg.wrong { background: var(--false-soft) !important; outline: 2px solid var(--false); }
+.arc { fill: none; stroke-width: 2.4; transition: opacity .2s, stroke-width .2s; }
+.arc.lit { stroke-width: 4; }
+.bind.dim .arc:not(.lit) { opacity: .15; }
+.caplab { font-size: 12px; fill: var(--false); font-weight: 700; font-family: var(--sans); }
+
+.trace { font-family: var(--mono); font-size: 14px; max-height: 420px; overflow: auto; background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; }
+.trace .ln { white-space: nowrap; padding: 1px 4px; border-radius: 5px; }
+.trace .ln.now { background: var(--accent-soft); }
+.trace .ln .r1 { color: var(--true); font-weight: 700; }
+.trace .ln .r0 { color: var(--false); font-weight: 700; }
+.trace .ln .asg { color: var(--meta); }
+.trace .ln .why { color: var(--muted); font-family: var(--sans); font-size: 12px; }
+.asgbar { display: flex; gap: 6px; flex-wrap: wrap; min-height: 30px; align-items: center; font-family: var(--mono); }
+.asgbar .pill { background: var(--meta); color: #fff; border-radius: 999px; padding: 2px 10px; font-weight: 700; }
+
+.gamecard { border: 2px solid var(--line); border-radius: 14px; padding: 14px; background: #fff; }
+.gamecard .cur { font-family: var(--mono); font-size: 20px; margin: 6px 0; }
+.who { display: inline-block; padding: 2px 10px; border-radius: 999px; font-weight: 700; font-size: 13px; color: #fff; }
+.who.V { background: var(--true); }
+.who.F { background: var(--false); }
+.lang-both .who .zh { display: inline; color: #fff; }
+.lang-both .who .zh::before { content: " · "; }
+.glog { font-size: 13px; max-height: 200px; overflow: auto; margin-top: 8px; }
+.glog div { padding: 2px 0; border-bottom: 1px dashed var(--line); }
+.opts { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+.opts .btn { font-family: var(--mono); }
+
+.verdict { display: inline-block; min-width: 34px; text-align: center; padding: 2px 8px; border-radius: 8px; font-weight: 800; }
+.verdict.t { background: var(--true-soft); color: var(--true); }
+.verdict.f { background: var(--false-soft); color: var(--false); }
+table.cmp { border-collapse: collapse; font-size: 15px; margin: 8px 0; }
+table.cmp th, table.cmp td { padding: 5px 12px; border-bottom: 1px solid var(--line); text-align: center; }
+table.cmp td.m { text-align: left; }
+.e4item { padding: 10px 0; border-bottom: 1px dashed var(--line); }
+.e4item .prompt { font-size: 15px; margin-bottom: 4px; }
+.mini { display: inline-block; vertical-align: top; margin: 4px 8px 4px 0; text-align: center; font-size: 13px; }
+.tiny { font-size: 13px; }
+#e1 .bind .fline { font-size: 21px; }
+</style>
+</head>
+<body class="lang-both">
+<header class="top">
+  <a class="home" href="index.html">∀∃ <span class="il"><span class="en">Logic &amp; Sets</span><span class="zh">逻辑与集合</span></span></a>
+  <span class="muted">/ L3</span>
+  <span class="spacer"></span>
+  <div class="lang-switch">
+    <button data-lang="en">EN</button><button data-lang="zh">中文</button><button data-lang="both">EN + 中</button>
+  </div>
+</header>
+
+<div class="layout">
+<nav class="side">
+  <div class="grp">Lesson 3</div>
+  <a href="index.html">← <span class="il"><span class="en">Course map</span><span class="zh">课程地图</span></span></a>
+  <a href="lesson2.html">← <span class="il"><span class="en">Lesson 2</span><span class="zh">第 2 课</span></span></a>
+  <a href="lesson4.html"><span class="il"><span class="en">Lesson 4</span><span class="zh">第 4 课</span></span> →</a>
+  <a href="#s1">1 · <span class="il"><span class="en">Languages</span><span class="zh">语言</span></span></a>
+  <a href="#s2">2 · <span class="il"><span class="en">Terms</span><span class="zh">项</span></span></a>
+  <a href="#s3">3 · <span class="il"><span class="en">Free &amp; bound</span><span class="zh">自由与约束</span></span></a>
+  <a href="#s4">4 · <span class="il"><span class="en">Structures &amp; truth</span><span class="zh">结构与真</span></span></a>
+  <a href="#s5">5 · <span class="il"><span class="en">Evaluation game</span><span class="zh">语义博弈</span></span></a>
+  <a href="#s6">6 · <span class="il"><span class="en">Definable sets</span><span class="zh">可定义集</span></span></a>
+  <a href="#s7">7 · <span class="il"><span class="en">ℕ, ℤ, ℚ</span><span class="zh">ℕ、ℤ、ℚ</span></span></a>
+  <a href="#s8">8 · <span class="il"><span class="en">Isomorphism</span><span class="zh">同构</span></span></a>
+  <div class="grp"><span class="il"><span class="en">Exercises</span><span class="zh">练习</span></span></div>
+  <a href="#e1" data-prog="L3E1">E1 · FV(φ)</a>
+  <a href="#e2" data-prog="L3E2">E2 · 𝔊 ⊨ σ ?</a>
+  <a href="#e3" data-prog="L3E3">E3 · A ⊨ σ, B ⊭ σ</a>
+  <a href="#e4" data-prog="L3E4">E4 · <span class="il"><span class="en">Translate</span><span class="zh">翻译</span></span></a>
+  <a href="#e5" data-prog="L3E5">E5 · φ[y/x]</a>
+  <a href="#e6" data-prog="L3E6">E6 · <span class="il"><span class="en">Define it</span><span class="zh">定义它</span></span></a>
+</nav>
+
+<main>
+<div class="hero">
+  <div class="kicker">Part I · Lesson 3</div>
+  <h1><span class="en">First-Order Logic: Languages, Structures, Truth</span><span class="zh">一阶逻辑：语言、结构与真</span></h1>
+  <p><span class="en">Propositional atoms are opaque: <span class="m">p</span> is just “some statement”. First-order logic opens the atoms up. It talks about <b>elements</b>, the <b>relations</b> between them, and says “for all” and “there exists”. Truth is no longer a row in a table. It is a relation between a formula and a <b>structure</b>, and on this page you can draw the structures yourself.</span>
+     <span class="zh">命题逻辑里的原子是不透明的，<span class="m">p</span> 只代表“某个命题”。一阶逻辑把原子打开：它谈论<b>个体</b>、个体之间的<b>关系</b>，还能说“对所有”和“存在”。真不再是真值表里的一行，而是公式与<b>结构</b>之间的一种关系。本页的结构都可以由你亲手画出来。</span></p>
+</div>
+
+<!-- ============ S1 ============ -->
+<section class="card" id="s1">
+  <div class="kicker">§1</div>
+  <h2><span class="en">A language is a choice of symbols</span><span class="zh">语言就是选定一套符号</span></h2>
+  <div class="def"><span class="en"><b>Definition.</b> A <b>first-order language</b> (signature) <span class="m">L</span> is a set of <b>non-logical symbols</b>: constant symbols <span class="m">c</span>, function symbols <span class="m">f</span> with an arity <span class="m">n ≥ 1</span>, and relation symbols <span class="m">R</span> with an arity <span class="m">n ≥ 1</span>. Every language also shares the same <b>logical symbols</b>: variables <span class="m">x, y, z, …</span>, the connectives <span class="m">¬ ∧ ∨ → ↔</span>, the quantifiers <span class="m">∀ ∃</span>, equality <span class="m">=</span>, and parentheses.</span>
+    <span class="zh"><b>定义.</b> 一个<b>一阶语言</b>（签名）<span class="m">L</span> 是一组<b>非逻辑符号</b>：常元符号 <span class="m">c</span>、带元数 <span class="m">n ≥ 1</span> 的函数符号 <span class="m">f</span>、带元数 <span class="m">n ≥ 1</span> 的关系符号（谓词符号）<span class="m">R</span>。所有语言共用同一套<b>逻辑符号</b>：变元 <span class="m">x, y, z, …</span>、联结词 <span class="m">¬ ∧ ∨ → ↔</span>、量词 <span class="m">∀ ∃</span>、等词 <span class="m">=</span> 以及括号。</span></div>
+  <p><span class="en">Pick a preset or build your own language. The left box never changes; the right box is your choice. Press “Generate” to see terms and atomic formulas the language can produce.</span>
+     <span class="zh">选一个预设，或者自己搭一个语言。左边的框永远不变，右边的框由你决定。点“生成”，看看这个语言能写出哪些项和原子公式。</span></p>
+  <div class="toolbar" id="sigPresets"></div>
+  <div class="row">
+    <div class="col sigbox logic" style="flex:0 1 330px">
+      <h4><span class="il"><span class="en">Logical symbols (fixed)</span><span class="zh">逻辑符号（固定不变）</span></span></h4>
+      <div id="sigLogic"></div>
+    </div>
+    <div class="col sigbox nonlogic">
+      <h4 style="color:var(--accent)"><span class="il"><span class="en">Non-logical symbols: the language L</span><span class="zh">非逻辑符号：语言 L</span></span></h4>
+      <div id="sigNon"></div>
+      <div class="toolbar" style="margin-bottom:0">
+        <select id="sigKind">
+          <option value="c">constant · 常元</option>
+          <option value="f">function · 函数</option>
+          <option value="r">relation · 关系</option>
+        </select>
+        <input class="num" id="sigName" value="g" style="width:60px" title="name">
+        <span class="tiny"><span class="il"><span class="en">arity</span><span class="zh">元数</span></span></span>
+        <input class="num" type="number" id="sigAr" value="1" min="1" max="3">
+        <button class="btn small" id="sigAdd">+ <span class="il"><span class="en">add</span><span class="zh">添加</span></span></button>
+      </div>
+      <div class="msg" id="sigMsg"></div>
+    </div>
+  </div>
+  <div class="toolbar"><button class="btn primary" id="sigGen"><span class="en">Generate samples 🎲</span><span class="zh">随机生成 🎲</span></button></div>
+  <div class="row">
+    <div class="col"><b class="tiny"><span class="il"><span class="en">Terms (name elements)</span><span class="zh">项（指称个体）</span></span></b><div id="sigTerms" class="stage" style="min-height:90px"></div></div>
+    <div class="col"><b class="tiny"><span class="il"><span class="en">Atomic formulas (say something)</span><span class="zh">原子公式（作出断言）</span></span></b><div id="sigAtoms" class="stage" style="min-height:90px"></div></div>
+  </div>
+  <div class="row" style="margin-top:12px">
+    <div class="col"><div id="sigCount"></div></div>
+    <div class="col note"><span class="en">Terms are <b>names</b>: they denote elements. Atomic formulas are <b>claims</b>: they are true or false. Note that <span class="m">=</span> is a logical symbol, so <span class="m">t₁ = t₂</span> is an atomic formula in <i>every</i> language, even one with no relation symbols.</span>
+      <span class="zh">项是<b>名字</b>，指称个体；原子公式是<b>断言</b>，有真假之分。注意 <span class="m">=</span> 是逻辑符号，所以在<i>任何</i>语言里 <span class="m">t₁ = t₂</span> 都是原子公式，哪怕这个语言一个关系符号都没有。</span></div>
+  </div>
+</section>
+
+<!-- ============ S2 ============ -->
+<section class="card" id="s2">
+  <div class="kicker">§2</div>
+  <h2><span class="en">Terms are trees, and a structure evaluates them</span><span class="zh">项是树，结构负责给它求值</span></h2>
+  <div class="def"><span class="en"><b>Terms</b> form the smallest set containing all variables and constants and closed under: if <span class="m">t₁,…,tₙ</span> are terms and <span class="m">f</span> is n-ary, then <span class="m">f(t₁,…,tₙ)</span> is a term. Given a structure <span class="m">𝔐</span> and an <b>assignment</b> <span class="m">s</span> (a map from variables to elements), the value is defined by recursion on the tree: <span class="m">x^𝔐[s] = s(x)</span>, <span class="m">c^𝔐[s] = c^𝔐</span>, <span class="m">f(t₁,…,tₙ)^𝔐[s] = f^𝔐(t₁^𝔐[s], …, tₙ^𝔐[s])</span>.</span>
+    <span class="zh"><b>项</b>是满足下列条件的最小集合：包含所有变元和常元；若 <span class="m">t₁,…,tₙ</span> 是项、<span class="m">f</span> 是 n 元函数符号，则 <span class="m">f(t₁,…,tₙ)</span> 是项。给定结构 <span class="m">𝔐</span> 和<b>赋值</b> <span class="m">s</span>（从变元到个体的映射），项的值沿着树递归定义：<span class="m">x^𝔐[s] = s(x)</span>，<span class="m">c^𝔐[s] = c^𝔐</span>，<span class="m">f(t₁,…,tₙ)^𝔐[s] = f^𝔐(t₁^𝔐[s], …, tₙ^𝔐[s])</span>。</span></div>
+  <p><span class="en">Language <span class="m">{0, S, +, ·}</span>. Change the assignment with the steppers or switch the structure, and watch values flow up the tree. Same term, different structure, different value: the symbols themselves mean nothing until a structure interprets them.</span>
+     <span class="zh">语言取 <span class="m">{0, S, +, ·}</span>。用加减按钮改赋值，或者换一个结构，看值怎样沿树往上流。同一个项，换个结构，值就变了：符号本身没有意义，要等结构来解释。</span></p>
+  <div class="toolbar">
+    <input class="formula" id="termIn" value="S(x) · (y + S(S(0)))">
+    <button class="btn primary" id="termGo"><span class="en">Grow tree</span><span class="zh">长出语法树</span></button>
+    <button class="btn small" data-term="S(S(0)) + x">S(S(0)) + x</button>
+    <button class="btn small" data-term="(x + y) · (x + y)">(x+y)·(x+y)</button>
+    <button class="btn small" data-term="S(x · S(z)) + y">S(x·S(z))+y</button>
+  </div>
+  <div class="msg" id="termErr"></div>
+  <div class="toolbar" id="termAsg"></div>
+  <div class="toolbar" id="termStruct"></div>
+  <div class="stage" id="termStage" style="display:flex;justify-content:center"></div>
+  <div class="msg info" id="termOut"></div>
+</section>
+
+<!-- ============ S3 ============ -->
+<section class="card" id="s3">
+  <div class="kicker">§3</div>
+  <h2><span class="en">Free and bound variables: who binds whom</span><span class="zh">自由变元与约束变元：谁约束了谁</span></h2>
+  <p><span class="en">Each quantifier <span class="m">∀x</span> / <span class="m">∃x</span> <b>binds</b> the occurrences of <span class="m">x</span> in its scope that are not already bound by a closer quantifier. The arcs below are drawn by the parser. Hover a quantifier or a variable to light up its binding. <b style="color:var(--false)">Red wavy</b> occurrences are <b>free</b>: nothing binds them, so their meaning must come from the assignment.</span>
+     <span class="zh">每个量词 <span class="m">∀x</span> / <span class="m">∃x</span> <b>约束</b>它辖域内尚未被更内层量词约束的 <span class="m">x</span> 的出现。下面的弧线由语法分析器自动画出。鼠标停在量词或变元上，可以高亮它的约束关系。<b style="color:var(--false)">红色波浪线</b>标出的是<b>自由出现</b>：没有量词约束它，它的意思只能由赋值来提供。</span></p>
+  <div class="note tiny"><span class="en"><b>Input conventions.</b> Type <span class="m">∀ ∃</span> with the keys, or write <span class="m">Ax</span>, <span class="m">Ey</span>, <span class="m">forall x</span>, <span class="m">exists y</span>. Variables are <span class="m">u v w x y z</span> (optionally with digits or primes). A quantifier binds as tightly as <span class="m">¬</span>: <span class="m">∀x E(x,y) ∧ P(x)</span> means <span class="m">(∀x E(x,y)) ∧ P(x)</span>. Use parentheses, or a dot as in <span class="m">∀x. φ</span>, to extend the scope as far right as possible.</span>
+    <span class="zh"><b>输入约定.</b> 用按键输入 <span class="m">∀ ∃</span>，或者写 <span class="m">Ax</span>、<span class="m">Ey</span>、<span class="m">forall x</span>、<span class="m">exists y</span>。变元为 <span class="m">u v w x y z</span>（可带数字或撇号）。量词的结合力与 <span class="m">¬</span> 相同：<span class="m">∀x E(x,y) ∧ P(x)</span> 表示 <span class="m">(∀x E(x,y)) ∧ P(x)</span>。要扩大辖域，就加括号，或者像 <span class="m">∀x. φ</span> 那样加一个点，使辖域向右延伸到尽头。</span></div>
+  <div class="keys" id="bindKeys"></div>
+  <div class="toolbar">
+    <input class="formula" id="bindIn" value="∀x(E(x,y) → ∃y E(y,x)) ∧ E(x,z)" style="min-width:420px">
+    <button class="btn primary" id="bindGo"><span class="en">Draw bindings</span><span class="zh">画出约束关系</span></button>
+  </div>
+  <div class="toolbar">
+    <button class="btn small" data-bind="∃y (x < y)">∃y (x &lt; y)</button>
+    <button class="btn small" data-bind="∀x (x < y ∧ ∃x (x = z))">∀x (x&lt;y ∧ ∃x (x=z))</button>
+    <button class="btn small" data-bind="∀x ∃y (E(x,y) ∧ ∀x E(y,x))">∀x∃y(E(x,y) ∧ ∀x E(y,x))</button>
+    <button class="btn small" data-bind="∀x E(x,y) ∧ E(x,x)">∀x E(x,y) ∧ E(x,x)</button>
+  </div>
+  <div class="msg" id="bindErr"></div>
+  <div class="stage bind" id="bindStage"></div>
+  <div class="msg info" id="bindInfo"></div>
+
+  <h3><span class="en">Substitution and variable capture</span><span class="zh">代入与变元捕获</span></h3>
+  <p><span class="en"><span class="m">φ[t/x]</span> replaces every <b>free</b> occurrence of <span class="m">x</span> by the term <span class="m">t</span>. Danger: if <span class="m">t</span> contains a variable that a quantifier in <span class="m">φ</span> binds, the substituted copy gets <b>captured</b> and the meaning changes. The fix is to rename the bound variable first (α-renaming), which never changes meaning.</span>
+     <span class="zh"><span class="m">φ[t/x]</span> 把 <span class="m">x</span> 的每个<b>自由</b>出现替换成项 <span class="m">t</span>。危险在于：如果 <span class="m">t</span> 中的某个变元恰好被 <span class="m">φ</span> 里的量词约束，代进去的那份拷贝就会被<b>捕获</b>，意思随之改变。解决办法是先给约束变元改名（换名，α-变换），换名不改变公式的意思。</span></p>
+  <div class="toolbar">
+    <span class="m">φ =</span> <input class="formula" id="subF" value="∃y (x < y)" style="min-width:240px">
+    <span class="m">x :=</span> <input class="formula" id="subX" value="x" style="min-width:50px;width:60px">
+    <span class="m">t =</span> <input class="formula" id="subT" value="y" style="min-width:80px;width:120px">
+    <button class="btn primary" id="subGo"><span class="en">Substitute ▶</span><span class="zh">代入 ▶</span></button>
+  </div>
+  <div class="toolbar">
+    <button class="btn small" data-sub="∃y (x < y)|x|y">(∃y x&lt;y)[y/x]</button>
+    <button class="btn small" data-sub="∀z (E(x,z) ∨ ∃x E(x,z))|x|S(z)">[S(z)/x]</button>
+    <button class="btn small" data-sub="∃y (x < y)|x|z + z">[z+z/x]</button>
+  </div>
+  <div class="msg" id="subErr"></div>
+  <div class="row">
+    <div class="col"><b class="tiny" style="color:var(--false)"><span class="il"><span class="en">Naive replacement</span><span class="zh">直接替换（朴素做法）</span></span></b><div class="stage bind" id="subNaive"></div></div>
+    <div class="col"><b class="tiny" style="color:var(--true)"><span class="il"><span class="en">Capture-avoiding substitution</span><span class="zh">避免捕获的代入</span></span></b><div class="stage bind" id="subSafe"></div></div>
+  </div>
+  <div class="msg" id="subOut"></div>
+</section>
+
+<!-- ============ S4 ============ -->
+<section class="card" id="s4">
+  <div class="kicker">§4</div>
+  <h2><span class="en">Structures you can draw, and Tarski's definition of truth</span><span class="zh">可以画出来的结构，以及塔斯基的真值定义</span></h2>
+  <div class="def"><span class="en"><b>Definition.</b> For the language <span class="m">{E}</span> (one binary relation), a <b>structure</b> <span class="m">𝔊 = (G, E^𝔊)</span> is a non-empty set <span class="m">G</span> (the <b>domain</b>) with a binary relation <span class="m">E^𝔊 ⊆ G × G</span>. That is exactly a directed graph, loops allowed.</span>
+    <span class="zh"><b>定义.</b> 对语言 <span class="m">{E}</span>（一个二元关系符号），一个<b>结构</b> <span class="m">𝔊 = (G, E^𝔊)</span> 由非空集合 <span class="m">G</span>（<b>论域</b>）和一个二元关系 <span class="m">E^𝔊 ⊆ G × G</span> 组成。这恰好就是一个允许自环的有向图。</span></div>
+  <p class="tiny muted"><span class="en">Editor: click empty space to add an element (max 6). Click one element, then another (or the same one again), to toggle the edge (or loop) between them.</span>
+    <span class="zh">编辑方法：点空白处添加元素（最多 6 个）；先点一个元素，再点另一个（或再点它自己），就能添加或删除这条边（或自环）。</span></p>
+  <div class="row">
+    <div class="col" style="flex:0 1 400px">
+      <div class="toolbar" id="g4Tools"></div>
+      <div id="g4"></div>
+      <div class="asgbar" id="g4Asg"></div>
+    </div>
+    <div class="col">
+      <div class="def tiny" style="margin-top:0">
+        𝔊 ⊨ E(x,y)[s] ⇔ (s(x), s(y)) ∈ E^𝔊 &nbsp;·&nbsp; 𝔊 ⊨ x = y[s] ⇔ s(x) = s(y)<br>
+        𝔊 ⊨ ¬φ[s] ⇔ 𝔊 ⊭ φ[s] &nbsp;·&nbsp; ∧ ∨ → ↔ <span class="il"><span class="en">as in Lesson 1</span><span class="zh">同第 1 课</span></span><br>
+        𝔊 ⊨ ∀x φ[s] ⇔ <span class="il"><span class="en">for every</span><span class="zh">对每个</span></span> a ∈ G: 𝔊 ⊨ φ[s(x|a)]<br>
+        𝔊 ⊨ ∃x φ[s] ⇔ <span class="il"><span class="en">for some</span><span class="zh">存在</span></span> a ∈ G: 𝔊 ⊨ φ[s(x|a)]
+      </div>
+      <div class="keys" id="t4Keys"></div>
+      <div class="toolbar">
+        <input class="formula" id="t4In" value="∀x ∃y E(x,y)" style="min-width:300px">
+      </div>
+      <div class="toolbar">
+        <button class="btn small" data-t4="∀x ∃y E(x,y)">∀x∃y E(x,y)</button>
+        <button class="btn small" data-t4="∃x ∀y E(y,x)">∃x∀y E(y,x)</button>
+        <button class="btn small" data-t4="∀x ∀y (E(x,y) → E(y,x))">∀x∀y(E(x,y)→E(y,x))</button>
+        <button class="btn small" data-t4="∃x ∃y (¬x = y ∧ E(x,y) ∧ E(y,x))">∃x∃y(x≠y ∧ …)</button>
+      </div>
+      <div class="toolbar">
+        <button class="btn primary" id="t4Start"><span class="en">Evaluate</span><span class="zh">开始求值</span></button>
+        <button class="btn" id="t4Step"><span class="en">Step ▶</span><span class="zh">下一步 ▶</span></button>
+        <button class="btn" id="t4Play"><span class="en">Play ▶▶</span><span class="zh">自动播放 ▶▶</span></button>
+        <button class="btn ghost" id="t4All"><span class="en">Show all</span><span class="zh">全部显示</span></button>
+      </div>
+      <div class="msg" id="t4Err"></div>
+      <div class="trace" id="t4Trace"></div>
+      <div class="msg" id="t4Out"></div>
+    </div>
+  </div>
+  <div class="note"><span class="en"><b>Why the assignment?</b> The clause for <span class="m">∀x φ</span> must talk about <span class="m">φ</span>, which may have <span class="m">x</span> free, so truth has to be defined for formulas with free variables, relative to <span class="m">s</span>. <b>Coincidence lemma</b> (by induction on φ): whether <span class="m">𝔐 ⊨ φ[s]</span> depends only on <span class="m">s</span> restricted to <span class="m">FV(φ)</span>. So for a <b>sentence</b> σ the assignment is irrelevant and we simply write <span class="m">𝔐 ⊨ σ</span>. Watch the trace: <span class="m">s(x|a)</span> changes only the value of <span class="m">x</span>.</span>
+    <span class="zh"><b>为什么需要赋值？</b> <span class="m">∀x φ</span> 的定义条款要谈论 <span class="m">φ</span>，而 <span class="m">φ</span> 里 <span class="m">x</span> 可能自由出现，所以必须对含自由变元的公式、相对于 <span class="m">s</span> 来定义真。<b>合同引理</b>（对 φ 归纳可证）：<span class="m">𝔐 ⊨ φ[s]</span> 是否成立只取决于 <span class="m">s</span> 在 <span class="m">FV(φ)</span> 上的取值。因此对<b>语句</b> σ 而言，赋值无关紧要，直接写 <span class="m">𝔐 ⊨ σ</span>。留意求值过程：<span class="m">s(x|a)</span> 只改动 <span class="m">x</span> 的值。</span></div>
+</section>
+
+<!-- ============ S5 ============ -->
+<section class="card" id="s5">
+  <div class="kicker">§5</div>
+  <h2><span class="en">Truth as a game: Verifier vs Falsifier</span><span class="zh">把真变成博弈：验证者对证伪者</span></h2>
+  <p><span class="en">Hintikka's evaluation game on <span class="m">𝔐 ⊨ φ</span>. Verifier claims the current formula is true, Falsifier claims it is false. At <span class="m">∃x</span> and <span class="m">∨</span> the claimant chooses (a witness, a disjunct); at <span class="m">∀x</span> and <span class="m">∧</span> the opponent chooses (a challenge, a conjunct). At <span class="m">¬</span> the two players swap roles. <span class="m">φ → ψ</span> is played as <span class="m">¬φ ∨ ψ</span>. At an atomic formula the structure decides. Pick a side and play against a computer that plays perfectly.</span>
+     <span class="zh">在 <span class="m">𝔐 ⊨ φ</span> 上玩欣蒂卡（Hintikka）语义博弈。验证者主张当前公式为真，证伪者主张为假。遇到 <span class="m">∃x</span> 和 <span class="m">∨</span>，由主张为真的一方选择（找证据、选析取支）；遇到 <span class="m">∀x</span> 和 <span class="m">∧</span>，由对手选择（出挑战、选合取支）。遇到 <span class="m">¬</span>，双方互换立场。<span class="m">φ → ψ</span> 按 <span class="m">¬φ ∨ ψ</span> 来玩。走到原子公式时，由结构裁决。选一边，和一台从不失误的电脑对弈。</span></p>
+  <div class="row">
+    <div class="col" style="flex:0 1 360px">
+      <div class="toolbar" id="g5Tools"></div>
+      <div id="g5"></div>
+    </div>
+    <div class="col">
+      <div class="toolbar">
+        <input class="formula" id="gmIn" value="∀x ∃y (E(x,y) ∧ ¬E(y,x))" style="min-width:300px">
+      </div>
+      <div class="toolbar">
+        <button class="btn small" data-gm="∀x ∃y (E(x,y) ∧ ¬E(y,x))">∀x∃y(E(x,y)∧¬E(y,x))</button>
+        <button class="btn small" data-gm="∃x ∀y (x = y ∨ E(y,x))">∃x∀y(x=y ∨ E(y,x))</button>
+        <button class="btn small" data-gm="¬∃x E(x,x)">¬∃x E(x,x)</button>
+      </div>
+      <div class="toolbar">
+        <button class="btn primary" id="gmV"><span class="en">Play as Verifier</span><span class="zh">我当验证者</span></button>
+        <button class="btn primary" id="gmF" style="background:var(--false);border-color:var(--false)"><span class="en">Play as Falsifier</span><span class="zh">我当证伪者</span></button>
+        <button class="btn ghost" id="gmStrat"><span class="en">Show winning strategy</span><span class="zh">显示必胜策略</span></button>
+      </div>
+      <div class="msg" id="gmErr"></div>
+      <div class="gamecard" id="gmCard"></div>
+      <div class="msg" id="gmStratOut"></div>
+    </div>
+  </div>
+  <div class="def"><span class="en"><b>Theorem.</b> <span class="m">𝔐 ⊨ φ[s]</span> if and only if Verifier has a winning strategy in the game for <span class="m">φ</span> starting from <span class="m">s</span>. <i>Proof sketch:</i> induction on φ. The game is finite (each move strips one symbol). For <span class="m">∃xψ</span>: if <span class="m">𝔐 ⊨ ∃xψ[s]</span>, pick a witness <span class="m">a</span> and continue with the strategy for <span class="m">ψ</span> from <span class="m">s(x|a)</span> given by the induction hypothesis; conversely a winning first move <span class="m">a</span> yields <span class="m">𝔐 ⊨ ψ[s(x|a)]</span>. The other cases are the same, with ¬ swapping the roles. That is exactly how the computer above chooses its moves.</span>
+    <span class="zh"><b>定理.</b> <span class="m">𝔐 ⊨ φ[s]</span> 当且仅当在从 <span class="m">s</span> 出发的 <span class="m">φ</span> 博弈中验证者有必胜策略。<i>证明梗概：</i>对 φ 归纳。博弈是有限的（每走一步就剥掉一个符号）。对 <span class="m">∃xψ</span>：若 <span class="m">𝔐 ⊨ ∃xψ[s]</span>，就选一个证据 <span class="m">a</span>，然后按归纳假设给出的、从 <span class="m">s(x|a)</span> 出发的 <span class="m">ψ</span> 的策略走下去；反之，若第一步选 <span class="m">a</span> 能必胜，则 <span class="m">𝔐 ⊨ ψ[s(x|a)]</span>。其余情形同理，只是 ¬ 让双方互换立场。上面的电脑正是这样选步的。</span></div>
+</section>
+
+<!-- ============ S6 ============ -->
+<section class="card" id="s6">
+  <div class="kicker">§6</div>
+  <h2><span class="en">Definable sets: a formula with one free variable cuts out a subset</span><span class="zh">可定义集：带一个自由变元的公式切出一个子集</span></h2>
+  <p><span class="en">A formula <span class="m">φ(x)</span> with free variable <span class="m">x</span> defines <span class="m">φ(𝔐) = {a ∈ M : 𝔐 ⊨ φ[a]}</span>. Edit the graph or the formula; the defined set lights up in gold.</span>
+     <span class="zh">自由变元为 <span class="m">x</span> 的公式 <span class="m">φ(x)</span> 定义了集合 <span class="m">φ(𝔐) = {a ∈ M : 𝔐 ⊨ φ[a]}</span>。改图或改公式，被定义的集合会以金色亮起。</span></p>
+  <div class="row">
+    <div class="col" style="flex:0 1 360px"><div class="toolbar" id="g6Tools"></div><div id="g6"></div></div>
+    <div class="col">
+      <div class="toolbar"><span class="m">φ(x) =</span> <input class="formula" id="defIn" value="∃y (E(x,y) ∧ E(y,y))" style="min-width:300px"></div>
+      <div class="toolbar" id="defPresets"></div>
+      <div class="msg" id="defErr"></div>
+      <div class="msg info" id="defOut"></div>
+      <div class="note tiny"><span class="en"><b>A limit on definability.</b> If <span class="m">π</span> is an automorphism of <span class="m">𝔐</span> (an isomorphism <span class="m">𝔐 → 𝔐</span>, see §8), then <span class="m">𝔐 ⊨ φ[a] ⇔ 𝔐 ⊨ φ[π(a)]</span>. So every definable set (without parameters) is closed under automorphisms. In a directed 3-cycle, the rotation is an automorphism moving any element to any other, so the only definable subsets are ∅ and the whole domain. Try it.</span>
+        <span class="zh"><b>可定义性的界限.</b> 若 <span class="m">π</span> 是 <span class="m">𝔐</span> 的自同构（即同构 <span class="m">𝔐 → 𝔐</span>，见 §8），则 <span class="m">𝔐 ⊨ φ[a] ⇔ 𝔐 ⊨ φ[π(a)]</span>。所以每个（不带参数的）可定义集在自同构下封闭。在有向三元环里，旋转是一个自同构，能把任一元素移到任一其他元素，因此可定义子集只有 ∅ 和整个论域。动手试试。</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ S7 ============ -->
+<section class="card" id="s7">
+  <div class="kicker">§7</div>
+  <h2><span class="en">One sentence, three structures: (ℕ,&lt;), (ℤ,&lt;), (ℚ,&lt;)</span><span class="zh">同一个语句，三个结构：(ℕ,&lt;)、(ℤ,&lt;)、(ℚ,&lt;)</span></h2>
+  <p><span class="en">Language <span class="m">{&lt;}</span>. A sentence is neither true nor false on its own; it is true or false <i>in a structure</i>. Pick a sentence and watch the witness or the counterexample appear on each number line. (These structures are infinite, so the verdicts are proved, not computed: the animation shows the key element of each proof.)</span>
+     <span class="zh">语言取 <span class="m">{&lt;}</span>。一个语句本身无所谓真假，只有放到<i>某个结构里</i>才有真假。选一个语句，看每条数轴上出现的证据或反例。（这些结构是无穷的，所以结论是证出来的，不是算出来的：动画展示的是每个证明中的关键元素。）</span></p>
+  <div class="toolbar" id="nlBtns"></div>
+  <div class="m" id="nlSent" style="font-size:18px;margin:6px 0"></div>
+  <div class="stage"><svg id="nlSvg" viewBox="0 0 940 430" width="940" height="430"></svg></div>
+  <div class="msg info" id="nlOut"></div>
+</section>
+
+<!-- ============ S8 ============ -->
+<section class="card" id="s8">
+  <div class="kicker">§8</div>
+  <h2><span class="en">Isomorphism preserves truth</span><span class="zh">同构保持真</span></h2>
+  <div class="def"><span class="en"><b>Definition.</b> An <b>isomorphism</b> <span class="m">π : 𝔊 ≅ ℌ</span> is a bijection <span class="m">G → H</span> with <span class="m">E^𝔊(a,b) ⇔ E^ℌ(π(a), π(b))</span> for all <span class="m">a, b</span>. (For a general language: π also commutes with every constant and function symbol and preserves every relation in both directions.)</span>
+    <span class="zh"><b>定义.</b> <b>同构</b> <span class="m">π : 𝔊 ≅ ℌ</span> 是一个双射 <span class="m">G → H</span>，使得对所有 <span class="m">a, b</span> 都有 <span class="m">E^𝔊(a,b) ⇔ E^ℌ(π(a), π(b))</span>。（一般语言下，π 还要与每个常元、函数符号交换，并双向保持每个关系。）</span></div>
+  <p><span class="en">The two graphs below are the same graph drawn differently. Build the isomorphism: click an element on the left, then its image on the right. Matched pairs share a color.</span>
+     <span class="zh">下面两个图其实是同一个图的不同画法。请构造同构：先点左边一个元素，再点它在右边的像。配好的一对会染上同一种颜色。</span></p>
+  <div class="row">
+    <div class="col" style="flex:0 1 330px"><div class="m" style="text-align:center">𝔊</div><div id="isoL"></div></div>
+    <div class="col" style="flex:0 1 330px"><div class="m" style="text-align:center">ℌ</div><div id="isoR"></div></div>
+    <div class="col">
+      <div class="m" id="isoMap" style="font-size:16px;min-height:60px"></div>
+      <div class="toolbar">
+        <button class="btn primary" id="isoCheck"><span class="en">Check π</span><span class="zh">检验 π</span></button>
+        <button class="btn" id="isoClear"><span class="en">Clear</span><span class="zh">清空</span></button>
+        <button class="btn ghost" id="isoShow"><span class="en">Show answer</span><span class="zh">显示答案</span></button>
+      </div>
+      <div class="msg" id="isoMsg"></div>
+    </div>
+  </div>
+  <div class="steps" id="isoProof">
+    <div class="step def"><span class="en"><b>Theorem.</b> If <span class="m">π : 𝔐 ≅ 𝔑</span>, then for every formula φ and assignment s: <span class="m">𝔐 ⊨ φ[s] ⇔ 𝔑 ⊨ φ[π∘s]</span>.</span><span class="zh"><b>定理.</b> 若 <span class="m">π : 𝔐 ≅ 𝔑</span>，则对任意公式 φ 和赋值 s：<span class="m">𝔐 ⊨ φ[s] ⇔ 𝔑 ⊨ φ[π∘s]</span>。</span></div>
+    <div class="step"><span class="en"><b>Atomic.</b> First, by induction on terms, <span class="m">π(t^𝔐[s]) = t^𝔑[π∘s]</span>. Then <span class="m">𝔐 ⊨ E(t₁,t₂)[s] ⇔ (t₁^𝔐[s], t₂^𝔐[s]) ∈ E^𝔐 ⇔ (π(t₁^𝔐[s]), π(t₂^𝔐[s])) ∈ E^𝔑</span> (π is an isomorphism) <span class="m">⇔ 𝔑 ⊨ E(t₁,t₂)[π∘s]</span>. For <span class="m">=</span> use that π is injective.</span>
+      <span class="zh"><b>原子公式.</b> 先对项归纳得 <span class="m">π(t^𝔐[s]) = t^𝔑[π∘s]</span>。于是 <span class="m">𝔐 ⊨ E(t₁,t₂)[s] ⇔ (t₁^𝔐[s], t₂^𝔐[s]) ∈ E^𝔐 ⇔ (π(t₁^𝔐[s]), π(t₂^𝔐[s])) ∈ E^𝔑</span>（π 是同构）<span class="m">⇔ 𝔑 ⊨ E(t₁,t₂)[π∘s]</span>。等式的情形用 π 是单射。</span></div>
+    <div class="step"><span class="en"><b>Connectives.</b> Immediate from the induction hypothesis, since both sides use the same truth-table clauses.</span><span class="zh"><b>联结词.</b> 由归纳假设直接可得，两边用的是同一套真值表条款。</span></div>
+    <div class="step"><span class="en"><b>Quantifier.</b> <span class="m">𝔐 ⊨ ∃xψ[s]</span> ⇔ some <span class="m">a ∈ M</span> has <span class="m">𝔐 ⊨ ψ[s(x|a)]</span> ⇔ (IH) <span class="m">𝔑 ⊨ ψ[π∘s(x|a)] = ψ[(π∘s)(x|π(a))]</span> ⇔ some <span class="m">b ∈ N</span> has <span class="m">𝔑 ⊨ ψ[(π∘s)(x|b)]</span>. The last step uses that π is <b>surjective</b>: every <span class="m">b</span> is some <span class="m">π(a)</span>. ∀ is dual. ∎</span>
+      <span class="zh"><b>量词.</b> <span class="m">𝔐 ⊨ ∃xψ[s]</span> ⇔ 存在 <span class="m">a ∈ M</span> 使 <span class="m">𝔐 ⊨ ψ[s(x|a)]</span> ⇔（归纳假设）<span class="m">𝔑 ⊨ ψ[π∘s(x|a)] = ψ[(π∘s)(x|π(a))]</span> ⇔ 存在 <span class="m">b ∈ N</span> 使 <span class="m">𝔑 ⊨ ψ[(π∘s)(x|b)]</span>。最后一步用到 π 是<b>满射</b>：每个 <span class="m">b</span> 都是某个 <span class="m">π(a)</span>。∀ 的情形对偶。∎</span></div>
+  </div>
+  <div class="toolbar"><button class="btn" id="isoNext"><span class="en">Reveal next step</span><span class="zh">揭晓下一步</span></button><button class="btn ghost" id="isoAll"><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+
+  <h3><span class="en">Test it: any sentence gets the same verdict in isomorphic structures</span><span class="zh">验证一下：同构的结构中，任何语句的真假都相同</span></h3>
+  <p><span class="en">The third and fourth graphs are <b>not</b> isomorphic, although both have 4 elements, 4 edges, and every element has exactly one in-edge and one out-edge. Find a sentence that tells them apart.</span>
+     <span class="zh">第三、第四个图<b>不</b>同构，尽管它们都有 4 个元素、4 条边，而且每个元素恰好有一条入边和一条出边。找一个能把它们区分开的语句。</span></p>
+  <div class="row">
+    <div class="col" style="flex:0 1 250px"><div class="m" style="text-align:center">𝔎₁</div><div id="isoH1"></div></div>
+    <div class="col" style="flex:0 1 250px"><div class="m" style="text-align:center">𝔎₂</div><div id="isoH2"></div></div>
+    <div class="col">
+      <div class="toolbar"><input class="formula" id="isoS" value="∃x ∃y (E(x,y) ∧ E(y,x))" style="min-width:280px"><button class="btn primary" id="isoEval"><span class="en">Evaluate in all four</span><span class="zh">在四个结构中求值</span></button></div>
+      <div class="toolbar">
+        <button class="btn small" data-iso="∃x E(x,x)">∃x E(x,x)</button>
+        <button class="btn small" data-iso="∀x ∃y E(x,y)">∀x∃y E(x,y)</button>
+        <button class="btn small" data-iso="∃x ∃y (E(x,y) ∧ E(y,x))">∃x∃y(E(x,y)∧E(y,x))</button>
+        <button class="btn small" data-iso="∀x ∃y ∃z (E(x,y) ∧ E(y,z) ∧ E(z,x))">∀x∃y∃z(…3-cycle)</button>
+      </div>
+      <div class="msg" id="isoErr"></div>
+      <div id="isoTable"></div>
+    </div>
+  </div>
+  <div class="note"><span class="en"><b>Isomorphic ⇒ same sentences true</b> (elementarily equivalent). For <i>finite</i> structures in a finite language the converse also holds: a single sentence can describe a finite structure up to isomorphism. For infinite structures the converse fails badly: <span class="m">(ℚ,&lt;)</span> and <span class="m">(ℝ,&lt;)</span> satisfy exactly the same sentences but are not even equinumerous (Cantor!). That is Lesson 5.</span>
+    <span class="zh"><b>同构 ⇒ 满足同样的语句</b>（初等等价）。对有限语言下的<i>有限</i>结构，反过来也成立：一个语句就能在同构意义下刻画一个有限结构。对无穷结构，逆命题彻底失效：<span class="m">(ℚ,&lt;)</span> 与 <span class="m">(ℝ,&lt;)</span> 满足完全相同的语句，却连基数都不相等（康托尔！）。这是第 5 课的内容。</span></div>
+</section>
+
+<!-- ============ EXERCISES ============ -->
+<section class="card" id="exercises">
+  <div class="kicker"><span class="il"><span class="en">Exercises</span><span class="zh">练习</span></span></div>
+  <h2><span class="en">Your turn</span><span class="zh">轮到你了</span></h2>
+  <p class="muted"><span class="en">Progress is saved in your browser. A sidebar ✓ means solved. “Show answer” is always available; once you use it on a part, that part no longer counts as solved during this visit.</span><span class="zh">进度保存在浏览器中，侧栏出现 ✓ 表示已完成。“显示答案”随时可用；某一小题看过答案后，本次访问中该小题不再计入完成。</span></p>
+
+  <div class="ex" id="e1" data-prog="L3E1">
+    <h3><span class="tag">E1</span><span class="il"><span class="en">Spot the free occurrences</span><span class="zh">找出自由出现</span></span></h3>
+    <p><span class="en">Click every <b>free occurrence</b> of a variable (click again to unmark). Occurrences right after a quantifier, as in <span class="m">∀x</span>, are not clickable. Then check, and the binding arcs appear.</span>
+       <span class="zh">点出变元的每一个<b>自由出现</b>（再点一次取消）。紧跟在量词后面的变元（如 <span class="m">∀x</span> 里的 x）不能点。检查之后会显示约束弧线。</span></p>
+    <div class="stage bind" id="e1a"></div>
+    <div class="stage bind" id="e1b" style="margin-top:10px"></div>
+    <div class="toolbar">
+      <button class="btn primary" id="e1Check"><span class="en">Check</span><span class="zh">检查</span></button>
+      <button class="btn ghost" id="e1Show"><span class="en">Show answer</span><span class="zh">显示答案</span></button>
+    </div>
+    <div class="msg" id="e1Msg"></div>
+  </div>
+
+  <div class="ex" id="e2" data-prog="L3E2">
+    <h3><span class="tag">E2</span><span class="il"><span class="en">True in this graph?</span><span class="zh">在这个图里成立吗？</span></span></h3>
+    <p><span class="en">Decide each sentence in the graph 𝔊 below. After you answer, the evaluator shows a winning strategy as justification.</span>
+       <span class="zh">判断下面每个语句在图 𝔊 中是否成立。作答后，求值器会给出一个必胜策略作为依据。</span></p>
+    <div class="row">
+      <div class="col" style="flex:0 1 300px"><div id="e2G"></div></div>
+      <div class="col" id="e2List"></div>
+    </div>
+  </div>
+
+  <div class="ex" id="e3" data-prog="L3E3">
+    <h3><span class="tag">E3</span><span class="il"><span class="en">Tell two structures apart</span><span class="zh">区分两个结构</span></span></h3>
+    <p><span class="en">For each pair, write a <b>sentence</b> in the language <span class="m">{E, =}</span> that is true in 𝔄 and false in 𝔅.</span>
+       <span class="zh">对每一对结构，用语言 <span class="m">{E, =}</span> 写一个<b>语句</b>，使它在 𝔄 中为真、在 𝔅 中为假。</span></p>
+    <div id="e3Pairs"></div>
+  </div>
+
+  <div class="ex" id="e4" data-prog="L3E4">
+    <h3><span class="tag">E4</span><span class="il"><span class="en">Translate into first-order logic</span><span class="zh">翻译成一阶逻辑</span></span></h3>
+    <p><span class="en">Write each statement as a sentence over <span class="m">{E, =}</span> (read <span class="m">E(x,y)</span> as “x points to y”). The checker compares your sentence with the intended one on <b>every directed graph with 1–4 elements</b> (3,160 graphs up to isomorphism, which is enough because isomorphic graphs satisfy the same sentences, §8) and shows a smallest graph where they disagree. Honest caveat: agreeing on all small graphs is strong evidence, not a proof of equivalence. A deliberately contrived sentence (e.g. one that counts five distinct elements) could still differ only on larger graphs.</span>
+       <span class="zh">把每句话写成语言 <span class="m">{E, =}</span> 上的语句（<span class="m">E(x,y)</span> 读作“x 指向 y”）。检查器会在<b>所有 1–4 元有向图</b>上（同构意义下共 3160 个；这就够了，因为同构的图满足同样的语句，见 §8）把你的语句与标准答案逐一比较，并给出两者不一致的一个最小的图。如实说明：在所有小图上一致只是有力的证据，并不是等价性的证明。刻意构造的语句（例如数出五个不同元素的语句）仍可能只在更大的图上才与答案不同。</span></p>
+    <div class="keys" id="e4Keys"></div>
+    <div id="e4List"></div>
+  </div>
+
+  <div class="ex" id="e5" data-prog="L3E5">
+    <h3><span class="tag">E5</span><span class="il"><span class="en">Substitution done right</span><span class="zh">正确地代入</span></span></h3>
+    <p><span class="en">Let <span class="m">φ(x) = ∃y E(x,y)</span>, “x has an out-neighbour”. Which formula is <span class="m">φ[y/x]</span>, meaning “y has an out-neighbour”?</span>
+       <span class="zh">设 <span class="m">φ(x) = ∃y E(x,y)</span>，意为“x 有出邻居”。哪个公式才是 <span class="m">φ[y/x]</span>，即“y 有出邻居”？</span></p>
+    <div id="e5Choices"></div>
+    <div class="toolbar"><button class="btn ghost" id="e5Show"><span class="en">Show answer</span><span class="zh">显示答案</span></button></div>
+    <div class="msg" id="e5Msg"></div>
+    <div class="row" id="e5Demo" style="display:none">
+      <div class="col" style="flex:0 1 240px"><div id="e5G"></div></div>
+      <div class="col" id="e5Tab"></div>
+    </div>
+  </div>
+
+  <div class="ex" id="e6" data-prog="L3E6">
+    <h3><span class="tag">E6</span><span class="il"><span class="en">Define the highlighted set</span><span class="zh">定义高亮的集合</span></span></h3>
+    <p><span class="en">In the fixed graph below, write a formula <span class="m">φ(x)</span> (only <span class="m">x</span> free) whose defined set is exactly the target set (dashed gold ring).</span>
+       <span class="zh">在下面这个固定的图里，写一个公式 <span class="m">φ(x)</span>（只有 <span class="m">x</span> 自由），使它定义的集合恰好是目标集（金色虚线圈）。</span></p>
+    <div class="row">
+      <div class="col" style="flex:0 1 330px"><div id="e6G"></div></div>
+      <div class="col" id="e6List"></div>
+    </div>
+  </div>
+</section>
+
+<section class="card">
+  <div class="kicker"><span class="il"><span class="en">Next</span><span class="zh">下一课</span></span></div>
+  <h2><a href="lesson4.html" style="color:inherit"><span class="en">Lesson 4: first-order proofs &amp; Gödel's completeness theorem →</span><span class="zh">第 4 课：一阶证明与哥德尔完备性定理 →</span></a></h2>
+  <p><span class="en">We now have <span class="m">𝔐 ⊨ φ</span> and hence <span class="m">Γ ⊨ φ</span>: “φ holds in every model of Γ”. That quantifies over <i>all structures</i>, a hopelessly infinite check. Next lesson: a finite proof system with <span class="m">⊢ = ⊨</span>, built with Henkin's witnesses, the first-order cousin of Lindenbaum's construction from Lesson 2.</span>
+     <span class="zh">现在我们有了 <span class="m">𝔐 ⊨ φ</span>，从而有了 <span class="m">Γ ⊨ φ</span>：“φ 在 Γ 的每个模型中都成立”。这要对<i>所有结构</i>量化，根本不可能逐个检查。下一课我们建立一个有限的证明系统，并用亨金（Henkin）证据常元证明 <span class="m">⊢ = ⊨</span>，这是第 2 课林登鲍姆构造在一阶逻辑中的翻版。</span></p>
+</section>
+</main>
+</div>
+
+<script src="assets/logic.js"></script>
+<script src="assets/lesson3.js"></script>
+</body>
+</html>

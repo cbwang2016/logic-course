@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Logic &amp; Set Theory · 数理逻辑与集合论</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body class="lang-both">
+<header class="top">
+  <a class="home" href="index.html">∀∃ <span class="il"><span class="en">Logic &amp; Sets</span><span class="zh">逻辑与集合</span></span></a>
+  <span class="spacer"></span>
+  <div class="lang-switch">
+    <button data-lang="en">EN</button><button data-lang="zh">中文</button><button data-lang="both">EN + 中</button>
+  </div>
+</header>
+<main style="max-width:1100px;margin:0 auto">
+  <div class="hero">
+    <div class="kicker"><span class="il"><span class="en">Interactive course</span><span class="zh">交互式课程</span></span></div>
+    <h1><span class="en">Mathematical Logic &amp; Set Theory</span><span class="zh">数理逻辑与集合论</span></h1>
+    <p><span class="en">From “what is a formula?” to large cardinals at the edge of consistency. Every idea is a picture you can touch. Assumes you already know Cantor's theorem and the diagonal method.</span>
+       <span class="zh">从“什么是公式”一路讲到处在一致性边缘的大基数。每个概念都是一张能上手摆弄的图。默认你已经掌握康托尔定理和对角线方法。</span></p>
+  </div>
+  <svg id="map" viewBox="0 0 1060 120" width="100%" style="margin:10px 0 0"></svg>
+  <div id="parts"></div>
+</main>
+<script src="assets/logic.js"></script>
+<script>
+Lang.init();
+const parts = [
+  { en: 'Part I · Logic basics', zh: '第一部分 · 逻辑基础', color: '#3b5bdb', ls: [
+    ['Propositional logic: syntax & semantics', '命题逻辑：语法与语义'],
+    ['Proofs, soundness, completeness, compactness', '证明、可靠性、完备性、紧致性'],
+    ['First-order logic: languages, structures, truth', '一阶逻辑：语言、结构与真'],
+    ['First-order proofs & Gödel completeness', '一阶证明与哥德尔完备性定理'],
+    ['Compactness & Löwenheim–Skolem', '紧致性与勒文海姆–斯科伦定理'],
+  ]},
+  { en: 'Part II · Axiomatic set theory', zh: '第二部分 · 公理集合论', color: '#2f9e44', ls: [
+    ['Russell\'s paradox & the ZF axioms', '罗素悖论与 ZF 公理'],
+    ['Building ℕ, ℤ, ℚ, ℝ from sets', '用集合构造 ℕ、ℤ、ℚ、ℝ'],
+    ['Well-orders, ordinals, transfinite induction', '良序、序数与超限归纳'],
+    ['Cardinals: ℵ numbers, arithmetic, cofinality', '基数：阿列夫数、基数运算、共尾性'],
+    ['Axiom of Choice, Zorn, Banach–Tarski', '选择公理、佐恩引理、巴拿赫–塔斯基'],
+  ]},
+  { en: 'Part III · Limits of formal systems', zh: '第三部分 · 形式系统的极限', color: '#f08c00', ls: [
+    ['Computability & the halting problem', '可计算性与停机问题'],
+    ['Gödel\'s incompleteness theorems', '哥德尔不完全性定理'],
+    ['Tarski: truth is undefinable', '塔斯基：真不可定义'],
+  ]},
+  { en: 'Part IV · Independence', zh: '第四部分 · 独立性', color: '#ae3ec9', ls: [
+    ['Models of ZFC & the cumulative hierarchy V', 'ZFC 的模型与累积层级 V'],
+    ['Gödel\'s constructible universe L', '哥德尔可构成宇宙 L'],
+    ['Forcing: why CH is independent', '力迫法：连续统假设为何独立'],
+  ]},
+  { en: 'Part V · Hierarchies & large cardinals', zh: '第五部分 · 层级与大基数', color: '#c2255c', ls: [
+    ['Arithmetical hierarchy & Turing degrees', '算术层级与图灵度'],
+    ['Analytical hierarchy, hyperarithmetic sets, ω₁^CK', '分析层级、超算术集与 ω₁^CK'],
+    ['Borel & projective hierarchies', '博雷尔层级与投影层级'],
+    ['The Lévy hierarchy & absoluteness', '列维层级与绝对性'],
+    ['Ordinal notations & fast-growing hierarchies', '序数记号与快速增长层级'],
+    ['Ordinal definable sets: OD & HOD', '序数可定义集：OD 与 HOD'],
+    ['Large cardinals I: inaccessible to weakly compact', '大基数（一）：从不可达到弱紧'],
+    ['Large cardinals II: measurables & elementary embeddings', '大基数（二）：可测基数与初等嵌入'],
+    ['Large cardinals III: Woodin to rank-into-rank, determinacy', '大基数（三）：从伍丁到秩入秩，以及决定性'],
+  ]},
+  { en: 'Part VI · The big picture & open frontiers', zh: '第六部分 · 全景与前沿问题', color: '#0c8599', ls: [
+    ['The big picture: why logic & foundations, and how the field fits together', '全景：为什么要研究逻辑与基础，各分支如何拼成一体'],
+    ['Frontiers of set theory: CH, Ultimate L, forcing axioms, HOD, pcf', '集合论前沿：连续统假设、终极 L、力迫公理、HOD、pcf'],
+    ['Frontiers of model theory, computability & proof theory', '模型论、可计算性与证明论的前沿'],
+  ]},
+];
+const prog = Progress.get();
+let n = 0, html = '';
+const dots = [];
+parts.forEach(p => {
+  html += `<div class="part"><h2 style="color:${p.color}">${bi(p.en, p.zh)}</h2><div class="lessons">`;
+  p.ls.forEach(([en, zh]) => {
+    n++;
+    const solved = Object.keys(prog).filter(k => k.startsWith('L' + n + 'E')).length;
+    dots.push({ n, color: p.color, started: solved > 0 });
+    html += `<a class="lesson" href="lesson${n}.html" style="border-top:4px solid ${p.color}">
+      <div class="num" style="color:${p.color}">L${n}</div>
+      <span class="st" style="color:var(--true)">${solved ? `✓ ${solved}` : ''}</span>
+      ${bi(`<b>${en}</b>`, zh)}</a>`;
+  });
+  html += '</div></div>';
+});
+document.getElementById('parts').innerHTML = html;
+
+// path map
+const svg = document.getElementById('map');
+const W = 1060, step = (W - 60) / (dots.length - 1);
+const pts = dots.map((d, i) => [30 + i * step, 60 + Math.sin(i * 0.9) * 28]);
+el('path', { d: 'M' + pts.map(p => p.join(',')).join(' L'), fill: 'none', stroke: '#d8d3c4', 'stroke-width': 4, 'stroke-dasharray': '2 8', 'stroke-linecap': 'round' }, svg);
+dots.forEach((d, i) => {
+  const a = el('a', { href: `lesson${d.n}.html` }, svg);
+  const g = el('g', { class: 'pop' }, a);
+  g.style.animationDelay = (i * 0.06) + 's';
+  el('circle', { cx: pts[i][0], cy: pts[i][1], r: 16, fill: d.started ? d.color : '#fff', stroke: d.color, 'stroke-width': 3 }, g);
+  const t = el('text', { x: pts[i][0], y: pts[i][1] + 5, 'text-anchor': 'middle', 'font-size': 13, 'font-weight': 700, fill: d.started ? '#fff' : d.color }, g);
+  t.textContent = d.n;
+});
+</script>
+</body>
+</html>

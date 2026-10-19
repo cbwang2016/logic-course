@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 14 · Models of ZFC &amp; the cumulative hierarchy V · ZFC 的模型与累积层级 V</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  /* nested boxes: a set is a box, its elements are the boxes inside it */
+  .nb { display: inline-flex; align-items: center; justify-content: center; gap: 3px; flex-wrap: wrap;
+        min-width: 16px; min-height: 16px; padding: 3px; border-radius: 7px; border: 2px solid; vertical-align: middle; }
+  .nb.d0 { border-color: #3b5bdb; background: #eef2ff; }
+  .nb.d1 { border-color: #f08c00; background: #fff6e0; }
+  .nb.d2 { border-color: #2f9e44; background: #e9f9ec; }
+  .nb.d3 { border-color: #ae3ec9; background: #f8ecfc; }
+  .vlist { display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0; }
+  .vel { background: #fff; border: 1.5px solid var(--line); border-radius: 12px; padding: 8px 10px; text-align: center; min-width: 70px; }
+  .vel .m { font-size: 12px; margin-top: 4px; color: #444; }
+  .vel.new { border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-soft); }
+  .vel .rk { font-size: 11px; color: var(--muted); }
+  /* graphs */
+  .gnode circle { fill: #fff; stroke: var(--ink); stroke-width: 2; transition: fill .3s, stroke .3s; }
+  .gnode text { font-size: 15px; font-weight: 700; text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+  .gnode.sel circle { stroke: var(--accent); stroke-width: 4; fill: var(--accent-soft); }
+  .gnode.done circle { fill: var(--true-soft); stroke: var(--true); }
+  .gnode.ill circle { fill: var(--false-soft); stroke: var(--false); }
+  .gnode.clash circle { fill: var(--gold-soft); stroke: var(--gold); stroke-width: 4; }
+  .gedge { stroke: #868e96; stroke-width: 2; fill: none; }
+  .gedge.chain { stroke: var(--meta); stroke-width: 4; }
+  .glabel { font-size: 12px; fill: #1b5e20; font-weight: 700; }
+  /* flow chart */
+  .fbox rect { fill: #fff; stroke: #c9c3b3; stroke-width: 2; transition: all .35s; }
+  .fbox.on rect { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 3; }
+  .fbox.done rect { fill: var(--true-soft); stroke: var(--true); }
+  .fbox text { font-size: 12.5px; text-anchor: middle; font-family: var(--sans); }
+  .farrow { stroke: #adb5bd; stroke-width: 2; }
+  /* tables */
+  table.abs { border-collapse: collapse; font-size: 14px; margin: 8px 0; }
+  table.abs th, table.abs td { border-bottom: 1px solid var(--line); padding: 6px 10px; text-align: left; vertical-align: middle; }
+  table.abs th { background: #f1efe7; }
+  table.abs td.v1 { color: var(--true); font-weight: 700; }
+  table.abs td.v0 { color: var(--false); font-weight: 700; }
+  table.abs tr.flip td { background: var(--gold-soft); }
+  table.abs td.cell { cursor: pointer; text-align: center; min-width: 64px; font-size: 18px; background: #fffdf3; }
+  table.abs td.cell.right { background: var(--true-soft); }
+  table.abs td.cell.wrong { background: var(--false-soft); }
+  .q { display: inline-block; padding: 0 5px; border-radius: 6px; font-weight: 700; }
+  .q.bd { background: var(--true-soft); color: #1b5e20; }
+  .q.ub { background: var(--false-soft); color: #8a1c1c; }
+  .pick { display: inline-block; padding: 4px 9px; margin: 3px; border-radius: 9px; border: 1.5px solid var(--line); background: #fff; cursor: pointer; font-family: var(--mono); font-size: 13px; }
+  .pick.on { border-color: var(--accent); background: var(--accent-soft); }
+  .pick.on2 { border-color: var(--gold); background: var(--gold-soft); }
+  .rung { cursor: pointer; }
+  .rung rect { transition: all .3s; }
+  .rung.on rect { stroke: var(--meta); stroke-width: 3; fill: var(--meta-soft); }
+  .bigsvg { width: 100%; height: auto; }
+  input.formula.short { min-width: 80px; width: 120px; }
+</style>
+</head>
+<body class="lang-both">
+<header class="top">
+  <a class="home" href="index.html">∀∃ <span class="il"><span class="en">Logic &amp; Sets</span><span class="zh">逻辑与集合</span></span></a>
+  <span class="muted">/ L14</span>
+  <span class="spacer"></span>
+  <div class="lang-switch">
+    <button data-lang="en">EN</button><button data-lang="zh">中文</button><button data-lang="both">EN + 中</button>
+  </div>
+</header>
+
+<div class="layout">
+<nav class="side">
+  <div class="grp">Lesson 14</div>
+  <a href="index.html">← <span class="il"><span class="en">Course map</span><span class="zh">课程地图</span></span></a>
+  <a href="lesson13.html">← <span class="il"><span class="en">Lesson 13</span><span class="zh">第 13 课</span></span></a>
+  <a href="lesson15.html"><span class="il"><span class="en">Lesson 15</span><span class="zh">第 15 课</span></span> →</a>
+  <a href="#s1">1 · <span class="il"><span class="en">The hierarchy V</span><span class="zh">累积层级</span></span></a>
+  <a href="#s2">2 · <span class="il"><span class="en">Rank</span><span class="zh">秩</span></span></a>
+  <a href="#s3">3 · <span class="il"><span class="en">Foundation</span><span class="zh">正则公理</span></span></a>
+  <a href="#s4">4 · <span class="il"><span class="en">Mostowski collapse</span><span class="zh">莫斯托夫斯基坍塌</span></span></a>
+  <a href="#s5">5 · <span class="il"><span class="en">Absoluteness</span><span class="zh">绝对性</span></span></a>
+  <a href="#s6">6 · <span class="il"><span class="en">Skolem again</span><span class="zh">再看斯科伦悖论</span></span></a>
+  <a href="#s7">7 · <span class="il"><span class="en">Which V_α are models?</span><span class="zh">哪些 V_α 是模型</span></span></a>
+  <a href="#s8">8 · <span class="il"><span class="en">Reflection</span><span class="zh">反射原理</span></span></a>
+  <a href="#s9">9 · <span class="il"><span class="en">Relative consistency</span><span class="zh">相对一致性</span></span></a>
+  <div class="grp"><span class="il"><span class="en">Exercises</span><span class="zh">练习</span></span></div>
+  <a href="#e1" data-prog="L14E1">E1 · rank</a>
+  <a href="#e2" data-prog="L14E2">E2 · V₃</a>
+  <a href="#e3" data-prog="L14E3">E3 · <span class="il"><span class="en">collapse</span><span class="zh">坍塌</span></span></a>
+  <a href="#e4" data-prog="L14E4">E4 · <span class="il"><span class="en">absolute?</span><span class="zh">绝对吗</span></span></a>
+  <a href="#e5" data-prog="L14E5">E5 · V_α ⊨ ?</a>
+  <a href="#e6" data-prog="L14E6">E6 · <span class="il"><span class="en">provable?</span><span class="zh">可证吗</span></span></a>
+</nav>
+
+<main>
+<div class="hero">
+  <div class="kicker">Part IV · Lesson 14</div>
+  <h1><span class="en">Models of ZFC and the Cumulative Hierarchy V</span><span class="zh">ZFC 的模型与累积层级 V</span></h1>
+  <p><span class="en">To prove that CH is independent we must build <b>other universes of sets</b>. This lesson builds the tools: the universe V layered by rank, the Mostowski collapse, transitive models and absoluteness, the reflection principle, and the pattern “Con(ZF) ⇒ Con(ZF + X)”.</span>
+     <span class="zh">要证明连续统假设独立，就得造出<b>别的集合宇宙</b>。本课准备工具：按秩分层的宇宙 V、莫斯托夫斯基坍塌、传递模型与绝对性、反射原理，以及“Con(ZF) ⇒ Con(ZF + X)”这一论证模式。</span></p>
+</div>
+
+<!-- ============ S1 ============ -->
+<section class="card" id="s1">
+  <div class="kicker">§1</div>
+  <h2><span class="en">The cumulative hierarchy: a universe grown in layers</span><span class="zh">累积层级：一层层长出来的宇宙</span></h2>
+  <div class="def"><span class="en"><b>Definition</b> (by transfinite recursion). <span class="m">V₀ = ∅</span>, &nbsp; <span class="m">V<sub>α+1</sub> = 𝒫(V<sub>α</sub>)</span>, &nbsp; <span class="m">V<sub>λ</sub> = ⋃<sub>α&lt;λ</sub> V<sub>α</sub></span> for limit λ. &nbsp; <span class="m">V = ⋃<sub>α∈Ord</sub> V<sub>α</sub></span> is the von Neumann universe.</span>
+    <span class="zh"><b>定义</b>（超限递归）。<span class="m">V₀ = ∅</span>，<span class="m">V<sub>α+1</sub> = 𝒫(V<sub>α</sub>)</span>，λ 为极限序数时 <span class="m">V<sub>λ</sub> = ⋃<sub>α&lt;λ</sub> V<sub>α</sub></span>。<span class="m">V = ⋃<sub>α∈Ord</sub> V<sub>α</sub></span> 称为冯·诺伊曼宇宙。</span></div>
+  <p><span class="en">Each V<sub>α</sub> is transitive and <span class="m">α &lt; β ⇒ V<sub>α</sub> ⊆ V<sub>β</sub></span>: layers only ever accumulate. Press <b>Grow</b> to add a layer, then click a level label to open it. A set is drawn as a box, and its elements are the boxes inside it. An empty box is ∅.</span>
+     <span class="zh">每个 V<sub>α</sub> 都是传递集，而且 <span class="m">α &lt; β ⇒ V<sub>α</sub> ⊆ V<sub>β</sub></span>：各层只会不断累积。按 <b>生长</b> 增加一层，再点击右侧的层名展开该层。一个集合画成一个盒子，它的元素就是盒子里的小盒子；空盒子就是 ∅。</span></p>
+  <div class="toolbar">
+    <button class="btn primary" id="coneGrow"><span class="en">Grow one layer ▶</span><span class="zh">生长一层 ▶</span></button>
+    <button class="btn" id="coneAll"><span class="en">Show all layers</span><span class="zh">显示全部层</span></button>
+    <button class="btn ghost" id="coneReset"><span class="en">Reset</span><span class="zh">重置</span></button>
+  </div>
+  <div class="row">
+    <div class="col" style="flex:0 1 560px"><div class="stage"><svg id="cone" viewBox="0 0 560 460" class="bigsvg"></svg></div></div>
+    <div class="col">
+      <div class="msg info" id="coneInfo"></div>
+      <div id="vlist" class="vlist"></div>
+    </div>
+  </div>
+  <div class="note"><span class="en">The sizes explode: <span class="m">|V<sub>n+1</sub>| = 2<sup>|V<sub>n</sub>|</sup></span>, so 0, 1, 2, 4, 16, 65 536, 2<sup>65 536</sup>, … Every V<sub>n</sub> is finite, V<sub>ω</sub> (the <b>hereditarily finite sets</b>) is countable, and <span class="m">|V<sub>ω+α</sub>| = ℶ<sub>α</sub></span>. The gold boxes are the <b>new</b> elements, those of rank exactly n − 1.</span>
+    <span class="zh">规模爆炸式增长：<span class="m">|V<sub>n+1</sub>| = 2<sup>|V<sub>n</sub>|</sup></span>，依次为 0, 1, 2, 4, 16, 65 536, 2<sup>65 536</sup>, …。每个 V<sub>n</sub> 都有限，V<sub>ω</sub>（<b>遗传有限集</b>全体）可数，并且 <span class="m">|V<sub>ω+α</sub>| = ℶ<sub>α</sub></span>。金色框是该层<b>新出现</b>的元素，即秩恰为 n − 1 的集合。</span></div>
+</section>
+
+<!-- ============ S2 ============ -->
+<section class="card" id="s2">
+  <div class="kicker">§2</div>
+  <h2><span class="en">The rank of a set: its height in V</span><span class="zh">集合的秩：它在 V 中的高度</span></h2>
+  <div class="def"><span class="en"><b>Definition.</b> For x ∈ ⋃V<sub>α</sub>, <span class="m">rank(x)</span> = the least α with <span class="m">x ⊆ V<sub>α</sub></span> (equivalently, x ∈ V<sub>α+1</sub>). Then <span class="m">rank(x) = sup{ rank(y) + 1 : y ∈ x }</span>, and V<sub>α</sub> = { x : rank(x) &lt; α }.</span>
+    <span class="zh"><b>定义.</b> 对 x ∈ ⋃V<sub>α</sub>，<span class="m">rank(x)</span> 是使 <span class="m">x ⊆ V<sub>α</sub></span>（等价地，x ∈ V<sub>α+1</sub>）的最小 α。于是 <span class="m">rank(x) = sup{ rank(y) + 1 : y ∈ x }</span>，且 V<sub>α</sub> = { x : rank(x) &lt; α }。</span></div>
+  <p><span class="en">Type a hereditarily finite set. Use <span class="m">∅</span> (or <span class="m">{}</span>), braces and commas; a digit n abbreviates the von Neumann ordinal n = {0,…,n−1}. The picture is the transitive closure, layered by rank. The <b style="color:var(--meta)">purple path</b> is a longest ∈-chain down to ∅, and its length is the rank.</span>
+     <span class="zh">输入一个遗传有限集。可用 <span class="m">∅</span>（或 <span class="m">{}</span>）、花括号和逗号；数字 n 是冯·诺伊曼序数 n = {0,…,n−1} 的缩写。下图画出它的传递闭包，按秩分层排列。<b style="color:var(--meta)">紫色路径</b>是一条通往 ∅ 的最长 ∈-链，其长度就是秩。</span></p>
+  <div class="toolbar">
+    <input class="formula" id="rkIn" value="{∅, {{∅}}}">
+    <button class="btn small" id="rkEmpty">∅</button>
+    <button class="btn primary" id="rkGo"><span class="en">Compute rank</span><span class="zh">计算秩</span></button>
+  </div>
+  <div class="toolbar">
+    <button class="btn small" data-rk="{∅,{{∅}}}">{∅,{{∅}}}</button>
+    <button class="btn small" data-rk="4">4</button>
+    <button class="btn small" data-rk="{{{{∅}}}}">{{{{∅}}}}</button>
+    <button class="btn small" data-rk="{2,{1},{{2}}}">{2,{1},{{2}}}</button>
+    <button class="btn small" data-rk="{∅,{∅},{∅,{∅}},{{∅}}}">V₃</button>
+  </div>
+  <div class="msg" id="rkErr"></div>
+  <div class="stage" id="rkStage"></div>
+  <div class="msg" id="rkOut"></div>
+</section>
+
+<!-- ============ S3 ============ -->
+<section class="card" id="s3">
+  <div class="kicker">§3</div>
+  <h2><span class="en">Foundation ⇔ V = ⋃ V<sub>α</sub></span><span class="zh">正则公理 ⇔ V = ⋃ V<sub>α</sub></span></h2>
+  <p><span class="en"><b>Foundation</b> says that every nonempty x has an ∈-minimal element: some m ∈ x with m ∩ x = ∅. Below, the elements of x sit at the height of their rank. Click any element to test whether it is ∈-minimal. The lowest one always works, because its members are strictly lower than every element of x.</span>
+     <span class="zh"><b>正则公理（基础公理）</b>说：每个非空集 x 都有 ∈-极小元，即存在 m ∈ x 使 m ∩ x = ∅。下图把 x 的元素按秩摆在不同高度。点击任一元素，检验它是否 ∈-极小。最低的那个一定行：它的元素都比 x 的所有元素还低。</span></p>
+  <div class="toolbar" id="fdPresets"></div>
+  <div class="stage"><svg id="fdSvg" viewBox="0 0 760 330" class="bigsvg"></svg></div>
+  <div class="msg" id="fdMsg"></div>
+  <h3><span class="en">Theorem (ZF without Foundation). Foundation ⇔ every set lies in some V<sub>α</sub>.</span><span class="zh">定理（在去掉正则公理的 ZF 中）：正则公理 ⇔ 每个集合都属于某个 V<sub>α</sub>。</span></h3>
+  <div class="steps" id="fdSteps">
+    <div class="step def"><span class="en"><b>(⇐)</b> Let x ≠ ∅ with every set ranked. Pick m ∈ x of <b>least rank</b> (ordinals are well-ordered). Every y ∈ m has rank(y) &lt; rank(m), so y ∉ x. Hence m ∩ x = ∅. This is exactly the picture above.</span>
+      <span class="zh"><b>(⇐)</b> 设 x ≠ ∅ 且每个集合都有秩。取 x 中<b>秩最小</b>的元素 m（序数是良序的）。对任意 y ∈ m 有 rank(y) &lt; rank(m)，故 y ∉ x。所以 m ∩ x = ∅。这正是上图展示的情形。</span></div>
+    <div class="step def"><span class="en"><b>(⇒) Setup.</b> Write WF = ⋃<sub>α</sub>V<sub>α</sub>. Suppose x ∉ WF. Let T = TC({x}), the transitive closure (the smallest transitive set containing x). Then B = { z ∈ T : z ∉ WF } is a nonempty set (it contains x), by Separation.</span>
+      <span class="zh"><b>(⇒) 准备.</b> 记 WF = ⋃<sub>α</sub>V<sub>α</sub>。设 x ∉ WF。令 T = TC({x}) 为传递闭包（包含 x 的最小传递集）。由分离公理，B = { z ∈ T : z ∉ WF } 是一个集合，且非空（x ∈ B）。</span></div>
+    <div class="step def"><span class="en"><b>(⇒) Use Foundation.</b> Take z ∈ B with z ∩ B = ∅. Since T is transitive, every w ∈ z lies in T but not in B, so <b>every element of z is in WF</b>.</span>
+      <span class="zh"><b>(⇒) 用正则公理.</b> 取 z ∈ B 使 z ∩ B = ∅。T 是传递集，所以 z 的每个元素 w 都在 T 中而不在 B 中，即 <b>z 的元素全都属于 WF</b>。</span></div>
+    <div class="step def"><span class="en"><b>(⇒) Use Replacement.</b> α = sup{ rank(w) + 1 : w ∈ z } is an ordinal (Replacement + Union). Then z ⊆ V<sub>α</sub>, so z ∈ V<sub>α+1</sub> ⊆ WF, a contradiction. ∎ &nbsp; Without Foundation, WF is still a transitive class that satisfies all of ZF, so Foundation can be added at no cost in consistency strength.</span>
+      <span class="zh"><b>(⇒) 用替换公理.</b> α = sup{ rank(w) + 1 : w ∈ z } 是序数（替换公理 + 并集公理）。于是 z ⊆ V<sub>α</sub>，故 z ∈ V<sub>α+1</sub> ⊆ WF，矛盾。∎ &nbsp; 即使不假设正则公理，WF 依然是满足全部 ZF 的传递类，因此添加正则公理不会增加一致性强度。</span></div>
+  </div>
+  <div class="toolbar"><button class="btn primary" id="fdNext"><span class="en">Next step</span><span class="zh">下一步</span></button>
+    <button class="btn ghost" id="fdAll"><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+</section>
+
+<!-- ============ S4 ============ -->
+<section class="card" id="s4">
+  <div class="kicker">§4</div>
+  <h2><span class="en">Models (M, E) and the Mostowski collapse</span><span class="zh">模型 (M, E) 与莫斯托夫斯基坍塌</span></h2>
+  <p><span class="en">A model of set theory is just a structure <span class="m">(M, E)</span>: a set of points and a binary relation E that plays the role of ∈. Draw it as a directed graph, with an arrow <span class="m">a → b</span> meaning <span class="m">a E b</span>. Nothing forces E to be the real ∈.</span>
+     <span class="zh">集合论的模型不过是一个结构 <span class="m">(M, E)</span>：一些点，加上一个扮演 ∈ 的二元关系 E。把它画成有向图，箭头 <span class="m">a → b</span> 表示 <span class="m">a E b</span>。E 不必是真正的 ∈。</span></p>
+  <div class="def"><span class="en"><b>Mostowski Collapse Lemma.</b> If E is <b>well-founded</b> (and set-like) and <b>extensional</b> on M, there is a unique transitive set (or class) T and a unique isomorphism <span class="m">π : (M, E) ≅ (T, ∈)</span>, defined by recursion: <span class="m">π(b) = { π(a) : a E b }</span>.</span>
+    <span class="zh"><b>莫斯托夫斯基坍塌引理.</b> 若 E 在 M 上<b>良基</b>（且类似集合）并且满足<b>外延性</b>，则存在唯一的传递集（或传递类）T 和唯一的同构 <span class="m">π : (M, E) ≅ (T, ∈)</span>，由递归给出：<span class="m">π(b) = { π(a) : a E b }</span>。</span></div>
+  <p><span class="en"><b>Edit the graph:</b> click a node to select it, then click another node to toggle the arrow <i>selected → clicked</i>. Drag nodes to move them. Then press <b>Collapse</b>. Try the presets that break each hypothesis.</span>
+     <span class="zh"><b>编辑图：</b>先点一个节点选中它，再点另一个节点，即可添加或删除箭头“选中 → 被点”。节点可以拖动。然后按 <b>坍塌</b>。也试试那些故意破坏某个条件的预设。</span></p>
+  <div class="toolbar">
+    <button class="btn small" data-gp="ord"><span class="en">ordinal 3</span><span class="zh">序数 3</span></button>
+    <button class="btn small" data-gp="nontrans"><span class="en">a strange E</span><span class="zh">奇怪的 E</span></button>
+    <button class="btn small" data-gp="noext"><span class="en">not extensional</span><span class="zh">不满足外延性</span></button>
+    <button class="btn small" data-gp="cycle"><span class="en">ill-founded</span><span class="zh">非良基</span></button>
+    <button class="btn small" id="gAdd">+ <span class="il"><span class="en">node</span><span class="zh">节点</span></span></button>
+    <button class="btn small" id="gDel">− <span class="il"><span class="en">selected</span><span class="zh">删除选中</span></span></button>
+    <button class="btn small" data-gp="clear"><span class="en">clear</span><span class="zh">清空</span></button>
+  </div>
+  <div class="toolbar">
+    <button class="btn primary" id="gCollapse"><span class="en">Collapse ▶</span><span class="zh">坍塌 ▶</span></button>
+    <button class="btn ghost" id="gUndo"><span class="en">Back to editing</span><span class="zh">回到编辑</span></button>
+  </div>
+  <div class="row">
+    <div class="col" style="flex:1 1 520px"><div class="stage"><svg id="gSvg" viewBox="0 0 640 380" class="bigsvg" style="touch-action:none"></svg></div></div>
+    <div class="col" style="flex:0 1 300px"><div id="gSide"></div></div>
+  </div>
+  <div class="msg" id="gMsg"></div>
+  <div class="note"><span class="en"><b>Why it matters.</b> Any well-founded model of ZF can be replaced by an isomorphic <b>transitive</b> model (M, ∈), where membership is the real one. Transitive models are where absoluteness works (next section). Löwenheim–Skolem (Lesson 5) applied to a transitive model, plus collapse, gives <b>countable transitive models</b> (§8 explains which ones ZFC can actually produce).</span>
+    <span class="zh"><b>意义何在.</b> ZF 的任何良基模型都可以换成一个同构的<b>传递</b>模型 (M, ∈)，其中的属于关系就是真正的 ∈。绝对性正是在传递模型上起作用（见下一节）。对传递模型用勒文海姆–斯科伦定理（第 5 课），再做坍塌，就得到<b>可数传递模型</b>（ZFC 究竟能造出哪些这样的模型，见 §8）。</span></div>
+</section>
+
+<!-- ============ S5 ============ -->
+<section class="card" id="s5">
+  <div class="kicker">§5</div>
+  <h2><span class="en">Transitive models and absoluteness</span><span class="zh">传递模型与绝对性</span></h2>
+  <div class="def"><span class="en"><b>Definitions.</b> A formula φ is <b>Δ₀</b> if every quantifier in it is bounded: <span class="m">∀z∈y</span> or <span class="m">∃z∈y</span>. φ(x₁,…,xₙ) is <b>absolute</b> between M ⊆ N if for all a₁,…,aₙ ∈ M: <span class="m">M ⊨ φ[a₁,…,aₙ] ⇔ N ⊨ φ[a₁,…,aₙ]</span>.<br><b>Theorem.</b> If M ⊆ N are transitive, every Δ₀ formula is absolute between M and N.</span>
+    <span class="zh"><b>定义.</b> 若公式 φ 中的量词全都有界，即形如 <span class="m">∀z∈y</span> 或 <span class="m">∃z∈y</span>，则称 φ 为 <b>Δ₀ 公式</b>。若对所有 a₁,…,aₙ ∈ M 都有 <span class="m">M ⊨ φ[a₁,…,aₙ] ⇔ N ⊨ φ[a₁,…,aₙ]</span>，则称 φ(x₁,…,xₙ) 在 M ⊆ N 之间<b>绝对</b>。<br><b>定理.</b> 若 M ⊆ N 都是传递的，则每个 Δ₀ 公式在 M 与 N 之间绝对。</span></div>
+  <p><span class="en"><b>Laboratory.</b> The big world is <span class="m">N = V₄</span> (16 sets, standing in for V). Click chips to choose a small model <span class="m">M ⊆ V₄</span>, pick or type a formula φ(y), and compare <span class="m">N ⊨ φ[y]</span> with <span class="m">M ⊨ φ[y]</span> for each y ∈ M. Bounded quantifiers are green and unbounded ones are red. Make M non-transitive and watch even Δ₀ formulas fail.</span>
+     <span class="zh"><b>实验室.</b> 大世界取 <span class="m">N = V₄</span>（16 个集合，充当 V 的替身）。点击芯片选出小模型 <span class="m">M ⊆ V₄</span>，选择或输入公式 φ(y)，然后对每个 y ∈ M 比较 <span class="m">N ⊨ φ[y]</span> 与 <span class="m">M ⊨ φ[y]</span>。有界量词标绿，无界量词标红。把 M 弄成非传递的，你会看到连 Δ₀ 公式都失效。</span></p>
+  <div class="toolbar">
+    <button class="btn small" data-mp="V3"><span class="en">M = V₃ (transitive)</span><span class="zh">M = V₃（传递）</span></button>
+    <button class="btn small" data-mp="ord"><span class="en">M = 4 (transitive)</span><span class="zh">M = 4（传递）</span></button>
+    <button class="btn small" data-mp="bad"><span class="en">M = {0, {1}, {{1}}} (not transitive)</span><span class="zh">M = {0, {1}, {{1}}}（非传递）</span></button>
+  </div>
+  <div id="mChips"></div>
+  <div class="msg" id="mTrans"></div>
+  <div class="toolbar">
+    <span class="m">φ(y) =</span>
+    <input class="formula" id="absIn" value="∃z∈y (z = z)" style="min-width:340px">
+    <button class="btn primary" id="absGo"><span class="en">Evaluate</span><span class="zh">求值</span></button>
+  </div>
+  <div class="keys" id="absKeys"></div>
+  <div class="toolbar" id="absPresets"></div>
+  <div class="msg" id="absErr"></div>
+  <div id="absOut"></div>
+  <h3><span class="en">Why Δ₀ formulas are absolute: induction on φ</span><span class="zh">Δ₀ 公式为何绝对：对 φ 归纳</span></h3>
+  <div class="steps" id="absSteps">
+    <div class="step def"><span class="en"><b>Atomic.</b> <span class="m">a ∈ b</span> and <span class="m">a = b</span> mean the same thing in M and N, since both use the real ∈.</span><span class="zh"><b>原子公式.</b> <span class="m">a ∈ b</span> 与 <span class="m">a = b</span> 在 M 和 N 中意思相同，因为两边用的都是真正的 ∈。</span></div>
+    <div class="step def"><span class="en"><b>¬, ∧.</b> Immediate from the induction hypothesis.</span><span class="zh"><b>¬、∧.</b> 由归纳假设直接得到。</span></div>
+    <div class="step def"><span class="en"><b>Bounded ∃.</b> Take <span class="m">∃z∈b ψ</span> with b ∈ M. In N, z ranges over b. In M, z ranges over b ∩ M. Since <b>M is transitive</b>, b ⊆ M, so b ∩ M = b: both search the same set, and ψ is absolute by induction. ∎</span>
+      <span class="zh"><b>有界 ∃.</b> 考虑 <span class="m">∃z∈b ψ</span>，b ∈ M。在 N 中 z 取遍 b；在 M 中 z 取遍 b ∩ M。由于 <b>M 是传递的</b>，b ⊆ M，从而 b ∩ M = b：两边搜索的是同一个集合，再由归纳假设 ψ 绝对即可。∎</span></div>
+    <div class="step def"><span class="en"><b>Where it breaks.</b> An unbounded ∃z searches all of M in one case and all of N in the other. A witness may exist in N but not in M. Such Σ₁ statements are only <b>upward</b> absolute (M ⊨ φ ⇒ N ⊨ φ), and Π₁ statements are only <b>downward</b> absolute.</span>
+      <span class="zh"><b>何处失效.</b> 无界的 ∃z 在一边搜遍 M，在另一边搜遍 N。证据可能在 N 里有、在 M 里没有。这类 Σ₁ 命题只<b>向上</b>绝对（M ⊨ φ ⇒ N ⊨ φ），Π₁ 命题只<b>向下</b>绝对。</span></div>
+  </div>
+  <div class="toolbar"><button class="btn primary" id="absNext"><span class="en">Next step</span><span class="zh">下一步</span></button>
+    <button class="btn ghost" id="absAll"><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+  <h3><span class="en">The Δ₀ catalogue</span><span class="zh">Δ₀ 概念一览</span></h3>
+  <p class="muted"><span class="en">Click a row to see its defining formula with quantifiers colored. Green = bounded (absolute for transitive models), red = unbounded.</span><span class="zh">点击一行查看其定义公式，量词已上色：绿色为有界（对传递模型绝对），红色为无界。</span></p>
+  <div id="catTable"></div>
+  <div class="msg info" id="catOut"></div>
+</section>
+
+<!-- ============ S6 ============ -->
+<section class="card" id="s6">
+  <div class="kicker">§6</div>
+  <h2><span class="en">Skolem's paradox, seen through absoluteness</span><span class="zh">从绝对性看斯科伦悖论</span></h2>
+  <p><span class="en">Let M be a countable transitive model (of enough of ZFC; §8 explains how to get one). M contains ω and ω is the same in M and V, since “x = ω” is Δ₀. Yet <span class="m">M ⊨ “𝒫(ω) is uncountable”</span>. Toggle the point of view.</span>
+     <span class="zh">设 M 是可数传递模型（满足足够多的 ZFC 公理；§8 说明如何得到）。M 包含 ω，而且 ω 在 M 和 V 中是同一个，因为“x = ω”是 Δ₀ 的。然而 <span class="m">M ⊨ “𝒫(ω) 不可数”</span>。切换视角看看。</span></p>
+  <div class="toolbar">
+    <button class="btn sel" id="skV"><span class="en">View from V</span><span class="zh">从 V 看</span></button>
+    <button class="btn" id="skM"><span class="en">View from inside M</span><span class="zh">从 M 内部看</span></button>
+    <button class="btn" id="skDiag"><span class="en">Diagonalize ▶</span><span class="zh">对角化 ▶</span></button>
+  </div>
+  <div class="stage"><svg id="skSvg" viewBox="0 0 760 380" class="bigsvg"></svg></div>
+  <div class="msg info" id="skMsg"></div>
+  <h3><span class="en">The same object, two verdicts</span><span class="zh">同一个对象，两种判决</span></h3>
+  <div class="toolbar"><button class="btn sel" id="tV"><span class="en">Evaluate in V</span><span class="zh">在 V 中求值</span></button>
+    <button class="btn" id="tM"><span class="en">Evaluate in M</span><span class="zh">在 M 中求值</span></button></div>
+  <div id="vmTable"></div>
+  <div class="note"><span class="en"><b>Resolution (Lesson 5 revisited).</b> “Uncountable” means “there is <b>no</b> bijection with ω”, a Π₁ statement. The bijection exists in V but is not an element of M. Likewise <span class="m">𝒫(ω)<sup>M</sup> = 𝒫(ω) ∩ M</span>: M computes the power set correctly <i>relative to its own sets</i>. Countability and power set are <b>not absolute</b>.</span>
+    <span class="zh"><b>悖论的化解（回顾第 5 课）.</b> “不可数”的意思是“与 ω 之间<b>不存在</b>双射”，这是 Π₁ 命题。双射在 V 中存在，但它不是 M 的元素。同理 <span class="m">𝒫(ω)<sup>M</sup> = 𝒫(ω) ∩ M</span>：M 只是<i>相对于自己拥有的集合</i>正确地计算幂集。可数性和幂集都<b>不是绝对的</b>。</span></div>
+</section>
+
+<!-- ============ S7 ============ -->
+<section class="card" id="s7">
+  <div class="kicker">§7</div>
+  <h2><span class="en">Which V<sub>α</sub> are models of set theory?</span><span class="zh">哪些 V<sub>α</sub> 是集合论的模型？</span></h2>
+  <h3><span class="en">(a) V<sub>ω</sub>: the closure machine</span><span class="zh">(a) V<sub>ω</sub>：封闭性机器</span></h3>
+  <p><span class="en">Pick a (and b) from the palette and apply set operations. The rank bounds <span class="m">rank{a,b} = max+1</span>, <span class="m">rank ⋃a ≤ rank a</span>, <span class="m">rank 𝒫(a) = rank a + 1</span> keep every result <b>finite-rank</b>, so V<sub>ω</sub> is closed under all of them. Then try to build ω.</span>
+     <span class="zh">从调色板里选 a（和 b），施加集合运算。由秩的估计 <span class="m">rank{a,b} = max+1</span>、<span class="m">rank ⋃a ≤ rank a</span>、<span class="m">rank 𝒫(a) = rank a + 1</span>，结果的秩永远<b>有限</b>，所以 V<sub>ω</sub> 对这些运算都封闭。然后试着造出 ω。</span></p>
+  <div id="cmPalette"></div>
+  <div class="toolbar">
+    <button class="btn" data-op="pair">{a, b}</button>
+    <button class="btn" data-op="union">⋃a</button>
+    <button class="btn" data-op="power">𝒫(a)</button>
+    <button class="btn" data-op="cup">a ∪ b</button>
+    <button class="btn" data-op="succ">a ∪ {a}</button>
+    <button class="btn primary" id="cmOmega"><span class="en">Try to build ω ▶</span><span class="zh">试着造出 ω ▶</span></button>
+  </div>
+  <div class="row">
+    <div class="col"><div class="stage" id="cmOut" style="min-height:120px"></div></div>
+    <div class="col"><div class="stage"><svg id="cmSvg" viewBox="0 0 360 220" class="bigsvg"></svg></div></div>
+  </div>
+  <div class="msg" id="cmMsg"></div>
+  <div class="def"><span class="en"><b>Theorem.</b> <span class="m">(V<sub>ω</sub>, ∈) ⊨ ZFC − Infinity + ¬Infinity</span>. So Infinity is independent of the other axioms, provided ZFC is consistent. Fun fact: Ackermann's coding <span class="m">x ↦ Σ<sub>y∈x</sub> 2<sup>code(y)</sup></span> is an isomorphism (V<sub>ω</sub>, ∈) ≅ (ℕ, “the y-th binary digit of x is 1”). For example V₄ is exactly the codes 0–15.</span>
+    <span class="zh"><b>定理.</b> <span class="m">(V<sub>ω</sub>, ∈) ⊨ ZFC − 无穷公理 + ¬无穷公理</span>。因此（在 ZFC 一致的前提下）无穷公理独立于其余公理。趣闻：阿克曼编码 <span class="m">x ↦ Σ<sub>y∈x</sub> 2<sup>code(y)</sup></span> 给出同构 (V<sub>ω</sub>, ∈) ≅ (ℕ, “x 的二进制第 y 位是 1”)。例如 V₄ 恰好对应编码 0–15。</span></div>
+
+  <h3><span class="en">(b) V<sub>ω+ω</sub>: everything except Replacement</span><span class="zh">(b) V<sub>ω+ω</sub>：除替换公理外全都成立</span></h3>
+  <p><span class="en">For any limit λ &gt; ω, V<sub>λ</sub> satisfies Zermelo set theory with Choice (ZC). But Replacement can fail. The map <span class="m">n ↦ ω+n</span> is definable in V<sub>ω+ω</sub> and its domain ω is there, yet its image would have rank ω+ω.</span>
+     <span class="zh">对任意极限序数 λ &gt; ω，V<sub>λ</sub> 满足带选择公理的策梅洛集合论（ZC）。但替换公理可能失败：映射 <span class="m">n ↦ ω+n</span> 在 V<sub>ω+ω</sub> 中可定义，其定义域 ω 也在里面，可像集的秩却是 ω+ω。</span></p>
+  <div class="toolbar"><button class="btn primary" id="repGo"><span class="en">Apply Replacement ▶</span><span class="zh">应用替换公理 ▶</span></button></div>
+  <div class="stage"><svg id="repSvg" viewBox="0 0 760 260" class="bigsvg"></svg></div>
+
+  <h3><span class="en">(c) V<sub>κ</sub> for κ inaccessible: a model of all of ZFC</span><span class="zh">(c) κ 不可达时的 V<sub>κ</sub>：全部 ZFC 的模型</span></h3>
+  <div class="def"><span class="en"><b>Definition.</b> κ is (strongly) <b>inaccessible</b> if κ &gt; ω, κ is regular, and κ is a strong limit: <span class="m">2<sup>λ</sup> &lt; κ</span> for all λ &lt; κ. <b>Theorem.</b> Then <span class="m">V<sub>κ</sub> ⊨ ZFC</span>. Strong limit and regularity give |V<sub>α</sub>| &lt; κ for α &lt; κ (by induction on α), so every x ∈ V<sub>κ</sub> has |x| &lt; κ. Regularity then says the ranks of F[x] are bounded below κ, so F[x] ∈ V<sub>κ</sub>: Replacement holds.</span>
+    <span class="zh"><b>定义.</b> 若 κ &gt; ω、κ 正则，且 κ 是强极限（对所有 λ &lt; κ 有 <span class="m">2<sup>λ</sup> &lt; κ</span>），则称 κ 为（强）<b>不可达基数</b>。<b>定理.</b> 此时 <span class="m">V<sub>κ</sub> ⊨ ZFC</span>。强极限与正则性保证对 α &lt; κ 有 |V<sub>α</sub>| &lt; κ（对 α 归纳），所以每个 x ∈ V<sub>κ</sub> 满足 |x| &lt; κ；再由正则性，F[x] 中元素的秩有界于 κ 之下，于是 F[x] ∈ V<sub>κ</sub>，替换公理成立。</span></div>
+  <p><span class="en">Click the rungs of the <b>consistency-strength ladder</b>. Each theory proves that the one below it has a model.</span>
+     <span class="zh">点击<b>一致性强度阶梯</b>的各级。每个理论都能证明它下面那个理论有模型。</span></p>
+  <div class="row">
+    <div class="col" style="flex:0 1 420px"><div class="stage"><svg id="ladder" viewBox="0 0 420 330" class="bigsvg"></svg></div></div>
+    <div class="col"><div class="msg info" id="ladMsg"></div>
+      <div class="steps" id="incSteps">
+        <div class="step def"><span class="en"><b>Claim.</b> If ZFC is consistent, ZFC does not prove “an inaccessible exists” (IC).</span><span class="zh"><b>断言.</b> 若 ZFC 一致，则 ZFC 证明不了“存在不可达基数”（IC）。</span></div>
+        <div class="step def"><span class="en">Suppose ZFC ⊢ IC. Since ZFC ⊢ (IC → V<sub>κ</sub> ⊨ ZFC), we get ZFC ⊢ “ZFC has a set model”, hence ZFC ⊢ Con(ZFC) by soundness, which is formalizable in ZFC. By Gödel's second theorem (Lesson 12) ZFC is inconsistent. ∎</span>
+          <span class="zh">设 ZFC ⊢ IC。由于 ZFC ⊢ (IC → V<sub>κ</sub> ⊨ ZFC)，得 ZFC ⊢ “ZFC 有集合模型”，再由可靠性定理（可在 ZFC 内形式化）得 ZFC ⊢ Con(ZFC)。由哥德尔第二不完全性定理（第 12 课），ZFC 不一致。∎</span></div>
+        <div class="step def"><span class="en"><b>Stronger.</b> ZFC cannot even prove <span class="m">Con(ZFC) → Con(ZFC + IC)</span> (if ZFC + IC is consistent). Otherwise ZFC + IC, which proves Con(ZFC), would prove Con(ZFC + IC), contradicting Gödel 2 for ZFC + IC. So relative consistency results over plain ZFC, like those in Lessons 15–16, are <b>impossible</b> for large cardinals: they really are stronger.</span>
+          <span class="zh"><b>更强的结论.</b> （若 ZFC + IC 一致）ZFC 甚至证明不了 <span class="m">Con(ZFC) → Con(ZFC + IC)</span>。否则 ZFC + IC 既能证明 Con(ZFC)，就能证明 Con(ZFC + IC)，与 ZFC + IC 的哥德尔第二定理矛盾。所以像第 15–16 课那样仅以 ZFC 为基础的相对一致性结果，对大基数是<b>不可能</b>的：它们是真正更强的假设。</span></div>
+        <div class="step def"><span class="en"><b>Conversely</b>, if κ is the <i>least</i> inaccessible then <span class="m">V<sub>κ</sub> ⊨ ZFC + ¬IC</span>, because inaccessibility of λ &lt; κ is computed correctly in V<sub>κ</sub>. Hence Con(ZFC) ⇒ Con(ZFC + ¬IC): if there is no inaccessible, V itself satisfies ¬IC; otherwise cut at the least one. (Formally this is Route A of §9: relativize to the class “V<sub>κ</sub> for the least inaccessible κ if there is one, else V”; no set model of ZFC is needed.)</span>
+          <span class="zh"><b>反过来</b>，若 κ 是<i>最小的</i>不可达基数，则 <span class="m">V<sub>κ</sub> ⊨ ZFC + ¬IC</span>，因为对 λ &lt; κ，“λ 不可达”在 V<sub>κ</sub> 中的判断是正确的。因此 Con(ZFC) ⇒ Con(ZFC + ¬IC)：若不可达基数不存在，V 本身就满足 ¬IC；否则在最小的那个处截断。（严格地说，这是 §9 的路线 A：相对化到类“若存在不可达基数则取最小者 κ 对应的 V<sub>κ</sub>，否则取 V”；不需要 ZFC 的任何集合模型。）</span></div>
+      </div>
+      <div class="toolbar"><button class="btn primary" id="incNext"><span class="en">Next step</span><span class="zh">下一步</span></button>
+        <button class="btn ghost" id="incAll"><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ S8 ============ -->
+<section class="card" id="s8">
+  <div class="kicker">§8</div>
+  <h2><span class="en">The reflection principle and countable transitive models</span><span class="zh">反射原理与可数传递模型</span></h2>
+  <div class="def"><span class="en"><b>Reflection Principle</b> (a theorem <i>scheme</i> of ZF). For every <b>finite</b> list of formulas φ₁, …, φₙ, ZF proves: for every β there is α &gt; β such that each φᵢ is absolute between V<sub>α</sub> and V.</span>
+    <span class="zh"><b>反射原理</b>（ZF 的一个定理<i>模式</i>）。对任意<b>有限</b>个公式 φ₁, …, φₙ，ZF 证明：对任意 β，存在 α &gt; β，使每个 φᵢ 在 V<sub>α</sub> 与 V 之间绝对。</span></div>
+  <p><span class="en">Choose finitely many axioms, then press <b>Reflect</b>. The proof builds <span class="m">α₀ &lt; α₁ &lt; α₂ &lt; …</span>, where α<sub>k+1</sub> is large enough that every existential subformula with parameters in V<sub>α<sub>k</sub></sub> that has a witness in V already has one in V<sub>α<sub>k+1</sub></sub> (by Replacement). Then <span class="m">α = sup α<sub>k</sub></span> works, by the Tarski–Vaught test.</span>
+     <span class="zh">勾选有限条公理，按 <b>反射</b>。证明中构造 <span class="m">α₀ &lt; α₁ &lt; α₂ &lt; …</span>：取 α<sub>k+1</sub> 足够大，使得每个参数取自 V<sub>α<sub>k</sub></sub> 的存在型子公式，只要在 V 中有证据，在 V<sub>α<sub>k+1</sub></sub> 中就已有证据（用替换公理）。然后 <span class="m">α = sup α<sub>k</sub></span> 即满足要求（塔斯基–沃特判别法）。</span></p>
+  <div id="rfChecks" class="toolbar"></div>
+  <div class="toolbar"><button class="btn primary" id="rfGo"><span class="en">Reflect ▶</span><span class="zh">反射 ▶</span></button>
+    <button class="btn" id="rfCtm"><span class="en">… then make it countable and transitive ▶</span><span class="zh">…… 再变成可数传递模型 ▶</span></button></div>
+  <div class="stage"><svg id="rfSvg" viewBox="0 0 760 360" class="bigsvg"></svg></div>
+  <div class="msg info" id="rfMsg"></div>
+  <div class="note"><span class="en"><b>Honest metamathematics.</b> For each finite fragment Φ ⊆ ZFC, the theorem “there is a countable transitive model of Φ” is provable in ZFC: reflect Φ to V<sub>α</sub>, take a countable elementary submodel (Löwenheim–Skolem), then collapse it (Mostowski). But (if ZFC is consistent) ZFC does <b>not</b> prove “there is a countable transitive model of all of ZFC”: that would imply Con(ZFC), contradicting Gödel 2. The quantifier “for every finite Φ” lives in the metatheory, as a scheme of separate theorems, one per Φ. It is not a single theorem of ZFC: the single sentence “every finite Φ ⊆ ZFC has a model” would, by the formalized compactness theorem, already prove Con(ZFC).</span>
+    <span class="zh"><b>诚实的元数学.</b> 对每个有限片段 Φ ⊆ ZFC，“存在 Φ 的可数传递模型”都是 ZFC 的定理：先把 Φ 反射到某个 V<sub>α</sub>，再取可数初等子模型（勒文海姆–斯科伦），最后做坍塌（莫斯托夫斯基）。但（若 ZFC 一致）ZFC <b>不能</b>证明“存在整个 ZFC 的可数传递模型”，否则可推出 Con(ZFC)，与哥德尔第二定理矛盾。“对每个有限 Φ”这个量词处在元理论层面，表示一族各自独立的定理，每个 Φ 一条，而不是 ZFC 内部的一条定理：单个命题“每个有限 Φ ⊆ ZFC 都有模型”借助形式化的紧致性定理就已能证明 Con(ZFC)。</span></div>
+</section>
+
+<!-- ============ S9 ============ -->
+<section class="card" id="s9">
+  <div class="kicker">§9</div>
+  <h2><span class="en">The relative consistency pattern: Con(ZF) ⇒ Con(ZF + X)</span><span class="zh">相对一致性的论证模式：Con(ZF) ⇒ Con(ZF + X)</span></h2>
+  <p><span class="en">By Gödel 2, ZF cannot prove that ZF has a model (unless ZF is inconsistent), so independence proofs are <b>relative</b>: if ZF is consistent, so is ZF + X. There are two standard routes. Pick one and run it.</span>
+     <span class="zh">由哥德尔第二定理，ZF 无法证明 ZF 有模型（除非 ZF 不一致），所以独立性证明都是<b>相对的</b>：若 ZF 一致，则 ZF + X 也一致。标准路线有两条，选一条运行看看。</span></p>
+  <div class="toolbar">
+    <button class="btn sel" id="flA"><span class="en">Route A: inner model (syntactic)</span><span class="zh">路线 A：内模型（语法方法）</span></button>
+    <button class="btn" id="flB"><span class="en">Route B: ctm of a finite fragment</span><span class="zh">路线 B：有限片段的可数传递模型</span></button>
+    <button class="btn primary" id="flRun"><span class="en">Run ▶</span><span class="zh">运行 ▶</span></button>
+    <button class="btn ghost" id="flAll"><span class="en">Show all</span><span class="zh">全部显示</span></button>
+  </div>
+  <div class="stage"><svg id="flSvg" viewBox="0 0 760 330" class="bigsvg"></svg></div>
+  <div class="msg info" id="flMsg"></div>
+  <table class="abs">
+    <tr><th>X</th><th><span class="il"><span class="en">Model built</span><span class="zh">构造的模型</span></span></th><th><span class="il"><span class="en">Route</span><span class="zh">路线</span></span></th><th><span class="il"><span class="en">Where</span><span class="zh">见</span></span></th></tr>
+    <tr><td>Foundation</td><td>WF = ⋃V<sub>α</sub></td><td>A</td><td>§3</td></tr>
+    <tr><td>¬Infinity <span class="muted">(rel. ZF − Inf)</span></td><td>V<sub>ω</sub></td><td>A</td><td>§7</td></tr>
+    <tr><td>AC, GCH, V = L</td><td><span class="il"><span class="en">Gödel's L</span><span class="zh">哥德尔的 L</span></span></td><td>A</td><td><a href="lesson15.html">L15</a></td></tr>
+    <tr><td>¬CH, ¬AC</td><td><span class="il"><span class="en">forcing extension M[G] (for ¬AC: a symmetric submodel of it)</span><span class="zh">力迫扩张 M[G]（对 ¬AC：取其对称子模型）</span></span></td><td>B</td><td><a href="lesson16.html">L16</a></td></tr>
+  </table>
+</section>
+
+<!-- ============ EXERCISES ============ -->
+<section class="card" id="exercises">
+  <div class="kicker"><span class="il"><span class="en">Exercises</span><span class="zh">练习</span></span></div>
+  <h2><span class="en">Your turn</span><span class="zh">轮到你了</span></h2>
+  <p class="muted"><span class="en">Progress is saved in your browser. A sidebar ✓ means you solved it yourself (showing the answer does not count).</span><span class="zh">进度保存在浏览器中。侧栏出现 ✓ 表示你独立解出（查看答案不计入）。</span></p>
+
+  <div class="ex" id="e1" data-prog="L14E1">
+    <h3><span class="tag">E1</span><span class="il"><span class="en">Compute ranks</span><span class="zh">计算秩</span></span></h3>
+    <p><span class="en">Enter the rank of each set. You can check yourself with the §2 calculator afterwards.</span><span class="zh">写出每个集合的秩。之后可以用 §2 的计算器自查。</span></p>
+    <div id="e1List"></div>
+    <div class="toolbar"><button class="btn primary" id="e1Check"><span class="en">Check</span><span class="zh">检查</span></button>
+      <button class="btn ghost" id="e1Show"><span class="en">Show answer</span><span class="zh">显示答案</span></button></div>
+    <div class="msg" id="e1Msg"></div>
+  </div>
+
+  <div class="ex" id="e2" data-prog="L14E2">
+    <h3><span class="tag">E2</span><span class="il"><span class="en">What is in V₃?</span><span class="zh">V₃ 里有什么？</span></span></h3>
+    <p><span class="en">Click every set that is an element of V₃ (selected = gold), then give |V₅|.</span><span class="zh">点选所有属于 V₃ 的集合（选中为金色），再写出 |V₅|。</span></p>
+    <div id="e2Chips"></div>
+    <p>|V₅| = <input class="formula short" id="e2N"></p>
+    <div class="toolbar"><button class="btn primary" id="e2Check"><span class="en">Check</span><span class="zh">检查</span></button>
+      <button class="btn ghost" id="e2Show"><span class="en">Show answer</span><span class="zh">显示答案</span></button></div>
+    <div class="msg" id="e2Msg"></div>
+  </div>
+
+  <div class="ex" id="e3" data-prog="L14E3">
+    <h3><span class="tag">E3</span><span class="il"><span class="en">Collapse this graph by hand</span><span class="zh">手工坍塌这张图</span></span></h3>
+    <p><span class="en">An arrow u → v means u E v. Write π(v) for each node as a hereditarily finite set (digits allowed as ordinals).</span><span class="zh">箭头 u → v 表示 u E v。把每个节点的 π(v) 写成遗传有限集（可用数字表示序数）。</span></p>
+    <div class="row"><div class="col" style="flex:0 1 380px"><div class="stage"><svg id="e3Svg" viewBox="0 0 380 260" class="bigsvg"></svg></div></div>
+      <div class="col" id="e3Inputs"></div></div>
+    <div class="toolbar"><button class="btn primary" id="e3Check"><span class="en">Check</span><span class="zh">检查</span></button>
+      <button class="btn ghost" id="e3Show"><span class="en">Show answer</span><span class="zh">显示答案</span></button></div>
+    <div class="msg" id="e3Msg"></div>
+  </div>
+
+  <div class="ex" id="e4" data-prog="L14E4">
+    <h3><span class="tag">E4</span><span class="il"><span class="en">Absolute or not?</span><span class="zh">绝对还是不绝对？</span></span></h3>
+    <p><span class="en">Click a card to cycle it: tray → absolute for transitive models of ZF → not absolute → tray.</span><span class="zh">点击卡片循环移动：待分类 → 对 ZF 的传递模型绝对 → 不绝对 → 待分类。</span></p>
+    <div class="zone tray"><h4><span class="il"><span class="en">Tray</span><span class="zh">待分类</span></span></h4><div class="chips" id="e4Tray"></div></div>
+    <div class="row" style="margin-top:12px">
+      <div class="col zone obj"><h4 style="color:var(--true)"><span class="il"><span class="en">Absolute</span><span class="zh">绝对</span></span></h4><div class="chips" id="e4Abs"></div></div>
+      <div class="col zone meta"><h4 style="color:var(--false)"><span class="il"><span class="en">Not absolute</span><span class="zh">不绝对</span></span></h4><div class="chips" id="e4Not"></div></div>
+    </div>
+    <div class="toolbar"><button class="btn primary" id="e4Check"><span class="en">Check</span><span class="zh">检查</span></button>
+      <button class="btn ghost" id="e4Show"><span class="en">Show answer</span><span class="zh">显示答案</span></button></div>
+    <div class="msg" id="e4Msg"></div>
+  </div>
+
+  <div class="ex" id="e5" data-prog="L14E5">
+    <h3><span class="tag">E5</span><span class="il"><span class="en">Which V<sub>α</sub> satisfy which axioms?</span><span class="zh">哪些 V<sub>α</sub> 满足哪些公理？</span></span></h3>
+    <p><span class="en">Click cells to cycle (blank → ✓ → ✗). Here κ is inaccessible.</span><span class="zh">点击格子循环切换（空 → ✓ → ✗）。这里 κ 为不可达基数。</span></p>
+    <div id="e5Grid"></div>
+    <div class="toolbar"><button class="btn primary" id="e5Check"><span class="en">Check</span><span class="zh">检查</span></button>
+      <button class="btn ghost" id="e5Show"><span class="en">Show answer</span><span class="zh">显示答案</span></button></div>
+    <div class="msg" id="e5Msg"></div>
+  </div>
+
+  <div class="ex" id="e6" data-prog="L14E6">
+    <h3><span class="tag">E6</span><span class="il"><span class="en">What can ZFC prove?</span><span class="zh">ZFC 能证明什么？</span></span></h3>
+    <p class="muted"><span class="en">Assume ZFC (and ZFC + IC) is consistent. Can ZFC prove each statement?</span><span class="zh">假设 ZFC（以及 ZFC + IC）一致。ZFC 能否证明下列各命题？</span></p>
+    <div id="e6List"></div>
+  </div>
+</section>
+
+<section class="card">
+  <div class="kicker"><span class="il"><span class="en">Next</span><span class="zh">下一课</span></span></div>
+  <h2><a href="lesson15.html" style="color:inherit"><span class="en">Lesson 15: Gödel's constructible universe L →</span><span class="zh">第 15 课：哥德尔可构成宇宙 L →</span></a></h2>
+  <p><span class="en">Replace 𝒫 by “definable subsets” in the definition of V and you get a much thinner universe L. It is an inner model of ZF, it satisfies AC and GCH, and so (Route A) CH cannot be disproved.</span>
+     <span class="zh">把 V 定义中的 𝒫 换成“可定义子集”，就得到细得多的宇宙 L。它是 ZF 的内模型，满足 AC 和 GCH，于是（按路线 A）CH 无法被否证。</span></p>
+</section>
+</main>
+</div>
+
+<script src="assets/logic.js"></script>
+<script src="assets/lesson14.js"></script>
+</body>
+</html>

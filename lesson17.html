@@ -1,0 +1,600 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 17 · Arithmetical Hierarchy &amp; Turing Degrees 算术层级与图灵度</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  .prereq { font-size: 13px; color: var(--muted); margin: 0 0 12px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .prereq a { display: inline-block; padding: 1px 9px; border-radius: 999px; border: 1px solid var(--line); background: #fff; color: var(--ink); text-decoration: none; font-size: 12.5px; }
+  .prereq a:hover { border-color: var(--accent); }
+  .lang-both .prereq .zh { display: inline; font-size: 12px; }
+  .lang-both .prereq a .zh::before { content: " · "; color: var(--muted); }
+  .core { font-weight: 600; margin: 6px 0 12px; }
+  .cy { border: 2px dashed var(--meta); background: var(--meta-soft); border-radius: 14px; padding: 12px 16px; margin: 16px 0 4px; }
+  .cy .q { font-weight: 600; margin-bottom: 6px; }
+  .cy .opts { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0; }
+  .cy .opts .btn.right { border-color: var(--true); background: var(--true-soft); }
+  .cy .opts .btn.wrongc { border-color: var(--false); background: var(--false-soft); }
+  .warnbox { border-left: 4px solid var(--false); background: #fff4f4; padding: 10px 14px; border-radius: 0 10px 10px 0; margin: 14px 0; }
+  .warnbox b.h { color: var(--false); }
+  /* prefix builder */
+  .qrow { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; min-height: 54px; padding: 8px; border-radius: 12px; background: #fff; border: 1.5px solid var(--line); font-family: var(--mono); }
+  .qc { display: inline-flex; flex-direction: column; align-items: center; padding: 5px 10px; border-radius: 10px; font-size: 17px; border: 2px solid var(--line); background: #fff; transition: all .45s; }
+  .qc small { font-size: 10.5px; color: var(--muted); font-family: var(--sans); }
+  .qc.E { border-color: var(--true); background: var(--true-soft); }
+  .qc.A { border-color: var(--accent); background: var(--accent-soft); }
+  .qc.b { border-style: dashed; border-color: #999; background: #f4f2ec; color: #666; }
+  .qc.mat { border-color: var(--gold); background: var(--gold-soft); }
+  .qc.vanish { opacity: .15; transform: scale(.7) translateY(8px); }
+  .qc.merge { box-shadow: 0 0 0 4px rgba(174,62,201,.25); }
+  .blk { display: inline-flex; gap: 4px; padding: 4px; border-radius: 12px; border: 2px solid var(--meta); position: relative; margin-top: 14px; }
+  .blk .bl { position: absolute; top: -17px; left: 6px; font-size: 11px; color: var(--meta); font-family: var(--sans); font-weight: 700; }
+  .lvl { display: inline-block; font-size: 26px; font-weight: 800; font-family: var(--mono); padding: 2px 16px; border-radius: 12px; color: #fff; }
+  .lvl.S { background: var(--true); } .lvl.P { background: var(--accent); } .lvl.D { background: var(--gold); }
+  /* scanner */
+  .cellrow { display: flex; gap: 3px; flex-wrap: nowrap; font-family: var(--mono); }
+  .cellrow > div { width: 26px; height: 30px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 13px; background: #f1efe7; border: 1.5px solid transparent; flex: 0 0 auto; transition: all .2s; }
+  .cellrow > div.hit { background: var(--true-soft); border-color: var(--true); font-weight: 800; }
+  .cellrow > div.cur { border-color: var(--meta); background: var(--meta-soft); }
+  .cellrow > div.seen { background: #e4e1d6; }
+  .cellrow > div.wall { width: 6px; background: var(--false); border-radius: 3px; padding: 0; }
+  .cellrow > div.q1 { background: var(--gold-soft); border-color: var(--gold); }
+  /* race */
+  .lane { display: grid; grid-template-columns: 290px 1fr 150px; gap: 10px; align-items: center; margin: 8px 0; }
+  .lane .bar { height: 26px; border-radius: 999px; background: #eceae3; position: relative; overflow: hidden; }
+  .lane .bar i { position: absolute; left: 0; top: 0; bottom: 0; background: var(--accent); border-radius: 999px; transition: width .12s linear; width: 0; }
+  .lane .bar.win i { background: var(--true); }
+  .lane .bar.none { background: repeating-linear-gradient(45deg, #f4f2ec, #f4f2ec 8px, #e7e3d7 8px, #e7e3d7 16px); }
+  .lane .st { font-family: var(--mono); font-size: 13px; }
+  /* info panel */
+  .infop { border: 1.5px solid var(--line); border-radius: 14px; padding: 12px 16px; background: #fffefb; min-height: 120px; }
+  .infop h4 { margin: 0 0 6px; }
+  .fm { font-family: var(--mono); font-size: 15px; background: #f7f5ef; padding: 6px 10px; border-radius: 8px; display: inline-block; margin: 4px 0; }
+  .fm .qE { color: var(--true); font-weight: 700; } .fm .qA { color: var(--accent); font-weight: 700; }
+  svg .node { cursor: pointer; }
+  svg .node rect, svg .node circle { transition: all .25s; }
+  svg .node:hover rect, svg .node:hover circle { filter: drop-shadow(0 0 5px rgba(59,91,219,.55)); }
+  svg .node.on rect, svg .node.on circle { stroke-width: 4; }
+  svg .pill { cursor: pointer; }
+  svg .pill:hover rect { filter: drop-shadow(0 0 4px rgba(0,0,0,.35)); }
+  svg .pill.on rect { stroke: #1f2430; stroke-width: 3; }
+  /* oracle */
+  .bitstrip { display: flex; gap: 2px; font-family: var(--mono); flex-wrap: wrap; }
+  .bitstrip span { width: 24px; height: 34px; border-radius: 5px; background: #2b2f3a; color: #2b2f3a; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; transition: all .3s; }
+  .bitstrip span small { font-size: 9px; color: #888; font-weight: 400; }
+  .bitstrip.peek span, .bitstrip span.lit { color: #fff; }
+  .bitstrip span.lit { background: var(--meta); }
+  .bitstrip span.lit small { color: #f3d9fa; }
+  /* sorter zones */
+  .zones3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  @media (max-width: 900px) { .zones3 { grid-template-columns: 1fr; } }
+  /* kleene post */
+  .kp { font-family: var(--mono); }
+  .kp .rowl { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
+  .kp .rowl b { width: 26px; font-size: 18px; }
+  .kp .cells { display: flex; gap: 2px; flex-wrap: wrap; }
+  .kp .cells span { width: 24px; height: 28px; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 13px; background: #eceae3; border: 2px solid transparent; transition: all .3s; position: relative; }
+  .kp .cells span.v1 { background: #dfe7ff; }
+  .kp .cells span.new { animation: pop .45s cubic-bezier(.2,1.4,.4,1) both; }
+  .kp .cells span.qd { border-color: var(--gold); background: var(--gold-soft); }
+  .kp .cells span.dg { border-color: var(--meta); background: var(--meta-soft); font-weight: 800; }
+  .kp .cells span.idx::after { content: attr(data-i); position: absolute; bottom: -13px; font-size: 9px; color: #999; }
+  .kplog { font-size: 14px; max-height: 210px; overflow: auto; background: #fbfaf6; border: 1px dashed var(--line); border-radius: 10px; padding: 8px 12px; }
+  .kplog div { padding: 2px 0; border-bottom: 1px dotted #e6e2d6; }
+  /* truth tower */
+  .tcard { display: flex; gap: 10px; align-items: center; padding: 6px 10px; border-radius: 10px; border: 1.5px solid var(--line); margin: 5px 0; background: #fff; transition: all .3s; }
+  .tcard .lv { font-family: var(--mono); font-weight: 800; min-width: 46px; text-align: center; border-radius: 8px; padding: 1px 6px; background: #eee; }
+  .tcard.in { border-color: var(--true); background: var(--true-soft); }
+  .tcard.out { opacity: .55; }
+  .tcard .s { flex: 1; }
+  .tcard .s .m { font-size: 14px; }
+  /* exercises */
+  .e1row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 8px 0; border-bottom: 1px dashed var(--line); }
+  .e1row .stmt { flex: 1 1 320px; }
+  .e1row select { font: inherit; font-size: 14px; padding: 4px 8px; border-radius: 8px; border: 1.5px solid var(--line); }
+  .e1row select.right { border-color: var(--true); background: var(--true-soft); }
+  .e1row select.wrong { border-color: var(--false); background: var(--false-soft); }
+  .ord { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 900px) { .ord { grid-template-columns: 1fr; } }
+  .ord .pool .chip, .ord .seq .chip { display: block; margin: 6px 0; }
+  .ord .seq { min-height: 120px; border: 2px dashed var(--accent); border-radius: 12px; padding: 8px; background: #fbfcff; }
+  .ord .seq .chip::before { content: attr(data-n) ". "; font-weight: 800; color: var(--accent); }
+</style>
+</head>
+<body class="lang-both">
+<header class="top">
+  <a class="home" href="index.html">∀∃ <span class="il"><span class="en">Logic &amp; Sets</span><span class="zh">逻辑与集合</span></span></a>
+  <span class="muted">/ L17</span>
+  <span class="spacer"></span>
+  <div class="lang-switch">
+    <button data-lang="en">EN</button><button data-lang="zh">中文</button><button data-lang="both">EN + 中</button>
+  </div>
+</header>
+
+<div class="layout">
+<nav class="side">
+  <div class="grp">Lesson 17</div>
+  <a href="index.html">← <span class="il"><span class="en">Course map</span><span class="zh">课程地图</span></span></a>
+  <a href="lesson16.html">← <span class="il"><span class="en">Lesson 16</span><span class="zh">第 16 课</span></span></a>
+  <a href="lesson18.html"><span class="il"><span class="en">Lesson 18</span><span class="zh">第 18 课</span></span> →</a>
+  <a href="#s1">1 · <span class="il"><span class="en">Bounded quantifiers</span><span class="zh">有界量词</span></span></a>
+  <a href="#s2">2 · <span class="il"><span class="en">Σ⁰ₙ and Π⁰ₙ</span><span class="zh">Σ⁰ₙ 与 Π⁰ₙ</span></span></a>
+  <a href="#s3">3 · <span class="il"><span class="en">Δ⁰ₙ, decidable, r.e.</span><span class="zh">Δ⁰ₙ、可判定、递归可枚举</span></span></a>
+  <a href="#s4">4 · <span class="il"><span class="en">The ladder</span><span class="zh">层级阶梯图</span></span></a>
+  <a href="#s5">5 · <span class="il"><span class="en">Hierarchy theorem</span><span class="zh">层级定理</span></span></a>
+  <a href="#s6">6 · <span class="il"><span class="en">Oracles &amp; ≤_T</span><span class="zh">谕示与图灵归约</span></span></a>
+  <a href="#s7">7 · <span class="il"><span class="en">≤_m vs ≤_T</span><span class="zh">多一归约与图灵归约</span></span></a>
+  <a href="#s8">8 · <span class="il"><span class="en">Jump &amp; Post</span><span class="zh">跳跃与波斯特定理</span></span></a>
+  <a href="#s9">9 · <span class="il"><span class="en">Structure of degrees</span><span class="zh">图灵度的结构</span></span></a>
+  <a href="#s10">10 · <span class="il"><span class="en">Back to Tarski</span><span class="zh">回到塔斯基</span></span></a>
+  <div class="grp"><span class="il"><span class="en">Exercises</span><span class="zh">练习</span></span></div>
+  <a href="#e1" data-prog="L17E1">E1 · <span class="il"><span class="en">Classify sets</span><span class="zh">集合定级</span></span></a>
+  <a href="#e2" data-prog="L17E2">E2 · <span class="il"><span class="en">Prefix drill</span><span class="zh">前缀速算</span></span></a>
+  <a href="#e3" data-prog="L17E3">E3 · <span class="il"><span class="en">Post's proof</span><span class="zh">波斯特证明</span></span></a>
+  <a href="#e4" data-prog="L17E4">E4 · <span class="il"><span class="en">Degrees T/F</span><span class="zh">图灵度判断</span></span></a>
+  <a href="#e5" data-prog="L17E5">E5 · <span class="il"><span class="en">Reductions</span><span class="zh">归约判断</span></span></a>
+</nav>
+
+<main>
+<div class="hero">
+  <div class="kicker">Part V · Lesson 17</div>
+  <h1><span class="en">The Arithmetical Hierarchy &amp; Turing Degrees</span><span class="zh">算术层级与图灵度</span></h1>
+  <p><span class="en">In Lesson 11 every set was either decidable or not. Here we measure <i>how</i> undecidable a set is, in two ways that turn out to agree: by counting quantifier alternations in its definition, and by asking which oracle you need to compute it. Your old friend the diagonal argument shows that the ladder never stops.</span>
+     <span class="zh">在第 11 课里，一个集合要么可判定，要么不可判定。这一课我们要度量它<i>有多</i>不可判定，方法有两种：数一数定义中量词交替了几次，或者问一问计算它需要什么样的谕示。这两种度量最后是一致的。老朋友对角线法会告诉我们：这架梯子永远爬不到顶。</span></p>
+</div>
+
+<!-- ============ S1 ============ -->
+<section class="card" id="s1">
+  <div class="kicker">Step 1</div>
+  <h2><span class="en">Bounded quantifiers and Δ₀ formulas</span><span class="zh">有界量词与 Δ₀ 公式</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置</span></span>:
+    <a href="lesson3.html"><span class="en">L3 first-order formulas</span><span class="zh">L3 一阶公式</span></a>
+    <a href="lesson11.html"><span class="en">L11 computability</span><span class="zh">L11 可计算性</span></a>
+    <a href="lesson12.html"><span class="en">L12 language of arithmetic</span><span class="zh">L12 算术语言</span></a></div>
+  <p class="core"><span class="en">Core idea: a quantifier with a bound, like ∃y&lt;x, only asks finitely many questions, so it is harmless. An unbounded ∃y may send you searching forever.</span>
+    <span class="zh">核心思想：带上界的量词（如 ∃y&lt;x）只需检查有限多个情形，因此无害；无界的 ∃y 却可能让你永远搜下去。</span></p>
+  <p><span class="en">We work in the language of arithmetic <span class="m">L_A = {0, S, +, ·, &lt;}</span>, interpreted in the standard model <span class="m">ℕ</span>. Pick a formula and an input, then press <b>Search</b>. The red wall marks the bound. A bounded search hits the wall and stops. An unbounded search has no wall.</span>
+    <span class="zh">我们使用算术语言 <span class="m">L_A = {0, S, +, ·, &lt;}</span>，在标准模型 <span class="m">ℕ</span> 中解释。选一个公式和一个输入，点<b>搜索</b>。红墙表示上界：有界搜索碰到墙就停；无界搜索没有墙。</span></p>
+  <div class="toolbar">
+    <button class="btn small sel" data-bs="0"><span class="m">∃y≤x (y·y = x)</span></button>
+    <button class="btn small" data-bs="1"><span class="m">∃y (y·y = x)</span></button>
+    <button class="btn small" data-bs="2"><span class="m">∃s T(x, x, s)</span></button>
+  </div>
+  <div class="toolbar">x = <input type="range" id="bsX" min="0" max="24" value="9"> <b class="m" id="bsXv">9</b>
+    <button class="btn primary" id="bsGo"><span class="en">Search ▶</span><span class="zh">搜索 ▶</span></button></div>
+  <div class="stage"><div class="cellrow" id="bsRow"></div></div>
+  <div class="msg" id="bsMsg"></div>
+  <div class="def"><span class="en"><b>Definition.</b> For a term <span class="m">t</span> not containing <span class="m">y</span>, the <b>bounded quantifiers</b> are abbreviations:
+      <span class="m">∀y&lt;t φ :≡ ∀y (y&lt;t → φ)</span> and <span class="m">∃y&lt;t φ :≡ ∃y (y&lt;t ∧ φ)</span>.
+      The <b>Δ₀ formulas</b> (also written Σ₀ = Π₀) form the smallest class containing the atomic formulas and closed under <span class="m">¬, ∧, ∨, →</span> and bounded quantification.<br>
+      <b>Fact.</b> Every Δ₀ formula defines a decidable (indeed primitive recursive) relation on ℕ: to evaluate it, you only ever check finitely many cases.</span>
+    <span class="zh"><b>定义.</b> 设项 <span class="m">t</span> 中不含 <span class="m">y</span>，<b>有界量词</b>是如下缩写：
+      <span class="m">∀y&lt;t φ :≡ ∀y (y&lt;t → φ)</span>，<span class="m">∃y&lt;t φ :≡ ∃y (y&lt;t ∧ φ)</span>。
+      <b>Δ₀ 公式</b>（也记作 Σ₀ = Π₀）是包含全部原子公式、对 <span class="m">¬, ∧, ∨, →</span> 及有界量词封闭的最小公式类。<br>
+      <b>事实.</b> 每个 Δ₀ 公式在 ℕ 上定义的关系都是可判定的（其实是原始递归的）：求值时只需检查有限多个情形。</span></div>
+  <div class="warnbox"><span class="en"><b class="h">⚠ Common pitfall.</b> “Δ₀-definable” is <b>not</b> the same as “decidable”. Every Δ₀-definable set is decidable, but not conversely: Δ₀-definable sets can all be decided in linear space, and the space hierarchy theorem gives decidable sets that cannot. The class of <i>all</i> decidable sets will be called Δ⁰₁ (Step 3). Note the different typography: Δ₀ is a class of <i>formulas</i>; Δ⁰₁ is a class of <i>sets</i>.</span>
+    <span class="zh"><b class="h">⚠ 常见误区.</b> “Δ₀ 可定义”<b>不等于</b>“可判定”。Δ₀ 可定义集都可判定，反之不然：Δ₀ 可定义集都能在线性空间内判定，而空间层级定理给出了做不到这一点的可判定集。<i>全体</i>可判定集将记作 Δ⁰₁（第 3 步）。注意记号差别：Δ₀ 是<i>公式</i>类，Δ⁰₁ 是<i>集合</i>类。</span></div>
+  <div class="cy" id="cy1"></div>
+</section>
+
+<!-- ============ S2 ============ -->
+<section class="card" id="s2">
+  <div class="kicker">Step 2</div>
+  <h2><span class="en">Σ⁰ₙ and Π⁰ₙ: count the alternating blocks</span><span class="zh">Σ⁰ₙ 与 Π⁰ₙ：数交替的量词块</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置</span></span>:
+    <a href="#s1"><span class="en">Step 1 Δ₀</span><span class="zh">第 1 步 Δ₀</span></a>
+    <a href="lesson3.html"><span class="en">L3 prenex form</span><span class="zh">L3 前束范式</span></a></div>
+  <p class="core"><span class="en">Core idea: only <i>unbounded</i> quantifiers count, and only the number of <i>alternations</i> between ∃ and ∀ matters.</span>
+    <span class="zh">核心思想：只有<i>无界</i>量词才算数，而且只有 ∃ 与 ∀ 之间<i>交替</i>的次数才重要。</span></p>
+  <div class="def"><span class="en"><b>Definition.</b> For <span class="m">n ≥ 1</span>, a formula is <b>Σ⁰ₙ</b> if it has the form
+      <span class="m">∃ȳ₁ ∀ȳ₂ ∃ȳ₃ … Qȳₙ θ</span>, i.e. <span class="m">n</span> nonempty blocks of unbounded quantifiers that alternate, starting with ∃, followed by a Δ₀ matrix <span class="m">θ</span>. <b>Π⁰ₙ</b> is the same but starting with ∀.
+      A set <span class="m">A ⊆ ℕ</span> is <b>Σ⁰ₙ</b> (resp. Π⁰ₙ) if <span class="m">A = {m : ℕ ⊨ φ(m̄)}</span> for some Σ⁰ₙ (resp. Π⁰ₙ) formula <span class="m">φ(x)</span>. Relations on ℕᵏ are treated the same way.</span>
+    <span class="zh"><b>定义.</b> 设 <span class="m">n ≥ 1</span>。形如 <span class="m">∃ȳ₁ ∀ȳ₂ ∃ȳ₃ … Qȳₙ θ</span> 的公式称为 <b>Σ⁰ₙ 公式</b>：前面是 <span class="m">n</span> 个非空、交替出现、以 ∃ 开头的无界量词块，后面跟一个 Δ₀ 母式 <span class="m">θ</span>。以 ∀ 开头的则称为 <b>Π⁰ₙ 公式</b>。
+      若存在 Σ⁰ₙ（相应地 Π⁰ₙ）公式 <span class="m">φ(x)</span> 使 <span class="m">A = {m : ℕ ⊨ φ(m̄)}</span>，就称集合 <span class="m">A ⊆ ℕ</span> 是 <b>Σ⁰ₙ 集</b>（相应地 Π⁰ₙ 集）。ℕᵏ 上的关系同理。</span></div>
+  <h3><span class="en">The prefix classifier</span><span class="zh">量词前缀分类器</span></h3>
+  <p><span class="en">Build a quantifier prefix in front of a Δ₀ matrix θ, then press <b>Normalize</b> and watch the two collapsing rules run.</span>
+    <span class="zh">在 Δ₀ 母式 θ 前面搭一个量词前缀，然后按<b>规范化</b>，看两条压缩规则如何运作。</span></p>
+  <div class="toolbar">
+    <button class="btn" data-q="E"><span class="m">∃</span></button>
+    <button class="btn" data-q="A"><span class="m">∀</span></button>
+    <button class="btn" data-q="e"><span class="m">∃·&lt;·</span> <span class="il"><span class="en">bounded</span><span class="zh">有界</span></span></button>
+    <button class="btn" data-q="a"><span class="m">∀·&lt;·</span> <span class="il"><span class="en">bounded</span><span class="zh">有界</span></span></button>
+    <button class="btn ghost" id="pfBack">⌫</button>
+    <button class="btn ghost" id="pfClear"><span class="en">Clear</span><span class="zh">清空</span></button>
+    <button class="btn ghost" id="pfRand"><span class="en">Random 🎲</span><span class="zh">随机 🎲</span></button>
+    <button class="btn primary" id="pfGo"><span class="en">Normalize ▶</span><span class="zh">规范化 ▶</span></button>
+  </div>
+  <div class="qrow" id="pfRow"></div>
+  <div style="margin-top:10px" id="pfOut"></div>
+  <div class="msg" id="pfMsg"></div>
+  <div class="def"><span class="en"><b>Normal-form lemma</b> (true in ℕ). <br>
+      (a) <b>Like quantifiers merge.</b> <span class="m">∃y ∃z θ(y,z) ⟺ ∃w θ((w)₀,(w)₁)</span>, where <span class="m">w ↦ ((w)₀,(w)₁)</span> inverts a Δ₀-definable pairing such as Cantor's <span class="m">⟨y,z⟩ = (y+z)(y+z+1)/2 + y</span>. Same for ∀∀. Since <span class="m">(w)₀, (w)₁ ≤ w</span>, the decoding stays inside a Δ₀ matrix.<br>
+      (b) <b>Bounded quantifiers are absorbed.</b> <span class="m">∀y&lt;t ∃z θ ⟺ ∃w ∀y&lt;t ∃z&lt;w θ</span>: finitely many y need finitely many witnesses z, so one bound w covers them all (dually for <span class="m">∃y&lt;t ∀z</span>). This is the <b>collection (bounding) principle</b>. It holds in ℕ, and PA proves every instance, but weak fragments of arithmetic may not.<br>
+      (c) <b>Closure.</b> Σ⁰ₙ is closed under ∧, ∨, ∃y, ∃y&lt;t, ∀y&lt;t; Π⁰ₙ is closed under ∧, ∨, ∀y, ∃y&lt;t, ∀y&lt;t; and ¬ swaps Σ⁰ₙ with Π⁰ₙ. Hence every arithmetical formula is equivalent in ℕ to a Σ⁰ₙ or Π⁰ₙ formula for some n.</span>
+    <span class="zh"><b>范式引理</b>（在 ℕ 中成立）。<br>
+      (a) <b>同类量词合并.</b> <span class="m">∃y ∃z θ(y,z) ⟺ ∃w θ((w)₀,(w)₁)</span>，其中 <span class="m">w ↦ ((w)₀,(w)₁)</span> 是某个 Δ₀ 可定义配对函数的逆，例如康托尔配对 <span class="m">⟨y,z⟩ = (y+z)(y+z+1)/2 + y</span>。∀∀ 同理。由于 <span class="m">(w)₀, (w)₁ ≤ w</span>，解码仍可写在 Δ₀ 母式内。<br>
+      (b) <b>有界量词被吸收.</b> <span class="m">∀y&lt;t ∃z θ ⟺ ∃w ∀y&lt;t ∃z&lt;w θ</span>：有限多个 y 只需有限多个见证 z，取一个足够大的界 w 就能把它们全部罩住（<span class="m">∃y&lt;t ∀z</span> 对偶处理）。这就是<b>收集原理（有界化原理）</b>。它在 ℕ 中成立，PA 能证明它的每个实例，但较弱的算术片段未必能证明。<br>
+      (c) <b>封闭性.</b> Σ⁰ₙ 对 ∧、∨、∃y、∃y&lt;t、∀y&lt;t 封闭；Π⁰ₙ 对 ∧、∨、∀y、∃y&lt;t、∀y&lt;t 封闭；¬ 把 Σ⁰ₙ 与 Π⁰ₙ 互换。因此每个算术公式在 ℕ 中都等价于某个 Σ⁰ₙ 或 Π⁰ₙ 公式。</span></div>
+  <div class="warnbox"><span class="en"><b class="h">⚠ Common pitfall.</b> The classifier gives an <b>upper bound</b>. If a formula is Π⁰₂, the set it defines is Π⁰₂, but it may also be much simpler. For example, <span class="m">∀y ∃z (z = y + x)</span> is a Π⁰₂ formula that defines all of ℕ. To show a set is <i>not</i> simpler, you need a separate argument, such as completeness (Steps 4 and 7).</span>
+    <span class="zh"><b class="h">⚠ 常见误区.</b> 分类器给出的只是<b>上界</b>。公式是 Π⁰₂ 的，它定义的集合当然是 Π⁰₂ 集，但也可能简单得多。例如 <span class="m">∀y ∃z (z = y + x)</span> 是 Π⁰₂ 公式，定义的却是整个 ℕ。要说明一个集合<i>不能</i>更简单，必须另外论证，例如利用完全性（第 4、7 步）。</span></div>
+  <div class="cy" id="cy2"></div>
+</section>
+
+<!-- ============ S3 ============ -->
+<section class="card" id="s3">
+  <div class="kicker">Step 3</div>
+  <h2><span class="en">Δ⁰ₙ; Δ⁰₁ = decidable and Σ⁰₁ = r.e.</span><span class="zh">Δ⁰ₙ；Δ⁰₁ = 可判定，Σ⁰₁ = 递归可枚举</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置</span></span>:
+    <a href="#s2"><span class="en">Step 2</span><span class="zh">第 2 步</span></a>
+    <a href="lesson11.html#s5"><span class="en">L11 universal machine</span><span class="zh">L11 通用机</span></a>
+    <a href="lesson11.html#s7"><span class="en">L11 decidable vs r.e.</span><span class="zh">L11 可判定与递归可枚举</span></a></div>
+  <p class="core"><span class="en">Core idea: Σ⁰₁ means “a yes-answer has a finite certificate you can search for”. If both “yes” and “no” have such certificates, run both searches side by side and you can decide.</span>
+    <span class="zh">核心思想：Σ⁰₁ 意味着“答案为‘是’时存在一个可以搜出来的有限凭据”。如果“是”和“否”都有这样的凭据，两路搜索并行跑，就能判定。</span></p>
+  <div class="def"><span class="en"><b>Definition.</b> <span class="m">Δ⁰ₙ := Σ⁰ₙ ∩ Π⁰ₙ</span> (a class of <i>sets</i>: A is Δ⁰ₙ iff it has both a Σ⁰ₙ definition and a Π⁰ₙ definition).<br>
+      <b>Kleene normal form theorem.</b> There are a Δ₀-definable (in particular primitive recursive) relation <span class="m">T(e,x,s)</span> and a primitive recursive <span class="m">U</span> with <span class="m">φₑ(x) ≃ U(μs T(e,x,s))</span>. Here <span class="m">T(e,x,s)</span> says “s codes a halting computation of machine e on input x”. Hence <span class="m">Wₑ = dom φₑ = {x : ∃s T(e,x,s)}</span> is Σ⁰₁. Conversely, if <span class="m">A = {x : ∃y θ(x,y)}</span> with θ Δ₀, then A is the domain of the search “try y = 0, 1, 2, …”.<br>
+      <b>Theorem.</b> (i) A is Σ⁰₁ ⟺ A is r.e. &nbsp;(ii) A is decidable ⟺ A and <span class="m">ℕ∖A</span> are both r.e. &nbsp;Therefore <b>Δ⁰₁ = the decidable sets</b>.</span>
+    <span class="zh"><b>定义.</b> <span class="m">Δ⁰ₙ := Σ⁰ₙ ∩ Π⁰ₙ</span>（这是<i>集合</i>类：A 是 Δ⁰ₙ 集，当且仅当它既有 Σ⁰ₙ 定义，也有 Π⁰ₙ 定义）。<br>
+      <b>克莱尼范式定理.</b> 存在 Δ₀ 可定义（因而原始递归）的关系 <span class="m">T(e,x,s)</span> 和原始递归函数 <span class="m">U</span>，使得 <span class="m">φₑ(x) ≃ U(μs T(e,x,s))</span>。这里 <span class="m">T(e,x,s)</span> 的意思是“s 编码了机器 e 在输入 x 上的一个停机计算”。因此 <span class="m">Wₑ = dom φₑ = {x : ∃s T(e,x,s)}</span> 是 Σ⁰₁ 集。反过来，若 <span class="m">A = {x : ∃y θ(x,y)}</span> 且 θ 为 Δ₀，则 A 就是搜索程序“依次试 y = 0, 1, 2, …”的定义域。<br>
+      <b>定理.</b> (i) A 是 Σ⁰₁ 集 ⟺ A 递归可枚举；(ii) A 可判定 ⟺ A 与 <span class="m">ℕ∖A</span> 都递归可枚举。所以 <b>Δ⁰₁ = 可判定集</b>。</span></div>
+  <h3><span class="en">The race: two semi-deciders run in parallel</span><span class="zh">赛跑：两个半判定程序并行运行</span></h3>
+  <p><span class="en">Lane 1 searches for a certificate that <span class="m">x ∈ A</span>; lane 2 searches for a certificate that <span class="m">x ∉ A</span>. We alternate steps (dovetailing). For a decidable set, exactly one lane always finishes. For K there is no lane 2 at all.</span>
+    <span class="zh">第 1 道搜索“<span class="m">x ∈ A</span>”的凭据，第 2 道搜索“<span class="m">x ∉ A</span>”的凭据，两道轮流走一步（交错执行）。对可判定集，总有且只有一道会跑到终点。对 K 来说，第 2 道根本不存在。</span></p>
+  <div class="toolbar">
+    <button class="btn small sel" data-race="even"><span class="en">A = even numbers</span><span class="zh">A = 偶数集</span></button>
+    <button class="btn small" data-race="K"><span class="en">A = K (toy machines)</span><span class="zh">A = K（玩具机器）</span></button>
+    x = <input type="range" id="raceX" min="0" max="9" value="7"> <b class="m" id="raceXv">7</b>
+    <button class="btn primary" id="raceGo"><span class="en">Race ▶</span><span class="zh">开跑 ▶</span></button>
+  </div>
+  <div class="stage" id="raceStage"></div>
+  <div class="msg" id="raceMsg"></div>
+  <div class="warnbox"><span class="en"><b class="h">⚠ Common pitfall.</b> “Δ⁰₁ formula” is not a syntactic notion. The first quantifier of a formula is either ∃ or ∀, so no single prenex formula is “Δ”. Δ⁰ₙ is a property of <i>sets</i>: two different formulas, one Σ⁰ₙ and one Π⁰ₙ, define the same set in ℕ. And do not confuse Δ₀ (bounded formulas) with Δ⁰₁ (decidable sets).</span>
+    <span class="zh"><b class="h">⚠ 常见误区.</b> “Δ⁰₁ 公式”不是语法概念。前束公式的第一个量词非 ∃ 即 ∀，没有哪一个公式本身是“Δ”的。Δ⁰ₙ 是<i>集合</i>的性质：有两个不同的公式，一个 Σ⁰ₙ、一个 Π⁰ₙ，在 ℕ 中定义同一个集合。另外，别把 Δ₀（有界公式）与 Δ⁰₁（可判定集）混为一谈。</span></div>
+  <div class="cy" id="cy3"></div>
+</section>
+
+<!-- ============ S4 ============ -->
+<section class="card" id="s4">
+  <div class="kicker">Step 4</div>
+  <h2><span class="en">The picture: the arithmetical hierarchy ladder</span><span class="zh">全景：算术层级阶梯图</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置</span></span>:
+    <a href="#s2"><span class="en">Step 2</span><span class="zh">第 2 步</span></a>
+    <a href="#s3"><span class="en">Step 3</span><span class="zh">第 3 步</span></a>
+    <a href="lesson11.html#s8"><span class="en">L11 reductions</span><span class="zh">L11 归约</span></a></div>
+  <p class="core"><span class="en">Core idea: each level sits inside the next in a diamond pattern, and famous sets live at exact levels.</span>
+    <span class="zh">核心思想：各层以菱形方式逐级包含，著名的集合都恰好落在确定的层上。</span></p>
+  <p><span class="en">Arrows mean ⊆ (all of them are strict, see Step 5). Click a <b>class</b> for its definition, or a coloured <b>set</b> to see its defining formula and exact level. Notation: <span class="m">Wₑ,ₛ</span> is the finite part of <span class="m">Wₑ</span> enumerated within s steps, so “<span class="m">x ∈ Wₑ,ₛ</span>” is Δ₀ in <span class="m">e, x, s</span>.</span>
+    <span class="zh">箭头表示 ⊆（全部是真包含，见第 5 步）。点击<b>类</b>查看定义，点击彩色的<b>集合</b>查看定义公式与确切层级。记号：<span class="m">Wₑ,ₛ</span> 表示 s 步之内枚举出的 <span class="m">Wₑ</span> 的有限部分，所以“<span class="m">x ∈ Wₑ,ₛ</span>”关于 <span class="m">e, x, s</span> 是 Δ₀ 的。</span></p>
+  <div class="row">
+    <div class="col stage" style="flex:0 1 600px"><svg id="ladder" viewBox="70 0 630 640" width="600" height="610"></svg></div>
+    <div class="col infop" id="ladInfo" style="flex:1 1 240px"></div>
+  </div>
+  <div class="def"><span class="en"><b>Definition.</b> Let Γ be one of Σ⁰ₙ, Π⁰ₙ. A set A is <b>Γ-complete</b> if A ∈ Γ and <span class="m">B ≤_m A</span> for every B ∈ Γ (many-one reduction, Step 7).<br>
+      <b>Classification theorem</b> (standard; see Soare, Ch. IV). K is Σ⁰₁-complete; <span class="m">Fin = {e : Wₑ finite}</span> is Σ⁰₂-complete; <span class="m">Inf = {e : Wₑ infinite}</span> and <span class="m">Tot = {e : φₑ total}</span> are Π⁰₂-complete; <span class="m">Cof = {e : Wₑ cofinite}</span> and <span class="m">Rec = {e : Wₑ decidable}</span> are Σ⁰₃-complete; <span class="m">Cpl = {e : Wₑ ≡_T K}</span> is Σ⁰₄-complete.</span>
+    <span class="zh"><b>定义.</b> 设 Γ 为 Σ⁰ₙ 或 Π⁰ₙ。若 A ∈ Γ，并且对每个 B ∈ Γ 都有 <span class="m">B ≤_m A</span>（多一归约，见第 7 步），就称 A 是 <b>Γ-完全集</b>。<br>
+      <b>分类定理</b>（经典结果，见 Soare 第 IV 章）：K 是 Σ⁰₁-完全的；<span class="m">Fin = {e : Wₑ 有限}</span> 是 Σ⁰₂-完全的；<span class="m">Inf = {e : Wₑ 无限}</span> 与 <span class="m">Tot = {e : φₑ 全函数}</span> 是 Π⁰₂-完全的；<span class="m">Cof = {e : Wₑ 余有限}</span> 与 <span class="m">Rec = {e : Wₑ 可判定}</span> 是 Σ⁰₃-完全的；<span class="m">Cpl = {e : Wₑ ≡_T K}</span> 是 Σ⁰₄-完全的。</span></div>
+  <div class="warnbox"><span class="en"><b class="h">⚠ Common pitfall.</b> A dot on Σ⁰₂ means <i>exactly</i> there: in Σ⁰₂ but not in Π⁰₂ (so in particular not in Δ⁰₂ and not in any lower level). Membership alone (“Fin is Σ⁰₂”) is the easy upper bound; “not lower” comes from completeness plus the hierarchy theorem. Also note Σ⁰ₙ ∪ Π⁰ₙ ≠ Δ⁰ₙ₊₁: the middle diamond is not empty (try K ⊕ K̄).</span>
+    <span class="zh"><b class="h">⚠ 常见误区.</b> 点落在 Σ⁰₂ 上表示<i>恰好</i>在这一层：属于 Σ⁰₂ 但不属于 Π⁰₂（因而也不属于 Δ⁰₂ 及更低各层）。“Fin 是 Σ⁰₂ 集”只是容易的上界；“不会更低”要靠完全性加上层级定理。另外 Σ⁰ₙ ∪ Π⁰ₙ ≠ Δ⁰ₙ₊₁：中间的菱形并不空（看看 K ⊕ K̄）。</span></div>
+  <div class="cy" id="cy4"></div>
+</section>
+
+<!-- ============ S5 ============ -->
+<section class="card" id="s5">
+  <div class="kicker">Step 5</div>
+  <h2><span class="en">The hierarchy theorem: the ladder never collapses</span><span class="zh">层级定理：阶梯永不坍缩</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置</span></span>:
+    <a href="#s4"><span class="en">Step 4</span><span class="zh">第 4 步</span></a>
+    <a href="lesson11.html#s6"><span class="en">L11 halting by diagonalization</span><span class="zh">L11 停机问题与对角线</span></a>
+    <a href="lesson1.html#s8"><span class="en">L1 diagonal argument</span><span class="zh">L1 对角线论证</span></a></div>
+  <p class="core"><span class="en">Core idea: Σ⁰ₙ has a <i>universal set</i> listing all Σ⁰ₙ sets as rows. Flip the diagonal and you get a Π⁰ₙ set that is no row.</span>
+    <span class="zh">核心思想：Σ⁰ₙ 有一个<i>通用集</i>，把所有 Σ⁰ₙ 集列成一行一行。翻转对角线，就得到一个不在任何一行中的 Π⁰ₙ 集。</span></p>
+  <p><span class="en">Row e is the section <span class="m">U⁽ᵉ⁾ = {x : (e,x) ∈ Uₙ}</span>; ● means x ∈ U⁽ᵉ⁾. Every Σ⁰ₙ set appears as some row. Press <b>Diagonalize</b>, then <b>Suppose D is row e₀</b>.</span>
+    <span class="zh">第 e 行是截面 <span class="m">U⁽ᵉ⁾ = {x : (e,x) ∈ Uₙ}</span>；● 表示 x ∈ U⁽ᵉ⁾。每个 Σ⁰ₙ 集都会作为某一行出现。先点<b>对角化</b>，再点<b>假设 D 是第 e₀ 行</b>。</span></p>
+  <div class="toolbar">
+    <button class="btn primary" id="dgGo"><span class="en">Diagonalize ▶</span><span class="zh">对角化 ▶</span></button>
+    <button class="btn" id="dgSup"><span class="en">Suppose D is row e₀</span><span class="zh">假设 D 是第 e₀ 行</span></button>
+    <button class="btn ghost" id="dgNew"><span class="en">New table</span><span class="zh">换一张表</span></button>
+  </div>
+  <div class="stage"><svg id="diag" viewBox="0 0 640 480" width="640" height="480"></svg></div>
+  <div class="msg" id="dgMsg"></div>
+  <div class="def"><span class="en"><b>Hierarchy theorem.</b> For every <span class="m">n ≥ 1</span>:<br>
+      (1) There is a Σ⁰ₙ set <span class="m">Uₙ ⊆ ℕ²</span> such that the Σ⁰ₙ subsets of ℕ are exactly its sections <span class="m">U⁽ᵉ⁾</span>.<br>
+      (2) <span class="m">Σ⁰ₙ ≠ Π⁰ₙ</span>. Consequently <span class="m">Δ⁰ₙ ⊊ Σ⁰ₙ</span>, <span class="m">Δ⁰ₙ ⊊ Π⁰ₙ</span>, and <span class="m">Σ⁰ₙ ∪ Π⁰ₙ ⊊ Δ⁰ₙ₊₁</span>.</span>
+    <span class="zh"><b>层级定理.</b> 对每个 <span class="m">n ≥ 1</span>：<br>
+      (1) 存在 Σ⁰ₙ 集 <span class="m">Uₙ ⊆ ℕ²</span>，使得 ℕ 的 Σ⁰ₙ 子集恰好是它的各个截面 <span class="m">U⁽ᵉ⁾</span>。<br>
+      (2) <span class="m">Σ⁰ₙ ≠ Π⁰ₙ</span>。从而 <span class="m">Δ⁰ₙ ⊊ Σ⁰ₙ</span>、<span class="m">Δ⁰ₙ ⊊ Π⁰ₙ</span>，且 <span class="m">Σ⁰ₙ ∪ Π⁰ₙ ⊊ Δ⁰ₙ₊₁</span>。</span></div>
+  <div class="steps" id="pf5">
+    <div class="step"><h4><span class="il"><span class="en">Step 1 · A universal Σ⁰₁ set</span><span class="zh">第 1 步 · Σ⁰₁ 通用集</span></span></h4>
+      <p><span class="en"><span class="m">U₁ = {(e,x) : x ∈ Wₑ} = {(e,x) : ∃s T(e,x,s)}</span> is Σ⁰₁ by Kleene normal form, and every Σ⁰₁ set is some <span class="m">Wₑ</span>.</span>
+        <span class="zh">由克莱尼范式，<span class="m">U₁ = {(e,x) : x ∈ Wₑ} = {(e,x) : ∃s T(e,x,s)}</span> 是 Σ⁰₁ 集，而每个 Σ⁰₁ 集都是某个 <span class="m">Wₑ</span>。</span></p></div>
+    <div class="step"><h4><span class="il"><span class="en">Step 2 · Climbing one level</span><span class="zh">第 2 步 · 上升一层</span></span></h4>
+      <p><span class="en">A Σ⁰ₙ₊₁ set has the form <span class="m">{x : ∃y R(x,y)}</span> with R Π⁰ₙ; its complement is Σ⁰ₙ, so (coding the pair by <span class="m">⟨x,y⟩</span>) it is a section of Uₙ. Put <span class="m">Uₙ₊₁(e,x) :⟺ ∃y ¬Uₙ(e, ⟨x,y⟩)</span>. This is Σ⁰ₙ₊₁, and its sections are exactly the Σ⁰ₙ₊₁ sets.</span>
+        <span class="zh">Σ⁰ₙ₊₁ 集形如 <span class="m">{x : ∃y R(x,y)}</span>，其中 R 为 Π⁰ₙ；R 的补集是 Σ⁰ₙ 的，所以（用 <span class="m">⟨x,y⟩</span> 编码二元组）它是 Uₙ 的某个截面。令 <span class="m">Uₙ₊₁(e,x) :⟺ ∃y ¬Uₙ(e, ⟨x,y⟩)</span>，它是 Σ⁰ₙ₊₁ 的，其截面恰好是全体 Σ⁰ₙ₊₁ 集。</span></p></div>
+    <div class="step"><h4><span class="il"><span class="en">Step 3 · The diagonal</span><span class="zh">第 3 步 · 对角线</span></span></h4>
+      <p><span class="en">Let <span class="m">D = {x : (x,x) ∉ Uₙ}</span>. It is Π⁰ₙ (negation of a Σ⁰ₙ condition with x substituted twice). If D were Σ⁰ₙ, then <span class="m">D = U⁽ᵉ⁾</span> for some e, and <span class="m">e ∈ D ⟺ (e,e) ∉ Uₙ ⟺ e ∉ U⁽ᵉ⁾ = D</span>. Contradiction. So <span class="m">D ∈ Π⁰ₙ ∖ Σ⁰ₙ</span>, and its complement is in <span class="m">Σ⁰ₙ ∖ Π⁰ₙ</span>.</span>
+        <span class="zh">令 <span class="m">D = {x : (x,x) ∉ Uₙ}</span>。它是 Π⁰ₙ 集（把 x 代入两处后取 Σ⁰ₙ 条件的否定）。若 D 是 Σ⁰ₙ 集，则存在 e 使 <span class="m">D = U⁽ᵉ⁾</span>，于是 <span class="m">e ∈ D ⟺ (e,e) ∉ Uₙ ⟺ e ∉ U⁽ᵉ⁾ = D</span>，矛盾。所以 <span class="m">D ∈ Π⁰ₙ ∖ Σ⁰ₙ</span>，其补集属于 <span class="m">Σ⁰ₙ ∖ Π⁰ₙ</span>。</span></p></div>
+    <div class="step"><h4><span class="il"><span class="en">Step 4 · All inclusions are strict</span><span class="zh">第 4 步 · 所有包含都是真包含</span></span></h4>
+      <p><span class="en"><span class="m">D̄ ∈ Σ⁰ₙ∖Δ⁰ₙ</span> and <span class="m">D ∈ Π⁰ₙ∖Δ⁰ₙ</span>. For the top: <span class="m">D̄ ⊕ D = {2x : x ∈ D̄} ∪ {2x+1 : x ∈ D}</span> is in Δ⁰ₙ₊₁ (both halves are), but it is neither Σ⁰ₙ nor Π⁰ₙ, because D and D̄ are many-one reducible to it via <span class="m">x ↦ 2x+1</span> and <span class="m">x ↦ 2x</span>, and Σ⁰ₙ, Π⁰ₙ are closed downward under ≤_m. ∎</span>
+        <span class="zh"><span class="m">D̄ ∈ Σ⁰ₙ∖Δ⁰ₙ</span>，<span class="m">D ∈ Π⁰ₙ∖Δ⁰ₙ</span>。至于顶部：<span class="m">D̄ ⊕ D = {2x : x ∈ D̄} ∪ {2x+1 : x ∈ D}</span> 属于 Δ⁰ₙ₊₁（两半都是），却既不是 Σ⁰ₙ 也不是 Π⁰ₙ，因为 D 与 D̄ 分别经 <span class="m">x ↦ 2x+1</span> 与 <span class="m">x ↦ 2x</span> 多一归约到它，而 Σ⁰ₙ、Π⁰ₙ 对 ≤_m 向下封闭。∎</span></p></div>
+  </div>
+  <div class="toolbar"><button class="btn primary" data-next="pf5"><span class="en">Reveal next step</span><span class="zh">揭晓下一步</span></button>
+    <button class="btn ghost" data-all="pf5"><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+  <div class="warnbox"><span class="en"><b class="h">⚠ Common pitfall.</b> The diagonal set D is not “outside arithmetic”. It sits one notch away, in Π⁰ₙ. Diagonalizing against a <i>list</i> only escapes that list. Also, Δ⁰ₙ has <b>no</b> universal set (no Δ⁰ₙ set U ⊆ ℕ² whose sections are exactly the Δ⁰ₙ sets): the same diagonal would build a Δ⁰ₙ set missing from the list. That is why Δ classes are less tidy than Σ and Π.</span>
+    <span class="zh"><b class="h">⚠ 常见误区.</b> 对角集 D 并没有跑到“算术之外”，它只偏离了一格，落在 Π⁰ₙ 中。对一份<i>清单</i>做对角化，只能逃出这份清单。另外，Δ⁰ₙ <b>没有</b>通用集（不存在这样的 Δ⁰ₙ 集 U ⊆ ℕ²，其截面恰好是全体 Δ⁰ₙ 集）：同样的对角线会造出一个清单里没有的 Δ⁰ₙ 集。所以 Δ 类不如 Σ、Π 类规整。</span></div>
+  <div class="cy" id="cy5"></div>
+</section>
+
+<!-- ============ S6 ============ -->
+<section class="card" id="s6">
+  <div class="kicker">Step 6</div>
+  <h2><span class="en">Oracle machines, Turing reducibility, Turing degrees</span><span class="zh">谕示机、图灵归约与图灵度</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置</span></span>:
+    <a href="lesson11.html#s1"><span class="en">L11 Turing machines</span><span class="zh">L11 图灵机</span></a>
+    <a href="lesson6.html"><span class="en">L6 equivalence classes</span><span class="zh">L6 等价类</span></a></div>
+  <p class="core"><span class="en">Core idea: give a machine a black box that instantly answers “is n ∈ B?”. Whatever the machine can then decide is “computable from B”.</span>
+    <span class="zh">核心思想：给机器配一个黑盒，它能瞬间回答“n ∈ B 吗？”。机器借此能判定的一切，就叫“由 B 可计算”。</span></p>
+  <div class="toolbar">
+    <button class="btn small sel" data-orc="comp"><span class="en">A = complement of B</span><span class="zh">A = B 的补集</span></button>
+    <button class="btn small" data-orc="pair"><span class="en">x, x+1 both in B</span><span class="zh">x 与 x+1 都在 B 中</span></button>
+    <button class="btn small" data-orc="adapt"><span class="en">adaptive query</span><span class="zh">自适应提问</span></button>
+    <button class="btn small" data-orc="parity"><span class="en">|B ∩ [0,x]| even</span><span class="zh">|B ∩ [0,x]| 为偶数</span></button>
+  </div>
+  <div class="toolbar">x = <input type="range" id="orcX" min="0" max="10" value="4"> <b class="m" id="orcXv">4</b>
+    <button class="btn primary" id="orcGo"><span class="en">Run Φ^B(x) ▶</span><span class="zh">运行 Φ^B(x) ▶</span></button>
+    <button class="btn ghost" id="orcNew"><span class="en">New oracle B</span><span class="zh">换一个谕示 B</span></button>
+    <button class="btn ghost" id="orcPeek"><span class="en">Peek inside B</span><span class="zh">偷看 B 的内部</span></button></div>
+  <div class="stage"><svg id="orcSvg" viewBox="0 0 780 250" width="780" height="250"></svg>
+    <div style="margin-top:6px"><span class="muted" style="font-size:13px"><span class="il"><span class="en">Oracle B (black box; purple = bits actually queried, i.e. the use)</span><span class="zh">谕示 B（黑盒；紫色为实际被查询的位，即“使用”）</span></span></span>
+    <div class="bitstrip" id="orcBits"></div></div></div>
+  <div class="msg" id="orcMsg"></div>
+  <div class="def"><span class="en"><b>Definition.</b> An <b>oracle Turing machine</b> is a Turing machine with an extra instruction “query n”, answered in one step by an oracle set X. <span class="m">Φₑ^X</span> denotes the partial function computed by the e-th such machine with oracle X.<br>
+      <span class="m">A ≤_T B</span> (<b>A is Turing reducible to B</b>) iff there is an e with <span class="m">Φₑ^B = χ_A</span> (total, the characteristic function of A).
+      <span class="m">A ≡_T B</span> iff <span class="m">A ≤_T B</span> and <span class="m">B ≤_T A</span>. This is an equivalence relation; its classes are the <b>Turing degrees</b>, written <span class="m">deg(A)</span> or bold <b>a</b>, partially ordered by <span class="m">deg(A) ≤ deg(B) :⟺ A ≤_T B</span>. The degree of the computable sets is <b>0</b>.<br>
+      <b>Use principle.</b> A halting computation <span class="m">Φₑ^X(x)</span> asks only finitely many questions. So if <span class="m">Y</span> agrees with X on those questions, <span class="m">Φₑ^Y(x)</span> gives the same answer.</span>
+    <span class="zh"><b>定义.</b> <b>谕示图灵机</b>是多了一条指令“询问 n”的图灵机，由谕示集 X 一步作答。<span class="m">Φₑ^X</span> 表示第 e 台这种机器以 X 为谕示时计算的部分函数。<br>
+      <span class="m">A ≤_T B</span>（<b>A 图灵归约于 B</b>）当且仅当存在 e 使 <span class="m">Φₑ^B = χ_A</span>（全函数，即 A 的特征函数）。
+      <span class="m">A ≡_T B</span> 当且仅当 <span class="m">A ≤_T B</span> 且 <span class="m">B ≤_T A</span>。这是等价关系，其等价类称为<b>图灵度</b>，记作 <span class="m">deg(A)</span> 或粗体 <b>a</b>，偏序由 <span class="m">deg(A) ≤ deg(B) :⟺ A ≤_T B</span> 给出。可计算集所在的度记为 <b>0</b>。<br>
+      <b>使用原理.</b> 一个停机的计算 <span class="m">Φₑ^X(x)</span> 只问了有限多个问题。所以只要 Y 在这些问题上与 X 一致，<span class="m">Φₑ^Y(x)</span> 就给出同样的结果。</span></div>
+  <div class="warnbox"><span class="en"><b class="h">⚠ Common pitfall.</b> <span class="m">A ≤_T B</span> says nothing about <span class="m">A ⊆ B</span>, about size, or about efficiency. The oracle machine may ask many questions, choose later questions based on earlier answers, and post-process the answers (all four demos do some of this). Also, ≤_T is a <i>pre</i>order on sets; it becomes a partial order only on degrees.</span>
+    <span class="zh"><b class="h">⚠ 常见误区.</b> <span class="m">A ≤_T B</span> 与 <span class="m">A ⊆ B</span>、集合大小、计算效率都毫无关系。谕示机可以问许多问题，可以根据之前的回答决定下一个问题，也可以对回答再加工（上面四个演示各有体现）。另外，≤_T 在集合上只是<i>预</i>序，到了图灵度上才成为偏序。</span></div>
+  <div class="cy" id="cy6"></div>
+</section>
+
+<!-- ============ S7 ============ -->
+<section class="card" id="s7">
+  <div class="kicker">Step 7</div>
+  <h2><span class="en">Many-one vs Turing reducibility; completeness</span><span class="zh">多一归约与图灵归约；完全性</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置</span></span>:
+    <a href="#s6"><span class="en">Step 6</span><span class="zh">第 6 步</span></a>
+    <a href="lesson11.html#s8"><span class="en">L11 reductions</span><span class="zh">L11 归约</span></a></div>
+  <p class="core"><span class="en">Core idea: a many-one reduction is a Turing reduction with exactly one question whose answer must be passed on <i>unchanged</i>. That restriction keeps Σ and Π apart.</span>
+    <span class="zh">核心思想：多一归约是一种特殊的图灵归约：只问一个问题，而且回答必须<i>原样</i>交出。正是这个限制把 Σ 和 Π 区分开来。</span></p>
+  <div class="stage"><svg id="mtSvg" viewBox="0 0 780 230" width="780" height="230"></svg></div>
+  <div class="def"><span class="en"><b>Definition.</b> <span class="m">A ≤_m B</span> iff there is a total computable f with <span class="m">∀x (x ∈ A ⟺ f(x) ∈ B)</span>.<br>
+      <b>Facts.</b> (1) <span class="m">A ≤_m B ⟹ A ≤_T B</span>. (2) For n ≥ 1, Σ⁰ₙ and Π⁰ₙ are closed downward under ≤_m: if <span class="m">B ∈ Σ⁰ₙ</span> and <span class="m">A ≤_m B</span>, then <span class="m">x ∈ A ⟺ ∃y (f(x) = y ∧ y ∈ B)</span> is Σ⁰ₙ. (3) Σ⁰₁ is <b>not</b> closed downward under ≤_T: <span class="m">K̄ ≤_T K</span> but K̄ is not r.e. Hence <span class="m">K̄ ≰_m K</span>, and ≤_T is strictly coarser than ≤_m.<br>
+      Completeness (Step 4) is always meant with respect to ≤_m. If A is Σ⁰ₙ-complete, then Ā is Π⁰ₙ-complete (the same f works).</span>
+    <span class="zh"><b>定义.</b> <span class="m">A ≤_m B</span> 当且仅当存在可计算全函数 f，使 <span class="m">∀x (x ∈ A ⟺ f(x) ∈ B)</span>。<br>
+      <b>事实.</b> (1) <span class="m">A ≤_m B ⟹ A ≤_T B</span>。(2) 当 n ≥ 1 时，Σ⁰ₙ 与 Π⁰ₙ 对 ≤_m 向下封闭：若 <span class="m">B ∈ Σ⁰ₙ</span> 且 <span class="m">A ≤_m B</span>，则 <span class="m">x ∈ A ⟺ ∃y (f(x) = y ∧ y ∈ B)</span> 是 Σ⁰ₙ 的。(3) Σ⁰₁ 对 ≤_T <b>不</b>向下封闭：<span class="m">K̄ ≤_T K</span>，但 K̄ 不是递归可枚举的。所以 <span class="m">K̄ ≰_m K</span>，≤_T 比 ≤_m 严格更粗。<br>
+      完全性（第 4 步）总是相对于 ≤_m 而言。若 A 是 Σ⁰ₙ-完全的，则 Ā 是 Π⁰ₙ-完全的（用同一个 f 即可）。</span></div>
+  <h3><span class="en">Sort the reductions</span><span class="zh">给归约分类</span></h3>
+  <p><span class="en">Click a card to cycle it through the zones: tray → ≤_m holds → only ≤_T holds → neither. Then check. (Use the ladder in Step 4 and Post's theorem in Step 8 if you need them.)</span>
+    <span class="zh">点击卡片使它在各区之间循环：待分类 → ≤_m 成立 → 仅 ≤_T 成立 → 都不成立。放好后检查。（需要时可参考第 4 步的阶梯图和第 8 步的波斯特定理。）</span></p>
+  <div class="zone tray"><div class="chips" id="rsTray"></div></div>
+  <div class="zones3" style="margin-top:10px">
+    <div class="zone obj"><h4><span class="il"><span class="en">≤_m holds</span><span class="zh">≤_m 成立</span></span></h4><div class="chips" id="rsM"></div></div>
+    <div class="zone meta"><h4><span class="il"><span class="en">≤_T but not ≤_m</span><span class="zh">≤_T 成立但 ≤_m 不成立</span></span></h4><div class="chips" id="rsT"></div></div>
+    <div class="zone" style="background:#f1efe7;border:2px solid #ccc"><h4><span class="il"><span class="en">neither</span><span class="zh">都不成立</span></span></h4><div class="chips" id="rsN"></div></div>
+  </div>
+  <div class="toolbar"><button class="btn primary" id="rsCheck"><span class="en">Check</span><span class="zh">检查</span></button>
+    <button class="btn ghost" id="rsShow"><span class="en">Show answer</span><span class="zh">显示答案</span></button></div>
+  <div class="msg" id="rsMsg"></div>
+  <div class="warnbox"><span class="en"><b class="h">⚠ Common pitfall.</b> “K and K̄ have the same Turing degree” is true, yet one is Σ⁰₁ and the other Π⁰₁. Turing degree alone does not tell you whether a set is Σ or Π. That information lives in ≤_m.</span>
+    <span class="zh"><b class="h">⚠ 常见误区.</b> “K 与 K̄ 图灵度相同”是对的，可一个是 Σ⁰₁，另一个是 Π⁰₁。单看图灵度，分不出一个集合是 Σ 还是 Π；这一信息保存在 ≤_m 里。</span></div>
+  <div class="cy" id="cy7"></div>
+</section>
+
+<!-- ============ S8 ============ -->
+<section class="card" id="s8">
+  <div class="kicker">Step 8</div>
+  <h2><span class="en">The jump and Post's theorem</span><span class="zh">图灵跳跃与波斯特定理</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置</span></span>:
+    <a href="#s5"><span class="en">Step 5</span><span class="zh">第 5 步</span></a>
+    <a href="#s6"><span class="en">Step 6</span><span class="zh">第 6 步</span></a>
+    <a href="#s7"><span class="en">Step 7</span><span class="zh">第 7 步</span></a></div>
+  <p class="core"><span class="en">Core idea: relativize the halting problem to an oracle and you climb one rung. Each rung of the jump ladder is exactly one level of the quantifier hierarchy.</span>
+    <span class="zh">核心思想：把停机问题相对化到谕示上，就上了一级台阶。跳跃阶梯的每一级，恰好对应量词层级的一层。</span></p>
+  <div class="def"><span class="en"><b>Definition.</b> The <b>jump</b> of A is <span class="m">A′ = {e : Φₑ^A(e)↓}</span>, the halting problem for machines with oracle A. Iterate: <span class="m">∅⁽⁰⁾ = ∅</span>, <span class="m">∅⁽ⁿ⁺¹⁾ = (∅⁽ⁿ⁾)′</span>. So <span class="m">∅′ ≡ K</span> (indeed <span class="m">∅′ = K</span> up to the harmless difference between plain and oracle machine indices).<br>
+      <b>Jump theorem.</b> (i) A′ is r.e. in A; (ii) <span class="m">A′ ≰_T A</span>, so <span class="m">A &lt;_T A′</span>; (iii) B is r.e. in A ⟺ <span class="m">B ≤_m A′</span>; (iv) <span class="m">A ≤_T B ⟹ A′ ≤_m B′</span>. By (iv) the jump is well defined on degrees: <span class="m">a ↦ a′</span>, with <span class="m">a &lt; a′</span>.</span>
+    <span class="zh"><b>定义.</b> A 的<b>跳跃</b>是 <span class="m">A′ = {e : Φₑ^A(e)↓}</span>，即以 A 为谕示的机器的停机问题。迭代：<span class="m">∅⁽⁰⁾ = ∅</span>，<span class="m">∅⁽ⁿ⁺¹⁾ = (∅⁽ⁿ⁾)′</span>。于是 <span class="m">∅′ ≡ K</span>（若不计普通机器与谕示机器编号上的无关紧要的差别，可直接说 <span class="m">∅′ = K</span>）。<br>
+      <b>跳跃定理.</b> (i) A′ 关于 A 递归可枚举；(ii) <span class="m">A′ ≰_T A</span>，故 <span class="m">A &lt;_T A′</span>；(iii) B 关于 A 递归可枚举 ⟺ <span class="m">B ≤_m A′</span>；(iv) <span class="m">A ≤_T B ⟹ A′ ≤_m B′</span>。由 (iv)，跳跃在图灵度上有良定义：<span class="m">a ↦ a′</span>，且 <span class="m">a &lt; a′</span>。</span></div>
+  <p><span class="en">Click a rung (or press <b>Climb</b>) to see what that oracle buys you.</span>
+    <span class="zh">点击某一级台阶（或按<b>攀登</b>），看看这个谕示能帮你做什么。</span></p>
+  <div class="toolbar"><button class="btn primary" id="plClimb"><span class="en">Climb ▶</span><span class="zh">攀登 ▶</span></button></div>
+  <div class="row">
+    <div class="col stage" style="flex:0 1 430px"><svg id="postSvg" viewBox="0 0 420 520" width="420" height="520"></svg></div>
+    <div class="col infop" id="postInfo"></div>
+  </div>
+  <div class="def"><span class="en"><b>Post's theorem.</b> For every <span class="m">n ≥ 0</span>:<br>
+      (a) <span class="m">B ∈ Σ⁰ₙ₊₁ ⟺ B</span> is r.e. in <span class="m">∅⁽ⁿ⁾</span>;<br>
+      (b) <span class="m">∅⁽ⁿ⁺¹⁾</span> is Σ⁰ₙ₊₁-complete;<br>
+      (c) <span class="m">B ∈ Δ⁰ₙ₊₁ ⟺ B ≤_T ∅⁽ⁿ⁾</span>.<br>
+      Hence a set is arithmetical (in some Σ⁰ₙ) iff it is <span class="m">≤_T ∅⁽ⁿ⁾</span> for some n.</span>
+    <span class="zh"><b>波斯特定理.</b> 对每个 <span class="m">n ≥ 0</span>：<br>
+      (a) <span class="m">B ∈ Σ⁰ₙ₊₁ ⟺ B</span> 关于 <span class="m">∅⁽ⁿ⁾</span> 递归可枚举；<br>
+      (b) <span class="m">∅⁽ⁿ⁺¹⁾</span> 是 Σ⁰ₙ₊₁-完全的；<br>
+      (c) <span class="m">B ∈ Δ⁰ₙ₊₁ ⟺ B ≤_T ∅⁽ⁿ⁾</span>。<br>
+      因此，一个集合是算术集（属于某个 Σ⁰ₙ）当且仅当它对某个 n 满足 <span class="m">≤_T ∅⁽ⁿ⁾</span>。</span></div>
+  <div class="steps" id="pf8">
+    <div class="step"><h4><span class="il"><span class="en">Base n = 0</span><span class="zh">奠基 n = 0</span></span></h4>
+      <p><span class="en">(a) is Step 3 (Σ⁰₁ = r.e.), (b) says ∅′ = K is Σ⁰₁-complete (L11), and (c) says Δ⁰₁ = computable. We now assume (a)–(c) for n and prove them for n+1.</span>
+        <span class="zh">(a) 就是第 3 步（Σ⁰₁ = 递归可枚举），(b) 是说 ∅′ = K 是 Σ⁰₁-完全的（L11），(c) 是说 Δ⁰₁ = 可计算。下面假设 (a)–(c) 对 n 成立，证明它们对 n+1 成立。</span></p></div>
+    <div class="step"><h4><span class="il"><span class="en">(a) ⟹: quantifiers become oracle questions</span><span class="zh">(a) ⟹：量词变成谕示问题</span></span></h4>
+      <p><span class="en">Let <span class="m">B = {x : ∃y R(x,y)}</span> with R ∈ Π⁰ₙ₊₁ (an arbitrary Σ⁰ₙ₊₂ set). Then <span class="m">¬R ∈ Σ⁰ₙ₊₁</span>, which by the induction hypothesis (a) is r.e. in ∅⁽ⁿ⁾, hence <span class="m">≤_m ∅⁽ⁿ⁺¹⁾</span> by jump theorem (iii). So R is decidable from the oracle ∅⁽ⁿ⁺¹⁾ (ask one question, flip the answer). Searching y = 0, 1, 2, … with that oracle enumerates B. So every Σ⁰ₙ₊₂ set is r.e. in ∅⁽ⁿ⁺¹⁾.</span>
+        <span class="zh">设 <span class="m">B = {x : ∃y R(x,y)}</span>，R ∈ Π⁰ₙ₊₁（这是一个一般的 Σ⁰ₙ₊₂ 集）。则 <span class="m">¬R ∈ Σ⁰ₙ₊₁</span>，由归纳假设 (a) 它关于 ∅⁽ⁿ⁾ 递归可枚举，再由跳跃定理 (iii) 得 <span class="m">¬R ≤_m ∅⁽ⁿ⁺¹⁾</span>。所以借助谕示 ∅⁽ⁿ⁺¹⁾ 就能判定 R（问一个问题，再把回答取反）。用这个谕示依次搜索 y = 0, 1, 2, …，就能枚举 B。因此每个 Σ⁰ₙ₊₂ 集都关于 ∅⁽ⁿ⁺¹⁾ 递归可枚举。</span></p></div>
+    <div class="step"><h4><span class="il"><span class="en">(a) ⟸: the use principle turns an oracle run into a formula</span><span class="zh">(a) ⟸：使用原理把谕示运行写成公式</span></span></h4>
+      <p><span class="en">Let <span class="m">B = dom Φₑ^{∅⁽ⁿ⁺¹⁾}</span>. By the use principle, <span class="m">x ∈ B ⟺ ∃σ ∃s [Φₑ,ₛ^σ(x)↓ ∧ σ ≺ ∅⁽ⁿ⁺¹⁾]</span>, where σ ranges over finite 0/1 strings. The first conjunct is decidable. The second says “for each i &lt; |σ|: σ(i) = 1 → i ∈ ∅⁽ⁿ⁺¹⁾ and σ(i) = 0 → i ∉ ∅⁽ⁿ⁺¹⁾”. By (b) at n, that is a bounded conjunction of Σ⁰ₙ₊₁ and Π⁰ₙ₊₁ conditions, hence Σ⁰ₙ₊₂ after absorbing the bounded quantifier (Step 2). So B ∈ Σ⁰ₙ₊₂.</span>
+        <span class="zh">设 <span class="m">B = dom Φₑ^{∅⁽ⁿ⁺¹⁾}</span>。由使用原理，<span class="m">x ∈ B ⟺ ∃σ ∃s [Φₑ,ₛ^σ(x)↓ ∧ σ ≺ ∅⁽ⁿ⁺¹⁾]</span>，其中 σ 取遍有限 0/1 串。第一个合取项可判定。第二个是说“对每个 i &lt; |σ|：σ(i) = 1 → i ∈ ∅⁽ⁿ⁺¹⁾，σ(i) = 0 → i ∉ ∅⁽ⁿ⁺¹⁾”。由 (b) 在 n 处成立，这是 Σ⁰ₙ₊₁ 与 Π⁰ₙ₊₁ 条件的有界合取，吸收有界量词（第 2 步）后是 Σ⁰ₙ₊₂ 的。所以 B ∈ Σ⁰ₙ₊₂。</span></p></div>
+    <div class="step"><h4><span class="il"><span class="en">(b) and (c) at the next level</span><span class="zh">下一层的 (b) 与 (c)</span></span></h4>
+      <p><span class="en">(b): ∅⁽ⁿ⁺²⁾ is r.e. in ∅⁽ⁿ⁺¹⁾, so it is in Σ⁰ₙ₊₂ by (a). Every Σ⁰ₙ₊₂ set is r.e. in ∅⁽ⁿ⁺¹⁾, hence <span class="m">≤_m ∅⁽ⁿ⁺²⁾</span> by jump theorem (iii). (c): B ∈ Δ⁰ₙ₊₂ ⟺ B and B̄ are both r.e. in ∅⁽ⁿ⁺¹⁾ (by (a)) ⟺ <span class="m">B ≤_T ∅⁽ⁿ⁺¹⁾</span> (Step 3's theorem (ii), relativized to the oracle). ∎</span>
+        <span class="zh">(b)：∅⁽ⁿ⁺²⁾ 关于 ∅⁽ⁿ⁺¹⁾ 递归可枚举，由 (a) 它属于 Σ⁰ₙ₊₂。每个 Σ⁰ₙ₊₂ 集都关于 ∅⁽ⁿ⁺¹⁾ 递归可枚举，由跳跃定理 (iii) 便 <span class="m">≤_m ∅⁽ⁿ⁺²⁾</span>。(c)：B ∈ Δ⁰ₙ₊₂ ⟺ B 与 B̄ 都关于 ∅⁽ⁿ⁺¹⁾ 递归可枚举（由 (a)）⟺ <span class="m">B ≤_T ∅⁽ⁿ⁺¹⁾</span>（第 3 步定理 (ii) 的相对化版本）。∎</span></p></div>
+  </div>
+  <div class="toolbar"><button class="btn primary" data-next="pf8"><span class="en">Reveal next step</span><span class="zh">揭晓下一步</span></button>
+    <button class="btn ghost" data-all="pf8"><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+  <div class="warnbox"><span class="en"><b class="h">⚠ Common pitfall.</b> Watch the index shift. ∅⁽ⁿ⁾ itself sits at Σ⁰ₙ, but as an <i>oracle</i> it serves level n+1: things <i>computable</i> from ∅⁽ⁿ⁾ form Δ⁰ₙ₊₁, and things <i>r.e.</i> in ∅⁽ⁿ⁾ form Σ⁰ₙ₊₁. “Computable from ∅′” (Δ⁰₂) is strictly smaller than “r.e. in ∅′” (Σ⁰₂). Fin is in the second class but not the first.</span>
+    <span class="zh"><b class="h">⚠ 常见误区.</b> 注意下标错位。∅⁽ⁿ⁾ 本身位于 Σ⁰ₙ，但作为<i>谕示</i>它服务于第 n+1 层：由 ∅⁽ⁿ⁾ <i>可计算</i>的集合构成 Δ⁰ₙ₊₁，关于 ∅⁽ⁿ⁾ <i>递归可枚举</i>的集合构成 Σ⁰ₙ₊₁。“由 ∅′ 可计算”（Δ⁰₂）严格小于“关于 ∅′ 递归可枚举”（Σ⁰₂）：Fin 属于后者而不属于前者。</span></div>
+  <div class="cy" id="cy8"></div>
+</section>
+
+<!-- ============ S9 ============ -->
+<section class="card" id="s9">
+  <div class="kicker">Step 9</div>
+  <h2><span class="en">The structure of the degrees</span><span class="zh">图灵度的结构</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置</span></span>:
+    <a href="#s6"><span class="en">Step 6</span><span class="zh">第 6 步</span></a>
+    <a href="#s8"><span class="en">Step 8</span><span class="zh">第 8 步</span></a>
+    <a href="lesson8.html"><span class="en">L8 partial orders</span><span class="zh">L8 偏序</span></a></div>
+  <p class="core"><span class="en">Core idea: the degrees are not a ladder. Between 0 and 0′ there are incomparable degrees, built by diagonalizing against every reduction one at a time.</span>
+    <span class="zh">核心思想：图灵度不是一架单线梯子。在 0 与 0′ 之间存在互不可比较的度，构造方法是逐一对每个归约进行对角化。</span></p>
+  <div class="row">
+    <div class="col stage" style="flex:0 1 430px"><svg id="degSvg" viewBox="0 0 420 470" width="420" height="470"></svg></div>
+    <div class="col infop" id="degInfo"></div>
+  </div>
+  <div class="def"><span class="en"><b>Theorems</b> (all provable in ZFC).<br>
+      • <b>Kleene–Post (1954).</b> There are sets <span class="m">A, B ≤_T ∅′</span> with <span class="m">A ≰_T B</span> and <span class="m">B ≰_T A</span>. So the degrees are <b>not linearly ordered</b>.<br>
+      • <b>Post's problem (1944).</b> Is there an r.e. degree strictly between <b>0</b> and <b>0′</b>? <b>Friedberg (1957), Muchnik (1956):</b> yes. There are r.e. sets A, B with <span class="m">A ≰_T B</span> and <span class="m">B ≰_T A</span>; then <span class="m">0 &lt; deg(A), deg(B) &lt; 0′</span>. The proof introduced the <b>priority method</b> (finite injury). We state it without proof.<br>
+      • The degrees form an <b>upper semilattice</b>: <span class="m">deg(A ⊕ B)</span> is the least upper bound of deg(A) and deg(B). They do not form a lattice, since some pairs have no greatest lower bound. There are <span class="m">2^ℵ₀</span> degrees, each degree contains only countably many sets, and each degree has only countably many degrees below it.<br>
+      • <b>ω-jump.</b> <span class="m">∅⁽ω⁾ = {⟨n,x⟩ : x ∈ ∅⁽ⁿ⁾}</span>. Every arithmetical set is <span class="m">≤_m ∅⁽ω⁾</span>, but ∅⁽ω⁾ is not arithmetical: if it were Σ⁰ₙ, then ∅⁽ⁿ⁺¹⁾ ≤_m ∅⁽ω⁾ would be Σ⁰ₙ, contradicting the hierarchy theorem.</span>
+    <span class="zh"><b>定理</b>（都可在 ZFC 中证明）。<br>
+      • <b>克莱尼–波斯特（1954）.</b> 存在集合 <span class="m">A, B ≤_T ∅′</span>，使 <span class="m">A ≰_T B</span> 且 <span class="m">B ≰_T A</span>。所以图灵度<b>不是线性序</b>。<br>
+      • <b>波斯特问题（1944）.</b> 是否存在严格介于 <b>0</b> 与 <b>0′</b> 之间的递归可枚举度？<b>弗里德伯格（1957）、穆奇尼克（1956）：</b>存在。有递归可枚举集 A、B 使 <span class="m">A ≰_T B</span> 且 <span class="m">B ≰_T A</span>，从而 <span class="m">0 &lt; deg(A), deg(B) &lt; 0′</span>。其证明开创了<b>优先方法</b>（有穷损害），这里只陈述不证明。<br>
+      • 图灵度构成<b>上半格</b>：<span class="m">deg(A ⊕ B)</span> 是 deg(A) 与 deg(B) 的最小上界。它不构成格，因为有些对没有最大下界。图灵度共有 <span class="m">2^ℵ₀</span> 个，每个度只含可数多个集合，每个度之下也只有可数多个度。<br>
+      • <b>ω-跳跃.</b> <span class="m">∅⁽ω⁾ = {⟨n,x⟩ : x ∈ ∅⁽ⁿ⁾}</span>。每个算术集都 <span class="m">≤_m ∅⁽ω⁾</span>，但 ∅⁽ω⁾ 本身不是算术集：若它是 Σ⁰ₙ 的，则 ∅⁽ⁿ⁺¹⁾ ≤_m ∅⁽ω⁾ 也是 Σ⁰ₙ 的，与层级定理矛盾。</span></div>
+  <h3><span class="en">Interactive: the Kleene–Post finite-extension construction</span><span class="zh">互动：克莱尼–波斯特有限扩张构造</span></h3>
+  <p><span class="en">We build <span class="m">A = ⋃ σₛ</span> and <span class="m">B = ⋃ τₛ</span> from finite strings. Requirements: <span class="m">R₂ₑ: A ≠ Φₑ^B</span> and <span class="m">R₂ₑ₊₁: B ≠ Φₑ^A</span>. To meet R₂ₑ, take the first unused position <span class="m">n = |σ|</span> and ask: <b>is there τ′ ⊇ τ with Φₑ^{τ′}(n)↓?</b> If yes, extend τ to such a τ′ and put the <i>opposite</i> bit into A at n. If no, put 0 at n: then Φₑ^B(n) diverges for every B extending τ. Either way R₂ₑ is met forever, by the use principle. That question is Σ⁰₁, so ∅′ can answer it, and this is why <span class="m">A, B ≤_T ∅′</span>.</span>
+    <span class="zh">我们用有限串逐步搭出 <span class="m">A = ⋃ σₛ</span> 与 <span class="m">B = ⋃ τₛ</span>。要求：<span class="m">R₂ₑ: A ≠ Φₑ^B</span>，<span class="m">R₂ₑ₊₁: B ≠ Φₑ^A</span>。为满足 R₂ₑ，取第一个空位 <span class="m">n = |σ|</span>，然后问：<b>是否存在 τ′ ⊇ τ 使 Φₑ^{τ′}(n)↓？</b>若存在，就把 τ 延长为这样的 τ′，并在 A 的第 n 位放入<i>相反</i>的值。若不存在，就在第 n 位放 0：此时对任何延长 τ 的 B，Φₑ^B(n) 都发散。无论哪种情况，由使用原理，R₂ₑ 都永久满足。这个问题是 Σ⁰₁ 的，∅′ 能回答，这正是 <span class="m">A, B ≤_T ∅′</span> 的原因。</span></p>
+  <p class="muted" style="font-size:14px"><span class="en">Toy version: instead of all oracle machines we use the 7 sample functionals listed below (the real construction runs through every e). Gold cells are the oracle bits the computation queried; purple is the diagonal bit.</span>
+    <span class="zh">玩具版本：我们不枚举全部谕示机，只用下面列出的 7 个示例泛函（真正的构造要遍历所有 e）。金色格是计算查询过的谕示位，紫色格是对角化写入的位。</span></p>
+  <div class="m" id="kpFuns" style="font-size:13.5px;columns:2;column-gap:24px;margin:6px 0 10px"></div>
+  <div class="toolbar"><button class="btn primary" id="kpStep"><span class="en">Next stage ▶</span><span class="zh">下一阶段 ▶</span></button>
+    <button class="btn" id="kpRun"><span class="en">Run all</span><span class="zh">全部运行</span></button>
+    <button class="btn ghost" id="kpReset"><span class="en">Reset</span><span class="zh">重置</span></button>
+    <button class="btn ghost" id="kpVerify"><span class="en">Verify A ≠ Φₑ^B, B ≠ Φₑ^A</span><span class="zh">验证 A ≠ Φₑ^B、B ≠ Φₑ^A</span></button></div>
+  <div class="stage kp" id="kpStage"></div>
+  <div class="msg" id="kpMsg"></div>
+  <div class="kplog" id="kpLog"></div>
+  <div class="warnbox"><span class="en"><b class="h">⚠ Common pitfall.</b> Kleene–Post and Friedberg–Muchnik are different theorems. The Kleene–Post sets are Δ⁰₂ but <b>need not</b> be r.e.: the construction asks ∅′ questions, and an r.e. construction cannot do that. Making A and B r.e. requires guessing and repairing mistakes, which is what the priority method does. Also, Post's problem asks for an <i>r.e.</i> intermediate degree. Non-r.e. degrees between 0 and 0′ (Kleene–Post) do not answer it.</span>
+    <span class="zh"><b class="h">⚠ 常见误区.</b> 克莱尼–波斯特定理与弗里德伯格–穆奇尼克定理是两回事。克莱尼–波斯特构造出的集合是 Δ⁰₂ 的，但<b>未必</b>是递归可枚举的：构造中要向 ∅′ 提问，而递归可枚举的构造做不到这一点。要让 A、B 递归可枚举，就得边猜边修正错误，这正是优先方法所做的。另外，波斯特问题问的是<i>递归可枚举</i>的中间度；介于 0 与 0′ 之间的非递归可枚举度（克莱尼–波斯特）并不回答这个问题。</span></div>
+  <div class="cy" id="cy9"></div>
+</section>
+
+<!-- ============ S10 ============ -->
+<section class="card" id="s10">
+  <div class="kicker">Step 10</div>
+  <h2><span class="en">Back to Tarski: truth climbs above every level</span><span class="zh">回到塔斯基：真理高于每一层</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置</span></span>:
+    <a href="lesson13.html"><span class="en">L13 Tarski</span><span class="zh">L13 塔斯基定理</span></a>
+    <a href="lesson12.html"><span class="en">L12 Gödel numbering</span><span class="zh">L12 哥德尔编码</span></a>
+    <a href="#s5"><span class="en">Step 5</span><span class="zh">第 5 步</span></a>
+    <a href="#s7"><span class="en">Step 7</span><span class="zh">第 7 步</span></a></div>
+  <p class="core"><span class="en">Core idea: each level has its own truth predicate, but no level has the truth predicate for everything.</span>
+    <span class="zh">核心思想：每一层都有自己的真谓词，但没有哪一层拥有关于一切句子的真谓词。</span></p>
+  <p><span class="en">Move the slider to choose n. The partial truth predicate <span class="m">Tr_Σₙ</span> decides the truth of every sentence of level Σ⁰ₙ, and through negation every Π⁰ₙ sentence. Sentences above level n stay out of reach.</span>
+    <span class="zh">拖动滑块选择 n。部分真谓词 <span class="m">Tr_Σₙ</span> 能判断每个 Σ⁰ₙ 句子的真假，通过否定也能判断每个 Π⁰ₙ 句子。层级高于 n 的句子它够不着。</span></p>
+  <div class="toolbar">n = <input type="range" id="trN" min="1" max="4" value="1"> <b class="m" id="trNv">1</b> <span id="trSum" class="muted"></span></div>
+  <div class="row">
+    <div class="col stage" style="flex:0 1 300px"><svg id="trSvg" viewBox="0 0 280 330" width="280" height="330"></svg></div>
+    <div class="col" id="trCards"></div>
+  </div>
+  <div class="def"><span class="en"><b>Theorem.</b> Let <span class="m">TA = {⌜φ⌝ : φ an L_A-sentence, ℕ ⊨ φ}</span> (true arithmetic).<br>
+      (1) For each n ≥ 1, <span class="m">Tr_Σₙ = {⌜φ⌝ : φ a Σ⁰ₙ sentence, ℕ ⊨ φ}</span> is Σ⁰ₙ (indeed Σ⁰ₙ-complete). So there is a Σ⁰ₙ formula <span class="m">Sat_Σₙ(v)</span> defining truth for Σ⁰ₙ sentences.<br>
+      (2) TA is in no Σ⁰ₙ: it is not arithmetical. This is a sharpened form of Tarski's theorem (L13).<br>
+      (3) <span class="m">TA ≡_T ∅⁽ω⁾</span>.</span>
+    <span class="zh"><b>定理.</b> 令 <span class="m">TA = {⌜φ⌝ : φ 是 L_A 句子，ℕ ⊨ φ}</span>（真算术）。<br>
+      (1) 对每个 n ≥ 1，<span class="m">Tr_Σₙ = {⌜φ⌝ : φ 是 Σ⁰ₙ 句子，ℕ ⊨ φ}</span> 是 Σ⁰ₙ 集（其实是 Σ⁰ₙ-完全集）。所以有一个 Σ⁰ₙ 公式 <span class="m">Sat_Σₙ(v)</span>，定义了 Σ⁰ₙ 句子的真。<br>
+      (2) TA 不属于任何 Σ⁰ₙ，即它不是算术集。这是塔斯基定理（L13）的加强形式。<br>
+      (3) <span class="m">TA ≡_T ∅⁽ω⁾</span>。</span></div>
+  <div class="steps" id="pf10">
+    <div class="step"><h4><span class="il"><span class="en">(1) for n = 1</span><span class="zh">n = 1 时的 (1)</span></span></h4>
+      <p><span class="en">A Σ⁰₁ sentence is <span class="m">∃y θ(y)</span> with θ Δ₀. It is true iff <span class="m">∃y</span> [“θ(ȳ) is a true Δ₀ sentence”], and the bracket is decidable by direct evaluation (Step 1). So Tr_Σ₁ is Σ⁰₁. The higher levels follow by the same idea, peeling one quantifier block at a time.</span>
+        <span class="zh">Σ⁰₁ 句子形如 <span class="m">∃y θ(y)</span>，θ 为 Δ₀。它为真当且仅当 <span class="m">∃y</span>［“θ(ȳ) 是真的 Δ₀ 句子”］，而方括号内可以直接求值判定（第 1 步）。所以 Tr_Σ₁ 是 Σ⁰₁ 的。更高层同理，每次剥掉一个量词块即可。</span></p></div>
+    <div class="step"><h4><span class="il"><span class="en">(2) Suppose TA ∈ Σ⁰ₙ</span><span class="zh">(2) 假设 TA ∈ Σ⁰ₙ</span></span></h4>
+      <p><span class="en">Take any Σ⁰ₙ₊₁ set S, defined by a formula φ(x). Then <span class="m">x ∈ S ⟺ ⌜φ(x̄)⌝ ∈ TA</span>, and <span class="m">x ↦ ⌜φ(x̄)⌝</span> is computable. So <span class="m">S ≤_m TA</span>.</span>
+        <span class="zh">任取一个 Σ⁰ₙ₊₁ 集 S，设它由公式 φ(x) 定义。则 <span class="m">x ∈ S ⟺ ⌜φ(x̄)⌝ ∈ TA</span>，而 <span class="m">x ↦ ⌜φ(x̄)⌝</span> 可计算，所以 <span class="m">S ≤_m TA</span>。</span></p></div>
+    <div class="step"><h4><span class="il"><span class="en">Collapse</span><span class="zh">坍缩</span></span></h4>
+      <p><span class="en">Σ⁰ₙ is closed downward under ≤_m (Step 7), so S ∈ Σ⁰ₙ. Hence Σ⁰ₙ₊₁ ⊆ Σ⁰ₙ, so Π⁰ₙ ⊆ Σ⁰ₙ₊₁ ⊆ Σ⁰ₙ, contradicting the hierarchy theorem. So TA is not arithmetical. ∎ (For (3): TA ≤_T ∅⁽ω⁾ because a sentence of level n is decided by asking ∅⁽ⁿ⁾ via Tr_Σₙ ≤_m ∅⁽ⁿ⁾; and ∅⁽ω⁾ ≤_m TA because each statement “x ∈ ∅⁽ⁿ⁾” is expressed by an arithmetical sentence computed from n and x.)</span>
+        <span class="zh">Σ⁰ₙ 对 ≤_m 向下封闭（第 7 步），所以 S ∈ Σ⁰ₙ。于是 Σ⁰ₙ₊₁ ⊆ Σ⁰ₙ，从而 Π⁰ₙ ⊆ Σ⁰ₙ₊₁ ⊆ Σ⁰ₙ，与层级定理矛盾。所以 TA 不是算术集。∎（关于 (3)：TA ≤_T ∅⁽ω⁾，因为层级为 n 的句子可以借助 Tr_Σₙ ≤_m ∅⁽ⁿ⁾ 去问 ∅⁽ⁿ⁾；而 ∅⁽ω⁾ ≤_m TA，因为每个命题“x ∈ ∅⁽ⁿ⁾”都能由 n 与 x 算出的一个算术句子来表达。）</span></p></div>
+  </div>
+  <div class="toolbar"><button class="btn primary" data-next="pf10"><span class="en">Reveal next step</span><span class="zh">揭晓下一步</span></button>
+    <button class="btn ghost" data-all="pf10"><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+  <div class="warnbox"><span class="en"><b class="h">⚠ Common pitfall.</b> Tarski's theorem forbids a single formula defining <i>all</i> of truth. It does not forbid partial truth predicates, and those exist at every level. Also, “not arithmetical” is about <b>definability in ℕ</b>, not about <b>provability</b> (that is Gödel's theorem, L12). Finally, a sentence's level says nothing about whether we <i>know</i> its truth value: the twin prime conjecture is a Π⁰₂ sentence whose truth value is still open.</span>
+    <span class="zh"><b class="h">⚠ 常见误区.</b> 塔斯基定理禁止的是用一个公式定义<i>全部</i>的真，并不禁止部分真谓词，而部分真谓词在每一层都存在。另外，“不是算术集”说的是<b>在 ℕ 中的可定义性</b>，而不是<b>可证性</b>（那是哥德尔定理，L12）。最后，句子的层级与我们是否<i>知道</i>它的真假毫无关系：孪生素数猜想是一个 Π⁰₂ 句子，至今悬而未决。</span></div>
+  <div class="cy" id="cy10"></div>
+</section>
+
+<!-- ============ EXERCISES ============ -->
+<section class="card" id="exercises">
+  <div class="kicker"><span class="il"><span class="en">Exercises</span><span class="zh">练习</span></span></div>
+  <h2><span class="en">Your turn</span><span class="zh">轮到你了</span></h2>
+  <p class="muted"><span class="en">Progress is saved in your browser. A sidebar ✓ means solved. Every exercise has a “Show answer” button.</span><span class="zh">进度保存在浏览器中，侧栏出现 ✓ 表示已完成。每道题都有“显示答案”按钮。</span></p>
+
+  <div class="ex" id="e1" data-prog="L17E1">
+    <h3><span class="tag">E1</span><span class="il"><span class="en">Place each set at its exact level</span><span class="zh">给每个集合确定确切层级</span></span></h3>
+    <p><span class="en">Choose the most precise description for each set.</span><span class="zh">为每个集合选出最精确的描述。</span></p>
+    <div id="e1List"></div>
+    <div class="toolbar"><button class="btn primary" id="e1Check"><span class="en">Check</span><span class="zh">检查</span></button>
+      <button class="btn ghost" id="e1Show"><span class="en">Show answer</span><span class="zh">显示答案</span></button></div>
+    <div class="msg" id="e1Msg"></div>
+  </div>
+
+  <div class="ex" id="e2" data-prog="L17E2">
+    <h3><span class="tag">E2</span><span class="il"><span class="en">Level of a prefix: three in a row</span><span class="zh">前缀定级：连对三题</span></span></h3>
+    <p><span class="en">θ is Δ₀. Bounded quantifiers are dashed. Give the level of the formula (and hence an upper bound for the set it defines). Get 3 right in a row.</span>
+      <span class="zh">θ 是 Δ₀ 公式，虚线框表示有界量词。写出该公式的层级（也就是它所定义集合的一个上界）。连续答对 3 题。</span></p>
+    <div class="qrow" id="e2Row"></div>
+    <div class="toolbar">
+      <button class="btn" data-e2="S">Σ⁰</button><button class="btn" data-e2="P">Π⁰</button><button class="btn" data-e2="D">Δ₀ <span class="il"><span class="en">(no unbounded)</span><span class="zh">（无无界量词）</span></span></button>
+      n = <input type="number" id="e2n" min="1" max="9" value="1" style="width:60px;font:inherit;padding:4px">
+      <button class="btn primary" id="e2Check"><span class="en">Check</span><span class="zh">检查</span></button>
+      <button class="btn ghost" id="e2Show"><span class="en">Show answer</span><span class="zh">显示答案</span></button>
+      <button class="btn ghost" id="e2New"><span class="en">New prefix</span><span class="zh">换一题</span></button>
+      <span class="m" id="e2Streak"></span></div>
+    <div class="msg" id="e2Msg"></div>
+  </div>
+
+  <div class="ex" id="e3" data-prog="L17E3">
+    <h3><span class="tag">E3</span><span class="il"><span class="en">Order the proof: “every Σ⁰ₙ₊₁ set is ≤_m ∅⁽ⁿ⁺¹⁾”</span><span class="zh">给证明排序：“每个 Σ⁰ₙ₊₁ 集都 ≤_m ∅⁽ⁿ⁺¹⁾”</span></span></h3>
+    <p><span class="en">Assume (induction hypothesis) that ∅⁽ⁿ⁾ is Σ⁰ₙ-complete, n ≥ 1. Click the steps in the correct logical order. Click a placed step to send it back.</span>
+      <span class="zh">设（归纳假设）∅⁽ⁿ⁾ 是 Σ⁰ₙ-完全的，n ≥ 1。按正确的逻辑顺序点击各步骤；点击已放入的步骤可将其退回。</span></p>
+    <div class="ord"><div class="pool" id="e3Pool"></div><div class="seq" id="e3Seq"></div></div>
+    <div class="toolbar"><button class="btn primary" id="e3Check"><span class="en">Check</span><span class="zh">检查</span></button>
+      <button class="btn ghost" id="e3Reset"><span class="en">Reset</span><span class="zh">重置</span></button>
+      <button class="btn ghost" id="e3Show"><span class="en">Show answer</span><span class="zh">显示答案</span></button></div>
+    <div class="msg" id="e3Msg"></div>
+  </div>
+
+  <div class="ex" id="e4" data-prog="L17E4">
+    <h3><span class="tag">E4</span><span class="il"><span class="en">True or false: Turing degrees</span><span class="zh">判断对错：图灵度</span></span></h3>
+    <div id="e4List"></div>
+  </div>
+
+  <div class="ex" id="e5" data-prog="L17E5">
+    <h3><span class="tag">E5</span><span class="il"><span class="en">Does the reduction hold?</span><span class="zh">归约成立吗？</span></span></h3>
+    <p><span class="en">Use the exact levels from Step 4, Post's theorem, and the hierarchy theorem.</span><span class="zh">利用第 4 步中的确切层级、波斯特定理与层级定理。</span></p>
+    <div id="e5List"></div>
+  </div>
+</section>
+
+<section class="card">
+  <div class="kicker"><span class="il"><span class="en">Next</span><span class="zh">下一课</span></span></div>
+  <h2><a href="lesson18.html" style="color:inherit"><span class="en">Lesson 18: the analytical hierarchy, hyperarithmetic sets, ω₁^CK →</span><span class="zh">第 18 课：分析层级、超算术集与 ω₁^CK →</span></a></h2>
+  <p><span class="en">We stopped at ∅⁽ω⁾. Why stop? Keep jumping along computable ordinals, ∅⁽ω+1⁾, ∅⁽ω·2⁾, …, and you get the hyperarithmetic sets. They end exactly at the Church–Kleene ordinal ω₁^CK, where quantifiers over <i>sets</i> of numbers (Σ¹₁, Π¹₁) take over.</span>
+     <span class="zh">我们停在了 ∅⁽ω⁾。为什么要停？沿着可计算序数继续跳跃，∅⁽ω+1⁾、∅⁽ω·2⁾、…，就得到超算术集。它们恰好止于丘奇–克莱尼序数 ω₁^CK，从那里开始，对数集的量词（Σ¹₁、Π¹₁）接管一切。</span></p>
+</section>
+</main>
+</div>
+
+<script src="assets/logic.js"></script>
+<script src="assets/lesson17.js"></script>
+</body>
+</html>

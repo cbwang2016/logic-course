@@ -1,0 +1,538 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 24 · Measurables &amp; Elementary Embeddings 可测基数与初等嵌入</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  .pre { font-size: 13px; color: var(--muted); margin: 2px 0 12px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .pre a.chip { font-size: 12px; padding: 2px 9px; text-decoration: none; color: var(--ink); }
+  .pre a.chip:hover { border-color: var(--accent); }
+  .idea { font-weight: 600; margin: 4px 0 10px; }
+  .pit { border-left: 4px solid var(--false); background: #fff5f5; padding: 10px 14px; border-radius: 0 10px 10px 0; margin: 14px 0; }
+  .pit b.h { color: var(--false); }
+  .cy { border: 1.5px dashed var(--accent); border-radius: 12px; padding: 10px 14px; margin: 16px 0 4px; background: #fbfcff; }
+  .cy .q { font-weight: 600; margin-bottom: 6px; }
+  .cy .q::before { content: "✎ "; color: var(--accent); }
+  .cy .opts { display: flex; flex-wrap: wrap; gap: 8px; }
+  .cy .opts .btn { text-align: left; }
+  .steps .step { border-left: 3px solid var(--meta); padding: 6px 12px; margin: 8px 0; background: #fdf8ff; border-radius: 0 8px 8px 0; }
+  .steps .step h4 { margin: 2px 0 4px; font-size: 15px; color: var(--meta); }
+  table.facts { border-collapse: collapse; font-size: 14px; margin: 10px 0; width: 100%; }
+  table.facts th, table.facts td { border-bottom: 1px solid var(--line); padding: 6px 8px; text-align: left; vertical-align: top; }
+  table.facts th { background: #f1efe7; }
+  .lang-both table.facts .zh { font-size: 0.92em; }
+  .pill { display: inline-block; font-size: 11px; font-weight: 700; padding: 1px 8px; border-radius: 999px; margin-left: 4px; vertical-align: 1px; }
+  .pill.zfc { background: var(--true-soft); color: #1b5e20; }
+  .pill.con { background: var(--gold-soft); color: #6b4500; }
+  .pill.open { background: var(--false-soft); color: #8a1c1c; }
+  .pill.equi { background: var(--meta-soft); color: #6b1f80; }
+  .lang-both .pill .zh { display: inline; font-size: 1em; color: inherit; }
+  .lang-both .pill .zh::before { content: " · "; }
+  .ord-chip.sel { background: var(--accent-soft); border-color: var(--accent); }
+  .seqlist { display: flex; flex-direction: column; gap: 6px; margin: 8px 0; }
+  .seqlist .chip { cursor: pointer; }
+  .seqlist .chip .num { font-family: var(--mono); font-weight: 800; color: var(--accent); margin-right: 6px; }
+  svg .clk { cursor: pointer; }
+  .resbtns .btn.sel { background: var(--gold); border-color: var(--gold); color: #fff; }
+  .kappa-q .row { align-items: center; }
+  .small { font-size: 13px; }
+  select.formula { font-size: 15px; min-width: 0; }
+</style>
+</head>
+<body class="lang-both">
+<header class="top">
+  <a class="home" href="index.html">∀∃ <span class="il"><span class="en">Logic &amp; Sets</span><span class="zh">逻辑与集合</span></span></a>
+  <span class="muted">/ L24</span>
+  <span class="spacer"></span>
+  <div class="lang-switch">
+    <button data-lang="en">EN</button><button data-lang="zh">中文</button><button data-lang="both">EN + 中</button>
+  </div>
+</header>
+
+<div class="layout">
+<nav class="side">
+  <div class="grp">Lesson 24</div>
+  <a href="index.html">← <span class="il"><span class="en">Course map</span><span class="zh">课程地图</span></span></a>
+  <a href="lesson23.html">← <span class="il"><span class="en">Lesson 23</span><span class="zh">第 23 课</span></span></a>
+  <a href="lesson25.html"><span class="il"><span class="en">Lesson 25</span><span class="zh">第 25 课</span></span> →</a>
+  <div class="grp"><span class="il"><span class="en">Steps</span><span class="zh">步骤</span></span></div>
+  <a href="#s1">1 · <span class="il"><span class="en">Voting on a finite set</span><span class="zh">有限集上的投票</span></span></a>
+  <a href="#s2">2 · <span class="il"><span class="en">Ultrafilters on ℕ</span><span class="zh">ℕ 上的超滤</span></span></a>
+  <a href="#s3">3 · <span class="il"><span class="en">κ-complete &amp; measurable</span><span class="zh">κ-完全与可测</span></span></a>
+  <a href="#s4">4 · <span class="il"><span class="en">Measurable ⇒ inaccessible</span><span class="zh">可测 ⇒ 不可达</span></span></a>
+  <a href="#s5">5 · <span class="il"><span class="en">Ultrapowers &amp; Łoś</span><span class="zh">超幂与沃什定理</span></span></a>
+  <a href="#s6">6 · <span class="il"><span class="en">Well-founded &amp; collapse</span><span class="zh">良基与坍塌</span></span></a>
+  <a href="#s7">7 · <span class="il"><span class="en">The embedding j</span><span class="zh">嵌入 j</span></span></a>
+  <a href="#s8">8 · <span class="il"><span class="en">Measures ⇔ embeddings</span><span class="zh">测度 ⇔ 嵌入</span></span></a>
+  <a href="#s9">9 · <span class="il"><span class="en">Scott: V ≠ L</span><span class="zh">斯科特：V ≠ L</span></span></a>
+  <a href="#s10">10 · <span class="il"><span class="en">Ramsey &amp; 0<sup>♯</sup></span><span class="zh">拉姆齐与 0<sup>♯</sup></span></span></a>
+  <a href="#s11">11 · <span class="il"><span class="en">Inner models &amp; ladder</span><span class="zh">内模型与阶梯</span></span></a>
+  <div class="grp"><span class="il"><span class="en">Exercises</span><span class="zh">练习</span></span></div>
+  <a href="#e1" data-prog="L24E1">E1 · <span class="il"><span class="en">Filter checker</span><span class="zh">滤子判定</span></span></a>
+  <a href="#e2" data-prog="L24E2">E2 · <span class="il"><span class="en">Build them</span><span class="zh">亲手构造</span></span></a>
+  <a href="#e3" data-prog="L24E3">E3 · <span class="il"><span class="en">Łoś by hand</span><span class="zh">手算沃什</span></span></a>
+  <a href="#e4" data-prog="L24E4">E4 · <span class="il"><span class="en">Facts about j</span><span class="zh">关于 j 的判断</span></span></a>
+  <a href="#e5" data-prog="L24E5">E5 · <span class="il"><span class="en">Order Scott's proof</span><span class="zh">排列斯科特证明</span></span></a>
+  <a href="#e6" data-prog="L24E6">E6 · <span class="il"><span class="en">Strength ladder</span><span class="zh">强度阶梯</span></span></a>
+</nav>
+
+<main>
+<div class="hero">
+  <div class="kicker">Part V · Lesson 24</div>
+  <h1><span class="en">Large Cardinals II: Measurables &amp; Elementary Embeddings</span><span class="zh">大基数（二）：可测基数与初等嵌入</span></h1>
+  <p><span class="en">A measurable cardinal is defined by a <b>voting system</b> on its subsets. From that voting system we build a <b>copy of the whole universe</b>, and a map <span class="m">j: V → M</span> that fixes every set in <span class="m">V<sub>κ</sub></span> (in particular every ordinal below κ) and moves κ. Each step adds one idea and gives you something to click.</span>
+     <span class="zh">可测基数是用它的子集上的一套<b>投票制度</b>来定义的。从这套投票制度出发，我们能造出<b>整个宇宙的一个副本</b>，以及一个映射 <span class="m">j: V → M</span>：它固定 <span class="m">V<sub>κ</sub></span> 中的每个集合（特别是 κ 以下的每个序数），却把 κ 本身挪走。每一步只讲一个想法，都配有可以上手操作的图。</span></p>
+  <div class="note"><span class="en"><b>Legend for status tags.</b> <span class="pill zfc">ZFC</span> provable in ZFC · <span class="pill con">Con</span> consistent relative to the stated hypothesis · <span class="pill equi">≡</span> equiconsistent · <span class="pill open">open</span> unsolved. “A ⇒ B” always means: ZFC proves that A implies B.</span>
+    <span class="zh"><b>标签说明.</b> <span class="pill zfc">ZFC</span> 可在 ZFC 中证明 · <span class="pill con">Con</span> 相对于所述假设一致 · <span class="pill equi">≡</span> 等一致 · <span class="pill open">open</span> 未解决。“A ⇒ B”一律指：ZFC 证明 A 蕴涵 B。</span></div>
+</div>
+
+<!-- ============ S1 ============ -->
+<section class="card" id="s1">
+  <div class="kicker">§1</div>
+  <h2><span class="en">Filters and ultrafilters: voting on a finite set</span><span class="zh">滤子与超滤：有限集上的投票</span></h2>
+  <div class="pre"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置知识</span></span>: <a class="chip" href="lesson10.html">L10 · <span class="il"><span class="en">AC &amp; ultrafilters</span><span class="zh">选择公理与超滤</span></span></a></div>
+  <p class="idea"><span class="en">Core idea: a filter is a family of “decisive coalitions” (“large” sets). An ultrafilter decides <i>every</i> question. On a finite set, every ultrafilter has a dictator.</span>
+     <span class="zh">核心想法：滤子就是一族“有决定权的联盟”（“大”集合）。超滤对<i>每一个</i>问题都作出裁决。在有限集上，每个超滤都有一位独裁者。</span></p>
+  <div class="def"><span class="en"><b>Definition.</b> Let <span class="m">X ≠ ∅</span>. A <b>filter</b> on X is a family <span class="m">F ⊆ 𝒫(X)</span> with
+    <br>(F1) <span class="m">X ∈ F</span> and <span class="m">∅ ∉ F</span>;
+    <br>(F2) if <span class="m">A ∈ F</span> and <span class="m">A ⊆ B ⊆ X</span> then <span class="m">B ∈ F</span> (upward closed);
+    <br>(F3) if <span class="m">A, B ∈ F</span> then <span class="m">A ∩ B ∈ F</span>.
+    <br>F is an <b>ultrafilter</b> if moreover (U) for every <span class="m">A ⊆ X</span>: <span class="m">A ∈ F</span> or <span class="m">X∖A ∈ F</span> (by F1+F3, never both). The ultrafilter <span class="m">{A ⊆ X : x₀ ∈ A}</span> is the <b>principal</b> ultrafilter at x₀; an ultrafilter of any other form is <b>non-principal</b>.</span>
+    <span class="zh"><b>定义.</b> 设 <span class="m">X ≠ ∅</span>。X 上的<b>滤子</b>是满足下列条件的子集族 <span class="m">F ⊆ 𝒫(X)</span>：
+    <br>(F1) <span class="m">X ∈ F</span> 且 <span class="m">∅ ∉ F</span>；
+    <br>(F2) 若 <span class="m">A ∈ F</span> 且 <span class="m">A ⊆ B ⊆ X</span>，则 <span class="m">B ∈ F</span>（向上封闭）；
+    <br>(F3) 若 <span class="m">A, B ∈ F</span>，则 <span class="m">A ∩ B ∈ F</span>。
+    <br>若还满足 (U)：对每个 <span class="m">A ⊆ X</span>，<span class="m">A ∈ F</span> 或 <span class="m">X∖A ∈ F</span>（由 F1、F3 知二者不会同时成立），则称 F 为<b>超滤</b>。超滤 <span class="m">{A ⊆ X : x₀ ∈ A}</span> 称为在 x₀ 处的<b>主超滤</b>；不是这种形式的超滤称为<b>非主超滤</b>。</span></div>
+  <p><span class="en">Below, the four voters <span class="m">X = {1,2,3,4}</span> and all 16 coalitions form a lattice. Click coalitions to put them into (or out of) your family F. The checker tests F1–F3 and (U) live, and marks the coalitions that break a rule.</span>
+     <span class="zh">下图中，四位投票人 <span class="m">X = {1,2,3,4}</span> 的全部 16 个联盟排成一个格。点击联盟可以把它放进（或移出）你的子集族 F。检查器实时检验 F1–F3 和 (U)，并标出违反规则的联盟。</span></p>
+  <div class="toolbar">
+    <button class="btn small" data-fam="p2"><span class="en">Principal at 2</span><span class="zh">在 2 处的主超滤</span></button>
+    <button class="btn small" data-fam="g12"><span class="en">Generated by {1,2}</span><span class="zh">由 {1,2} 生成</span></button>
+    <button class="btn small" data-fam="maj"><span class="en">Strict majority (≥ 3 voters)</span><span class="zh">严格多数（≥ 3 人）</span></button>
+    <button class="btn small" data-fam="clear"><span class="en">Clear</span><span class="zh">清空</span></button>
+    <button class="btn primary small" id="dictGo"><span class="en">Find the dictator ▶</span><span class="zh">找出独裁者 ▶</span></button>
+  </div>
+  <div class="row">
+    <div class="col stage" style="flex:1 1 560px"><svg id="hasse" viewBox="0 0 640 400" width="640" height="400"></svg></div>
+    <div class="col" style="flex:1 1 260px"><div id="famReport"></div></div>
+  </div>
+  <div class="def"><span class="en"><b>Theorem</b> <span class="pill zfc">ZF</span>. Every ultrafilter on a finite set X is principal. <b>Proof.</b> U is finite, so <span class="m">B = ⋂U</span> is a finite intersection and lies in U by (F3); B ≠ ∅ by (F1). If <span class="m">b ∈ B</span> and <span class="m">{b} ∉ U</span>, then <span class="m">X∖{b} ∈ U</span> by (U), so <span class="m">B ⊆ X∖{b}</span>, contradicting <span class="m">b ∈ B</span>. Hence <span class="m">{b} ∈ U</span> and, by (F2), U contains every set containing b; by (F1)+(F3) it contains no set missing b. ∎</span>
+    <span class="zh"><b>定理</b> <span class="pill zfc">ZF</span>. 有限集 X 上的每个超滤都是主超滤。<b>证明.</b> U 是有限族，故 <span class="m">B = ⋂U</span> 是有限交，由 (F3) 属于 U；由 (F1)，B ≠ ∅。若 <span class="m">b ∈ B</span> 而 <span class="m">{b} ∉ U</span>，由 (U) 得 <span class="m">X∖{b} ∈ U</span>，于是 <span class="m">B ⊆ X∖{b}</span>，与 <span class="m">b ∈ B</span> 矛盾。所以 <span class="m">{b} ∈ U</span>；由 (F2)，U 含所有包含 b 的集合；由 (F1)+(F3)，U 不含任何不包含 b 的集合。∎</span></div>
+  <div class="pit"><span class="en"><b class="h">⚠ Common pitfall.</b> “Majority rule” is <b>not</b> a filter: <span class="m">{1,2,3}</span> and <span class="m">{2,3,4}</span> are majorities, but their intersection <span class="m">{2,3}</span> is not (F3 fails). Also, (U) alone is not enough: the family of all sets with ≥ 2 voters contains A or X∖A for <i>every</i> A ⊆ {1,2,3,4}, yet <span class="m">{1,2} ∩ {3,4} = ∅</span> breaks (F3). Check every axiom.</span>
+    <span class="zh"><b class="h">⚠ 常见误区.</b> “多数决”<b>不是</b>滤子：<span class="m">{1,2,3}</span> 与 <span class="m">{2,3,4}</span> 都是多数，交集 <span class="m">{2,3}</span> 却不是（F3 不成立）。另外，单有 (U) 也不够：“至少 2 人的联盟”这一族对<i>每个</i> A ⊆ {1,2,3,4} 都含 A 或 X∖A，但 <span class="m">{1,2} ∩ {3,4} = ∅</span> 破坏了 (F3)。每条公理都要逐一检验。</span></div>
+  <div class="cy" id="cy1"></div>
+</section>
+
+<!-- ============ S2 ============ -->
+<section class="card" id="s2">
+  <div class="kicker">§2</div>
+  <h2><span class="en">Non-principal ultrafilters on ℕ: they exist, but nobody can show you one</span><span class="zh">ℕ 上的非主超滤：它存在，但谁也拿不出一个来</span></h2>
+  <div class="pre"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置知识</span></span>: <a class="chip" href="#s1">§1</a> <a class="chip" href="lesson10.html">L10 · <span class="il"><span class="en">Zorn's lemma</span><span class="zh">佐恩引理</span></span></a></div>
+  <p class="idea"><span class="en">Core idea: on ℕ an ultrafilter can avoid every finite set. Then it must contain all cofinite sets, and it has to make infinitely many free choices that no finite rule can make for it.</span>
+     <span class="zh">核心想法：在 ℕ 上，超滤可以不含任何有限集。这时它必然包含所有余有限集，并且要作无穷多次自由选择，这些选择没有任何有限规则能替它作出。</span></p>
+  <div class="def"><span class="en"><b>Facts.</b>
+    (a) <span class="pill zfc">ZF</span> An ultrafilter U on ℕ is non-principal ⇔ U contains no finite set ⇔ U contains every cofinite set (U extends the <b>Fréchet filter</b> <span class="m">{A : ℕ∖A finite}</span>).
+    <br>(b) <span class="pill zfc">ZFC</span> <b>Ultrafilter lemma:</b> every filter extends to an ultrafilter (Zorn: a maximal filter is ultra). Applied to the Fréchet filter, this gives a non-principal ultrafilter on ℕ.
+    <br>(c) <span class="pill con">Con</span> Without choice this can fail: if ZF is consistent, so is ZF + “every ultrafilter on ℕ is principal” (Feferman 1965). So any proof that a non-principal ultrafilter exists must use some form of choice, and no explicit construction can be carried out in ZF.</span>
+    <span class="zh"><b>事实.</b>
+    (a) <span class="pill zfc">ZF</span> ℕ 上的超滤 U 是非主的 ⇔ U 不含有限集 ⇔ U 包含每个余有限集（即 U 扩张了<b>弗雷歇滤子</b> <span class="m">{A : ℕ∖A 有限}</span>）。
+    <br>(b) <span class="pill zfc">ZFC</span> <b>超滤引理：</b>每个滤子都能扩张为超滤（佐恩引理：极大滤子必是超滤）。用到弗雷歇滤子上，就得到 ℕ 上的非主超滤。
+    <br>(c) <span class="pill con">Con</span> 没有选择公理时这可能不成立：若 ZF 一致，则 ZF +“ℕ 上的每个超滤都是主超滤”也一致（Feferman 1965）。所以任何证明非主超滤存在的论证都必须用到某种形式的选择，在 ZF 中不可能给出明确的构造。</span></div>
+  <p><span class="en"><b>Be the ultrafilter.</b> For each set below, decide whether it or its complement is “large”. U must also contain every cofinite set. The 12-hour clock shows which residues mod 12 are still alive in the intersection of everything you have chosen. The sets here are all periodic mod 12 up to a finite error, so a finite intersection of them is infinite exactly when some residue is still alive. If a choice would kill every residue, it is <b>forced</b> the other way.</span>
+     <span class="zh"><b>你来当超滤.</b> 对下面每个集合，决定它和它的补集哪一个是“大”的。U 还必须包含所有余有限集。12 点钟面显示：在你选出的所有集合的交中，哪些模 12 的余数还“活着”。这里的集合除有限个例外之外都是模 12 周期的，所以它们的有限交是无穷集，当且仅当还有余数活着。如果某个选择会让所有余数死光，它就被<b>强制</b>选另一边。</span></p>
+  <div class="row">
+    <div class="col" style="flex:1 1 420px"><div id="ufGame"></div>
+      <div class="toolbar"><button class="btn ghost small" id="ufReset"><span class="en">Reset</span><span class="zh">重置</span></button>
+      <button class="btn small" id="ufRandom"><span class="en">Decide all at random</span><span class="zh">全部随机决定</span></button></div></div>
+    <div class="col stage" style="flex:0 1 330px"><svg id="clock" viewBox="0 0 310 310" width="310" height="310"></svg></div>
+  </div>
+  <div class="msg" id="ufMsg"></div>
+  <div class="pit"><span class="en"><b class="h">⚠ Common pitfall.</b> The game only decides U on a <i>finite</i> Boolean algebra of sets. A full ultrafilter decides all <span class="m">2<sup>ℵ₀</sup></span> subsets of ℕ, and there are <span class="m">2<sup>2<sup>ℵ₀</sup></sup></span> non-principal ultrafilters on ℕ. Zorn's lemma makes all these decisions at once, without telling you what they are.</span>
+    <span class="zh"><b class="h">⚠ 常见误区.</b> 这个游戏只在一个<i>有限</i>的集合布尔代数上确定了 U。真正的超滤要对 ℕ 的全部 <span class="m">2<sup>ℵ₀</sup></span> 个子集作出裁决，而 ℕ 上的非主超滤共有 <span class="m">2<sup>2<sup>ℵ₀</sup></sup></span> 个。佐恩引理一下子作出所有这些裁决，却不告诉你裁决结果是什么。</span></div>
+  <div class="cy" id="cy2"></div>
+</section>
+
+<!-- ============ S3 ============ -->
+<section class="card" id="s3">
+  <div class="kicker">§3</div>
+  <h2><span class="en">κ-completeness and measurable cardinals</span><span class="zh">κ-完全性与可测基数</span></h2>
+  <div class="pre"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置知识</span></span>: <a class="chip" href="#s2">§2</a> <a class="chip" href="lesson9.html">L9 · <span class="il"><span class="en">cardinals</span><span class="zh">基数</span></span></a></div>
+  <p class="idea"><span class="en">Core idea: a non-principal ultrafilter on ℕ is only closed under <i>finite</i> intersections. A measurable cardinal κ carries one that is closed under intersections of <i>fewer than κ</i> sets.</span>
+     <span class="zh">核心想法：ℕ 上的非主超滤只对<i>有限</i>交封闭。可测基数 κ 上有一个对<i>少于 κ 个</i>集合之交封闭的非主超滤。</span></p>
+  <p><span class="en">Watch what goes wrong on ℕ. Every set <span class="m">ℕ∖{0,…,k−1}</span> is cofinite, hence in U. Their intersection over all k is empty.</span>
+     <span class="zh">先看 ℕ 上出了什么问题。每个 <span class="m">ℕ∖{0,…,k−1}</span> 都是余有限集，因而属于 U。可是对所有 k 取交，结果是空集。</span></p>
+  <div class="toolbar">k = <input type="range" id="ccK" min="0" max="40" value="0" style="width:260px"> <b class="m" id="ccKv">0</b>
+    <button class="btn small" id="ccInf">k → ∞ ▶</button></div>
+  <div class="stage"><svg id="ccSvg" viewBox="0 0 860 120" width="860" height="120"></svg></div>
+  <div class="msg info" id="ccMsg"></div>
+  <div class="def"><span class="en"><b>Definition.</b> Let κ be an infinite cardinal. A filter F is <b>κ-complete</b> if for every <span class="m">γ &lt; κ</span> and every family <span class="m">{X<sub>ξ</sub> : ξ &lt; γ} ⊆ F</span>, we have <span class="m">⋂<sub>ξ&lt;γ</sub> X<sub>ξ</sub> ∈ F</span>. (“ℵ₁-complete” = <b>countably complete</b>; every filter is ℵ₀-complete.)
+    <br><b>Definition.</b> A cardinal κ is <b>measurable</b> if κ is <b>uncountable</b> and there is a <b>κ-complete non-principal ultrafilter on κ</b>.</span>
+    <span class="zh"><b>定义.</b> 设 κ 为无穷基数。称滤子 F 是 <b>κ-完全的</b>，如果对每个 <span class="m">γ &lt; κ</span> 和每个子族 <span class="m">{X<sub>ξ</sub> : ξ &lt; γ} ⊆ F</span>，都有 <span class="m">⋂<sub>ξ&lt;γ</sub> X<sub>ξ</sub> ∈ F</span>。（ℵ₁-完全即<b>可数完全</b>；任何滤子都是 ℵ₀-完全的。）
+    <br><b>定义.</b> 称基数 κ 为<b>可测基数</b>，如果 κ <b>不可数</b>，并且 κ 上存在一个 <b>κ-完全的非主超滤</b>。</span></div>
+  <div class="pit"><span class="en"><b class="h">⚠ Common pitfalls.</b> (1) “κ-complete” means closed under intersections of <b>fewer than κ</b> sets, never κ many: the κ sets <span class="m">κ∖{α}</span> are all in U, but their intersection is ∅. (2) “Uncountable” is essential: ω carries non-principal ultrafilters, and every filter is trivially ω-complete. (3) If U is κ-complete and non-principal on κ, then <b>no set of size &lt; κ</b> is in U, because such a set is a union of fewer than κ singletons.</span>
+    <span class="zh"><b class="h">⚠ 常见误区.</b> (1) “κ-完全”指对<b>少于 κ 个</b>集合的交封闭，而不是 κ 个：κ 个集合 <span class="m">κ∖{α}</span> 都在 U 中，交却是 ∅。(2) “不可数”这个条件不能少：ω 上有非主超滤，而任何滤子都平凡地 ω-完全。(3) 若 U 是 κ 上 κ-完全的非主超滤，则<b>基数小于 κ 的集合</b>都不在 U 中，因为这样的集合是少于 κ 个单点集的并。</span></div>
+  <div class="note"><span class="en"><b>Origin (briefly).</b> Ulam (1930) asked about measures defined on <i>all</i> subsets of a set. Call κ <b>real-valued measurable</b> if there is a κ-additive probability measure on <span class="m">𝒫(κ)</span> vanishing on singletons. Ulam showed such a κ is either ≤ <span class="m">2<sup>ℵ₀</sup></span> or a (two-valued) measurable, and in ZFC: <span class="m">κ measurable ⇔ κ real-valued measurable and inaccessible</span>. Solovay showed that “<span class="m">2<sup>ℵ₀</sup></span> is real-valued measurable” is equiconsistent with a measurable cardinal <span class="pill equi">≡</span>. In this lesson “measurable” always means the two-valued notion above.</span>
+    <span class="zh"><b>来历（简述）.</b> 乌拉姆（1930）研究定义在一个集合的<i>全部</i>子集上的测度。如果 <span class="m">𝒫(κ)</span> 上有一个在单点集上为 0 的 κ-可加概率测度，就称 κ 为<b>实值可测基数</b>。乌拉姆证明：这样的 κ 要么 ≤ <span class="m">2<sup>ℵ₀</sup></span>，要么是（二值）可测基数；并且在 ZFC 中，<span class="m">κ 可测 ⇔ κ 实值可测且不可达</span>。索洛维证明“<span class="m">2<sup>ℵ₀</sup></span> 是实值可测基数”与“存在可测基数”等一致 <span class="pill equi">≡</span>。本课中“可测”一律指上面那种二值的概念。</span></div>
+  <div class="cy" id="cy3"></div>
+</section>
+
+<!-- ============ S4 ============ -->
+<section class="card" id="s4">
+  <div class="kicker">§4</div>
+  <h2><span class="en">Measurable ⇒ regular strong limit ⇒ inaccessible</span><span class="zh">可测 ⇒ 正则强极限 ⇒ 不可达</span></h2>
+  <div class="pre"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置知识</span></span>: <a class="chip" href="#s3">§3</a> <a class="chip" href="lesson23.html">L23 · <span class="il"><span class="en">inaccessible</span><span class="zh">不可达基数</span></span></a></div>
+  <p class="idea"><span class="en">Core idea: if <span class="m">2<sup>λ</sup> ≥ κ</span>, then κ distinct 0/1-strings of length λ can be told apart by λ coordinate questions. Taking the U-majority answer to every question singles out at most one string. That would put a set with at most one element into U.</span>
+     <span class="zh">核心想法：若 <span class="m">2<sup>λ</sup> ≥ κ</span>，就有 κ 个互不相同的长度为 λ 的 0/1 串，它们可以用 λ 个“坐标问题”区分开。对每个问题都取 U 的多数答案，最终至多剩下一个串，于是一个至多含一个元素的集合进了 U。</span></p>
+  <p><span class="en">Toy picture: 16 rows (playing the role of κ) are all the distinct 0/1-strings of length 4 (playing λ). For each column ξ, U contains exactly one of “rows with 0 at ξ” and “rows with 1 at ξ”. Click a column header to change U's vote there. Then run the intersection.</span>
+     <span class="zh">玩具图：16 行（扮演 κ）是长度 4（扮演 λ）的全部不同 0/1 串。对每一列 ξ，U 恰好包含“在 ξ 处为 0 的行”与“在 ξ 处为 1 的行”中的一个。点击列标题可以改变 U 在该列的投票，然后运行求交。</span></p>
+  <div class="toolbar"><button class="btn primary" id="slGo"><span class="en">Intersect column by column ▶</span><span class="zh">逐列求交 ▶</span></button></div>
+  <div class="stage" style="display:flex;justify-content:center"><svg id="slSvg" viewBox="0 0 520 470" width="520" height="470"></svg></div>
+  <div class="msg" id="slMsg"></div>
+  <div class="def"><span class="en"><b>Theorem</b> <span class="pill zfc">ZFC</span>. If κ is measurable, then κ is regular and a strong limit (<span class="m">λ &lt; κ ⇒ 2<sup>λ</sup> &lt; κ</span>); hence κ is (strongly) inaccessible.</span>
+    <span class="zh"><b>定理</b> <span class="pill zfc">ZFC</span>. 若 κ 可测，则 κ 正则且为强极限（<span class="m">λ &lt; κ ⇒ 2<sup>λ</sup> &lt; κ</span>），因此 κ 是（强）不可达基数。</span></div>
+  <div class="steps" id="pfSL">
+    <div class="step"><h4><span class="il"><span class="en">Step 1 · Small sets are null</span><span class="zh">第 1 步 · 小集合不在 U 中</span></span></h4>
+      <span class="en">Fix a κ-complete non-principal ultrafilter U on κ. For each α, <span class="m">{α} ∉ U</span> (non-principal), so <span class="m">κ∖{α} ∈ U</span>. If <span class="m">|A| &lt; κ</span>, then <span class="m">κ∖A = ⋂<sub>α∈A</sub>(κ∖{α}) ∈ U</span> by κ-completeness, so <span class="m">A ∉ U</span>.</span>
+      <span class="zh">取定 κ 上 κ-完全的非主超滤 U。对每个 α，<span class="m">{α} ∉ U</span>（非主），故 <span class="m">κ∖{α} ∈ U</span>。若 <span class="m">|A| &lt; κ</span>，由 κ-完全性，<span class="m">κ∖A = ⋂<sub>α∈A</sub>(κ∖{α}) ∈ U</span>，所以 <span class="m">A ∉ U</span>。</span></div>
+    <div class="step"><h4><span class="il"><span class="en">Step 2 · Regular</span><span class="zh">第 2 步 · 正则</span></span></h4>
+      <span class="en">Suppose <span class="m">κ = ⋃<sub>i&lt;μ</sub> A<sub>i</sub></span> with <span class="m">μ &lt; κ</span> and each <span class="m">|A<sub>i</sub>| &lt; κ</span>. By Step 1 each <span class="m">κ∖A<sub>i</sub> ∈ U</span>, so <span class="m">∅ = ⋂<sub>i&lt;μ</sub>(κ∖A<sub>i</sub>) ∈ U</span>, contradicting (F1). So cf(κ) = κ.</span>
+      <span class="zh">设 <span class="m">κ = ⋃<sub>i&lt;μ</sub> A<sub>i</sub></span>，其中 <span class="m">μ &lt; κ</span> 且每个 <span class="m">|A<sub>i</sub>| &lt; κ</span>。由第 1 步，每个 <span class="m">κ∖A<sub>i</sub> ∈ U</span>，于是 <span class="m">∅ = ⋂<sub>i&lt;μ</sub>(κ∖A<sub>i</sub>) ∈ U</span>，与 (F1) 矛盾。所以 cf(κ) = κ。</span></div>
+    <div class="step"><h4><span class="il"><span class="en">Step 3 · Strong limit: set up the matrix</span><span class="zh">第 3 步 · 强极限：搭好矩阵</span></span></h4>
+      <span class="en">Suppose <span class="m">λ &lt; κ ≤ 2<sup>λ</sup></span>. Choose distinct <span class="m">f<sub>α</sub> ∈ {0,1}<sup>λ</sup></span> for <span class="m">α &lt; κ</span> (the rows of the picture). For each column <span class="m">ξ &lt; λ</span>, the sets <span class="m">{α : f<sub>α</sub>(ξ)=0}</span> and <span class="m">{α : f<sub>α</sub>(ξ)=1}</span> partition κ, so exactly one is in U. Call it <span class="m">X<sub>ξ</sub></span>, and let <span class="m">ε(ξ)</span> be its bit.</span>
+      <span class="zh">设 <span class="m">λ &lt; κ ≤ 2<sup>λ</sup></span>。取互不相同的 <span class="m">f<sub>α</sub> ∈ {0,1}<sup>λ</sup></span>（<span class="m">α &lt; κ</span>，即图中的各行）。对每一列 <span class="m">ξ &lt; λ</span>，集合 <span class="m">{α : f<sub>α</sub>(ξ)=0}</span> 与 <span class="m">{α : f<sub>α</sub>(ξ)=1}</span> 构成 κ 的划分，恰有一个属于 U，记为 <span class="m">X<sub>ξ</sub></span>，并记它对应的比特为 <span class="m">ε(ξ)</span>。</span></div>
+    <div class="step"><h4><span class="il"><span class="en">Step 4 · Intersect</span><span class="zh">第 4 步 · 求交</span></span></h4>
+      <span class="en"><span class="m">X = ⋂<sub>ξ&lt;λ</sub> X<sub>ξ</sub> ∈ U</span> by κ-completeness, since λ &lt; κ. But <span class="m">α ∈ X ⇔ f<sub>α</sub> = ε</span>, and the rows are distinct, so <span class="m">|X| ≤ 1</span>. This contradicts Step 1. Hence <span class="m">2<sup>λ</sup> &lt; κ</span>. ∎</span>
+      <span class="zh">因为 λ &lt; κ，由 κ-完全性得 <span class="m">X = ⋂<sub>ξ&lt;λ</sub> X<sub>ξ</sub> ∈ U</span>。但 <span class="m">α ∈ X ⇔ f<sub>α</sub> = ε</span>，而各行互不相同，所以 <span class="m">|X| ≤ 1</span>，与第 1 步矛盾。因此 <span class="m">2<sup>λ</sup> &lt; κ</span>。∎</span></div>
+  </div>
+  <div class="toolbar"><button class="btn primary" data-next="pfSL"><span class="en">Next step</span><span class="zh">下一步</span></button><button class="btn ghost" data-all="pfSL"><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+  <div class="note"><span class="en">Much more is true <span class="pill zfc">ZFC</span>: a measurable κ is weakly compact, Mahlo, Ramsey, and the set of weakly compact cardinals below κ belongs to every normal ultrafilter on κ, so κ is the κ-th weakly compact cardinal. With the embedding j these proofs become short (§8).</span>
+    <span class="zh">实际上还有更多结论 <span class="pill zfc">ZFC</span>：可测基数 κ 是弱紧的、马洛的、拉姆齐的，并且 κ 以下弱紧基数之集属于 κ 上每个正规超滤，所以 κ 是第 κ 个弱紧基数。有了嵌入 j，这些证明都会变得很短（§8）。</span></div>
+  <div class="pit"><span class="en"><b class="h">⚠ Common pitfall.</b> “Measurable ⇒ inaccessible” uses AC (we chose the rows, and AC is used throughout). Under ZF + AD, ω₁ is measurable, yet ω₁ is certainly not inaccessible. Everything in this lesson is in ZFC.</span>
+    <span class="zh"><b class="h">⚠ 常见误区.</b> “可测 ⇒ 不可达”用到了选择公理。在 ZF + AD（决定性公理）下 ω₁ 是可测的，但 ω₁ 显然不是不可达基数。本课所有内容都在 ZFC 中进行。</span></div>
+  <div class="cy" id="cy4"></div>
+</section>
+
+<!-- ============ S5 ============ -->
+<section class="card" id="s5">
+  <div class="kicker">§5</div>
+  <h2><span class="en">Ultrapowers and Łoś's theorem: truth by vote</span><span class="zh">超幂与沃什定理：真假由投票决定</span></h2>
+  <div class="pre"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置知识</span></span>: <a class="chip" href="#s2">§2</a> <a class="chip" href="lesson3.html">L3 · <span class="il"><span class="en">structures &amp; truth</span><span class="zh">结构与真</span></span></a> <a class="chip" href="lesson5.html">L5 · <span class="il"><span class="en">elementary maps</span><span class="zh">初等映射</span></span></a></div>
+  <p class="idea"><span class="en">Core idea: a new object is a whole <b>row</b> <span class="m">f = (f(0), f(1), …)</span> of old objects. A statement about rows is true exactly when the set of coordinates where it holds is in U.</span>
+     <span class="zh">核心想法：一个新对象是由旧对象组成的一整<b>行</b> <span class="m">f = (f(0), f(1), …)</span>。关于这些行的一个命题为真，当且仅当它成立的坐标之集属于 U。</span></p>
+  <div class="def"><span class="en"><b>Definition</b> (ultrapower of the universe). Let U be an ultrafilter on κ. For functions <span class="m">f, g : κ → V</span> put
+    <br><span class="m">f =<sub>U</sub> g ⇔ {α&lt;κ : f(α) = g(α)} ∈ U</span>, &nbsp; <span class="m">f ∈<sub>U</sub> g ⇔ {α&lt;κ : f(α) ∈ g(α)} ∈ U</span>.
+    <br><span class="m">[f]</span> is the <span class="m">=<sub>U</sub></span>-class of f, cut down to its members of least rank (<b>Scott's trick</b>, so that <span class="m">[f]</span> is a set). <span class="m">Ult(V,U) = ({[f] : f : κ → V}, ∈<sub>U</sub>)</span>.
+    <br><b>Łoś's theorem</b> <span class="pill zfc">ZFC</span>. For every formula <span class="m">φ(x₁,…,xₙ)</span>:
+    <br><span class="m">Ult(V,U) ⊨ φ([f₁],…,[fₙ]) ⇔ {α&lt;κ : φ(f₁(α),…,fₙ(α))} ∈ U</span>.</span>
+    <span class="zh"><b>定义</b>（宇宙的超幂）. 设 U 为 κ 上的超滤。对函数 <span class="m">f, g : κ → V</span>，令
+    <br><span class="m">f =<sub>U</sub> g ⇔ {α&lt;κ : f(α) = g(α)} ∈ U</span>，&nbsp; <span class="m">f ∈<sub>U</sub> g ⇔ {α&lt;κ : f(α) ∈ g(α)} ∈ U</span>。
+    <br><span class="m">[f]</span> 是 f 的 <span class="m">=<sub>U</sub></span>-等价类中秩最小的那些成员组成的集合（<b>斯科特技巧</b>，保证 <span class="m">[f]</span> 是集合）。<span class="m">Ult(V,U) = ({[f] : f : κ → V}, ∈<sub>U</sub>)</span>。
+    <br><b>沃什定理</b> <span class="pill zfc">ZFC</span>. 对每个公式 <span class="m">φ(x₁,…,xₙ)</span>：
+    <br><span class="m">Ult(V,U) ⊨ φ([f₁],…,[fₙ]) ⇔ {α&lt;κ : φ(f₁(α),…,fₙ(α))} ∈ U</span>。</span></div>
+  <h3><span class="en">A toy you can compute: the ultrapower of (ℕ, &lt;, Even)</span><span class="zh">一个能动手算的玩具：(ℕ, &lt;, Even) 的超幂</span></h3>
+  <p><span class="en">Take U a non-principal ultrafilter on ℕ. Exactly one residue class <span class="m">{n : n ≡ r mod 6}</span> is in U, because the six classes partition ℕ. For our rows (each is linear on each residue class mod 6), the set where a relation holds is, up to finitely many n, a union of residue classes. So <b>knowing r is enough to compute every vote</b>, even though U itself cannot be written down. Pick r, pick two rows, pick a relation.</span>
+     <span class="zh">取 ℕ 上的非主超滤 U。六个模 6 剩余类构成 ℕ 的划分，所以恰有一个剩余类 <span class="m">{n : n ≡ r mod 6}</span> 属于 U。我们的各行在每个模 6 剩余类上都是线性的，因此关系成立的集合在除去有限个 n 之后是若干剩余类的并。所以<b>只要知道 r，就能算出每一次投票的结果</b>，尽管 U 本身写不出来。选好 r，选两行，再选一个关系。</span></p>
+  <div class="toolbar resbtns" id="lrRes"><b class="m">r =</b></div>
+  <div class="toolbar">
+    <span class="m">f =</span> <select class="formula" id="lF"></select>
+    <span class="m">g =</span> <select class="formula" id="lG"></select>
+    <span id="lRel"></span>
+  </div>
+  <div class="stage"><svg id="losSvg" viewBox="0 0 900 330" width="900" height="330"></svg></div>
+  <div class="msg" id="losMsg"></div>
+  <div class="steps" id="pfLos">
+    <div class="step"><h4><span class="il"><span class="en">Atomic formulas</span><span class="zh">原子公式</span></span></h4><span class="en">This is the definition of <span class="m">=<sub>U</sub></span> and <span class="m">∈<sub>U</sub></span>. (One also checks these are well defined on classes, using F2 and F3.)</span><span class="zh">这正是 <span class="m">=<sub>U</sub></span> 与 <span class="m">∈<sub>U</sub></span> 的定义。（还要用 F2、F3 验证它们在等价类上定义良好。）</span></div>
+    <div class="step"><h4><span class="il"><span class="en">Negation uses (U)</span><span class="zh">否定要用 (U)</span></span></h4><span class="en"><span class="m">{α : ¬φ(…)}</span> is the complement of <span class="m">{α : φ(…)}</span>, and an <b>ultra</b>filter contains exactly one of a set and its complement.</span><span class="zh"><span class="m">{α : ¬φ(…)}</span> 是 <span class="m">{α : φ(…)}</span> 的补集，而<b>超</b>滤恰好包含一个集合与其补集中的一个。</span></div>
+    <div class="step"><h4><span class="il"><span class="en">Conjunction uses (F2), (F3)</span><span class="zh">合取要用 (F2)、(F3)</span></span></h4><span class="en"><span class="m">{α : φ ∧ ψ} = {α : φ} ∩ {α : ψ}</span>, and this is in U iff both are.</span><span class="zh"><span class="m">{α : φ ∧ ψ} = {α : φ} ∩ {α : ψ}</span>，它属于 U 当且仅当两者都属于 U。</span></div>
+    <div class="step"><h4><span class="il"><span class="en">∃ uses the Axiom of Choice</span><span class="zh">∃ 要用选择公理</span></span></h4><span class="en">If <span class="m">A = {α : ∃y φ(y, f(α))} ∈ U</span>, <b>choose</b> a witness <span class="m">g(α)</span> for each α ∈ A. Then <span class="m">{α : φ(g(α), f(α))} ⊇ A</span>, so <span class="m">[g]</span> is a witness in the ultrapower. The converse direction is immediate.</span><span class="zh">若 <span class="m">A = {α : ∃y φ(y, f(α))} ∈ U</span>，对每个 α ∈ A <b>选取</b>一个见证 <span class="m">g(α)</span>。则 <span class="m">{α : φ(g(α), f(α))} ⊇ A</span>，于是 <span class="m">[g]</span> 是超幂中的见证。反方向是直接的。</span></div>
+  </div>
+  <div class="toolbar"><button class="btn primary" data-next="pfLos"><span class="en">Next step</span><span class="zh">下一步</span></button><button class="btn ghost" data-all="pfLos"><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+  <div class="pit"><span class="en"><b class="h">⚠ Common pitfall (metamathematics).</b> For the class ultrapower of V, Łoś's theorem is a <b>schema</b>: one theorem of ZFC for each formula φ. It cannot be a single theorem “for all φ”, because truth in V is not definable in V (Tarski, <a href="lesson13.html">L13</a>).</span>
+    <span class="zh"><b class="h">⚠ 常见误区（元数学）.</b> 对 V 的类超幂而言，沃什定理是一个<b>定理模式</b>：每个公式 φ 对应 ZFC 的一条定理。它不能写成一条“对所有 φ”的定理，因为 V 中的真在 V 中不可定义（塔斯基，<a href="lesson13.html">L13</a>）。</span></div>
+  <div class="cy" id="cy5"></div>
+</section>
+
+<!-- ============ S6 ============ -->
+<section class="card" id="s6">
+  <div class="kicker">§6</div>
+  <h2><span class="en">Well-foundedness needs countable completeness; then collapse</span><span class="zh">良基性需要可数完全性，然后坍塌</span></h2>
+  <div class="pre"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置知识</span></span>: <a class="chip" href="#s3">§3</a> <a class="chip" href="#s5">§5</a> <a class="chip" href="lesson14.html">L14 · <span class="il"><span class="en">Mostowski collapse</span><span class="zh">莫斯托夫斯基坍塌</span></span></a></div>
+  <p class="idea"><span class="en">Core idea: in the toy ultrapower of ℕ there is an infinite descending chain. Countable completeness is exactly what forbids such chains. Once the ultrapower is well-founded, Mostowski collapse turns it into a transitive class M.</span>
+     <span class="zh">核心想法：ℕ 的玩具超幂里有无穷下降链。可数完全性恰好禁止这样的链。超幂一旦良基，莫斯托夫斯基坍塌就把它变成一个传递类 M。</span></p>
+  <p><span class="en">Rows <span class="m">d<sub>k</sub>(n) = max(n − k, 0)</span>. For every k, <span class="m">d<sub>k+1</sub>(n) &lt; d<sub>k</sub>(n)</span> holds for all <span class="m">n ≥ k+1</span>, a cofinite set, so <span class="m">[d<sub>k+1</sub>] &lt; [d<sub>k</sub>]</span> in the ultrapower. Press play and watch the chain descend forever. The vote sets <span class="m">S<sub>k</sub> = {n ≥ k+1}</span> are all in U, but their intersection is ∅.</span>
+     <span class="zh">令 <span class="m">d<sub>k</sub>(n) = max(n − k, 0)</span>。对每个 k，<span class="m">d<sub>k+1</sub>(n) &lt; d<sub>k</sub>(n)</span> 对所有 <span class="m">n ≥ k+1</span> 成立，这是余有限集，所以超幂中 <span class="m">[d<sub>k+1</sub>] &lt; [d<sub>k</sub>]</span>。点播放，看这条链永无止境地下降。投票集 <span class="m">S<sub>k</sub> = {n ≥ k+1}</span> 都在 U 中，交集却是 ∅。</span></p>
+  <div class="toolbar"><button class="btn primary" id="wfGo"><span class="en">Play the descending chain ▶</span><span class="zh">播放下降链 ▶</span></button>
+    <label class="small"><input type="checkbox" id="wfCC"> <span class="il"><span class="en">pretend U is countably complete</span><span class="zh">假设 U 可数完全</span></span></label></div>
+  <div class="stage"><svg id="wfSvg" viewBox="0 0 880 260" width="880" height="260"></svg></div>
+  <div class="msg" id="wfMsg"></div>
+  <div class="def"><span class="en"><b>Theorem</b> <span class="pill zfc">ZFC</span>. If U is a countably complete ultrafilter on κ, then <span class="m">∈<sub>U</sub></span> is well-founded on Ult(V,U). It is also extensional (by Łoś, since V satisfies extensionality) and set-like (each <span class="m">{[g] : g ∈<sub>U</sub> f}</span> is a set). Hence the <b>Mostowski collapse</b> gives a unique transitive class M and an isomorphism <span class="m">π : (Ult(V,U), ∈<sub>U</sub>) ≅ (M, ∈)</span>. We identify <span class="m">[f]</span> with <span class="m">π([f])</span>.</span>
+    <span class="zh"><b>定理</b> <span class="pill zfc">ZFC</span>. 若 U 是 κ 上可数完全的超滤，则 <span class="m">∈<sub>U</sub></span> 在 Ult(V,U) 上是良基的。它还是外延的（由沃什定理，因为 V 满足外延公理），并且是类集合式的（每个 <span class="m">{[g] : g ∈<sub>U</sub> f}</span> 都是集合）。于是<b>莫斯托夫斯基坍塌</b>给出唯一的传递类 M 和同构 <span class="m">π : (Ult(V,U), ∈<sub>U</sub>) ≅ (M, ∈)</span>。以后把 <span class="m">[f]</span> 与 <span class="m">π([f])</span> 等同。</span></div>
+  <div class="steps" id="pfWF">
+    <div class="step"><h4><span class="il"><span class="en">Suppose a descending chain</span><span class="zh">设有下降链</span></span></h4><span class="en">Let <span class="m">[f₀] ∋<sub>U</sub> [f₁] ∋<sub>U</sub> [f₂] ∋<sub>U</sub> …</span>, i.e. <span class="m">X<sub>k</sub> = {α : f<sub>k+1</sub>(α) ∈ f<sub>k</sub>(α)} ∈ U</span> for each k.</span><span class="zh">设 <span class="m">[f₀] ∋<sub>U</sub> [f₁] ∋<sub>U</sub> [f₂] ∋<sub>U</sub> …</span>，即对每个 k，<span class="m">X<sub>k</sub> = {α : f<sub>k+1</sub>(α) ∈ f<sub>k</sub>(α)} ∈ U</span>。</span></div>
+    <div class="step"><h4><span class="il"><span class="en">Countable completeness</span><span class="zh">可数完全性</span></span></h4><span class="en"><span class="m">X = ⋂_k X<sub>k</sub> ∈ U</span>, so in particular X ≠ ∅. (On ℕ, this is the step that fails: <span class="m">⋂ S<sub>k</sub> = ∅</span>.)</span><span class="zh"><span class="m">X = ⋂_k X<sub>k</sub> ∈ U</span>，特别地 X ≠ ∅。（在 ℕ 上正是这一步失败：<span class="m">⋂ S<sub>k</sub> = ∅</span>。）</span></div>
+    <div class="step"><h4><span class="il"><span class="en">Contradiction in V</span><span class="zh">在 V 中导出矛盾</span></span></h4><span class="en">Pick <span class="m">α ∈ X</span>. Then <span class="m">f₀(α) ∋ f₁(α) ∋ f₂(α) ∋ …</span> is a descending ∈-chain in V, contradicting the Axiom of Foundation. ∎</span><span class="zh">取 <span class="m">α ∈ X</span>，则 <span class="m">f₀(α) ∋ f₁(α) ∋ f₂(α) ∋ …</span> 是 V 中的 ∈-下降链，与正则公理（基础公理）矛盾。∎</span></div>
+  </div>
+  <div class="toolbar"><button class="btn primary" data-next="pfWF"><span class="en">Next step</span><span class="zh">下一步</span></button><button class="btn ghost" data-all="pfWF"><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+  <div class="pit"><span class="en"><b class="h">⚠ Common pitfall.</b> The ultrapower of ℕ above is a perfectly good model of the true theory of (ℕ, &lt;) (by Łoś, it is an elementary extension). “Well-founded” is not first-order, which is why Łoś cannot transfer it. Well-foundedness comes from countable completeness, an extra property of U.</span>
+    <span class="zh"><b class="h">⚠ 常见误区.</b> 上面 ℕ 的超幂是 (ℕ, &lt;) 的真理论的一个好模型（由沃什定理，它是初等扩张）。“良基”不是一阶性质，所以沃什定理无法把它传递过去。良基性来自 U 额外具有的可数完全性。</span></div>
+  <div class="cy" id="cy6"></div>
+</section>
+
+<!-- ============ S7 ============ -->
+<section class="card" id="s7">
+  <div class="kicker">§7</div>
+  <h2><span class="en">The embedding j: V → M stretches the ordinals at κ</span><span class="zh">嵌入 j: V → M 在 κ 处拉伸序数</span></h2>
+  <div class="pre"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置知识</span></span>: <a class="chip" href="#s6">§6</a> <a class="chip" href="lesson5.html">L5 · <span class="il"><span class="en">elementary embeddings</span><span class="zh">初等嵌入</span></span></a></div>
+  <p class="idea"><span class="en">Core idea: send each set x to the constant row <span class="m">c_x</span>. By Łoś this map is elementary. It fixes every ordinal below κ, and it moves κ up to <span class="m">j(κ) &gt; κ</span>.</span>
+     <span class="zh">核心想法：把每个集合 x 送到常值行 <span class="m">c_x</span>。由沃什定理，这个映射是初等的。它固定 κ 以下的每个序数，却把 κ 推高到 <span class="m">j(κ) &gt; κ</span>。</span></p>
+  <div class="toolbar"><button class="btn primary" id="jGo"><span class="en">Apply j ▶</span><span class="zh">作用 j ▶</span></button>
+    <span class="small"><span class="il"><span class="en">probe α:</span><span class="zh">探测 α：</span></span></span> <input type="range" id="jA" min="0" max="100" value="30" style="width:240px"> <span class="m" id="jAv"></span></div>
+  <div class="stage"><svg id="jSvg" viewBox="0 0 900 270" width="900" height="270"></svg></div>
+  <div class="msg info" id="jMsg"></div>
+  <div class="def"><span class="en"><b>Theorem</b> <span class="pill zfc">ZFC</span>. Let U be a κ-complete non-principal ultrafilter on κ, M the collapse of Ult(V,U), and <span class="m">j = j<sub>U</sub> : V → M</span>, <span class="m">j(x) = [c_x]</span>. Then:
+    <br>(1) j is elementary: <span class="m">V ⊨ φ(a₁,…,aₙ) ⇔ M ⊨ φ(j(a₁),…,j(aₙ))</span> (a schema, by Łoś). M is a transitive class containing all ordinals.
+    <br>(2) <span class="m">j(α) = α</span> for all <span class="m">α &lt; κ</span>; in fact <span class="m">j(x) = x</span> for all <span class="m">x ∈ V<sub>κ</sub></span>.
+    <br>(3) <span class="m">κ &lt; j(κ)</span>, so <span class="m">crit(j) = κ</span>, the least ordinal moved. Moreover <span class="m">κ ≤ [id] &lt; j(κ)</span>, with <span class="m">[id] = κ</span> when U is normal.
+    <br>(4) <span class="m"><sup>κ</sup>M ⊆ M</span> (M is closed under κ-sequences); in particular <span class="m">𝒫(κ) ⊆ M</span>.
+    <br>(5) <span class="m">2<sup>κ</sup> &lt; j(κ)</span>, and <span class="m">U ∉ M</span>; hence <span class="m">M ≠ V</span>.</span>
+    <span class="zh"><b>定理</b> <span class="pill zfc">ZFC</span>. 设 U 为 κ 上 κ-完全的非主超滤，M 为 Ult(V,U) 的坍塌，<span class="m">j = j<sub>U</sub> : V → M</span>，<span class="m">j(x) = [c_x]</span>。则：
+    <br>(1) j 是初等的：<span class="m">V ⊨ φ(a₁,…,aₙ) ⇔ M ⊨ φ(j(a₁),…,j(aₙ))</span>（由沃什定理，是一个定理模式）。M 是包含所有序数的传递类。
+    <br>(2) 对所有 <span class="m">α &lt; κ</span>，<span class="m">j(α) = α</span>；事实上对所有 <span class="m">x ∈ V<sub>κ</sub></span>，<span class="m">j(x) = x</span>。
+    <br>(3) <span class="m">κ &lt; j(κ)</span>，所以 <span class="m">crit(j) = κ</span>，即被移动的最小序数。此外 <span class="m">κ ≤ [id] &lt; j(κ)</span>；当 U 正规时 <span class="m">[id] = κ</span>。
+    <br>(4) <span class="m"><sup>κ</sup>M ⊆ M</span>（M 对 κ-序列封闭）；特别地 <span class="m">𝒫(κ) ⊆ M</span>。
+    <br>(5) <span class="m">2<sup>κ</sup> &lt; j(κ)</span>，且 <span class="m">U ∉ M</span>；因此 <span class="m">M ≠ V</span>。</span></div>
+  <div class="steps" id="pfJ">
+    <div class="step"><h4><span class="il"><span class="en">(2) Below κ nothing moves</span><span class="zh">(2) κ 以下纹丝不动</span></span></h4><span class="en">Induction on <span class="m">β &lt; κ</span>. If <span class="m">[f] &lt; j(β) = [c_β]</span>, then <span class="m">f(α) &lt; β</span> on a set in U. That set is the union of the β sets <span class="m">f⁻¹{γ}</span>, γ &lt; β. Since β &lt; κ, κ-completeness puts one of them in U, so <span class="m">[f] = j(γ) = γ</span>. Hence the ordinals below j(β) are exactly those below β, i.e. <span class="m">j(β) = β</span>.</span><span class="zh">对 <span class="m">β &lt; κ</span> 归纳。若 <span class="m">[f] &lt; j(β) = [c_β]</span>，则在 U 中某集合上 <span class="m">f(α) &lt; β</span>。该集合是 β 个集合 <span class="m">f⁻¹{γ}</span>（γ &lt; β）之并；由于 β &lt; κ，κ-完全性保证其中某一个属于 U，于是 <span class="m">[f] = j(γ) = γ</span>。所以 j(β) 以下的序数恰好是 β 以下的序数，即 <span class="m">j(β) = β</span>。</span></div>
+    <div class="step"><h4><span class="il"><span class="en">(3) The identity row sits in the gap</span><span class="zh">(3) 恒等行落在缺口里</span></span></h4><span class="en">For <span class="m">β &lt; κ</span>: <span class="m">{α : β &lt; α} ∈ U</span> (its complement has size &lt; κ), so <span class="m">β = j(β) &lt; [id]</span>. Hence <span class="m">κ ≤ [id]</span>. And <span class="m">{α : α &lt; κ} = κ ∈ U</span>, so <span class="m">[id] &lt; [c_κ] = j(κ)</span>. Thus <span class="m">κ ≤ [id] &lt; j(κ)</span>.</span><span class="zh">对 <span class="m">β &lt; κ</span>：<span class="m">{α : β &lt; α} ∈ U</span>（其补集基数小于 κ），所以 <span class="m">β = j(β) &lt; [id]</span>，从而 <span class="m">κ ≤ [id]</span>。又 <span class="m">{α : α &lt; κ} = κ ∈ U</span>，所以 <span class="m">[id] &lt; [c_κ] = j(κ)</span>。于是 <span class="m">κ ≤ [id] &lt; j(κ)</span>。</span></div>
+    <div class="step"><h4><span class="il"><span class="en">(5) j(κ) beats 2<sup>κ</sup></span><span class="zh">(5) j(κ) 超过 2<sup>κ</sup></span></span></h4><span class="en">By elementarity, <span class="m">j(κ)</span> is inaccessible in M, and <span class="m">j(κ) &gt; κ</span>, so <span class="m">j(κ) &gt; (2<sup>κ</sup>)<sup>M</sup></span>. Since <span class="m">𝒫(κ) ⊆ M ⊆ V</span>, any bijection in M is also in V, so <span class="m">(2<sup>κ</sup>)<sup>M</sup> ≥ 2<sup>κ</sup></span>. Hence <span class="m">j(κ) &gt; 2<sup>κ</sup></span>. <b>U ∉ M:</b> every ordinal below <span class="m">j(κ)</span> is <span class="m">[f]</span> for some <span class="m">f : κ → κ</span>. If U were in M, then (as <span class="m"><sup>κ</sup>κ ⊆ M</span>) M could form <span class="m"><sup>κ</sup>κ/U</span> itself and would see <span class="m">|j(κ)| ≤ (2<sup>κ</sup>)<sup>M</sup> &lt; j(κ)</span>, contradicting that j(κ) is a cardinal in M.</span><span class="zh">由初等性，<span class="m">j(κ)</span> 在 M 中是不可达的，且 <span class="m">j(κ) &gt; κ</span>，所以 <span class="m">j(κ) &gt; (2<sup>κ</sup>)<sup>M</sup></span>。因为 <span class="m">𝒫(κ) ⊆ M ⊆ V</span>，M 中的双射也在 V 中，所以 <span class="m">(2<sup>κ</sup>)<sup>M</sup> ≥ 2<sup>κ</sup></span>，从而 <span class="m">j(κ) &gt; 2<sup>κ</sup></span>。<b>U ∉ M：</b><span class="m">j(κ)</span> 以下的每个序数都形如 <span class="m">[f]</span>，其中 <span class="m">f : κ → κ</span>。若 U ∈ M，则（由于 <span class="m"><sup>κ</sup>κ ⊆ M</span>）M 自己就能构造 <span class="m"><sup>κ</sup>κ/U</span>，从而看到 <span class="m">|j(κ)| ≤ (2<sup>κ</sup>)<sup>M</sup> &lt; j(κ)</span>，与 j(κ) 在 M 中是基数矛盾。</span></div>
+  </div>
+  <div class="toolbar"><button class="btn primary" data-next="pfJ"><span class="en">Next step</span><span class="zh">下一步</span></button><button class="btn ghost" data-all="pfJ"><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+  <div class="pit"><span class="en"><b class="h">⚠ Common pitfall.</b> j fixes every element of <span class="m">V<sub>κ</sub></span>, but in general it moves sets outside <span class="m">V<sub>κ</sub></span>. For example <span class="m">j(κ) ≠ κ</span>, and for <span class="m">A ⊆ κ</span> we only get <span class="m">j(A) ∩ κ = A</span>; <span class="m">j(A)</span> itself is a subset of <span class="m">j(κ)</span> and usually much bigger. Also, κ is <b>not</b> in the range of j.</span>
+    <span class="zh"><b class="h">⚠ 常见误区.</b> j 固定 <span class="m">V<sub>κ</sub></span> 的每个元素，但一般会移动 <span class="m">V<sub>κ</sub></span> 以外的集合。例如 <span class="m">j(κ) ≠ κ</span>；对 <span class="m">A ⊆ κ</span> 只有 <span class="m">j(A) ∩ κ = A</span>，而 <span class="m">j(A)</span> 本身是 <span class="m">j(κ)</span> 的子集，通常大得多。另外，κ <b>不在</b> j 的值域中。</span></div>
+  <div class="cy" id="cy7"></div>
+</section>
+
+<!-- ============ S8 ============ -->
+<section class="card" id="s8">
+  <div class="kicker">§8</div>
+  <h2><span class="en">Measures ⇔ embeddings, and fast proofs by reflection</span><span class="zh">测度 ⇔ 嵌入，以及用反射给出的快速证明</span></h2>
+  <div class="pre"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置知识</span></span>: <a class="chip" href="#s7">§7</a> <a class="chip" href="lesson23.html">L23 · <span class="il"><span class="en">weakly compact, tree property, Mahlo</span><span class="zh">弱紧、树性质、马洛</span></span></a></div>
+  <p class="idea"><span class="en">Core idea: the ultrafilter can be read back off the embedding. A set <span class="m">X ⊆ κ</span> is “large” exactly when κ belongs to <span class="m">j(X)</span>.</span>
+     <span class="zh">核心想法：超滤可以从嵌入中读回来。集合 <span class="m">X ⊆ κ</span> 是“大”的，当且仅当 κ 属于 <span class="m">j(X)</span>。</span></p>
+  <div class="def"><span class="en"><b>Theorem</b> (Scott, Keisler) <span class="pill zfc">ZFC</span>. κ is measurable ⇔ there is a non-trivial elementary embedding <span class="m">j : V → M</span>, M a transitive class, with <span class="m">crit(j) = κ</span>.
+    <br>(⇒) is §7. (⇐) Put <span class="m">U = {X ⊆ κ : κ ∈ j(X)}</span>. Then U is a κ-complete non-principal ultrafilter on κ, and it is even <b>normal</b>. κ is uncountable because <span class="m">j(ω) = ω</span> (ω is definable).</span>
+    <span class="zh"><b>定理</b>（Scott、Keisler）<span class="pill zfc">ZFC</span>. κ 可测 ⇔ 存在非平凡初等嵌入 <span class="m">j : V → M</span>，M 为传递类，且 <span class="m">crit(j) = κ</span>。
+    <br>(⇒) 就是 §7。(⇐) 令 <span class="m">U = {X ⊆ κ : κ ∈ j(X)}</span>。则 U 是 κ 上 κ-完全的非主超滤，甚至是<b>正规</b>的。κ 不可数，因为 <span class="m">j(ω) = ω</span>（ω 可定义）。</span></div>
+  <p><span class="en"><b>Is κ ∈ j(X)?</b> Click a set X ⊆ κ. Use elementarity: <span class="m">j(X)</span> is defined in M by the same formula with κ replaced by <span class="m">j(κ)</span>, and you ask whether κ itself satisfies that formula <b>in M</b>.</span>
+     <span class="zh"><b>κ ∈ j(X) 吗？</b> 点一个集合 X ⊆ κ。利用初等性：在 M 中，<span class="m">j(X)</span> 由同一个公式定义，只是把 κ 换成 <span class="m">j(κ)</span>；你要问的是：κ 本身<b>在 M 中</b>是否满足这个公式。</span></p>
+  <div id="kjx" class="kappa-q"></div>
+  <div class="msg" id="kjxMsg"></div>
+  <h3><span class="en">Proof by reflection: measurable ⇒ weakly compact, Mahlo, and more</span><span class="zh">用反射证明：可测 ⇒ 弱紧、马洛，乃至更多</span></h3>
+  <div class="steps" id="pfWC">
+    <div class="step"><h4><span class="il"><span class="en">Measurable ⇒ tree property</span><span class="zh">可测 ⇒ 树性质</span></span></h4><span class="en">Let T be a κ-tree; WLOG its nodes are the ordinals below κ. Each level <span class="m">T_ξ</span> (ξ &lt; κ) has size &lt; κ, and κ is regular, so <span class="m">T_ξ ∈ V<sub>κ</sub></span> and <span class="m">j(T)_ξ = j(T_ξ) = T_ξ</span>. Also <span class="m">j(&lt;_T) ∩ (κ×κ) = &lt;_T</span>. In M, <span class="m">j(T)</span> has height <span class="m">j(κ) &gt; κ</span>, so it has a node t on level κ. The predecessors of t form a chain meeting every level <span class="m">T_ξ</span>, ξ &lt; κ, i.e. a <b>cofinal branch of T</b>.</span><span class="zh">设 T 为 κ-树，不妨设其结点就是 κ 以下的序数。每层 <span class="m">T_ξ</span>（ξ &lt; κ）的基数小于 κ，而 κ 正则，所以 <span class="m">T_ξ ∈ V<sub>κ</sub></span>，且 <span class="m">j(T)_ξ = j(T_ξ) = T_ξ</span>。又 <span class="m">j(&lt;_T) ∩ (κ×κ) = &lt;_T</span>。在 M 中 <span class="m">j(T)</span> 的高度为 <span class="m">j(κ) &gt; κ</span>，所以第 κ 层上有结点 t。t 的前驱构成一条与每一层 <span class="m">T_ξ</span>（ξ &lt; κ）都相交的链，也就是 <b>T 的一条共尾枝</b>。</span></div>
+    <div class="step"><h4><span class="il"><span class="en">So κ is weakly compact</span><span class="zh">所以 κ 弱紧</span></span></h4><span class="en">κ is inaccessible (§4) and has the tree property, so κ is weakly compact (<a href="lesson23.html">L23</a>).</span><span class="zh">κ 不可达（§4）且有树性质，所以 κ 弱紧（<a href="lesson23.html">L23</a>）。</span></div>
+    <div class="step"><h4><span class="il"><span class="en">Reflection: M also thinks κ is weakly compact</span><span class="zh">反射：M 也认为 κ 弱紧</span></span></h4><span class="en">Every κ-tree in M is in V, and its branch from V is a subset of κ, hence in M because <span class="m">𝒫(κ) ⊆ M</span>. So <span class="m">M ⊨ “κ is weakly compact”</span>.</span><span class="zh">M 中的每棵 κ-树都在 V 中；它在 V 中的枝是 κ 的子集，由于 <span class="m">𝒫(κ) ⊆ M</span>，这条枝也在 M 中。所以 <span class="m">M ⊨“κ 弱紧”</span>。</span></div>
+    <div class="step"><h4><span class="il"><span class="en">Pull back with elementarity</span><span class="zh">用初等性拉回来</span></span></h4><span class="en">For <span class="m">β &lt; κ</span>: <span class="m">M ⊨ “∃ weakly compact γ with j(β) = β &lt; γ &lt; j(κ)”</span> (witness γ = κ). By elementarity, <span class="m">V ⊨ “∃ weakly compact γ with β &lt; γ &lt; κ”</span>. So the weakly compacts are unbounded below κ. For the normal U of the theorem above, <span class="m">X ∈ U ⇔ M ⊨ “κ ∈ j(X)”</span> gives <span class="m">{γ &lt; κ : γ weakly compact} ∈ U</span>. Likewise <span class="m">{γ &lt; κ : γ inaccessible} ∈ U</span>, and every set in a normal ultrafilter on κ is stationary, so κ is Mahlo.</span><span class="zh">对 <span class="m">β &lt; κ</span>：<span class="m">M ⊨“存在弱紧 γ 使 j(β) = β &lt; γ &lt; j(κ)”</span>（见证 γ = κ）。由初等性，<span class="m">V ⊨“存在弱紧 γ 使 β &lt; γ &lt; κ”</span>。所以弱紧基数在 κ 以下无界。对上面定理中的正规超滤 U，由 <span class="m">X ∈ U ⇔ κ ∈ j(X)</span> 得 <span class="m">{γ &lt; κ : γ 弱紧} ∈ U</span>。同理 <span class="m">{γ &lt; κ : γ 不可达} ∈ U</span>，而正规超滤中的每个集合都是 κ 的平稳子集，所以 κ 是马洛基数。</span></div>
+  </div>
+  <div class="toolbar"><button class="btn primary" data-next="pfWC"><span class="en">Next step</span><span class="zh">下一步</span></button><button class="btn ghost" data-all="pfWC"><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+  <div class="note"><span class="en"><b>Metamathematical subtlety.</b> j and M are proper classes, and ZFC cannot quantify over classes. So “there is <span class="m">j : V → M</span>” is not literally a ZFC sentence. Standard readings: (a) the official definition is the first-order statement “there is a κ-complete non-principal ultrafilter U on κ”; then <span class="m">j<sub>U</sub></span> and <span class="m">M<sub>U</sub></span> are classes <b>definable from the parameter U</b>, and “j is elementary” is a schema, one instance per formula. (b) Work in a class theory such as NBG or Morse–Kelley, where classes j, M can be quantified directly. The theorem above is correct under either reading.</span>
+    <span class="zh"><b>元数学上的细节.</b> j 和 M 都是真类，而 ZFC 不能对类作量化。所以“存在 <span class="m">j : V → M</span>”字面上不是 ZFC 的语句。标准的理解方式有两种：(a) 官方定义是一阶语句“κ 上存在 κ-完全的非主超滤 U”，此时 <span class="m">j<sub>U</sub></span> 和 <span class="m">M<sub>U</sub></span> 是<b>以 U 为参数可定义的</b>类，“j 是初等的”是一个定理模式，每个公式对应一条；(b) 在 NBG 或莫尔斯–凯利（MK）这样的类理论中工作，可以直接对类 j、M 作量化。上面的定理在两种理解下都成立。</span></div>
+  <div class="cy" id="cy8"></div>
+</section>
+
+<!-- ============ S9 ============ -->
+<section class="card" id="s9">
+  <div class="kicker">§9</div>
+  <h2><span class="en">Scott's theorem: if a measurable cardinal exists, then V ≠ L</span><span class="zh">斯科特定理：若存在可测基数，则 V ≠ L</span></h2>
+  <div class="pre"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置知识</span></span>: <a class="chip" href="#s8">§8</a> <a class="chip" href="lesson15.html">L15 · <span class="il"><span class="en">the constructible universe L</span><span class="zh">可构成宇宙 L</span></span></a></div>
+  <p class="idea"><span class="en">Core idea: apply j to “κ is the <b>least</b> measurable”. In M the least measurable becomes j(κ). If V = L, then M = L as well, so the same universe would have two different least measurables.</span>
+     <span class="zh">核心想法：把 j 作用到“κ 是<b>最小的</b>可测基数”上。在 M 中，最小的可测基数变成了 j(κ)。如果 V = L，那么 M 也等于 L，同一个宇宙里就会有两个不同的“最小可测基数”。</span></p>
+  <div class="stage" style="display:flex;justify-content:center"><svg id="scottSvg" viewBox="0 0 760 270" width="760" height="270"></svg></div>
+  <div class="steps" id="pfScott">
+    <div class="step"><h4>1</h4><span class="en">Assume V = L and that there is a measurable cardinal. Let κ be the <b>least</b> one, with <span class="m">j : V → M</span>, <span class="m">crit(j) = κ</span>.</span><span class="zh">假设 V = L 且存在可测基数。取<b>最小的</b>可测基数 κ，以及 <span class="m">j : V → M</span>，<span class="m">crit(j) = κ</span>。</span></div>
+    <div class="step"><h4>2</h4><span class="en">By elementarity, <span class="m">M ⊨ “j(κ) is the least measurable cardinal”</span>.</span><span class="zh">由初等性，<span class="m">M ⊨“j(κ) 是最小的可测基数”</span>。</span></div>
+    <div class="step"><h4>3</h4><span class="en">M is a transitive class model of ZF containing all ordinals, so <span class="m">L = L^M ⊆ M ⊆ V = L</span> (L is the smallest such model and is absolute, <a href="lesson15.html">L15</a>). Hence <span class="m">M = L = V</span>.</span><span class="zh">M 是包含所有序数的 ZF 传递类模型，所以 <span class="m">L = L^M ⊆ M ⊆ V = L</span>（L 是这类模型中最小的，且是绝对的，见 <a href="lesson15.html">L15</a>）。因此 <span class="m">M = L = V</span>。</span></div>
+    <div class="step"><h4>4</h4><span class="en">So <span class="m">V ⊨ “j(κ) is the least measurable”</span>. But also <span class="m">V ⊨ “κ is the least measurable”</span>, so <span class="m">j(κ) = κ</span>. This contradicts <span class="m">j(κ) &gt; κ</span>. Hence <span class="m">V ≠ L</span>. ∎</span><span class="zh">于是 <span class="m">V ⊨“j(κ) 是最小的可测基数”</span>。但同时 <span class="m">V ⊨“κ 是最小的可测基数”</span>，故 <span class="m">j(κ) = κ</span>，与 <span class="m">j(κ) &gt; κ</span> 矛盾。所以 <span class="m">V ≠ L</span>。∎</span></div>
+  </div>
+  <div class="toolbar"><button class="btn primary" data-next="pfScott"><span class="en">Next step</span><span class="zh">下一步</span></button><button class="btn ghost" data-all="pfScott"><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+  <div class="def"><span class="en"><b>Theorem</b> (Scott 1961) <span class="pill zfc">ZFC</span>. If there is a measurable cardinal, then V ≠ L. Equivalently, <span class="m">L ⊨</span> “there is no measurable cardinal”.</span>
+    <span class="zh"><b>定理</b>（Scott 1961）<span class="pill zfc">ZFC</span>. 若存在可测基数，则 V ≠ L。等价地，<span class="m">L ⊨</span>“不存在可测基数”。</span></div>
+  <div class="pit"><span class="en"><b class="h">⚠ Common pitfall.</b> Scott's theorem says <span class="m">L ⊨</span> “no measurable cardinal”. It does <b>not</b> say κ becomes small in L. Inaccessibility and weak compactness are <i>downward absolute</i> to L, so a measurable κ is still inaccessible and weakly compact <b>in L</b> (with 0<sup>♯</sup>, §10, even much more). Only measurability is lost: L contains no set that L itself regards as a κ-complete non-principal ultrafilter on κ.</span>
+    <span class="zh"><b class="h">⚠ 常见误区.</b> 斯科特定理说的是 <span class="m">L ⊨</span>“不存在可测基数”，<b>并不是</b>说 κ 在 L 中变小了。不可达性与弱紧性都<i>向下绝对</i>到 L，所以可测基数 κ <b>在 L 中</b>仍然是不可达的、弱紧的（借助 0<sup>♯</sup>，见 §10，还远不止这些）。失去的只有可测性：L 中没有任何集合被 L 自己认作 κ 上的 κ-完全非主超滤。</span></div>
+  <div class="cy" id="cy9"></div>
+</section>
+
+<!-- ============ S10 ============ -->
+<section class="card" id="s10">
+  <div class="kicker">§10</div>
+  <h2><span class="en">Between weakly compact and measurable: Ramsey, Erdős, 0<sup>♯</sup></span><span class="zh">介于弱紧与可测之间：拉姆齐、埃尔德什、0<sup>♯</sup></span></h2>
+  <div class="pre"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置知识</span></span>: <a class="chip" href="#s9">§9</a> <a class="chip" href="lesson23.html">L23 · <span class="il"><span class="en">partition κ → (κ)²</span><span class="zh">划分 κ → (κ)²</span></span></a> <a class="chip" href="lesson5.html">L5 · <span class="il"><span class="en">indiscernibles, Skolem hulls</span><span class="zh">不可辨元、斯科伦包</span></span></a></div>
+  <p class="idea"><span class="en">Core idea: strengthen “κ → (κ)²” to colourings of <i>all</i> finite subsets. Already a homogeneous set of order type ω₁ forces L to be built on a <b>skeleton</b> of indiscernibles, and V then lies far beyond L.</span>
+     <span class="zh">核心想法：把“κ → (κ)²”加强到对<i>所有</i>有限子集的染色。只要有一个序型为 ω₁ 的齐性集，L 就被迫建立在一副由不可辨元组成的<b>骨架</b>上，而 V 则远远超出 L。</span></p>
+  <div class="def"><span class="en"><b>Definitions.</b> <span class="m">κ → (α)<sup>&lt;ω</sup></span>: for every <span class="m">f : [κ]<sup>&lt;ω</sup> → 2</span> there is <span class="m">H ⊆ κ</span> of order type α that is <b>homogeneous</b>: for each n, f is constant on <span class="m">[H]<sup>n</sup></span> (the constant may depend on n).
+    <br>• κ is <b>Ramsey</b> if <span class="m">κ → (κ)<sup>&lt;ω</sup></span>.
+    <br>• <span class="m">κ(α)</span>, the <b>α-Erdős cardinal</b>, is the least κ with <span class="m">κ → (α)<sup>&lt;ω</sup></span> (if it exists).
+    <br>• κ is <b>Jónsson</b> if every structure of size κ in a countable language has a proper elementary substructure of size κ. κ is <b>Rowbottom</b> if for every <span class="m">λ &lt; κ</span> and <span class="m">f : [κ]<sup>&lt;ω</sup> → λ</span> there is <span class="m">H ⊆ κ</span>, <span class="m">|H| = κ</span>, on which f takes only countably many values.</span>
+    <span class="zh"><b>定义.</b> <span class="m">κ → (α)<sup>&lt;ω</sup></span>：对每个 <span class="m">f : [κ]<sup>&lt;ω</sup> → 2</span>，都存在序型为 α 的<b>齐性</b>集 <span class="m">H ⊆ κ</span>：对每个 n，f 在 <span class="m">[H]<sup>n</sup></span> 上取常值（常值可以随 n 变化）。
+    <br>• 若 <span class="m">κ → (κ)<sup>&lt;ω</sup></span>，称 κ 为<b>拉姆齐基数</b>。
+    <br>• <span class="m">κ(α)</span>，即 <b>α-埃尔德什基数</b>，是满足 <span class="m">κ → (α)<sup>&lt;ω</sup></span> 的最小 κ（若存在）。
+    <br>• 若基数为 κ 的每个可数语言结构都有基数为 κ 的真初等子结构，称 κ 为<b>琼森基数</b>。若对每个 <span class="m">λ &lt; κ</span> 和 <span class="m">f : [κ]<sup>&lt;ω</sup> → λ</span>，都存在 <span class="m">H ⊆ κ</span>，<span class="m">|H| = κ</span>，使 f 在 <span class="m">[H]<sup>&lt;ω</sup></span> 上只取可数多个值，称 κ 为<b>罗博顿基数</b>。</span></div>
+  <table class="facts">
+    <tr><th><span class="il"><span class="en">Statement</span><span class="zh">陈述</span></span></th><th><span class="il"><span class="en">Status</span><span class="zh">地位</span></span></th></tr>
+    <tr><td><span class="en">measurable ⇒ Ramsey ⇒ weakly compact; Ramsey ⇒ Rowbottom ⇒ Jónsson</span><span class="zh">可测 ⇒ 拉姆齐 ⇒ 弱紧；拉姆齐 ⇒ 罗博顿 ⇒ 琼森</span></td><td><span class="pill zfc">ZFC</span></td></tr>
+    <tr><td><span class="en">If κ is Ramsey then <span class="m">κ → (ω₁)<sup>&lt;ω</sup></span> (trivially), and in fact <span class="m">κ(ω₁) &lt; κ</span>, because κ(ω₁) is not weakly compact</span><span class="zh">若 κ 是拉姆齐基数，则 <span class="m">κ → (ω₁)<sup>&lt;ω</sup></span>（显然），且事实上 <span class="m">κ(ω₁) &lt; κ</span>，因为 κ(ω₁) 不是弱紧的</span></td><td><span class="pill zfc">ZFC</span></td></tr>
+    <tr><td><span class="en">A measurable κ is a limit of Ramsey cardinals (reflection, as in §8), so the least measurable is not the least Ramsey</span><span class="zh">可测基数 κ 是拉姆齐基数的极限（如 §8 那样反射），所以最小的可测基数不是最小的拉姆齐基数</span></td><td><span class="pill zfc">ZFC</span></td></tr>
+    <tr><td><span class="en">Ramsey, Rowbottom, Jónsson: “there exists one” are pairwise equiconsistent (Kleinberg; Mitchell)</span><span class="zh">“存在拉姆齐基数”“存在罗博顿基数”“存在琼森基数”两两等一致（Kleinberg；Mitchell）</span></td><td><span class="pill equi">≡</span></td></tr>
+    <tr><td><span class="en">Rowbottom and Jónsson cardinals need not be regular, and can be singular (relative to a measurable)</span><span class="zh">罗博顿基数、琼森基数未必正则，可以是奇异的（相对于可测基数）</span></td><td><span class="pill con">Con</span></td></tr>
+    <tr><td><span class="en">Can ℵ<sub>ω</sub> be Rowbottom (consistently with ZFC)?</span><span class="zh">ℵ<sub>ω</sub> 能否（与 ZFC 一致地）是罗博顿基数？</span></td><td><span class="pill open">open</span></td></tr>
+  </table>
+  <div class="def"><span class="en"><b>0<sup>♯</sup> and Silver indiscernibles</b> (Silver; Solovay) <span class="pill zfc">ZFC</span>. If some κ satisfies <span class="m">κ → (ω₁)<sup>&lt;ω</sup></span> (in particular if there is a Ramsey or a measurable cardinal), then <b>0<sup>♯</sup> exists</b>: there is a closed unbounded class I of ordinals (the <b>Silver indiscernibles</b>) such that
+    <br>(i) I is a class of order-indiscernibles for L: for increasing tuples from I, L cannot tell them apart;
+    <br>(ii) every element of L is definable in L from finitely many members of I;
+    <br>(iii) I contains every uncountable cardinal of V.
+    <br><span class="m">0<sup>♯</sup></span> is the set of Gödel numbers of formulas <span class="m">φ(x₁,…,xₙ)</span> with <span class="m">L ⊨ φ(ι₁,…,ιₙ)</span> for increasing <span class="m">ι₁ &lt; … &lt; ιₙ</span> in I: a single real coding the whole theory of the skeleton. If ZFC is consistent, it does not prove that 0<sup>♯</sup> exists: 0<sup>♯</sup> implies V ≠ L, while L ⊨ ZFC + V = L.</span>
+    <span class="zh"><b>0<sup>♯</sup> 与 Silver 不可辨元</b>（Silver；Solovay）<span class="pill zfc">ZFC</span>. 若某个 κ 满足 <span class="m">κ → (ω₁)<sup>&lt;ω</sup></span>（特别地，若存在拉姆齐基数或可测基数），则 <b>0<sup>♯</sup>（零升）存在</b>：存在一个序数的闭无界类 I（<b>Silver 不可辨元</b>），使得
+    <br>(i) I 是 L 的序不可辨元类：L 无法区分 I 中的递增元组；
+    <br>(ii) L 的每个元素都可以在 L 中由 I 的有限个元素定义；
+    <br>(iii) I 包含 V 的每个不可数基数。
+    <br><span class="m">0<sup>♯</sup></span> 是使 <span class="m">L ⊨ φ(ι₁,…,ιₙ)</span>（对 I 中递增的 <span class="m">ι₁ &lt; … &lt; ιₙ</span>）成立的公式 <span class="m">φ(x₁,…,xₙ)</span> 的哥德尔编码之集：一个实数，编码了整副骨架的理论。若 ZFC 一致，它就不能证明 0<sup>♯</sup> 存在：0<sup>♯</sup> 蕴涵 V ≠ L，而 L ⊨ ZFC + V = L。</span></div>
+  <p><span class="en">Toggle between the two sides of <b>Jensen's dichotomy</b>. With 0<sup>♯</sup>, press <b>shift</b>: the map <span class="m">ιₙ ↦ ιₙ₊₁</span> extends to an elementary embedding <span class="m">j : L → L</span>.</span>
+     <span class="zh">在 <b>Jensen 二分法</b>的两边之间切换。在 0<sup>♯</sup> 存在的一侧点 <b>平移</b>：映射 <span class="m">ιₙ ↦ ιₙ₊₁</span> 可以延拓成初等嵌入 <span class="m">j : L → L</span>。</span></p>
+  <div class="toolbar">
+    <button class="btn sel" id="shYes"><span class="en">0<sup>♯</sup> exists</span><span class="zh">0<sup>♯</sup> 存在</span></button>
+    <button class="btn" id="shNo"><span class="en">0<sup>♯</sup> does not exist</span><span class="zh">0<sup>♯</sup> 不存在</span></button>
+    <button class="btn primary" id="shShift"><span class="en">Shift indiscernibles ▶</span><span class="zh">平移不可辨元 ▶</span></button>
+  </div>
+  <div class="stage" style="display:flex;justify-content:center"><svg id="skelSvg" viewBox="0 0 820 360" width="820" height="360"></svg></div>
+  <div class="msg info" id="skelMsg"></div>
+  <div class="def"><span class="en"><b>Kunen</b> <span class="pill zfc">ZFC</span>: 0<sup>♯</sup> exists ⇔ there is a non-trivial elementary embedding <span class="m">j : L → L</span> (j a class, read as in §8).
+    <br><b>Jensen's covering lemma</b> <span class="pill zfc">ZFC</span>: if 0<sup>♯</sup> does <b>not</b> exist, then every uncountable set X of ordinals is covered by some <span class="m">Y ∈ L</span> with <span class="m">X ⊆ Y</span> and <span class="m">|Y| = |X|</span>. Consequences: every singular cardinal of V is singular in L, <span class="m">λ⁺ = (λ⁺)<sup>L</sup></span> for every singular λ, and SCH holds. So <b>either</b> L is “close to” V, <b>or</b> 0<sup>♯</sup> exists and every uncountable V-cardinal (e.g. ℵ<sub>ω</sub>) is inaccessible in L.</span>
+    <span class="zh"><b>Kunen</b> <span class="pill zfc">ZFC</span>：0<sup>♯</sup> 存在 ⇔ 存在非平凡初等嵌入 <span class="m">j : L → L</span>（j 是类，按 §8 的方式理解）。
+    <br><b>Jensen 覆盖引理</b> <span class="pill zfc">ZFC</span>：若 0<sup>♯</sup> <b>不</b>存在，则每个不可数序数集 X 都被某个 <span class="m">Y ∈ L</span> 覆盖：<span class="m">X ⊆ Y</span> 且 <span class="m">|Y| = |X|</span>。推论：V 的每个奇异基数在 L 中也奇异；对每个奇异基数 λ，<span class="m">λ⁺ = (λ⁺)<sup>L</sup></span>；SCH 成立。所以，<b>要么</b> L “贴近” V，<b>要么</b> 0<sup>♯</sup> 存在，且 V 的每个不可数基数（例如 ℵ<sub>ω</sub>）在 L 中都是不可达的。</span></div>
+  <div class="pit"><span class="en"><b class="h">⚠ Common pitfall.</b> “Between weakly compact and measurable” is about <b>consistency strength</b>, not about which cardinals are bigger. The least ω₁-Erdős cardinal is not weakly compact, and a Jónsson cardinal can be singular. Inaccessible, Mahlo and weakly compact cardinals are all consistent with V = L, but the existence of 0<sup>♯</sup> is not.</span>
+    <span class="zh"><b class="h">⚠ 常见误区.</b> “介于弱紧与可测之间”说的是<b>一致性强度</b>，而不是哪个基数更大。最小的 ω₁-埃尔德什基数不是弱紧的；琼森基数可以是奇异的。不可达、马洛、弱紧基数都与 V = L 相容，而 0<sup>♯</sup> 的存在与 V = L 不相容。</span></div>
+  <div class="cy" id="cy10"></div>
+</section>
+
+<!-- ============ S11 ============ -->
+<section class="card" id="s11">
+  <div class="kicker">§11</div>
+  <h2><span class="en">Inner models L[U] and the core model; the ladder so far</span><span class="zh">内模型 L[U] 与核心模型；目前的阶梯</span></h2>
+  <div class="pre"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置知识</span></span>: <a class="chip" href="#s10">§10</a> <a class="chip" href="lesson15.html">L15 · L</a> <a class="chip" href="lesson19.html">L19 · <span class="il"><span class="en">projective hierarchy</span><span class="zh">投影层级</span></span></a></div>
+  <p class="idea"><span class="en">Core idea: L is too thin for a measurable. Adding a single measure U gives L[U], the smallest canonical universe with a measurable cardinal. In it the measurable is unique and GCH holds.</span>
+     <span class="zh">核心想法：L 太“瘦”，容不下可测基数。加进一个测度 U，就得到 L[U]，这是含有可测基数的最小典范宇宙。在其中可测基数唯一，且 GCH 成立。</span></p>
+  <div class="def"><span class="en"><b>Inner model for one measurable</b> <span class="pill zfc">ZFC</span>. If U is a normal ultrafilter on κ, then in <span class="m">L[U]</span> the set <span class="m">U ∩ L[U]</span> is a normal ultrafilter on κ, so κ is measurable in L[U]. Moreover:
+    <br>• <b>Silver</b>: <span class="m">L[U] ⊨ GCH</span>.
+    <br>• <b>Kunen</b>: in L[U], κ is the <b>only</b> measurable cardinal, and for each κ the model is unique: if <span class="m">L[U] ⊨ “U is a normal measure on κ”</span> and <span class="m">L[W] ⊨ “W is a normal measure on κ”</span>, then <span class="m">L[U] = L[W]</span>.
+    <br><b>Core model idea.</b> K is the largest “L-like” inner model compatible with the large cardinals that actually exist. Below 0<sup>♯</sup>, K = L (Jensen covering). Below an inner model with a measurable, the Dodd–Jensen core model satisfies a covering lemma of the same kind. Mitchell and later Steel extended this to stronger hypotheses (<a href="lesson25.html">L25</a>).</span>
+    <span class="zh"><b>一个可测基数的内模型</b> <span class="pill zfc">ZFC</span>. 若 U 是 κ 上的正规超滤，则在 <span class="m">L[U]</span> 中 <span class="m">U ∩ L[U]</span> 是 κ 上的正规超滤，所以 κ 在 L[U] 中可测。此外：
+    <br>• <b>Silver</b>：<span class="m">L[U] ⊨ GCH</span>。
+    <br>• <b>Kunen</b>：在 L[U] 中 κ 是<b>唯一</b>的可测基数；并且对每个 κ 该模型唯一：若 <span class="m">L[U] ⊨“U 是 κ 上的正规测度”</span>，<span class="m">L[W] ⊨“W 是 κ 上的正规测度”</span>，则 <span class="m">L[U] = L[W]</span>。
+    <br><b>核心模型的想法.</b> K 是与实际存在的大基数相容的、最大的“类 L”内模型。在 0<sup>♯</sup> 以下，K = L（Jensen 覆盖）。在“存在含可测基数的内模型”以下，Dodd–Jensen 核心模型满足同类的覆盖引理。Mitchell 以及后来的 Steel 把这套理论推广到更强的假设（<a href="lesson25.html">L25</a>）。</span></div>
+  <div class="def"><span class="en"><b>Measurables and the reals</b> <span class="pill zfc">ZFC</span> (link to <a href="lesson19.html">L19</a>):
+    <br>• <b>Solovay (1965)</b>: if there is a measurable cardinal, every <span class="m">Σ¹₂</span> set of reals is Lebesgue measurable, has the Baire property and the perfect set property. Contrast: in L there is a <span class="m">Δ¹₂</span> set that is not Lebesgue measurable.
+    <br>• <b>Martin (1970)</b>: if there is a measurable cardinal, every <span class="m">Π¹₁</span> (co-analytic) game is determined. (Martin; Harrington: <span class="m">Π¹₁</span>-determinacy is equivalent to “every real has a sharp”.) Projective determinacy needs Woodin cardinals (<a href="lesson25.html">L25</a>).</span>
+    <span class="zh"><b>可测基数与实数</b> <span class="pill zfc">ZFC</span>（见 <a href="lesson19.html">L19</a>）：
+    <br>• <b>Solovay（1965）</b>：若存在可测基数，则每个 <span class="m">Σ¹₂</span> 实数集都是勒贝格可测的，具有贝尔性质和完美集性质。对照：在 L 中存在不勒贝格可测的 <span class="m">Δ¹₂</span> 集。
+    <br>• <b>Martin（1970）</b>：若存在可测基数，则每个 <span class="m">Π¹₁</span>（余解析）博弈都是决定的。（Martin；Harrington：<span class="m">Π¹₁</span>-决定性等价于“每个实数都有升”。）投影决定性需要伍丁基数（<a href="lesson25.html">L25</a>）。</span></div>
+  <p><span class="en"><b>The ladder so far.</b> Each rung is a hypothesis “there exists …”. Higher rungs have strictly greater consistency strength: ZFC + (upper rung) proves Con(ZFC + lower rung). The red marker is not a rung but a statement, “0<sup>♯</sup> exists”. Click a rung or the marker to see the facts behind it.</span>
+     <span class="zh"><b>目前的阶梯.</b> 每个横档是一条“存在……”的假设。越高的横档一致性强度越大：ZFC +（较高横档）可以证明 Con(ZFC + 较低横档)。红色标记不是横档，而是一个命题：“0<sup>♯</sup> 存在”。点击横档或标记查看其背后的事实。</span></p>
+  <div class="row">
+    <div class="col stage" style="flex:0 1 430px"><svg id="ladder" viewBox="0 0 410 520" width="410" height="520"></svg></div>
+    <div class="col"><div class="msg info" id="ladderMsg"></div></div>
+  </div>
+  <div class="cy" id="cy11"></div>
+</section>
+
+<!-- ============ EXERCISES ============ -->
+<section class="card" id="exercises">
+  <div class="kicker"><span class="il"><span class="en">Exercises</span><span class="zh">练习</span></span></div>
+  <h2><span class="en">Your turn</span><span class="zh">轮到你了</span></h2>
+  <p class="muted"><span class="en">Progress is saved in your browser. A sidebar ✓ means solved. “Show answer” never counts as solving: after revealing, reload the page to earn the ✓.</span><span class="zh">进度保存在浏览器中，侧栏出现 ✓ 表示已完成。点“显示答案”不算完成：看过答案后，刷新页面重做才能得到 ✓。</span></p>
+
+  <div class="ex" id="e1" data-prog="L24E1">
+    <h3><span class="tag">E1</span><span class="il"><span class="en">Filter, ultrafilter, or neither?</span><span class="zh">滤子、超滤，还是都不是？</span></span></h3>
+    <p><span class="en">Each family lives on <span class="m">X = {a, b, c}</span>. Classify all six. The checker verifies (F1)–(F3) and (U) mechanically.</span>
+       <span class="zh">每个子集族都在 <span class="m">X = {a, b, c}</span> 上。给六个子集族全部分类。检查器会机械地验证 (F1)–(F3) 和 (U)。</span></p>
+    <div id="e1List"></div>
+    <div class="toolbar"><button class="btn ghost" id="e1Show"><span class="en">Show answers</span><span class="zh">显示答案</span></button></div>
+    <div class="msg" id="e1Msg"></div>
+  </div>
+
+  <div class="ex" id="e2" data-prog="L24E2">
+    <h3><span class="tag">E2</span><span class="il"><span class="en">Build a filter that is not ultra, then an ultrafilter</span><span class="zh">先造一个非超滤的滤子，再造一个超滤</span></span></h3>
+    <p><span class="en">On <span class="m">X = {1,2,3,4}</span>, use the lattice in <a href="#s1">§1</a> or the grid below. Task (a): a filter that is <b>not</b> an ultrafilter. Task (b): an ultrafilter. Then answer (c).</span>
+       <span class="zh">在 <span class="m">X = {1,2,3,4}</span> 上，用下面的格子作答。任务 (a)：造一个<b>不是</b>超滤的滤子。任务 (b)：造一个超滤。然后回答 (c)。</span></p>
+    <div class="chips" id="e2Grid"></div>
+    <div class="toolbar"><button class="btn primary" id="e2A"><span class="en">Submit as (a)</span><span class="zh">作为 (a) 提交</span></button>
+      <button class="btn primary" id="e2B"><span class="en">Submit as (b)</span><span class="zh">作为 (b) 提交</span></button>
+      <button class="btn ghost" id="e2Clear"><span class="en">Clear</span><span class="zh">清空</span></button>
+      <button class="btn ghost" id="e2Show"><span class="en">Show answer</span><span class="zh">显示答案</span></button></div>
+    <div class="msg" id="e2Msg"></div>
+    <p><b>(c)</b> <span class="il"><span class="en">Every filter on a finite X equals <span class="m">{A : B ⊆ A}</span> for some nonempty B. Which B?</span><span class="zh">有限集 X 上的每个滤子都形如 <span class="m">{A : B ⊆ A}</span>（B 非空）。B 是什么？</span></span></p>
+    <div id="e2C"></div>
+    <div class="msg" id="e2CMsg"></div>
+  </div>
+
+  <div class="ex" id="e3" data-prog="L24E3">
+    <h3><span class="tag">E3</span><span class="il"><span class="en">Łoś by hand</span><span class="zh">手算沃什定理</span></span></h3>
+    <p><span class="en">U is a non-principal ultrafilter on ℕ with <span class="m">{n : n ≡ <b id="e3r"></b> (mod 6)} ∈ U</span>. Rows: <span class="m">f(n) = n</span>; <span class="m">g(n) = 2n</span> if n is even, <span class="m">0</span> if n is odd; <span class="m">h(n) = n mod 3</span>. Decide each statement in <span class="m">ℕ<sup>ℕ</sup>/U</span> (as a structure (ℕ, &lt;, Even, +)).</span>
+       <span class="zh">U 是 ℕ 上的非主超滤，且 <span class="m">{n : n ≡ <b id="e3r2"></b> (mod 6)} ∈ U</span>。各行：<span class="m">f(n) = n</span>；n 为偶数时 <span class="m">g(n) = 2n</span>，n 为奇数时 <span class="m">g(n) = 0</span>；<span class="m">h(n) = n mod 3</span>。在 <span class="m">ℕ<sup>ℕ</sup>/U</span>（看作结构 (ℕ, &lt;, Even, +)）中判断每个命题。</span></p>
+    <div id="e3List"></div>
+    <div class="toolbar"><button class="btn ghost" id="e3Show"><span class="en">Show answers</span><span class="zh">显示答案</span></button>
+      <button class="btn ghost" id="e3New"><span class="en">New residue r</span><span class="zh">换一个余数 r</span></button></div>
+    <div class="msg" id="e3Msg"></div>
+  </div>
+
+  <div class="ex" id="e4" data-prog="L24E4">
+    <h3><span class="tag">E4</span><span class="il"><span class="en">True or false about j : V → M with crit(j) = κ</span><span class="zh">关于 crit(j) = κ 的 j : V → M，判断对错</span></span></h3>
+    <p class="muted"><span class="en">Here j is the ultrapower embedding by a normal measure U on κ.</span><span class="zh">这里 j 是由 κ 上正规测度 U 得到的超幂嵌入。</span></p>
+    <div id="e4List"></div>
+    <div class="toolbar"><button class="btn ghost" id="e4Show"><span class="en">Show answers</span><span class="zh">显示答案</span></button></div>
+    <div class="msg" id="e4Msg"></div>
+  </div>
+
+  <div class="ex" id="e5" data-prog="L24E5">
+    <h3><span class="tag">E5</span><span class="il"><span class="en">Put Scott's proof in order</span><span class="zh">把斯科特的证明排好顺序</span></span></h3>
+    <p><span class="en">Click the lines in the correct logical order. Click a placed line to send it back.</span><span class="zh">按正确的逻辑顺序依次点击各行；点击已放好的行可以退回。</span></p>
+    <div class="row">
+      <div class="col"><h4 class="small"><span class="il"><span class="en">Pool</span><span class="zh">待选</span></span></h4><div class="seqlist" id="e5Pool"></div></div>
+      <div class="col"><h4 class="small"><span class="il"><span class="en">Your proof</span><span class="zh">你的证明</span></span></h4><div class="seqlist" id="e5Seq"></div></div>
+    </div>
+    <div class="toolbar"><button class="btn primary" id="e5Check"><span class="en">Check</span><span class="zh">检查</span></button>
+      <button class="btn ghost" id="e5Show"><span class="en">Show answer</span><span class="zh">显示答案</span></button></div>
+    <div class="msg" id="e5Msg"></div>
+  </div>
+
+  <div class="ex" id="e6" data-prog="L24E6">
+    <h3><span class="tag">E6</span><span class="il"><span class="en">Order by consistency strength</span><span class="zh">按一致性强度排序</span></span></h3>
+    <p><span class="en">Click the hypotheses from <b>weakest</b> to <b>strongest</b> (each one “there exists …”). Then answer the follow-up.</span>
+       <span class="zh">按从<b>最弱</b>到<b>最强</b>的顺序点击这些假设（每条都是“存在……”）。然后回答后续问题。</span></p>
+    <div class="row">
+      <div class="col"><div class="seqlist" id="e6Pool"></div></div>
+      <div class="col"><div class="seqlist" id="e6Seq"></div></div>
+    </div>
+    <div class="toolbar"><button class="btn primary" id="e6Check"><span class="en">Check</span><span class="zh">检查</span></button>
+      <button class="btn ghost" id="e6Show"><span class="en">Show answer</span><span class="zh">显示答案</span></button></div>
+    <div class="msg" id="e6Msg"></div>
+    <p><b>(b)</b> <span class="il"><span class="en">Which of these is <b>equiconsistent</b> with “there is a Ramsey cardinal”?</span><span class="zh">下列哪一个与“存在拉姆齐基数”<b>等一致</b>？</span></span></p>
+    <div id="e6B"></div>
+    <div class="msg" id="e6BMsg"></div>
+  </div>
+</section>
+
+<section class="card">
+  <div class="kicker"><span class="il"><span class="en">Next</span><span class="zh">下一课</span></span></div>
+  <h2><a href="lesson25.html" style="color:inherit"><span class="en">Lesson 25: Woodin to rank-into-rank, and determinacy →</span><span class="zh">第 25 课：从伍丁到秩入秩，以及决定性 →</span></a></h2>
+  <p><span class="en">Measurability is the statement “some <span class="m">j : V → M</span> has critical point κ”. Next we ask more of M: closure under λ-sequences (supercompact), containing <span class="m">V<sub>λ</sub></span> (strong), and Woodin cardinals. Then we push M toward V itself until Kunen's inconsistency theorem stops us, and see how Woodin cardinals give projective determinacy.</span>
+     <span class="zh">可测性说的是“某个 <span class="m">j : V → M</span> 的临界点是 κ”。下一课我们对 M 提出更高的要求：对 λ-序列封闭（超紧）、包含 <span class="m">V<sub>λ</sub></span>（强基数），以及伍丁基数。然后让 M 越来越接近 V，直到被库能不一致性定理拦住；并看看伍丁基数如何给出投影决定性。</span></p>
+</section>
+</main>
+</div>
+
+<script src="assets/logic.js"></script>
+<script src="assets/lesson24.js"></script>
+</body>
+</html>

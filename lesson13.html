@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 13 · Tarski: Truth is Undefinable 塔斯基：真不可定义</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  .lang-en .bisep, .lang-zh .bisep { display: none; }
+  .twocol { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 900px) { .twocol { grid-template-columns: 1fr; } }
+  .pstep { border-left: 4px solid var(--line); padding: 6px 12px; margin: 8px 0; background: #fff; border-radius: 0 10px 10px 0; }
+  select.sel { font: inherit; font-size: 14px; padding: 5px 8px; border-radius: 9px; border: 1.5px solid var(--line); background: #fff; }
+  /* liar */
+  .hist { display: flex; flex-direction: column; gap: 4px; font-family: var(--mono); font-size: 13px; margin-top: 8px; }
+  .hist .hrow { display: flex; align-items: center; gap: 3px; }
+  .hist .hrow b { width: 34px; }
+  .hist span.c { width: 20px; height: 20px; border-radius: 5px; display: inline-block; color: #fff; text-align: center; line-height: 20px; font-size: 11px; font-weight: 700; }
+  .hist span.c1 { background: var(--true); }
+  .hist span.c0 { background: var(--false); }
+  table.fp { border-collapse: collapse; font-family: var(--mono); font-size: 14px; }
+  table.fp td, table.fp th { padding: 3px 10px; border-bottom: 1px solid var(--line); text-align: center; }
+  table.fp tr.fix td { background: var(--true-soft); font-weight: 700; }
+  /* family tree panel */
+  .famcard { border: 2px solid var(--meta); background: var(--meta-soft); border-radius: 14px; padding: 12px 16px; }
+  .famcard h3 { margin: 0 0 6px; }
+  .famgrid { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; font-size: 14px; margin: 8px 0; }
+  .famgrid b { color: var(--meta); }
+  /* candidate table */
+  table.cand { border-collapse: collapse; font-size: 14px; width: 100%; }
+  table.cand th, table.cand td { padding: 6px 8px; border-bottom: 1px solid var(--line); text-align: center; }
+  table.cand td:first-child { text-align: left; font-family: var(--mono); }
+  table.cand td.y { color: var(--true); font-weight: 800; }
+  table.cand td.n { color: var(--false); font-weight: 800; }
+  table.cand tr.miss td { background: var(--false-soft); }
+  table.cand tr.liar td { border-top: 2px solid var(--meta); }
+  table.cand tr.hidden { opacity: 0; }
+  table.cand tr { transition: opacity .4s; }
+  /* chips */
+  .lchips { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+  .lchips .chip.used { opacity: .55; }
+  /* truth tree */
+  .ttree { font-family: var(--mono); font-size: 14px; }
+  .ttree ul { list-style: none; margin: 0; padding-left: 22px; border-left: 2px dashed var(--line); }
+  .ttree > ul { border-left: 0; padding-left: 0; }
+  .ttree li { margin: 4px 0; }
+  .tn { display: inline-flex; align-items: center; gap: 8px; border: 1.5px solid var(--line); border-radius: 10px; padding: 3px 10px; background: #fff; cursor: pointer; }
+  .tn:hover { border-color: var(--accent); }
+  .tn .bd { font-family: var(--sans); font-size: 11px; font-weight: 800; color: #fff; border-radius: 6px; padding: 0 6px; }
+  .tn .bd.t { background: var(--true); }
+  .tn .bd.f { background: var(--false); }
+  .tn .cl { font-family: var(--sans); font-size: 11.5px; color: var(--muted); }
+  .tn.leaf { cursor: default; background: #fffdf3; }
+  .tn.more { cursor: default; border-style: dashed; color: var(--meta); background: var(--meta-soft); }
+  .tn .tog { color: var(--accent); font-weight: 800; width: 12px; }
+  /* T-schema */
+  .tsch { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; font-family: var(--mono); font-size: 20px; margin: 10px 0; }
+  .tsch .side { border: 2px solid var(--line); border-radius: 12px; padding: 10px 14px; background: #fff; }
+  .tsch .side.mention { border-color: var(--meta); background: var(--meta-soft); }
+  .tsch .side.use { border-color: var(--gold); background: var(--gold-soft); }
+  .tsch small { display: block; font-family: var(--sans); font-size: 12px; color: var(--muted); }
+  .qm { color: var(--meta); font-weight: 800; transition: all .6s; display: inline-block; }
+  .disq .qm { opacity: 0; transform: translateY(-14px) scale(.4); }
+  .codeline { font-family: var(--mono); font-size: 12.5px; color: var(--muted); word-break: break-all; }
+  .ord { display: flex; flex-direction: column; gap: 6px; }
+  .ord .chip { text-align: left; }
+  .ord .chip .k { display: inline-block; min-width: 22px; font-weight: 800; color: var(--accent); }
+  .ordslots { min-height: 60px; border: 2px dashed var(--line); border-radius: 12px; padding: 10px; background: #fbfaf6; }
+  .banner { text-align: center; font-size: 22px; font-weight: 800; padding: 18px; border-radius: 16px; background: linear-gradient(90deg, var(--accent-soft), var(--meta-soft)); margin: 14px 0; }
+  .banner .zh { font-size: 18px !important; }
+  .tf .stmt { font-family: var(--sans); }
+  .hlrow { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; padding: 8px 0; border-bottom: 1px dashed var(--line); }
+  .hlrow .nm { flex: 1 1 300px; }
+</style>
+</head>
+<body class="lang-both">
+<header class="top">
+  <a class="home" href="index.html">∀∃ <span class="il"><span class="en">Logic &amp; Sets</span><span class="zh">逻辑与集合</span></span></a>
+  <span class="muted">/ L13</span>
+  <span class="spacer"></span>
+  <div class="lang-switch">
+    <button data-lang="en">EN</button><button data-lang="zh">中文</button><button data-lang="both">EN + 中</button>
+  </div>
+</header>
+
+<div class="layout">
+<nav class="side">
+  <div class="grp">Lesson 13</div>
+  <a href="index.html">← <span class="il"><span class="en">Course map</span><span class="zh">课程地图</span></span></a>
+  <a href="lesson12.html">← <span class="il"><span class="en">Lesson 12</span><span class="zh">第 12 课</span></span></a>
+  <a href="lesson14.html"><span class="il"><span class="en">Lesson 14</span><span class="zh">第 14 课</span></span> →</a>
+  <a href="#s1">1 · <span class="il"><span class="en">The liar</span><span class="zh">说谎者</span></span></a>
+  <a href="#s2">2 · <span class="il"><span class="en">Diagonal family</span><span class="zh">对角线家族</span></span></a>
+  <a href="#s3">3 · <span class="il"><span class="en">Tarski's theorem</span><span class="zh">塔斯基定理</span></span></a>
+  <a href="#s4">4 · <span class="il"><span class="en">Arithmetical hierarchy</span><span class="zh">算术分层</span></span></a>
+  <a href="#s5">5 · <span class="il"><span class="en">Language levels</span><span class="zh">语言的层级</span></span></a>
+  <a href="#s6">6 · <span class="il"><span class="en">T-schema &amp; recursion</span><span class="zh">T 模式与递归定义</span></span></a>
+  <a href="#s7">7 · <span class="il"><span class="en">Truth in set theory</span><span class="zh">集合论中的真</span></span></a>
+  <a href="#s8">8 · <span class="il"><span class="en">Summary</span><span class="zh">总结</span></span></a>
+  <div class="grp"><span class="il"><span class="en">Exercises</span><span class="zh">练习</span></span></div>
+  <a href="#e1" data-prog="L13E1">E1 · <span class="il"><span class="en">diagonals</span><span class="zh">找对角线</span></span></a>
+  <a href="#e2" data-prog="L13E2">E2 · Σₙ / Πₙ</a>
+  <a href="#e3" data-prog="L13E3">E3 · <span class="il"><span class="en">proof order</span><span class="zh">证明排序</span></span></a>
+  <a href="#e4" data-prog="L13E4">E4 · <span class="il"><span class="en">T-schema</span><span class="zh">T 模式</span></span></a>
+  <a href="#e5" data-prog="L13E5">E5 · <span class="il"><span class="en">partial truth</span><span class="zh">部分真谓词</span></span></a>
+  <a href="#e6" data-prog="L13E6">E6 · Tarski ⇒ Gödel</a>
+</nav>
+
+<main>
+<div class="hero">
+  <div class="kicker">Part III · Lesson 13</div>
+  <h1><span class="en">Tarski: Truth is Undefinable</span><span class="zh">塔斯基：真不可定义</span></h1>
+  <p><span class="en">Gödel fed <span class="m">¬Prov</span> to the diagonal machine and got a sentence that escapes proof. Feed it <span class="m">¬True</span> instead and the machine explodes: no formula of arithmetic can say “x is the code of a true sentence”.</span>
+     <span class="zh">哥德尔把 <span class="m">¬Prov</span> 喂给对角线机器，得到一个逃脱证明的句子。换成 <span class="m">¬True</span> 喂进去，机器就炸了：没有任何算术公式能表达“x 是一个真语句的编码”。</span></p>
+</div>
+
+<!-- ============ S1 ============ -->
+<section class="card" id="s1">
+  <div class="kicker">§1</div>
+  <h2><span class="en">The liar: a sentence that cannot settle</span><span class="zh">说谎者：一个无法安定下来的句子</span></h2>
+  <p><span class="en">Each node is a sentence; an arrow says what it claims about another sentence. Pick an initial truth value (click a node), then <b>revise</b>: every sentence takes the value its claim currently deserves. A consistent assignment is one that revision leaves unchanged, a <b>fixed point</b>.</span>
+     <span class="zh">每个节点是一个句子，箭头表示它对另一个句子作了什么断言。点击节点设定初始真值，然后<b>修正</b>：每个句子都改取它的断言此刻应得的真值。修正后保持不变的赋值才是自洽的，即<b>不动点</b>。</span></p>
+  <div class="toolbar" id="liarPick"></div>
+  <div class="toolbar">
+    <button class="btn primary" id="liarStep"><span class="en">Revise once ▶</span><span class="zh">修正一次 ▶</span></button>
+    <button class="btn" id="liarAuto"><span class="en">Auto-play ⟳</span><span class="zh">自动播放 ⟳</span></button>
+    <button class="btn ghost" id="liarReset"><span class="en">Reset</span><span class="zh">重置</span></button>
+  </div>
+  <div class="row">
+    <div class="col" style="flex:1 1 440px"><div class="stage"><svg id="liarSvg" viewBox="0 0 460 260" width="460" height="260"></svg></div>
+      <div class="hist" id="liarHist"></div></div>
+    <div class="col" style="flex:0 1 330px"><h4 style="margin:4px 0"><span class="il"><span class="en">All assignments: which are fixed points?</span><span class="zh">所有赋值：哪些是不动点？</span></span></h4>
+      <div id="liarFix"></div><div class="msg" id="liarMsg"></div></div>
+  </div>
+</section>
+
+<!-- ============ S2 ============ -->
+<section class="card" id="s2">
+  <div class="kicker">§2</div>
+  <h2><span class="en">The diagonal family tree</span><span class="zh">对角线家族谱</span></h2>
+  <p><span class="en">Six famous arguments, one shape: a table indexed by A × A, its diagonal, and a twist <span class="m">f</span> with no fixed point. Click a node to see its table run.</span>
+     <span class="zh">六个著名论证，同一个骨架：一张由 A × A 索引的表、它的对角线，以及一个没有不动点的“扭转” <span class="m">f</span>。点击节点，看它那张表怎么运转。</span></p>
+  <div class="row">
+    <div class="col" style="flex:1 1 470px"><div class="stage"><svg id="famSvg" viewBox="0 0 520 380" width="520" height="380"></svg></div></div>
+    <div class="col" style="flex:1 1 340px"><div class="famcard" id="famCard"></div>
+      <div class="stage" style="margin-top:10px"><svg id="famGrid" viewBox="0 0 340 250" width="340" height="250"></svg></div></div>
+  </div>
+  <div class="def"><span class="en"><b>Lawvere's fixed-point theorem (set version).</b> If <span class="m">g : A → B^A</span> is surjective, then every <span class="m">f : B → B</span> has a fixed point. <i>Proof:</i> let <span class="m">h(a) = f(g(a)(a))</span>; then <span class="m">h = g(a₀)</span> for some a₀, and <span class="m">h(a₀) = f(g(a₀)(a₀)) = f(h(a₀))</span>. ∎ Cantor, Russell, Turing, Tarski: f = negation has no fixed point, so no such g. Gödel: the enumeration of formulas <i>is</i> onto, so ¬Prov must have a fixed point (up to provable equivalence), namely G.</span>
+    <span class="zh"><b>劳维尔不动点定理（集合版本）.</b> 若 <span class="m">g : A → B^A</span> 是满射，则每个 <span class="m">f : B → B</span> 都有不动点。<i>证明：</i>令 <span class="m">h(a) = f(g(a)(a))</span>，则存在 a₀ 使 <span class="m">h = g(a₀)</span>，于是 <span class="m">h(a₀) = f(g(a₀)(a₀)) = f(h(a₀))</span>。∎ 康托尔、罗素、图灵、塔斯基：f 取否定，没有不动点，所以这样的 g 不存在。哥德尔：公式的枚举<i>确实</i>是满的，所以 ¬Prov 必有（在可证等价意义下的）不动点，那就是 G。</span></div>
+</section>
+
+<!-- ============ S3 ============ -->
+<section class="card" id="s3">
+  <div class="kicker">§3</div>
+  <h2><span class="en">Tarski's undefinability theorem</span><span class="zh">塔斯基真之不可定义性定理</span></h2>
+  <div class="def"><span class="en"><b>Theorem (Tarski 1933/36).</b> There is no formula <span class="m">True(x)</span> in the language of arithmetic <span class="m">{0, S, +, ×}</span> such that for every sentence φ, <span class="m">ℕ ⊨ True(⌜φ⌝) ↔ φ</span>. Equivalently, the set <span class="m">Th(ℕ) = {⌜φ⌝ : ℕ ⊨ φ}</span> is not arithmetically definable.</span>
+    <span class="zh"><b>定理（塔斯基 1933/36）.</b> 算术语言 <span class="m">{0, S, +, ×}</span> 中不存在公式 <span class="m">True(x)</span>，使得对每个语句 φ 都有 <span class="m">ℕ ⊨ True(⌜φ⌝) ↔ φ</span>。等价地说，集合 <span class="m">Th(ℕ) = {⌜φ⌝ : ℕ ⊨ φ}</span> 不是算术可定义的。</span></div>
+  <div class="steps" id="tkSteps">
+    <div class="step pstep"><span class="en"><b>1.</b> Suppose True(x) were such a formula.</span><span class="zh"><b>1.</b> 假设 True(x) 是这样一个公式。</span></div>
+    <div class="step pstep"><span class="en"><b>2.</b> Apply the diagonal lemma (L12 §4) to <span class="m">ψ(x) := ¬True(x)</span>: there is a sentence L with <span class="m">Q ⊢ L ↔ ¬True(⌜L⌝)</span>.</span><span class="zh"><b>2.</b> 对 <span class="m">ψ(x) := ¬True(x)</span> 应用对角线引理（第 12 课 §4）：存在语句 L，使 <span class="m">Q ⊢ L ↔ ¬True(⌜L⌝)</span>。</span></div>
+    <div class="step pstep"><span class="en"><b>3.</b> Q is true in ℕ, so <span class="m">ℕ ⊨ L ↔ ¬True(⌜L⌝)</span>.</span><span class="zh"><b>3.</b> Q 在 ℕ 中为真，所以 <span class="m">ℕ ⊨ L ↔ ¬True(⌜L⌝)</span>。</span></div>
+    <div class="step pstep"><span class="en"><b>4.</b> By the assumed property of True with φ = L: <span class="m">ℕ ⊨ True(⌜L⌝) ↔ L</span>.</span><span class="zh"><b>4.</b> 由 True 的假定性质（取 φ = L）：<span class="m">ℕ ⊨ True(⌜L⌝) ↔ L</span>。</span></div>
+    <div class="step pstep"><span class="en"><b>5.</b> Combining: <span class="m">ℕ ⊨ L ↔ ¬L</span>, which is impossible. So no such True(x) exists. ∎</span><span class="zh"><b>5.</b> 两式合并：<span class="m">ℕ ⊨ L ↔ ¬L</span>，这不可能。所以这样的 True(x) 不存在。∎</span></div>
+    <div class="step note"><span class="en"><b>Notice:</b> the proof uses no provability and no consistency assumption about any theory. It is a statement about <i>definability in the structure ℕ</i>. The same argument works in any structure that can carry out the diagonal lemma.</span><span class="zh"><b>注意：</b>这个证明完全不涉及可证性，也不需要对任何理论作一致性假设。它是关于<i>在结构 ℕ 中的可定义性</i>的命题。只要某个结构能执行对角线引理，同样的论证就适用。</span></div>
+  </div>
+  <div class="toolbar"><button class="btn primary" id="tkNext"><span class="en">Reveal next step</span><span class="zh">揭晓下一步</span></button>
+    <button class="btn ghost" id="tkAll"><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+
+  <h3><span class="en">Try to define truth anyway: every candidate fails at its own liar</span><span class="zh">偏要定义“真”试试：每个候选都栽在它自己的说谎者上</span></h3>
+  <p class="muted"><span class="en">Pick a candidate formula C(x). The machine builds <span class="m">L_C ↔ ¬C(⌜L_C⌝)</span> and audits C on a few sentences. Red rows are where C disagrees with truth in ℕ.</span>
+    <span class="zh">选一个候选公式 C(x)。机器会构造 <span class="m">L_C ↔ ¬C(⌜L_C⌝)</span>，并在几个语句上检查 C。红色行表示 C 与 ℕ 中的真值不符。</span></p>
+  <div class="toolbar" id="candPick"></div>
+  <div class="stage" id="candStage"></div>
+  <div class="msg" id="candMsg"></div>
+</section>
+
+<!-- ============ S4 ============ -->
+<section class="card" id="s4">
+  <div class="kicker">§4</div>
+  <h2><span class="en">The arithmetical hierarchy: a ladder truth cannot stand on</span><span class="zh">算术分层：真站不上去的梯子</span></h2>
+  <p><span class="en">Classify formulas by quantifier alternations in front of a bounded (Δ₀) core: <span class="m">Σₙ = ∃∀∃⋯</span> (n blocks), <span class="m">Πₙ = ∀∃∀⋯</span>, and <span class="m">Δₙ = Σₙ ∩ Πₙ</span>. Click a set to place it on the ladder.</span>
+     <span class="zh">按照有界（Δ₀）核心前面量词交替的次数给公式分类：<span class="m">Σₙ = ∃∀∃⋯</span>（n 个量词块），<span class="m">Πₙ = ∀∃∀⋯</span>，<span class="m">Δₙ = Σₙ ∩ Πₙ</span>。点击某个集合，把它放上梯子。</span></p>
+  <div class="lchips" id="ahChips"></div>
+  <div class="toolbar"><button class="btn primary" id="ahClimb"><span class="en">Climb with partial truth predicates ▲</span><span class="zh">让部分真谓词往上爬 ▲</span></button>
+    <button class="btn ghost" id="ahAll"><span class="en">Place all</span><span class="zh">全部放上</span></button>
+    <button class="btn ghost" id="ahReset"><span class="en">Reset</span><span class="zh">重置</span></button></div>
+  <div class="row">
+    <div class="col" style="flex:1 1 560px"><div class="stage"><svg id="ahSvg" viewBox="0 0 640 470" width="640" height="470"></svg></div></div>
+    <div class="col" style="flex:0 1 300px"><div class="msg info" id="ahMsg"></div></div>
+  </div>
+  <div class="def"><span class="en"><b>Facts.</b> (1) Provability <span class="m">Prov_T</span> for recursively axiomatized T is Σ₁. (2) For each n ≥ 1 there is a Σₙ formula <span class="m">True_Σₙ(x)</span> with <span class="m">ℕ ⊨ True_Σₙ(⌜φ⌝) ↔ φ</span> for all Σₙ sentences φ. (3) Th(ℕ) ∩ Σₙ is Σₙ-complete, so the hierarchy is proper, and <span class="m">Th(ℕ) = ⋃ₙ (Th(ℕ) ∩ Σₙ)</span> lies on no rung: if it were Σₙ, then Th(ℕ) ∩ Σₙ₊₁ would be Σₙ, a contradiction. That is Tarski's theorem again.</span>
+    <span class="zh"><b>事实.</b> (1) 对递归可公理化的 T，可证性 <span class="m">Prov_T</span> 是 Σ₁ 的。(2) 对每个 n ≥ 1，存在 Σₙ 公式 <span class="m">True_Σₙ(x)</span>，使得对所有 Σₙ 语句 φ 都有 <span class="m">ℕ ⊨ True_Σₙ(⌜φ⌝) ↔ φ</span>。(3) Th(ℕ) ∩ Σₙ 是 Σₙ-完全的，所以层级是真包含的；而 <span class="m">Th(ℕ) = ⋃ₙ (Th(ℕ) ∩ Σₙ)</span> 不在任何一层上：若它是 Σₙ 的，则 Th(ℕ) ∩ Σₙ₊₁ 也是 Σₙ 的，矛盾。这又是一次塔斯基定理。</span></div>
+</section>
+
+<!-- ============ S5 ============ -->
+<section class="card" id="s5">
+  <div class="kicker">§5</div>
+  <h2><span class="en">Object language vs metalanguage: the Tarski hierarchy</span><span class="zh">对象语言与元语言：塔斯基层级</span></h2>
+  <p><span class="en">Back to Lesson 1's glass box. Truth for a language L can be defined, but only from <b>outside</b>, in a richer metalanguage. Build the tower: each new box adds a truth predicate for the box inside it. Then try to smuggle a liar in.</span>
+     <span class="zh">回到第 1 课的玻璃箱。语言 L 的“真”是可以定义的，但只能从<b>外面</b>、用更丰富的元语言来定义。搭起这座塔：每个新箱子都为它里面的箱子添加一个真谓词。然后试着把说谎者偷运进去。</span></p>
+  <div class="toolbar">
+    <button class="btn primary" id="tbAdd"><span class="en">Add a metalanguage box</span><span class="zh">加一层元语言箱子</span></button>
+    <button class="btn" id="tbLiar"><span class="en">Smuggle in a liar</span><span class="zh">偷运一个说谎者</span></button>
+    <button class="btn ghost" id="tbReset"><span class="en">Reset</span><span class="zh">重置</span></button>
+  </div>
+  <div class="row">
+    <div class="col" style="flex:1 1 520px"><div class="stage"><svg id="tbSvg" viewBox="0 0 560 400" width="560" height="400"></svg></div></div>
+    <div class="col" style="flex:0 1 320px"><div class="msg info" id="tbMsg"></div></div>
+  </div>
+</section>
+
+<!-- ============ S6 ============ -->
+<section class="card" id="s6">
+  <div class="kicker">§6</div>
+  <h2><span class="en">The T-schema and the recursive definition of truth</span><span class="zh">T 模式与真的递归定义</span></h2>
+  <p><span class="en">Tarski's <b>material adequacy condition</b>: a truth predicate must satisfy every instance of the T-schema <span class="m">True(⌜φ⌝) ↔ φ</span>. On the left the sentence is <b>mentioned</b> (we talk about its code, a number); on the right it is <b>used</b>. Pick a sentence and disquote it.</span>
+     <span class="zh">塔斯基的<b>实质充分性条件</b>：一个真谓词必须满足 T 模式 <span class="m">True(⌜φ⌝) ↔ φ</span> 的每个实例。左边的语句是被<b>提及</b>的（我们谈论的是它的编码，一个数）；右边的语句是被<b>使用</b>的。选一个语句，去掉引号试试。</span></p>
+  <div class="toolbar" id="tsPick"></div>
+  <div class="tsch" id="tsBox"></div>
+  <div class="toolbar"><button class="btn primary" id="tsGo"><span class="en">Disquote ▶</span><span class="zh">去引号 ▶</span></button></div>
+  <div class="codeline" id="tsCode"></div>
+
+  <h3><span class="en">Truth by recursion on formulas (Lesson 3's satisfaction, for ℕ)</span><span class="zh">沿公式递归定义“真”（第 3 课的满足关系，用在 ℕ 上）</span></h3>
+  <div class="row">
+    <div class="col" style="flex:1 1 480px">
+      <div class="toolbar" id="trPick"></div>
+      <div class="toolbar"><button class="btn small" id="trExp"><span class="en">Expand all (finite part)</span><span class="zh">全部展开（有限部分）</span></button>
+        <button class="btn small ghost" id="trCol"><span class="en">Collapse</span><span class="zh">折叠</span></button></div>
+      <div class="stage ttree" id="trTree"></div>
+    </div>
+    <div class="col" style="flex:0 1 340px">
+      <div class="def m" style="font-size:13.5px">ℕ ⊨ (t₁ = t₂)[s] ⇔ t₁ˢ = t₂ˢ<br>ℕ ⊨ ¬φ[s] ⇔ ℕ ⊭ φ[s]<br>ℕ ⊨ (φ ∧ ψ)[s] ⇔ ℕ ⊨ φ[s] and ℕ ⊨ ψ[s]<br>ℕ ⊨ ∃x φ[s] ⇔ <b>for some</b> n ∈ ℕ: ℕ ⊨ φ[s(x↦n)]<br>ℕ ⊨ ∀x φ[s] ⇔ <b>for all</b> n ∈ ℕ: ℕ ⊨ φ[s(x↦n)]</div>
+      <div class="note"><span class="en">Click a node to unfold the clause. A quantifier node has <b>infinitely many</b> children. Each fixed depth of nesting can be expressed in arithmetic (that is True_Σₙ), but the recursion over formulas of <i>every</i> depth needs to quantify over whole satisfaction relations: sets, not numbers. That is exactly what the metalanguage (e.g. set theory) supplies.</span>
+        <span class="zh">点击节点展开对应的条款。量词节点有<b>无穷多</b>个子节点。固定的嵌套深度都能在算术中表达（这就是 True_Σₙ），但要对<i>所有</i>深度的公式做递归，就必须对整个满足关系量化：那是集合，不是数。元语言（例如集合论）提供的正是这个。</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ S7 ============ -->
+<section class="card" id="s7">
+  <div class="kicker">§7</div>
+  <h2><span class="en">Truth in set theory: definable for every set, not for V</span><span class="zh">集合论中的真：对每个集合可定义，对 V 不可定义</span></h2>
+  <p><span class="en">Drag the slider up the cumulative hierarchy (Lesson 14 builds it properly). For every <i>set</i> structure <span class="m">(V_α, ∈)</span>, ZFC defines satisfaction by the recursion of §6, since now the satisfaction relation is itself a set. At the top, V is a proper class, and Tarski strikes again.</span>
+     <span class="zh">拖动滑块沿累积层级往上走（第 14 课会正式构造它）。对每个<i>集合</i>结构 <span class="m">(V_α, ∈)</span>，ZFC 都能用 §6 的递归定义满足关系，因为此时满足关系本身就是一个集合。到了顶端，V 是真类，塔斯基定理再次发威。</span></p>
+  <div class="toolbar"><span class="m">α :</span> <input type="range" id="vSl" min="0" max="9" value="3" style="width:300px"> <b class="m" id="vLab"></b>
+    <button class="btn small" id="vRef"><span class="en">Reflect a formula</span><span class="zh">反射一个公式</span></button></div>
+  <div class="row">
+    <div class="col" style="flex:1 1 460px"><div class="stage"><svg id="vSvg" viewBox="0 0 480 400" width="480" height="400"></svg></div></div>
+    <div class="col" style="flex:0 1 360px"><div class="msg" id="vMsg"></div>
+      <div class="def"><span class="en"><b>Tarski in ZFC.</b> For every formula Tr(x) of set theory there is a sentence σ with <span class="m">ZFC ⊢ σ ↔ ¬Tr(⌜σ⌝)</span>. So no formula defines truth in V. Yet for each n there is a formula <span class="m">Sat_Σₙ</span> defining truth for Σₙ formulas (Lévy), and the <b>reflection principle</b> gives, for any finitely many formulas, an α such that they are absolute between V_α and V.</span>
+        <span class="zh"><b>ZFC 中的塔斯基定理.</b> 对集合论的每个公式 Tr(x)，都存在语句 σ 使 <span class="m">ZFC ⊢ σ ↔ ¬Tr(⌜σ⌝)</span>。所以没有公式能定义 V 中的真。但对每个 n 都有公式 <span class="m">Sat_Σₙ</span> 定义 Σₙ 公式的真（莱维），而<b>反射原理</b>保证：对任意有限多个公式，存在 α 使它们在 V_α 与 V 之间绝对。</span></div>
+    </div>
+  </div>
+  <div class="note"><span class="en"><b>Preview of Lesson 14.</b> For each <i>finite</i> fragment Φ of ZFC, ZFC proves “Φ has a set model” (some V_α, by reflection). This is a scheme: one separate theorem for each Φ. ZFC does not prove the single statement “every finite fragment has a model” (by compactness that already gives Con(ZFC)), let alone “all of ZFC has a model”: if ZFC is consistent, either would contradict the second incompleteness theorem. So independence proofs must work with relative consistency: “if ZFC is consistent, then so is ZFC + CH”.</span>
+    <span class="zh"><b>第 14 课预告.</b> 对 ZFC 的每个<i>有限</i>片段 Φ，ZFC 都能证明“Φ 有集合模型”（由反射原理，某个 V_α 即可）。这是一个定理模式：每个 Φ 各对应一条独立的定理。ZFC 证明不了“每个有限片段都有模型”这一单个命题（由紧致性它已推出 Con(ZFC)），更证明不了“整个 ZFC 有模型”：若 ZFC 一致，两者都与第二不完全性定理矛盾。所以独立性证明只能采用相对一致性的形式：“若 ZFC 一致，则 ZFC + CH 也一致”。</span></div>
+</section>
+
+<!-- ============ S8 ============ -->
+<section class="card" id="s8">
+  <div class="kicker">§8</div>
+  <h2><span class="en">Summary: the map of all sentences</span><span class="zh">总结：全体语句的地图</span></h2>
+  <div class="banner"><span class="en">Gödel: provability ≠ truth. &nbsp; Tarski: truth isn't even definable.</span><span class="zh">哥德尔：可证 ≠ 真。&nbsp; 塔斯基：真甚至无法定义。</span></div>
+  <p><span class="en">Click a sentence to drop it into its region (T = PA, assumed sound).</span><span class="zh">点击语句，把它放进所属区域（T = PA，假定可靠）。</span></p>
+  <div class="lchips" id="vnChips"></div>
+  <div class="row">
+    <div class="col" style="flex:1 1 560px"><div class="stage"><svg id="vnSvg" viewBox="0 0 640 330" width="640" height="330"></svg></div></div>
+    <div class="col" style="flex:0 1 300px"><div class="msg info" id="vnMsg"></div></div>
+  </div>
+</section>
+
+<!-- ============ EXERCISES ============ -->
+<section class="card" id="exercises">
+  <div class="kicker"><span class="il"><span class="en">Exercises</span><span class="zh">练习</span></span></div>
+  <h2><span class="en">Your turn</span><span class="zh">轮到你了</span></h2>
+  <p class="muted"><span class="en">Progress is saved in your browser. A sidebar ✓ means solved by you (not by “Show answer”).</span><span class="zh">进度保存在浏览器中。侧栏出现 ✓ 表示你自己做出来了（点“看答案”不算）。</span></p>
+
+  <div class="ex" id="e1" data-prog="L13E1">
+    <h3><span class="tag">E1</span><span class="il"><span class="en">Find the diagonal</span><span class="zh">找出对角线</span></span></h3>
+    <p class="muted"><span class="en">For each paradox, which entry plays the role of the diagonal <span class="m">g(a)(a)</span>?</span><span class="zh">对每个悖论，哪一项扮演对角线 <span class="m">g(a)(a)</span> 的角色？</span></p>
+    <div id="e1List"></div>
+  </div>
+
+  <div class="ex" id="e2" data-prog="L13E2">
+    <h3><span class="tag">E2</span><span class="il"><span class="en">Place the sets on the ladder</span><span class="zh">把集合放上梯子</span></span></h3>
+    <p class="muted"><span class="en">Choose the lowest level that contains each set (it is complete for that level). φₑ is the e-th partial computable function, Wₑ its domain.</span><span class="zh">为每个集合选出包含它的最低层级（它在该层级是完全的）。φₑ 是第 e 个部分可计算函数，Wₑ 是它的定义域。</span></p>
+    <div id="e2List"></div>
+    <div class="toolbar"><button class="btn primary" id="e2Check"><span class="en">Check</span><span class="zh">检查</span></button>
+      <button class="btn ghost" id="e2Show"><span class="en">Show answer</span><span class="zh">看答案</span></button></div>
+    <div class="msg" id="e2Msg"></div>
+  </div>
+
+  <div class="ex" id="e3" data-prog="L13E3">
+    <h3><span class="tag">E3</span><span class="il"><span class="en">Assemble Tarski's proof</span><span class="zh">拼出塔斯基定理的证明</span></span></h3>
+    <div id="e3Game"></div>
+  </div>
+
+  <div class="ex" id="e4" data-prog="L13E4">
+    <h3><span class="tag">E4</span><span class="il"><span class="en">Which are instances of the T-schema?</span><span class="zh">哪些是 T 模式的实例？</span></span></h3>
+    <p class="muted"><span class="en">True₀ is the truth predicate for arithmetic sentences (level L₀), True₁ for L₁ = L₀ + True₀.</span><span class="zh">True₀ 是算术语句（L₀ 层）的真谓词，True₁ 是 L₁ = L₀ + True₀ 的真谓词。</span></p>
+    <div id="e4List"></div>
+  </div>
+
+  <div class="ex" id="e5" data-prog="L13E5">
+    <h3><span class="tag">E5</span><span class="il"><span class="en">Partial truth: what exists?</span><span class="zh">部分真谓词：哪些存在？</span></span></h3>
+    <div id="e5List"></div>
+  </div>
+
+  <div class="ex" id="e6" data-prog="L13E6">
+    <h3><span class="tag">E6</span><span class="il"><span class="en">Gödel from Tarski</span><span class="zh">由塔斯基推出哥德尔</span></span></h3>
+    <p><span class="en">Let T be a sound, recursively axiomatized theory of arithmetic. Which argument correctly derives that T is incomplete from Tarski's theorem?</span>
+      <span class="zh">设 T 是一个可靠且递归可公理化的算术理论。下列哪个论证能正确地由塔斯基定理推出 T 不完全？</span></p>
+    <div id="e6Choice"></div>
+    <div class="msg" id="e6Msg"></div>
+    <div class="toolbar"><button class="btn ghost small" id="e6Show"><span class="en">Show answer &amp; proof</span><span class="zh">看答案与证明</span></button></div>
+    <div class="steps" id="e6Proof"><div class="step def"><span class="en"><b>Proof.</b> Thm_T = {⌜φ⌝ : T ⊢ φ} is Σ₁-definable, by <span class="m">Prov_T</span>. Th(ℕ) is not definable at all (Tarski). So Thm_T ≠ Th(ℕ). Soundness gives Thm_T ⊆ Th(ℕ), so some true σ has T ⊬ σ; and ¬σ is false, so by soundness T ⊬ ¬σ. Hence σ is undecided. ∎ (This version needs soundness. Gödel's original proof needs only ω-consistency, Rosser's refinement only consistency, and both produce an explicit Π₁ sentence.)</span>
+      <span class="zh"><b>证明.</b> Thm_T = {⌜φ⌝ : T ⊢ φ} 可由 <span class="m">Prov_T</span> 以 Σ₁ 方式定义。而 Th(ℕ) 根本不可定义（塔斯基）。所以 Thm_T ≠ Th(ℕ)。由可靠性 Thm_T ⊆ Th(ℕ)，故存在真语句 σ 使 T ⊬ σ；又 ¬σ 为假，由可靠性 T ⊬ ¬σ。所以 σ 在 T 中不可判定。∎（这个版本需要可靠性。哥德尔原来的证明只需 ω-一致性，罗瑟的改进只需一致性，而且两者都给出一个具体的 Π₁ 语句。）</span></div></div>
+  </div>
+</section>
+
+<section class="card">
+  <div class="kicker"><span class="il"><span class="en">Next</span><span class="zh">下一课</span></span></div>
+  <h2><a href="lesson14.html" style="color:inherit"><span class="en">Lesson 14: models of ZFC &amp; the cumulative hierarchy V →</span><span class="zh">第 14 课：ZFC 的模型与累积层级 V →</span></a></h2>
+  <p><span class="en">We now know what ZFC cannot do: prove its own consistency, or define its own truth. Next we see what it <i>can</i> do: build the universe V level by level and study models of set theory from the inside.</span>
+     <span class="zh">现在我们知道 ZFC 做不到什么：证明自己的一致性，定义自己的真。下一课看看它<i>能</i>做什么：一层一层搭起宇宙 V，并从内部研究集合论的模型。</span></p>
+</section>
+</main>
+</div>
+
+<script src="assets/logic.js"></script>
+<script src="assets/lesson13.js"></script>
+</body>
+</html>

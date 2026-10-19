@@ -1,0 +1,497 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 2 · Proofs, Soundness, Completeness, Compactness 证明、可靠性、完备性、紧致性</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  /* ---------- lesson 2 local styles ---------- */
+  .twin { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 1000px) { .twin { grid-template-columns: 1fr; } }
+  .machine { border-radius: 16px; padding: 14px; min-height: 260px; }
+  .machine.syn { background: var(--gold-soft); border: 2px solid var(--gold); }
+  .machine.sem { background: var(--accent-soft); border: 2px solid var(--accent); }
+  .machine h4 { margin: 0 0 6px; }
+  .pline { font-family: var(--mono); font-size: 14px; padding: 3px 8px; border-radius: 7px; margin: 3px 0; background: #fff; display: flex; flex-wrap: wrap; gap: 0 10px; align-items: baseline; }
+  .pline .n { color: var(--muted); min-width: 22px; }
+  .pline .f { flex: 1 1 200px; word-break: break-word; }
+  .pline .j { font-size: 12px; color: var(--muted); margin-left: auto; text-align: right; }
+  .pline .stamp { color: var(--true); font-weight: 700; }
+  .ticker { font-family: var(--mono); font-size: 14px; color: #6b4500; }
+
+  /* schema colours */
+  .mv-φ { background: #fff0c2; border-bottom: 3px solid #f08c00; border-radius: 4px; padding: 0 2px; }
+  .mv-ψ { background: #dfe7ff; border-bottom: 3px solid #3b5bdb; border-radius: 4px; padding: 0 2px; }
+  .mv-χ { background: #f6defb; border-bottom: 3px solid #ae3ec9; border-radius: 4px; padding: 0 2px; }
+  .schema-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; margin: 10px 0; }
+  .schema { border: 2px solid var(--line); border-radius: 12px; padding: 8px 12px; background: #fff; font-family: var(--mono); font-size: 15px; }
+  .schema b { font-family: var(--sans); margin-right: 6px; }
+  .schema.hit { border-color: var(--true); background: var(--true-soft); }
+  .schema.miss { opacity: .65; }
+  .bigf { font-family: var(--mono); font-size: 20px; padding: 10px 0; line-height: 2; }
+
+  /* proof builder */
+  .pb { border: 2px solid var(--line); border-radius: 16px; padding: 14px; background: #fffefb; }
+  .pb-goal { font-size: 16px; margin-bottom: 8px; }
+  .pb-tools { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  @media (max-width: 800px) { .pb-tools { grid-template-columns: 1fr; } }
+  .pb-box { border: 1px solid var(--line); border-radius: 12px; padding: 10px; background: #fff; }
+  .pb-box h5 { margin: 0 0 6px; font-size: 13px; letter-spacing: .04em; color: var(--muted); }
+  .pb-box input.formula { min-width: 0; width: 100%; font-size: 15px; padding: 5px 8px; }
+  .pb-box .mvrow { display: grid; grid-template-columns: 26px 1fr; gap: 4px 6px; align-items: center; margin: 6px 0; font-family: var(--mono); }
+  .pb-prev { font-family: var(--mono); font-size: 13px; color: var(--muted); min-height: 20px; word-break: break-all; }
+  table.pf { border-collapse: collapse; width: 100%; margin: 10px 0; font-family: var(--mono); font-size: 14px; }
+  table.pf td { padding: 4px 8px; border-bottom: 1px solid var(--line); }
+  table.pf td.n { color: var(--muted); width: 34px; text-align: right; }
+  table.pf td.j { color: var(--muted); font-size: 12px; white-space: nowrap; width: 1%; }
+  table.pf tr { cursor: pointer; transition: background .2s; }
+  table.pf tr:hover { background: var(--accent-soft); }
+  table.pf tr.sel { background: var(--gold-soft); outline: 2px solid var(--gold); outline-offset: -2px; }
+  table.pf tr.goal td.f { color: var(--true); font-weight: 700; }
+  table.pf tr.new { animation: rowin .35s ease both; }
+  .pf-wrap { max-height: 420px; overflow: auto; }
+  .jt { display: inline-block; padding: 0 6px; border-radius: 6px; font-weight: 700; font-size: 11px; }
+  .jt.ax { background: var(--gold-soft); color: #8a5300; }
+  .jt.hyp { background: var(--accent-soft); color: #23336e; }
+  .jt.mp { background: #eceae3; color: #444; }
+
+  /* proof tree */
+  .ptree text { font-size: 13.5px; }
+  svg.ptree { max-width: none; margin: 0 auto; }
+  .ptree .pn { transition: opacity .4s; }
+  .ptree .pn.off { opacity: 0; }
+  .ptree .pn.hl rect, .ptree .pn.hl .bar { filter: drop-shadow(0 0 5px rgba(59,91,219,.9)); }
+
+  /* deduction theorem */
+  .dtcols { display: grid; grid-template-columns: minmax(240px, 1fr) minmax(360px, 1.6fr); gap: 16px; }
+  @media (max-width: 1000px) { .dtcols { grid-template-columns: 1fr; } }
+  .dtl { font-family: var(--mono); font-size: 13.5px; padding: 3px 8px; margin: 2px 0; border-left: 6px solid transparent; border-radius: 4px; background: #fff; display: flex; gap: 8px; }
+  .dtl .n { color: var(--muted); min-width: 22px; }
+  .dtl .f { flex: 1; word-break: break-all; }
+  .dtl .j { font-size: 11px; color: var(--muted); white-space: nowrap; }
+  .dtl.cur { outline: 2px solid var(--ink); }
+  .dtl.dim { opacity: .45; }
+
+  /* soundness matrix */
+  table.sm { border-collapse: separate; border-spacing: 3px; font-family: var(--mono); font-size: 13px; }
+  table.sm th { font-weight: 600; padding: 2px 6px; white-space: nowrap; }
+  table.sm td.cell { width: 34px; height: 26px; border-radius: 6px; text-align: center; background: #eceae3; color: #999; transition: all .3s; }
+  table.sm td.cell.c1 { background: var(--true-soft); color: var(--true); font-weight: 700; }
+  table.sm td.cell.c0 { background: var(--false-soft); color: var(--false); font-weight: 700; }
+  table.sm td.cell.out { opacity: .35; }
+  table.sm th.mod { color: var(--accent); }
+  table.sm td.lab { text-align: left; padding: 0 8px; white-space: nowrap; }
+  table.sm td.why { font-size: 11px; color: var(--muted); padding-left: 8px; min-width: 200px; max-width: 280px; line-height: 1.35; }
+  table.sm tr.hidden { display: none; }
+  table.sm col.mod { background: transparent; }
+  .mprow { display: flex; gap: 6px; align-items: center; margin: 4px 0; font-family: var(--mono); font-size: 13px; }
+  .mprow .lbl { width: 120px; text-align: right; }
+  .mprow .t { width: 40px; height: 30px; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-weight: 700; border: 3px solid transparent; transition: all .3s; }
+  .mprow .t.c1 { background: var(--true-soft); color: var(--true); }
+  .mprow .t.c0 { background: var(--false-soft); color: var(--false); }
+  .mprow .t.fr { border-color: var(--accent); }
+  .mprow .t.dim { opacity: .3; }
+
+  /* Lindenbaum */
+  .lind text { font-size: 13px; }
+  .lnode { cursor: pointer; }
+  .lnode rect { transition: all .3s; }
+  .lnode:hover rect { filter: drop-shadow(0 0 4px rgba(59,91,219,.7)); }
+  .vchips { display: flex; gap: 8px; flex-wrap: wrap; margin: 6px 0; }
+  .vchip { font-family: var(--mono); padding: 4px 10px; border-radius: 10px; border: 2px solid var(--line); background: #fff; }
+  .vchip.v1 { border-color: var(--true); background: var(--true-soft); }
+  .vchip.v0 { border-color: var(--false); background: var(--false-soft); }
+
+  /* completeness flow */
+  .flow text { font-size: 13px; }
+  .flow .fbox { transition: opacity .5s; }
+  .flow .fbox.off { opacity: .12; }
+
+  /* compactness tree */
+  .ktree circle { transition: fill .4s, stroke .4s, r .3s; }
+  .gchips { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; min-height: 30px; }
+  .gchip { font-family: var(--mono); font-size: 13px; padding: 2px 8px; border-radius: 8px; background: #fff; border: 1.5px solid var(--accent); animation: pop .4s both; }
+
+  /* colouring */
+  .gv { cursor: pointer; }
+  .gv circle { stroke: #1f2430; stroke-width: 2; transition: fill .25s; }
+  .ge { stroke: #9aa0aa; stroke-width: 2.2; transition: stroke .25s; }
+  .ge.bad { stroke: var(--false); stroke-width: 4; }
+
+  /* ordering exercise */
+  .ocard { display: block; width: 100%; text-align: left; margin: 5px 0; }
+  .oslot { border: 2px dashed var(--line); border-radius: 12px; padding: 8px; min-height: 60px; background: #fbfaf6; }
+  .oslot .ocard { border-color: var(--accent); }
+  .oslot .ocard.right { border-color: var(--true); background: var(--true-soft); }
+  .oslot .ocard.wrong { border-color: var(--false); background: var(--false-soft); }
+  .gpick { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+  .gpick .chip { font-family: var(--mono); }
+  .gpick .chip.on { border-color: var(--accent); background: var(--accent-soft); }
+  .bitrow { display: flex; gap: 3px; flex-wrap: wrap; margin: 6px 0; font-family: var(--mono); font-size: 12px; }
+  .bitrow span { padding: 2px 6px; border-radius: 5px; }
+  .bitrow span.b1 { background: var(--true-soft); color: var(--true); }
+  .bitrow span.b0 { background: var(--false-soft); color: var(--false); }
+</style>
+</head>
+<body class="lang-both">
+<header class="top">
+  <a class="home" href="index.html">∀∃ <span class="il"><span class="en">Logic &amp; Sets</span><span class="zh">逻辑与集合</span></span></a>
+  <span class="muted">/ L2</span>
+  <span class="spacer"></span>
+  <div class="lang-switch">
+    <button data-lang="en">EN</button><button data-lang="zh">中文</button><button data-lang="both">EN + 中</button>
+  </div>
+</header>
+
+<div class="layout">
+<nav class="side">
+  <div class="grp">Lesson 2</div>
+  <a href="index.html">← <span class="il"><span class="en">Course map</span><span class="zh">课程地图</span></span></a>
+  <a href="lesson1.html">← <span class="il"><span class="en">Lesson 1</span><span class="zh">第 1 课</span></span></a>
+  <a href="lesson3.html"><span class="il"><span class="en">Lesson 3</span><span class="zh">第 3 课</span></span> →</a>
+  <a href="#s1">1 · <span class="il"><span class="en">⊢ vs ⊨</span><span class="zh">⊢ 与 ⊨</span></span></a>
+  <a href="#s2">2 · <span class="il"><span class="en">Axioms &amp; MP</span><span class="zh">公理与分离规则</span></span></a>
+  <a href="#s3">3 · <span class="il"><span class="en">Proof builder</span><span class="zh">证明搭建器</span></span></a>
+  <a href="#s4">4 · <span class="il"><span class="en">Deduction theorem</span><span class="zh">演绎定理</span></span></a>
+  <a href="#s5">5 · <span class="il"><span class="en">Soundness</span><span class="zh">可靠性</span></span></a>
+  <a href="#s6">6 · <span class="il"><span class="en">Lindenbaum</span><span class="zh">林登鲍姆引理</span></span></a>
+  <a href="#s7">7 · <span class="il"><span class="en">Completeness</span><span class="zh">完备性</span></span></a>
+  <a href="#s8">8 · <span class="il"><span class="en">Compactness</span><span class="zh">紧致性</span></span></a>
+  <a href="#s9">9 · <span class="il"><span class="en">Colouring ∞ graphs</span><span class="zh">无穷图着色</span></span></a>
+  <div class="grp"><span class="il"><span class="en">Exercises</span><span class="zh">练习</span></span></div>
+  <a href="#e1" data-prog="L2E1">E1 · <span class="il"><span class="en">build a proof</span><span class="zh">搭证明</span></span></a>
+  <a href="#e2" data-prog="L2E2">E2 · ⊢ ?</a>
+  <a href="#e3" data-prog="L2E3">E3 · <span class="il"><span class="en">finite Γ₀</span><span class="zh">有限 Γ₀</span></span></a>
+  <a href="#e4" data-prog="L2E4">E4 · <span class="il"><span class="en">finite proofs</span><span class="zh">证明有限</span></span></a>
+  <a href="#e5" data-prog="L2E5">E5 · <span class="il"><span class="en">max. consistent</span><span class="zh">极大一致</span></span></a>
+  <a href="#e6" data-prog="L2E6">E6 · <span class="il"><span class="en">discharge</span><span class="zh">消去假设</span></span></a>
+</nav>
+
+<main>
+<div class="hero">
+  <div class="kicker">Part I · Lesson 2</div>
+  <h1><span class="en">Proofs, Soundness, Completeness, Compactness</span><span class="zh">证明、可靠性、完备性、紧致性</span></h1>
+  <p><span class="en">In Lesson 1, truth meant checking valuations. Now we build a machine that never looks at truth: it only shuffles strings by fixed rules. The big theorem of this lesson is that the machine proves <b>exactly</b> the semantic consequences: <span class="m">Γ ⊢ φ ⇔ Γ ⊨ φ</span>.</span>
+     <span class="zh">第 1 课里，“真”靠检查赋值来判定。这一课我们造一台从不过问真假的机器：它只按固定规则摆弄符号串。本课的核心定理是：这台机器能证出的，<b>恰好</b>就是全部语义后承，即 <span class="m">Γ ⊢ φ ⇔ Γ ⊨ φ</span>。</span></p>
+</div>
+
+<!-- ============ S1 ============ -->
+<section class="card" id="s1">
+  <div class="kicker">§1</div>
+  <h2><span class="en">Two machines: the proof machine ⊢ and the truth checker ⊨</span><span class="zh">两台机器：证明机 ⊢ 与真值检验机 ⊨</span></h2>
+  <p><span class="en">Pick an example. The <b>proof machine</b> (left) checks each line by pattern matching only. Switch on the blindfold: the atoms become shapes and the proof is still valid, because it never used meaning. The <b>truth checker</b> (right) ignores proofs and looks at every valuation.</span>
+     <span class="zh">选一个例子。左边的<b>证明机</b>只靠模式匹配逐行检查。打开“蒙眼”开关：原子变成了图形，证明照样成立，因为它从头到尾没用到含义。右边的<b>真值检验机</b>不管证明，只看所有赋值。</span></p>
+  <div class="toolbar" id="twinBtns"></div>
+  <div class="toolbar"><label style="cursor:pointer"><input type="checkbox" id="blind"> <span class="il"><span class="en">Blindfold the proof machine (atoms → shapes)</span><span class="zh">给证明机蒙上眼（原子 → 图形）</span></span></label></div>
+  <div class="twin">
+    <div class="machine syn"><h4 style="color:#8a5300">⊢ <span class="il"><span class="en">Proof machine (syntax)</span><span class="zh">证明机（语法）</span></span></h4><div id="synOut"></div></div>
+    <div class="machine sem"><h4 style="color:var(--accent)">⊨ <span class="il"><span class="en">Truth checker (semantics)</span><span class="zh">真值检验机（语义）</span></span></h4><div id="semOut"></div></div>
+  </div>
+  <div class="stage" style="margin-top:14px;display:flex;justify-content:center"><svg id="bridge" viewBox="0 0 760 150" width="760" height="150"></svg></div>
+  <div class="def"><span class="en"><b>Definition.</b> A <b>proof of φ from Γ</b> is a finite sequence <span class="m">φ₁, …, φₙ = φ</span> in which every <span class="m">φₖ</span> is an axiom, a member of Γ, or follows from two earlier lines by MP. We write <span class="m">Γ ⊢ φ</span> if such a sequence exists. <span class="m">Γ ⊨ φ</span> (Lesson 1) means every valuation satisfying Γ satisfies φ.</span>
+    <span class="zh"><b>定义.</b> <b>从 Γ 出发对 φ 的一个证明</b>是有限序列 <span class="m">φ₁, …, φₙ = φ</span>，其中每个 <span class="m">φₖ</span> 要么是公理，要么属于 Γ，要么由前面两行经分离规则（MP）得到。若这样的序列存在，记作 <span class="m">Γ ⊢ φ</span>。<span class="m">Γ ⊨ φ</span>（第 1 课）则表示：满足 Γ 的每个赋值都满足 φ。</span></div>
+</section>
+
+<!-- ============ S2 ============ -->
+<section class="card" id="s2">
+  <div class="kicker">§2</div>
+  <h2><span class="en">The Hilbert system: three axiom schemas and one rule</span><span class="zh">希尔伯特系统：三条公理模式，一条推理规则</span></h2>
+  <p><span class="en">From now on the official connectives are <b>¬ and →</b>; the others are abbreviations (<span class="m">φ∨ψ := ¬φ→ψ</span>, <span class="m">φ∧ψ := ¬(φ→¬ψ)</span>). Lesson 1 showed {¬, →} is enough. An axiom <b>schema</b> is a template: replace φ, ψ, χ by <i>any</i> formulas, the same formula for every copy of the same letter, and you get an <b>axiom</b>.</span>
+     <span class="zh">从现在起，官方联结词只有 <b>¬ 和 →</b>，其余都是缩写（<span class="m">φ∨ψ := ¬φ→ψ</span>，<span class="m">φ∧ψ := ¬(φ→¬ψ)</span>）。第 1 课已经说明 {¬, →} 够用。公理<b>模式</b>是一个模板：把 φ、ψ、χ 换成<i>任意</i>公式（同一字母处处换成同一个公式），得到的就是一条<b>公理</b>。</span></p>
+  <div class="schema-row" id="schemaRow"></div>
+  <div class="def"><span class="en"><b>Rule MP (modus ponens).</b> From <span class="m">φ</span> and <span class="m">φ → ψ</span>, infer <span class="m">ψ</span>. That's the only rule.</span>
+    <span class="zh"><b>分离规则 MP（肯定前件式）.</b> 由 <span class="m">φ</span> 和 <span class="m">φ → ψ</span> 推出 <span class="m">ψ</span>。这是唯一的推理规则。</span></div>
+  <h3><span class="en">Instance detector</span><span class="zh">实例检测器</span></h3>
+  <p><span class="en">Type a formula. The detector tries to lay each schema over it like a stencil. If one fits, the parts that φ, ψ, χ cover are coloured. If none fits, it says where the stencil breaks.</span>
+     <span class="zh">输入一个公式，检测器把每条模式像模板一样往上套。套上了，就把 φ、ψ、χ 盖住的部分涂上颜色；套不上，就指出模板在哪里卡住。</span></p>
+  <div class="keys" id="matchKeys"></div>
+  <div class="toolbar">
+    <input class="formula" id="matchIn" value="(¬q → ¬¬p) → (¬p → q)" style="min-width:380px">
+    <button class="btn small" data-m="(p → q) → (¬r → (p → q))">A1?</button>
+    <button class="btn small" data-m="p → (q → q)">p→(q→q)</button>
+    <button class="btn small" data-m="(p → ((q → p) → r)) → ((p → (q → p)) → (p → r))">A2?</button>
+    <button class="btn small" data-m="(¬p → ¬q) → (p → q)">(¬p→¬q)→(p→q)</button>
+    <button class="btn" id="matchRand"><span class="en">Random instance 🎲</span><span class="zh">随机实例 🎲</span></button>
+  </div>
+  <div class="msg" id="matchErr"></div>
+  <div class="bigf" id="matchShow"></div>
+  <div id="matchOut"></div>
+</section>
+
+<!-- ============ S3 ============ -->
+<section class="card" id="s3">
+  <div class="kicker">§3</div>
+  <h2><span class="en">A proof is a tree: ⊢ p → p in five lines, then build your own</span><span class="zh">证明是一棵树：五行证出 ⊢ p → p，再自己动手</span></h2>
+  <p><span class="en">Even <span class="m">p → p</span> needs a proof here; nothing is free. Step through the classic proof. Each MP joins two branches; the leaves are axiom instances (gold) or hypotheses (blue).</span>
+     <span class="zh">在这个系统里，连 <span class="m">p → p</span> 也得证明，没有任何东西是白给的。逐步走一遍这个经典证明：每次 MP 把两根树枝汇合起来；叶子是公理实例（金色）或假设（蓝色）。</span></p>
+  <div class="toolbar">
+    <button class="btn primary" id="ppNext"><span class="en">Next line ▶</span><span class="zh">下一行 ▶</span></button>
+    <button class="btn" id="ppAll"><span class="en">Show all</span><span class="zh">全部显示</span></button>
+    <button class="btn ghost" id="ppReset"><span class="en">Reset</span><span class="zh">重来</span></button>
+  </div>
+  <div id="ppList" style="max-width:640px"></div>
+  <div class="stage" id="ppTree" style="margin-top:10px"></div>
+  <div class="msg info" id="ppMsg"></div>
+
+  <h3><span class="en">Proof builder (sandbox)</span><span class="zh">证明搭建器（自由练习）</span></h3>
+  <p><span class="en">Add lines three ways: click a hypothesis chip, fill an axiom schema, or <b>click two lines</b> (φ and φ → ψ) to apply MP. You can also type a line; the machine looks for a justification. When the goal appears, its proof tree is drawn.</span>
+     <span class="zh">三种方式加一行：点假设卡片、填写公理模式，或者<b>点选两行</b>（φ 与 φ → ψ）使用 MP。也可以直接输入一行，机器会自动找依据。目标一出现，就会画出它的证明树。</span></p>
+  <div class="toolbar" id="sbGoals"></div>
+  <div id="sandbox"></div>
+</section>
+
+<!-- ============ S4 ============ -->
+<section class="card" id="s4">
+  <div class="kicker">§4</div>
+  <h2><span class="en">The deduction theorem: turning a hypothesis into an “if”</span><span class="zh">演绎定理：把假设变成“如果”</span></h2>
+  <div class="def"><span class="en"><b>Deduction Theorem.</b> <span class="m">Γ ∪ {φ} ⊢ ψ</span> &nbsp;⇒&nbsp; <span class="m">Γ ⊢ φ → ψ</span>. (The converse is one MP step.)</span>
+    <span class="zh"><b>演绎定理.</b> <span class="m">Γ ∪ {φ} ⊢ ψ</span> &nbsp;⇒&nbsp; <span class="m">Γ ⊢ φ → ψ</span>。（反方向只需一步 MP。）</span></div>
+  <p><span class="en">The proof is an <b>algorithm</b>: put “φ →” in front of every line, then repair each line with a small patch. Three kinds of patch, one per case. Each original line (left) and its patch (right) share a colour.</span>
+     <span class="zh">它的证明是一个<b>算法</b>：在每一行前面加上“φ →”，再给每一行打一个小补丁。补丁分三种，各对应一种情形。左边每一行和它在右边的补丁颜色相同。</span></p>
+  <div class="toolbar" id="dtBtns"></div>
+  <div class="toolbar">
+    <button class="btn primary" id="dtNext"><span class="en">Transform next line ▶</span><span class="zh">变换下一行 ▶</span></button>
+    <button class="btn" id="dtAll"><span class="en">Show all</span><span class="zh">全部显示</span></button>
+  </div>
+  <div class="msg info" id="dtCase"></div>
+  <div class="dtcols">
+    <div><h4 id="dtLHead"></h4><div id="dtLeft"></div></div>
+    <div><h4 id="dtRHead"></h4><div id="dtRight" style="max-height:520px;overflow:auto"></div></div>
+  </div>
+  <div class="msg" id="dtMsg"></div>
+</section>
+
+<!-- ============ S5 ============ -->
+<section class="card" id="s5">
+  <div class="kicker">§5</div>
+  <h2><span class="en">Soundness: the machine never lies</span><span class="zh">可靠性：机器从不说谎</span></h2>
+  <div class="def"><span class="en"><b>Soundness Theorem.</b> If <span class="m">Γ ⊢ φ</span> then <span class="m">Γ ⊨ φ</span>.</span><span class="zh"><b>可靠性定理.</b> 若 <span class="m">Γ ⊢ φ</span>，则 <span class="m">Γ ⊨ φ</span>。</span></div>
+  <p><span class="en">Proof by induction on the length of the proof. Two facts suffice, and you can watch both.</span>
+     <span class="zh">对证明的长度做归纳。只需要两个事实，下面都可以亲眼看到。</span></p>
+  <div class="row">
+    <div class="col">
+      <h3><span class="en">① Every axiom is a tautology</span><span class="zh">① 每条公理都是重言式</span></h3>
+      <div class="toolbar">
+        <button class="btn small" data-sa="A1">A1 🎲</button><button class="btn small" data-sa="A2">A2 🎲</button><button class="btn small" data-sa="A3">A3 🎲</button>
+      </div>
+      <div class="m" id="saF" style="min-height:44px;font-size:14px"></div>
+      <div id="saTiles"></div>
+      <div class="msg" id="saMsg"></div>
+    </div>
+    <div class="col">
+      <h3><span class="en">② MP preserves truth</span><span class="zh">② MP 保持真值</span></h3>
+      <div class="toolbar">φ = <input class="formula" id="mpA" value="p → q" style="min-width:120px;width:130px">
+        ψ = <input class="formula" id="mpB" value="¬r → p" style="min-width:120px;width:130px">
+        <button class="btn small primary" id="mpGo"><span class="en">Check</span><span class="zh">检查</span></button></div>
+      <div class="msg" id="mpErr"></div>
+      <div id="mpRows"></div>
+      <div class="msg" id="mpMsg"></div>
+    </div>
+  </div>
+  <h3><span class="en">③ Put together: truth flows down the proof</span><span class="zh">③ 合起来：真值沿着证明往下传</span></h3>
+  <p><span class="en">Rows are proof lines, columns are valuations. Columns in <b style="color:var(--accent)">Mod(Γ)</b> are bright, the rest are faded. Watch each row appear: axiom rows are all green, hypothesis rows are green on Mod(Γ), and an MP row is green wherever its two parents are. So the last row is green on all of Mod(Γ), which says exactly <span class="m">Γ ⊨ φ</span>.</span>
+     <span class="zh">每行是证明的一行，每列是一个赋值。属于 <b style="color:var(--accent)">Mod(Γ)</b> 的列是亮的，其余变淡。看每一行出现：公理行全绿；假设行在 Mod(Γ) 上全绿；MP 行在它两个“父行”都绿的地方也绿。所以最后一行在 Mod(Γ) 上全绿，这正是 <span class="m">Γ ⊨ φ</span>。</span></p>
+  <div class="toolbar" id="smBtns"></div>
+  <div class="toolbar">
+    <button class="btn primary" id="smNext"><span class="en">Next row ▶</span><span class="zh">下一行 ▶</span></button>
+    <button class="btn" id="smAll"><span class="en">Show all</span><span class="zh">全部显示</span></button>
+  </div>
+  <div class="stage" id="smStage"></div>
+  <div class="msg" id="smMsg"></div>
+  <div class="note"><span class="en"><b>Use it backwards.</b> To show <span class="m">Γ ⊬ φ</span> you never need to search all proofs: one valuation satisfying Γ but not φ does it. That is why <span class="m">{q, p → q} ⊬ p</span> in §1.</span>
+    <span class="zh"><b>反过来用.</b> 想证明 <span class="m">Γ ⊬ φ</span>，根本不用穷举所有证明：只要找到一个满足 Γ 却弄假 φ 的赋值就够了。§1 里 <span class="m">{q, p → q} ⊬ p</span> 就是这样得到的。</span></div>
+</section>
+
+<!-- ============ S6 ============ -->
+<section class="card" id="s6">
+  <div class="kicker">§6</div>
+  <h2><span class="en">Consistency and Lindenbaum's lemma: walking down an infinite tree</span><span class="zh">一致性与林登鲍姆引理：沿着无穷树往下走</span></h2>
+  <div class="def"><span class="en"><b>Definitions.</b> Γ is <b>consistent</b> if there is no ψ with <span class="m">Γ ⊢ ψ</span> and <span class="m">Γ ⊢ ¬ψ</span>. Γ is <b>maximal consistent</b> if it is consistent and, for every formula φ, <span class="m">φ ∈ Γ</span> or <span class="m">¬φ ∈ Γ</span>.<br>
+    <b>Key lemma.</b> If Δ is consistent, then at least one of <span class="m">Δ ∪ {φ}</span>, <span class="m">Δ ∪ {¬φ}</span> is consistent. (Sketch: an inconsistent set proves everything. If <span class="m">Δ ∪ {¬φ}</span> is inconsistent, it proves φ, so <span class="m">Δ ⊢ ¬φ → φ</span> by the deduction theorem, and <span class="m">Δ ⊢ φ</span> via the theorem <span class="m">⊢ (¬φ → φ) → φ</span>. Symmetrically, if <span class="m">Δ ∪ {φ}</span> is inconsistent, then <span class="m">Δ ⊢ ¬φ</span> via <span class="m">⊢ (φ → ¬φ) → ¬φ</span>. Both together would make Δ inconsistent.)</span>
+    <span class="zh"><b>定义.</b> 若不存在 ψ 使得 <span class="m">Γ ⊢ ψ</span> 且 <span class="m">Γ ⊢ ¬ψ</span>，则称 Γ 是<b>一致的</b>（协调的）。若 Γ 一致，并且对每个公式 φ 都有 <span class="m">φ ∈ Γ</span> 或 <span class="m">¬φ ∈ Γ</span>，则称 Γ 是<b>极大一致集</b>。<br>
+    <b>关键引理.</b> 若 Δ 一致，则 <span class="m">Δ ∪ {φ}</span> 与 <span class="m">Δ ∪ {¬φ}</span> 中至少有一个一致。（证明梗概：不一致的集合能推出一切。若 <span class="m">Δ ∪ {¬φ}</span> 不一致，它推得出 φ，由演绎定理 <span class="m">Δ ⊢ ¬φ → φ</span>，再借定理 <span class="m">⊢ (¬φ → φ) → φ</span> 得 <span class="m">Δ ⊢ φ</span>。同理，若 <span class="m">Δ ∪ {φ}</span> 不一致，借 <span class="m">⊢ (φ → ¬φ) → ¬φ</span> 得 <span class="m">Δ ⊢ ¬φ</span>。两者同时成立，Δ 就不一致了。）</span></div>
+  <p><span class="en"><b>Lindenbaum's lemma:</b> every consistent Γ extends to a maximal consistent Δ. List all formulas <span class="m">φ₀, φ₁, φ₂, …</span> (Lesson 1, §8: there are countably many). At level n, add <span class="m">φₙ</span> or <span class="m">¬φₙ</span>, whichever keeps the set consistent. Click your way down. A red branch would make the set inconsistent and is blocked.</span>
+     <span class="zh"><b>林登鲍姆引理：</b>每个一致集 Γ 都能扩充成极大一致集 Δ。把全体公式排成 <span class="m">φ₀, φ₁, φ₂, …</span>（第 1 课 §8：公式只有可数多个）。第 n 层在 <span class="m">φₙ</span> 与 <span class="m">¬φₙ</span> 中选一个加进去，前提是加完仍一致。点击节点一路往下走。红色分支会导致不一致，走不通。</span></p>
+  <div class="msg info"><span class="en">Here <span class="m">Γ = {p₀ → p₁, &nbsp;p₁ → ¬p₂}</span>. (For this demo the machine tests consistency of the current finite set with a truth table. That shortcut borrows a fact we only prove in §7: for a finite set, consistent ⇔ satisfiable, by soundness plus completeness. The proof of Lindenbaum's lemma itself only needs the key lemma.)</span>
+    <span class="zh">这里取 <span class="m">Γ = {p₀ → p₁, &nbsp;p₁ → ¬p₂}</span>。（演示中，机器用真值表检验当前这个有限集是否一致。这个捷径借用了 §7 才证明的事实：对有限集，一致 ⇔ 可满足（由可靠性加完备性）。林登鲍姆引理的证明本身只需要上面的关键引理。）</span></div>
+  <div class="toolbar">
+    <button class="btn" id="linAuto"><span class="en">Next level by Lindenbaum's rule ▶</span><span class="zh">按林登鲍姆规则走一层 ▶</span></button>
+    <button class="btn" id="linAll"><span class="en">Show all</span><span class="zh">全部显示</span></button>
+    <button class="btn ghost" id="linReset"><span class="en">Reset</span><span class="zh">重来</span></button>
+  </div>
+  <div class="row">
+    <div class="col" style="flex:1 1 520px"><div class="stage"><svg id="linSvg" class="lind" viewBox="0 0 560 160" width="560" height="160"></svg></div></div>
+    <div class="col" style="flex:1 1 280px">
+      <h4><span class="il"><span class="en">The valuation the path defines</span><span class="zh">这条路径定义的赋值</span></span></h4>
+      <p class="muted m" style="font-size:14px">v(pᵢ) = 1 ⇔ pᵢ ∈ Δ</p>
+      <div class="vchips" id="linVal"></div>
+      <div id="linTruth"></div>
+    </div>
+  </div>
+  <div class="msg" id="linMsg"></div>
+</section>
+
+<!-- ============ S7 ============ -->
+<section class="card" id="s7">
+  <div class="kicker">§7</div>
+  <h2><span class="en">The Completeness Theorem</span><span class="zh">完备性定理</span></h2>
+  <div class="def"><span class="en"><b>Completeness Theorem.</b> If <span class="m">Γ ⊨ φ</span> then <span class="m">Γ ⊢ φ</span>. Together with soundness: <span class="m">⊢ = ⊨</span>. (Post, 1921, proved the case Γ = ∅, “every tautology is provable”, for the axioms of <i>Principia Mathematica</i>; the general form with premises Γ is proved below.)</span>
+    <span class="zh"><b>完备性定理.</b> 若 <span class="m">Γ ⊨ φ</span>，则 <span class="m">Γ ⊢ φ</span>。结合可靠性定理：<span class="m">⊢ = ⊨</span>。（波斯特于 1921 年针对《数学原理》的公理系统证明了 Γ = ∅ 的情形，即“每个重言式都可证”；带前提 Γ 的一般形式见下面的证明。）</span></div>
+  <p><span class="en">We prove the contrapositive: from <span class="m">Γ ⊬ φ</span> we <b>build a counterexample valuation</b>. Step through the chain.</span>
+     <span class="zh">证明其逆否命题：由 <span class="m">Γ ⊬ φ</span> 出发，<b>造出一个反例赋值</b>。逐步走完这条链。</span></p>
+  <div class="toolbar">
+    <button class="btn primary" id="cpNext"><span class="en">Next step ▶</span><span class="zh">下一步 ▶</span></button>
+    <button class="btn" id="cpAll"><span class="en">Show all</span><span class="zh">全部显示</span></button>
+    <button class="btn ghost" id="cpReset"><span class="en">Reset</span><span class="zh">重来</span></button>
+  </div>
+  <div class="stage" style="display:flex;justify-content:center"><svg id="flow" class="flow" viewBox="0 0 900 210" width="900" height="210"></svg></div>
+  <div class="steps" id="cpSteps">
+    <div class="step def"><span class="en"><b>Step 1.</b> Suppose <span class="m">Γ ⊬ φ</span>. Then <span class="m">Γ ∪ {¬φ}</span> is consistent. Otherwise <span class="m">Γ ∪ {¬φ} ⊢ φ</span> (from an inconsistent set everything follows, via the theorem <span class="m">⊢ ¬ψ → (ψ → φ)</span>). The deduction theorem gives <span class="m">Γ ⊢ ¬φ → φ</span>, and with the theorem <span class="m">⊢ (¬φ → φ) → φ</span>, MP gives <span class="m">Γ ⊢ φ</span>. Contradiction.</span>
+      <span class="zh"><b>第 1 步.</b> 设 <span class="m">Γ ⊬ φ</span>，则 <span class="m">Γ ∪ {¬φ}</span> 一致。否则 <span class="m">Γ ∪ {¬φ} ⊢ φ</span>（不一致的集合什么都推得出，用的是定理 <span class="m">⊢ ¬ψ → (ψ → φ)</span>）。由演绎定理得 <span class="m">Γ ⊢ ¬φ → φ</span>，再结合定理 <span class="m">⊢ (¬φ → φ) → φ</span> 用 MP 得 <span class="m">Γ ⊢ φ</span>，矛盾。</span></div>
+    <div class="step def"><span class="en"><b>Step 2 (Lindenbaum, §6).</b> Extend <span class="m">Γ ∪ {¬φ}</span> to a maximal consistent set Δ: <span class="m">Δ = ⋃ₙ Δₙ</span>. Δ is consistent because a proof of a contradiction from Δ would use only finitely many hypotheses, all in some single Δₙ.</span>
+      <span class="zh"><b>第 2 步（林登鲍姆，§6）.</b> 把 <span class="m">Γ ∪ {¬φ}</span> 扩充成极大一致集 Δ：<span class="m">Δ = ⋃ₙ Δₙ</span>。Δ 是一致的：从 Δ 推出矛盾的证明只用到有限个假设，它们全落在某一个 Δₙ 里。</span></div>
+    <div class="step def"><span class="en"><b>Step 3.</b> Define the valuation <span class="m">v(p) = 1 ⇔ p ∈ Δ</span> for each atom p.</span>
+      <span class="zh"><b>第 3 步.</b> 对每个原子命题 p，定义赋值 <span class="m">v(p) = 1 ⇔ p ∈ Δ</span>。</span></div>
+    <div class="step def"><span class="en"><b>Step 4 (Truth Lemma).</b> For every formula ψ: <span class="m">v̄(ψ) = 1 ⇔ ψ ∈ Δ</span>. Induction on ψ.
+      <b>Atoms:</b> by definition. <b>¬ψ:</b> by maximality and consistency, <span class="m">¬ψ ∈ Δ ⇔ ψ ∉ Δ ⇔ v̄(ψ) = 0 ⇔ v̄(¬ψ) = 1</span>.
+      <b>ψ → χ:</b> Δ is deductively closed (if <span class="m">Δ ⊢ θ</span> then <span class="m">θ ∈ Δ</span>, else <span class="m">¬θ ∈ Δ</span> and Δ is inconsistent). If <span class="m">ψ ∉ Δ</span>, then <span class="m">¬ψ ∈ Δ</span>, and <span class="m">⊢ ¬ψ → (ψ → χ)</span> puts <span class="m">ψ → χ ∈ Δ</span>. If <span class="m">χ ∈ Δ</span>, A1 puts <span class="m">ψ → χ ∈ Δ</span>. If <span class="m">ψ ∈ Δ</span> and <span class="m">χ ∉ Δ</span>, then <span class="m">ψ → χ ∉ Δ</span>, since otherwise MP would put χ in Δ. These three cases match the truth table of →.</span>
+      <span class="zh"><b>第 4 步（真值引理）.</b> 对每个公式 ψ：<span class="m">v̄(ψ) = 1 ⇔ ψ ∈ Δ</span>。对 ψ 归纳。
+      <b>原子：</b>按定义。<b>¬ψ：</b>由极大性与一致性，<span class="m">¬ψ ∈ Δ ⇔ ψ ∉ Δ ⇔ v̄(ψ) = 0 ⇔ v̄(¬ψ) = 1</span>。
+      <b>ψ → χ：</b>Δ 对推演封闭（若 <span class="m">Δ ⊢ θ</span> 而 <span class="m">θ ∉ Δ</span>，则 <span class="m">¬θ ∈ Δ</span>，Δ 就不一致了）。若 <span class="m">ψ ∉ Δ</span>，则 <span class="m">¬ψ ∈ Δ</span>，由 <span class="m">⊢ ¬ψ → (ψ → χ)</span> 得 <span class="m">ψ → χ ∈ Δ</span>；若 <span class="m">χ ∈ Δ</span>，由 A1 得 <span class="m">ψ → χ ∈ Δ</span>；若 <span class="m">ψ ∈ Δ</span> 而 <span class="m">χ ∉ Δ</span>，则 <span class="m">ψ → χ ∉ Δ</span>，否则用 MP 就得 χ ∈ Δ。三种情形恰好对上 → 的真值表。</span></div>
+    <div class="step def"><span class="en"><b>Step 5.</b> Γ ⊆ Δ and ¬φ ∈ Δ, so v satisfies Γ and <span class="m">v̄(φ) = 0</span>. Hence <span class="m">Γ ⊭ φ</span>. Contrapositive: <span class="m">Γ ⊨ φ ⇒ Γ ⊢ φ</span>. ∎</span>
+      <span class="zh"><b>第 5 步.</b> Γ ⊆ Δ 且 ¬φ ∈ Δ，所以 v 满足 Γ 而 <span class="m">v̄(φ) = 0</span>，即 <span class="m">Γ ⊭ φ</span>。取逆否：<span class="m">Γ ⊨ φ ⇒ Γ ⊢ φ</span>。∎</span></div>
+  </div>
+  <div class="note"><span class="en"><b>Equivalent form:</b> every consistent set is satisfiable. You watched a small piece of exactly this construction in §6: the path through the tree <i>is</i> the model.</span>
+    <span class="zh"><b>等价说法：</b>每个一致集都可满足。§6 里你看到的正是这个构造的一小段：树里走出的那条路径<i>就是</i>模型。</span></div>
+</section>
+
+<!-- ============ S8 ============ -->
+<section class="card" id="s8">
+  <div class="kicker">§8</div>
+  <h2><span class="en">Compactness: König's tree of partial valuations</span><span class="zh">紧致性：柯尼希树与部分赋值</span></h2>
+  <div class="def"><span class="en"><b>Compactness Theorem.</b> A set Γ of formulas is satisfiable if and only if every finite subset of Γ is satisfiable.</span>
+    <span class="zh"><b>紧致性定理.</b> 公式集 Γ 可满足，当且仅当 Γ 的每个有限子集都可满足。</span></div>
+  <p><span class="en">Atoms <span class="m">p₀, p₁, p₂, …</span>. A node at depth n is a partial valuation of <span class="m">p₀ … pₙ₋₁</span> (left edge = 0, right edge = 1). Let <span class="m">Γₙ</span> be the formulas of Γ that mention only <span class="m">p₀ … pₙ₋₁</span>. Each “check” prunes every node at the new depth that falsifies some formula of <span class="m">Γₙ</span>; its whole subtree dies. If Γ is finitely satisfiable, every level keeps a survivor (Γₙ may be infinite, but over n atoms there are only finitely many formulas up to equivalence, so Γₙ is equivalent to a finite subset of Γ), and <b>König's lemma</b> then gives an infinite branch: a valuation satisfying all of Γ.</span>
+     <span class="zh">原子为 <span class="m">p₀, p₁, p₂, …</span>。深度为 n 的节点是 <span class="m">p₀ … pₙ₋₁</span> 上的部分赋值（左边 = 0，右边 = 1）。令 <span class="m">Γₙ</span> 为 Γ 中只涉及 <span class="m">p₀ … pₙ₋₁</span> 的那些公式。每次“检查”都会在新的一层剪掉弄假 <span class="m">Γₙ</span> 中某个公式的节点，它下面的整棵子树也随之死掉。若 Γ 有限可满足，每一层都有幸存者（Γₙ 可能是无穷集，但 n 个原子上的公式在等价意义下只有有限多个，所以 Γₙ 等价于 Γ 的某个有限子集），<b>柯尼希引理</b>就给出一条无穷分支，也就是满足整个 Γ 的赋值。</span></p>
+  <div class="toolbar" id="kgBtns"></div>
+  <div class="m" id="kgGamma" style="font-size:15px;margin:4px 0"></div>
+  <div class="toolbar">
+    <button class="btn primary" id="kgNext"><span class="en">Grow &amp; check next level ▶</span><span class="zh">长一层并检查 ▶</span></button>
+    <button class="btn" id="kgAll"><span class="en">Show all</span><span class="zh">全部显示</span></button>
+    <button class="btn ghost" id="kgReset"><span class="en">Reset</span><span class="zh">重来</span></button>
+  </div>
+  <div class="gchips" id="kgChips"></div>
+  <div class="stage"><svg id="kgSvg" class="ktree" viewBox="0 0 920 470" width="920" height="470"></svg></div>
+  <div class="msg" id="kgMsg"></div>
+  <h3><span class="en">König's lemma, step by step</span><span class="zh">柯尼希引理，分步证明</span></h3>
+  <div class="steps" id="konig">
+    <div class="step def"><span class="en"><b>Lemma.</b> Every infinite, finitely branching tree has an infinite branch.</span><span class="zh"><b>引理.</b> 每棵无穷且有限分叉的树都有一条无穷分支。</span></div>
+    <div class="step def"><span class="en">Call a node <b>big</b> if infinitely many nodes lie below it. The root is big, because the tree is infinite.</span><span class="zh">若某节点下方有无穷多个节点，就称它是<b>大</b>节点。树是无穷的，所以根是大节点。</span></div>
+    <div class="step def"><span class="en">If a node is big, one of its children is big: finitely many children, and a finite union of finite sets would be finite (pigeonhole).</span><span class="zh">若某节点是大的，它必有一个孩子是大的：孩子只有有限个，而有限个有限集之并仍是有限集（抽屉原理）。</span></div>
+    <div class="step def"><span class="en">Start at the root and always step to a big child. This never stops and traces an infinite branch. ∎ (In general, making infinitely many such choices uses a weak form of choice, dependent choice; in our binary tree we can always take the leftmost big child, so no choice is needed.)<br>Applied to our tree: survivors at depth n = valuations of <span class="m">p₀…pₙ₋₁</span> satisfying <span class="m">Γₙ</span>. Over n atoms there are only finitely many formulas up to equivalence, so <span class="m">Γₙ</span> is equivalent to a finite subset of Γ; finite satisfiability therefore means every level is nonempty, and the tree is infinite. The branch satisfies every formula of Γ, since each formula lies in some <span class="m">Γₙ</span>.</span>
+      <span class="zh">从根出发，每一步都走向一个大孩子。这个过程永不停止，走出一条无穷分支。∎（一般情形下，做无穷多次这样的选择要用到选择公理的弱形式，即依赖选择公理；在我们的二叉树中，总可以取最左边的大孩子，因此无需任何选择。）<br>用到我们的树上：深度 n 的幸存者，就是 <span class="m">p₀…pₙ₋₁</span> 上满足 <span class="m">Γₙ</span> 的赋值。n 个原子上的公式在等价意义下只有有限多个，所以 <span class="m">Γₙ</span> 等价于 Γ 的某个有限子集；于是“有限可满足”意味着每一层都非空，树是无穷的。而 Γ 的每个公式都属于某个 <span class="m">Γₙ</span>，因此这条分支满足整个 Γ。</span></div>
+  </div>
+  <div class="toolbar"><button class="btn" id="konigNext"><span class="en">Reveal next step</span><span class="zh">揭晓下一步</span></button><button class="btn ghost" id="konigAll"><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+  <div class="note"><span class="en"><b>Second proof, for free:</b> compactness also follows from completeness, because proofs are finite (Exercise E4). König needs countably many atoms; for uncountably many, one uses Zorn's lemma (Lesson 10) or Tychonoff's theorem on <span class="m">{0,1}<sup>P</sup></span>, which is where the name “compactness” comes from.</span>
+    <span class="zh"><b>第二种证明，白送：</b>紧致性也可以由完备性推出，因为证明都是有限长的（见练习 E4）。柯尼希引理只适用于可数多个原子；原子不可数时，要用佐恩引理（第 10 课）或 <span class="m">{0,1}<sup>P</sup></span> 上的吉洪诺夫定理，“紧致性”这个名字就是从这里来的。</span></div>
+</section>
+
+<!-- ============ S9 ============ -->
+<section class="card" id="s9">
+  <div class="kicker">§9</div>
+  <h2><span class="en">Application: colouring infinite graphs (De Bruijn–Erdős)</span><span class="zh">应用：无穷图的着色（德布鲁因–埃尔德什定理）</span></h2>
+  <p><span class="en">The graph continues forever to the right. Use one atom <span class="m">c<sub>v,i</sub></span> for “vertex v gets colour i”, and let Γ say: each vertex gets at least one colour, at most one colour, and adjacent vertices get different colours. A valuation satisfying Γ <b>is</b> a k-colouring. A finite subset of Γ mentions only finitely many vertices. So <b>if every finite subgraph is k-colourable, the whole infinite graph is</b>.</span>
+     <span class="zh">这张图向右无限延伸。对每个顶点 v 和颜色 i 引入原子 <span class="m">c<sub>v,i</sub></span>，意为“v 染第 i 种颜色”。令 Γ 规定：每个顶点至少染一种颜色、至多染一种颜色、相邻顶点颜色不同。满足 Γ 的赋值<b>就是</b>一个 k-着色。Γ 的有限子集只涉及有限个顶点，所以<b>只要每个有限子图都能 k-着色，整个无穷图就能 k-着色</b>。</span></p>
+  <div class="toolbar" id="colBtns"></div>
+  <div class="toolbar">
+    <span class="il"><span class="en">colours</span><span class="zh">颜色数</span></span> k: <span id="colK"></span>
+    &nbsp; <span class="il"><span class="en">finite window</span><span class="zh">有限窗口</span></span>: <input type="range" id="colN" min="1" max="8" value="4"> <b class="m" id="colNv">4</b>
+    <button class="btn primary" id="colSolve"><span class="en">Search a colouring of this window</span><span class="zh">搜索该窗口的着色</span></button>
+    <button class="btn ghost" id="colClear"><span class="en">Clear</span><span class="zh">清空</span></button>
+  </div>
+  <p class="muted" style="font-size:14px"><span class="en">Click a vertex to cycle its colour. Hover a vertex to see its formulas in Γ.</span><span class="zh">点击顶点循环切换颜色；鼠标停在顶点上，可以看到它在 Γ 里对应的公式。</span></p>
+  <div class="stage"><svg id="colSvg" viewBox="0 0 920 250" width="920" height="250"></svg></div>
+  <div class="msg info m" id="colEnc" style="font-size:13px"></div>
+  <div class="msg" id="colMsg"></div>
+  <div class="note"><span class="en"><b>De Bruijn–Erdős (1951)</b>, plus the Four Colour Theorem: every <i>infinite</i> planar graph is 4-colourable, because each finite subgraph is a finite planar graph. (For uncountable graphs, use compactness for arbitrarily many atoms, which needs a weak form of the Axiom of Choice.)</span>
+    <span class="zh"><b>德布鲁因–埃尔德什定理（1951）</b>，再加上四色定理：每个<i>无穷</i>平面图都能 4-着色，因为它的每个有限子图都是有限平面图。（对不可数图，要用任意多原子的紧致性定理，这需要选择公理的一种弱形式。）</span></div>
+</section>
+
+<!-- ============ EXERCISES ============ -->
+<section class="card" id="exercises">
+  <div class="kicker"><span class="il"><span class="en">Exercises</span><span class="zh">练习</span></span></div>
+  <h2><span class="en">Your turn</span><span class="zh">轮到你了</span></h2>
+  <p class="muted"><span class="en">Progress is saved in your browser. A sidebar ✓ means solved.</span><span class="zh">进度保存在浏览器中，侧栏出现 ✓ 表示已完成。</span></p>
+
+  <!-- E1 -->
+  <div class="ex" id="e1" data-prog="L2E1">
+    <h3><span class="tag">E1</span><span class="il"><span class="en">Hypothetical syllogism by hand</span><span class="zh">亲手证明假言三段论</span></span></h3>
+    <p><span class="en">Prove <span class="m">{p → q, q → r} ⊢ p → r</span> in the Hilbert system, <b>without</b> the deduction theorem. <b>Hint:</b> get <span class="m">p → (q → r)</span> from A1, then use A2.</span>
+       <span class="zh">在希尔伯特系统中证明 <span class="m">{p → q, q → r} ⊢ p → r</span>，<b>不准</b>用演绎定理。<b>提示：</b>先用 A1 得到 <span class="m">p → (q → r)</span>，再用 A2。</span></p>
+    <div id="e1Builder"></div>
+  </div>
+
+  <!-- E2 -->
+  <div class="ex" id="e2" data-prog="L2E2">
+    <h3><span class="tag">E2</span><span class="il"><span class="en">Provable or not? (no searching allowed)</span><span class="zh">证得出还是证不出？（不许硬搜）</span></span></h3>
+    <p><span class="en">Decide each one using soundness (for ⊬) and completeness (for ⊢). The valuation grid then appears as the certificate.</span>
+       <span class="zh">用可靠性（判 ⊬）和完备性（判 ⊢）来判断。答完会出现赋值格子图作为依据。</span></p>
+    <div id="e2List"></div>
+  </div>
+
+  <!-- E3 -->
+  <div class="ex" id="e3" data-prog="L2E3">
+    <h3><span class="tag">E3</span><span class="il"><span class="en">Compactness: find the finite witness</span><span class="zh">紧致性：找出有限的“证人”</span></span></h3>
+    <p><span class="en">Let <span class="m">Γ = {p₁, ¬p₀} ∪ {pₙ → pₙ₊₂ : n ∈ ℕ}</span>. Then <span class="m">Γ ⊨ p₇</span>. Compactness (applied to the unsatisfiable set <span class="m">Γ ∪ {¬p₇}</span>) promises a <b>finite</b> <span class="m">Γ₀ ⊆ Γ</span> with <span class="m">Γ₀ ⊨ p₇</span>. Click members of Γ to select a Γ₀ that works. Can you make it minimal?</span>
+       <span class="zh">设 <span class="m">Γ = {p₁, ¬p₀} ∪ {pₙ → pₙ₊₂ : n ∈ ℕ}</span>，则 <span class="m">Γ ⊨ p₇</span>。对不可满足集 <span class="m">Γ ∪ {¬p₇}</span> 用紧致性定理，可知存在<b>有限</b>子集 <span class="m">Γ₀ ⊆ Γ</span> 使 <span class="m">Γ₀ ⊨ p₇</span>。点击 Γ 的成员选出这样的 Γ₀。能做到最小吗？</span></p>
+    <div class="gpick" id="e3Pick"></div>
+    <div class="toolbar"><button class="btn primary" id="e3Check"><span class="en">Check Γ₀ ⊨ p₇</span><span class="zh">检查 Γ₀ ⊨ p₇</span></button>
+      <button class="btn ghost" id="e3Show"><span class="en">Show answer</span><span class="zh">显示答案</span></button></div>
+    <div class="msg" id="e3Msg"></div>
+    <div id="e3Bits"></div>
+  </div>
+
+  <!-- E4 -->
+  <div class="ex" id="e4" data-prog="L2E4">
+    <h3><span class="tag">E4</span><span class="il"><span class="en">Why finite proofs imply compactness</span><span class="zh">为什么“证明是有限的”蕴涵紧致性</span></span></h3>
+    <p><span class="en">Put the steps of the proof “every finite subset of Γ satisfiable ⇒ Γ satisfiable” in the right order. Click cards to move them into the proof; click a placed card to send it back.</span>
+       <span class="zh">把“Γ 的每个有限子集可满足 ⇒ Γ 可满足”的证明步骤排成正确顺序。点击卡片放进证明栏；点击已放好的卡片可以退回。</span></p>
+    <div class="row">
+      <div class="col"><h4><span class="il"><span class="en">Cards</span><span class="zh">卡片</span></span></h4><div id="e4Tray"></div></div>
+      <div class="col"><h4><span class="il"><span class="en">Your proof</span><span class="zh">你的证明</span></span></h4><div class="oslot" id="e4Slot"></div></div>
+    </div>
+    <div class="toolbar"><button class="btn primary" id="e4Check"><span class="en">Check</span><span class="zh">检查</span></button>
+      <button class="btn ghost" id="e4Show"><span class="en">Show answer</span><span class="zh">显示答案</span></button></div>
+    <div class="msg" id="e4Msg"></div>
+  </div>
+
+  <!-- E5 -->
+  <div class="ex" id="e5" data-prog="L2E5">
+    <h3><span class="tag">E5</span><span class="il"><span class="en">Maximal consistent sets: true or false?</span><span class="zh">极大一致集：判断对错</span></span></h3>
+    <p class="muted"><span class="en">Δ always denotes a maximal consistent set over the atoms <span class="m">p₀, p₁, …</span></span><span class="zh">Δ 总表示原子 <span class="m">p₀, p₁, …</span> 上的一个极大一致集。</span></p>
+    <div id="e5List"></div>
+  </div>
+
+  <!-- E6 -->
+  <div class="ex" id="e6" data-prog="L2E6">
+    <h3><span class="tag">E6</span><span class="il"><span class="en">Let the deduction theorem do the work</span><span class="zh">让演绎定理替你干活</span></span></h3>
+    <p><span class="en">Goal: a <b>hypothesis-free</b> Hilbert proof of <span class="m">(p → q) → ((q → r) → (p → r))</span>. Strategy: first prove <span class="m">r</span> from <span class="m">{p → q, q → r, p}</span> (easy), then press <b>Discharge</b> three times, in the right order. Watch the proof length explode.</span>
+       <span class="zh">目标：给出 <span class="m">(p → q) → ((q → r) → (p → r))</span> 的一个<b>不含假设</b>的希尔伯特证明。策略：先从 <span class="m">{p → q, q → r, p}</span> 证出 <span class="m">r</span>（很容易），再按正确顺序按三次<b>消去假设</b>。留意证明长度怎样暴涨。</span></p>
+    <div id="e6Builder"></div>
+  </div>
+</section>
+
+<section class="card">
+  <div class="kicker"><span class="il"><span class="en">Next</span><span class="zh">下一课</span></span></div>
+  <h2><a href="lesson3.html" style="color:inherit"><span class="en">Lesson 3: first-order logic: languages, structures, truth →</span><span class="zh">第 3 课：一阶逻辑：语言、结构与真 →</span></a></h2>
+  <p><span class="en">Propositional atoms are opaque: <span class="m">p</span> can't say “every number has a successor”. Next we open up the atoms: variables, quantifiers ∀ ∃, and <b>structures</b> in place of valuations. Soundness, completeness and compactness will all come back, much stronger, in Lessons 4–5.</span>
+     <span class="zh">命题原子是“不透明”的：<span class="m">p</span> 说不出“每个数都有后继”。下一课我们把原子打开：引入变元、量词 ∀ ∃，并用<b>结构</b>取代赋值。可靠性、完备性、紧致性都会在第 4–5 课以更强的形式回归。</span></p>
+</section>
+</main>
+</div>
+
+<script src="assets/logic.js"></script>
+<script src="assets/lesson2.js"></script>
+</body>
+</html>

@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 8 · Well-orders, Ordinals, Transfinite Induction 良序、序数与超限归纳</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  /* ---------- lesson 8 local styles ---------- */
+  .ordread { font-family: var(--mono); font-size: 14px; min-height: 24px; margin-top: 6px; color: var(--ink); }
+  .ordread .k { font-family: var(--sans); color: var(--muted); font-size: 13px; }
+  svg.zoomable { cursor: zoom-in; }
+  svg.pickable { cursor: pointer; }
+  .res { font-family: var(--mono); font-size: 22px; padding: 6px 0; }
+  .res sup { font-size: .62em; }
+  .m sup, .ordin sup { font-size: .7em; }
+  .seq { font-family: var(--mono); font-size: 17px; min-height: 28px; margin: 6px 0; word-break: break-all; }
+  .seq .stop { color: var(--false); font-weight: 700; }
+  .cols { display: flex; gap: 12px; flex-wrap: wrap; align-items: stretch; margin: 10px 0; }
+  .tcol { flex: 1 1 150px; border: 2px solid var(--line); border-radius: 12px; padding: 8px 10px; background: #fff; }
+  .tcol h4 { margin: 0 0 6px; font-size: 14px; }
+  .tcol.none { border: 2px dashed var(--false); background: var(--false-soft); }
+  .wo { font-family: var(--mono); font-size: 13px; padding: 2px 7px; border-radius: 6px; background: var(--accent-soft); margin: 2px; display: inline-block; }
+  .verdicts { display: flex; gap: 10px; flex-wrap: wrap; margin: 8px 0; }
+  .verdict { padding: 5px 12px; border-radius: 999px; font-weight: 700; font-size: 14px; border: 2px solid var(--line); }
+  .verdict.y { background: var(--true-soft); border-color: var(--true); color: #1b5e20; }
+  .verdict.n { background: var(--false-soft); border-color: var(--false); color: #8a1c1c; }
+  .lang-both .verdict .zh { display: inline; }
+  .lang-both .verdict .zh::before { content: " · "; }
+  .hfchip { font-family: var(--mono); }
+  .chip.on { border-color: var(--accent); background: var(--accent-soft); font-weight: 700; }
+  .log { font-family: var(--mono); font-size: 14px; max-height: 260px; overflow: auto; }
+  .log div { padding: 3px 8px; border-radius: 6px; margin: 2px 0; }
+  .case-base { background: var(--gold-soft); }
+  .case-succ { background: #eef1f5; }
+  .case-lim { background: var(--meta-soft); }
+  .legend2 { display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px; color: var(--muted); margin: 6px 0; }
+  .legend2 i { display: inline-block; width: 4px; height: 16px; vertical-align: -3px; margin-right: 6px; border-radius: 2px; }
+  .ansrow { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; padding: 10px 0; border-bottom: 1px dashed var(--line); }
+  .ansrow .q { flex: 1 1 300px; }
+  .ansrow input.formula { min-width: 180px; width: 220px; }
+  .ansrow .msg { flex-basis: 100%; margin: 4px 0 0; }
+  .bogus { font-family: var(--mono); font-size: 15px; background: #fbfaf6; border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; line-height: 1.9; }
+  .bogus .lbl { display: inline-block; min-width: 28px; font-weight: 800; color: var(--meta); }
+  .chip.st-s { border-color: var(--ink); background: #eef1f5; }
+  .chip.st-l { border-color: var(--meta); background: var(--meta-soft); }
+  .chip.st-z { border-color: var(--gold); background: var(--gold-soft); }
+  .chip .st { font-size: 12px; color: var(--muted); margin-left: 6px; }
+  #e1List .stmt { font-family: var(--sans); font-size: 15px; }
+  #s1 table.tt td:first-child { white-space: nowrap; }
+</style>
+</head>
+<body class="lang-both">
+<header class="top">
+  <a class="home" href="index.html">∀∃ <span class="il"><span class="en">Logic &amp; Sets</span><span class="zh">逻辑与集合</span></span></a>
+  <span class="muted">/ L8</span>
+  <span class="spacer"></span>
+  <div class="lang-switch">
+    <button data-lang="en">EN</button><button data-lang="zh">中文</button><button data-lang="both">EN + 中</button>
+  </div>
+</header>
+
+<div class="layout">
+<nav class="side">
+  <div class="grp">Lesson 8</div>
+  <a href="index.html">← <span class="il"><span class="en">Course map</span><span class="zh">课程地图</span></span></a>
+  <a href="lesson7.html">← <span class="il"><span class="en">Lesson 7</span><span class="zh">第 7 课</span></span></a>
+  <a href="lesson9.html"><span class="il"><span class="en">Lesson 9</span><span class="zh">第 9 课</span></span> →</a>
+  <a href="#s1">1 · <span class="il"><span class="en">Descending chains</span><span class="zh">无穷降链</span></span></a>
+  <a href="#s2">2 · <span class="il"><span class="en">Matchsticks</span><span class="zh">火柴棍图</span></span></a>
+  <a href="#s3">3 · <span class="il"><span class="en">Von Neumann ordinals</span><span class="zh">冯·诺伊曼序数</span></span></a>
+  <a href="#s4">4 · <span class="il"><span class="en">Order types</span><span class="zh">序型</span></span></a>
+  <a href="#s5">5 · <span class="il"><span class="en">+ and · as pictures</span><span class="zh">加法与乘法的图像</span></span></a>
+  <a href="#s6">6 · <span class="il"><span class="en">Cantor normal form</span><span class="zh">康托尔范式</span></span></a>
+  <a href="#s7">7 · <span class="il"><span class="en">Transfinite induction</span><span class="zh">超限归纳</span></span></a>
+  <a href="#s8">8 · <span class="il"><span class="en">Burali–Forti</span><span class="zh">布拉利–福尔蒂</span></span></a>
+  <a href="#s9">9 · <span class="il"><span class="en">Hartogs</span><span class="zh">哈托格斯定理</span></span></a>
+  <div class="grp"><span class="il"><span class="en">Exercises</span><span class="zh">练习</span></span></div>
+  <a href="#e1" data-prog="L8E1">E1 · <span class="il"><span class="en">Well-order?</span><span class="zh">是良序吗</span></span></a>
+  <a href="#e2" data-prog="L8E2">E2 · α+β, α·β</a>
+  <a href="#e3" data-prog="L8E3">E3 · <span class="il"><span class="en">Order types</span><span class="zh">求序型</span></span></a>
+  <a href="#e4" data-prog="L8E4">E4 · <span class="il"><span class="en">Find the flaw</span><span class="zh">找漏洞</span></span></a>
+  <a href="#e5" data-prog="L8E5">E5 · <span class="il"><span class="en">Equations</span><span class="zh">解方程</span></span></a>
+  <a href="#e6" data-prog="L8E6">E6 · <span class="il"><span class="en">Limit or successor</span><span class="zh">极限还是后继</span></span></a>
+</nav>
+
+<main>
+<div class="hero">
+  <div class="kicker">Part II · Lesson 8</div>
+  <h1><span class="en">Well-orders, Ordinals, Transfinite Induction</span><span class="zh">良序、序数与超限归纳</span></h1>
+  <p><span class="en">Counting keeps going after 0, 1, 2, …. Ordinals are the numbers that measure the <i>length</i> of a well-ordered line, and they let induction run past infinity. Every picture below can be clicked, zoomed or stepped through.</span>
+     <span class="zh">数数并不止于 0, 1, 2, …。序数度量的是良序“队伍”的<i>长度</i>，有了它，归纳法可以越过无穷继续走。下面每张图都可以点击、放大或单步演示。</span></p>
+</div>
+
+<!-- ============ S1 ============ -->
+<section class="card" id="s1">
+  <div class="kicker">§1</div>
+  <h2><span class="en">Well-orders: the descending chain hunt</span><span class="zh">良序：寻找无穷降链</span></h2>
+  <div class="def"><span class="en"><b>Definition.</b> A <b>linear order</b> (X, &lt;) is a <b>well-order</b> if every nonempty subset of X has a least element. Equivalently (using Dependent Choice for ⇐): there is no infinite strictly descending sequence x₀ &gt; x₁ &gt; x₂ &gt; ⋯.</span>
+    <span class="zh"><b>定义.</b> 线序 (X, &lt;) 称为<b>良序</b>，如果 X 的每个非空子集都有最小元。等价地（⇐ 方向要用相关选择公理）：不存在无穷严格递降序列 x₀ &gt; x₁ &gt; x₂ &gt; ⋯。</span></div>
+  <p><span class="en"><b>Game:</b> pick a starting point, then keep clicking a <i>strictly smaller</i> element (blue rings are allowed moves). Can you go on forever?</span>
+     <span class="zh"><b>小游戏：</b>先任选一个起点，然后不断点击<i>严格更小</i>的元素（蓝圈表示可以走）。你能永远走下去吗？</span></p>
+  <div class="toolbar" id="chainModes">
+    <button class="btn small sel" data-mode="N"><span class="m">ℕ</span></button>
+    <button class="btn small" data-mode="W2"><span class="m">ω + ω</span></button>
+    <button class="btn small" data-mode="Z"><span class="m">ℤ</span></button>
+    <button class="btn small" data-mode="Q"><span class="m">ℚ ∩ [0,1]</span></button>
+    <span class="spacer" style="flex:1"></span>
+    <button class="btn small" id="chainAuto"><span class="en">Random descent ▶</span><span class="zh">随机下降 ▶</span></button>
+    <button class="btn small ghost" id="chainReset"><span class="en">Reset</span><span class="zh">重来</span></button>
+  </div>
+  <div class="stage"><svg id="chainSvg" viewBox="0 0 900 190" width="900" height="190"></svg></div>
+  <div class="seq" id="chainSeq"></div>
+  <div class="msg" id="chainMsg"></div>
+  <table class="tt" style="font-family:var(--sans);font-size:14px">
+    <tr><th></th><th><span class="il"><span class="en">well-order?</span><span class="zh">良序？</span></span></th><th><span class="il"><span class="en">witness</span><span class="zh">理由</span></span></th></tr>
+    <tr><td class="m">ℕ</td><td class="c1">✓</td><td style="text-align:left"><span class="il"><span class="en">from n you have at most n more steps</span><span class="zh">从 n 出发至多再走 n 步</span></span></td></tr>
+    <tr><td class="m">ω + ω</td><td class="c1">✓</td><td style="text-align:left"><span class="il"><span class="en">one big jump into the first copy, then finitely many</span><span class="zh">只能跳回第一段一次，之后有限步就停</span></span></td></tr>
+    <tr><td class="m">ℤ</td><td class="c0">✗</td><td style="text-align:left"><span class="il"><span class="en">ℤ itself has no least element</span><span class="zh">ℤ 本身就没有最小元</span></span></td></tr>
+    <tr><td class="m">ℚ ∩ [0,1]</td><td class="c0">✗</td><td style="text-align:left"><span class="il"><span class="en">{1/2ⁿ : n ∈ ℕ} has no least element (0 is a minimum of the whole set, but that is not enough)</span><span class="zh">{1/2ⁿ : n ∈ ℕ} 没有最小元（整个集合有最小元 0，但这不够）</span></span></td></tr>
+  </table>
+</section>
+
+<!-- ============ S2 ============ -->
+<section class="card" id="s2">
+  <div class="kicker">§2</div>
+  <h2><span class="en">The matchstick picture of ordinals</span><span class="zh">序数的火柴棍图</span></h2>
+  <p><span class="en">Each stick is one element, and the order runs left to right. An infinite run is drawn with sticks that shrink geometrically, so ω fits in a finite space and something can come <i>after</i> it. <b>Hover</b> a stick to read its name. <b>Click</b> to zoom in ×3: the detail never runs out.</span>
+     <span class="zh">每根火柴代表一个元素，从左往右排序。无穷长的一段用几何级数缩短的火柴来画，这样 ω 只占有限的宽度，后面还能接着放东西。<b>鼠标悬停</b>可以看每根火柴的名字，<b>点击</b>放大 3 倍：细节永远放大不完。</span></p>
+  <div class="toolbar" id="stickPresets"></div>
+  <div class="legend2">
+    <span><i style="background:var(--gold)"></i><span class="il"><span class="en">0</span><span class="zh">零</span></span></span>
+    <span><i style="background:var(--ink)"></i><span class="il"><span class="en">successor ordinal β+1</span><span class="zh">后继序数 β+1</span></span></span>
+    <span><i style="background:var(--meta)"></i><span class="il"><span class="en">limit ordinal (no immediate predecessor)</span><span class="zh">极限序数（没有直接前驱）</span></span></span>
+  </div>
+  <div class="stage" id="stickStage"></div>
+  <div class="toolbar">
+    <button class="btn small" id="stickPlay"><span class="en">Replay drawing ▶</span><span class="zh">重放绘制 ▶</span></button>
+    <button class="btn small" id="stickOut"><span class="en">Zoom out</span><span class="zh">缩小</span></button>
+    <button class="btn small ghost" id="stickReset"><span class="en">Reset zoom</span><span class="zh">还原</span></button>
+  </div>
+  <div class="note"><span class="en">Look at the purple sticks: ω, ω·2, ω·3, … in ω², each sitting just after an infinite run with nothing immediately before it. In ω<sup>ω</sup> the runs themselves come in longer and longer kinds: one stick, then a copy of ω, then of ω², then of ω³, ….</span>
+    <span class="zh">留意紫色火柴：ω² 里的 ω, ω·2, ω·3, …，每一根都紧跟在一段无穷长的序列之后，它前面没有“紧挨着”的元素。ω<sup>ω</sup> 里一段段的长度本身也在增长：先一根火柴，再一份 ω，再一份 ω²，再一份 ω³，……</span></div>
+</section>
+
+<!-- ============ S3 ============ -->
+<section class="card" id="s3">
+  <div class="kicker">§3</div>
+  <h2><span class="en">Von Neumann ordinals: each ordinal is the set of the smaller ones</span><span class="zh">冯·诺伊曼序数：每个序数就是比它小的序数之集</span></h2>
+  <div class="def"><span class="en"><b>Definition.</b> A set α is an <b>ordinal</b> if it is <b>transitive</b> (x ∈ α ⇒ x ⊆ α) and <b>well-ordered by ∈</b>. Then β &lt; α means β ∈ α, and α = {β : β &lt; α}. Every ordinal is exactly one of: <b>0 = ∅</b>; a <b>successor</b> β+1 = β ∪ {β}; a <b>limit</b> λ = ⋃λ = sup{β : β &lt; λ}.</span>
+    <span class="zh"><b>定义.</b> 集合 α 称为<b>序数</b>，如果它是<b>传递集</b>（x ∈ α ⇒ x ⊆ α），并且被 <b>∈ 良序</b>。此时 β &lt; α 就是 β ∈ α，而 α = {β : β &lt; α}。每个序数恰是下列三者之一：<b>0 = ∅</b>；<b>后继序数</b> β+1 = β ∪ {β}；<b>极限序数</b> λ = ⋃λ = sup{β : β &lt; λ}。</span></div>
+  <p><span class="en"><b>Click any stick</b>: the green sticks are its elements.</span><span class="zh"><b>点击任意一根火柴</b>：绿色的火柴就是它的元素。</span></p>
+  <div class="stage" id="vnStage"></div>
+  <div class="msg info" id="vnInfo"></div>
+
+  <h3><span class="en">Build a set and test it</span><span class="zh">自己拼一个集合来检验</span></h3>
+  <p><span class="en">Toggle elements to build a hereditarily finite set S. Arrows show membership x → y meaning x ∈ y. Red dashed ghosts are elements of elements that are <i>missing</i> from S, which breaks transitivity.</span>
+     <span class="zh">点选元素拼出一个遗传有限集 S。箭头 x → y 表示 x ∈ y。红色虚线的“幽灵”是 S 中某元素的元素，却不在 S 里，它破坏了传递性。</span></p>
+  <div class="chips" id="hfPalette"></div>
+  <div class="verdicts" id="hfVerdict"></div>
+  <div class="stage"><svg id="hfSvg" viewBox="0 0 900 230" width="900" height="230"></svg></div>
+</section>
+
+<!-- ============ S4 ============ -->
+<section class="card" id="s4">
+  <div class="kicker">§4</div>
+  <h2><span class="en">Every well-order is isomorphic to exactly one ordinal</span><span class="zh">每个良序恰好同构于唯一一个序数</span></h2>
+  <p><span class="en">The recipe: send each element x to the set of images of everything below it, <span class="m">f(x) = {f(y) : y ◁ x}</span>. In practice that means the least element goes to 0 and the next one to 1, and when an infinite run is used up, the next element goes to the limit ω. The ordinal that comes out is the <b>order type</b>.</span>
+     <span class="zh">做法是：把每个元素 x 送到它下面所有元素的像构成的集合，<span class="m">f(x) = {f(y) : y ◁ x}</span>。实际效果就是：最小元送到 0，下一个送到 1，……，一段无穷序列用完之后，下一个元素送到极限 ω。最后得到的序数叫做<b>序型</b>。</span></p>
+  <div class="toolbar" id="isoPick"></div>
+  <div class="stage"><svg id="isoSvg" viewBox="0 0 900 360" width="900" height="360"></svg></div>
+  <div class="toolbar">
+    <button class="btn primary" id="isoNext"><span class="en">Next element ▶</span><span class="zh">下一个元素 ▶</span></button>
+    <button class="btn" id="isoPlay"><span class="en">Play all</span><span class="zh">全部播放</span></button>
+    <button class="btn ghost" id="isoReset"><span class="en">Reset</span><span class="zh">重来</span></button>
+  </div>
+  <div class="msg info" id="isoMsg"></div>
+
+  <h3><span class="en">Why exactly one? (proof sketch)</span><span class="zh">为什么恰好一个？（证明梗概）</span></h3>
+  <div class="steps" id="isoSteps">
+    <div class="step def"><span class="en"><b>Lemma 1.</b> If (W, ◁) is a well-order and g: W → W is order-preserving, then x ⊴ g(x) for all x. <i>Proof:</i> otherwise take the least x with g(x) ◁ x; applying g gives g(g(x)) ◁ g(x), so y = g(x) is a smaller counterexample. Contradiction.</span>
+      <span class="zh"><b>引理 1.</b> 若 (W, ◁) 是良序，g: W → W 保序，则对所有 x 有 x ⊴ g(x)。<i>证明：</i>否则取使 g(x) ◁ x 的最小 x；两边作用 g 得 g(g(x)) ◁ g(x)，于是 y = g(x) 是更小的反例，矛盾。</span></div>
+    <div class="step def"><span class="en"><b>Lemma 2.</b> A well-order is not isomorphic to any proper initial segment of itself (an isomorphism onto {y : y ◁ a} would send a below a, contradicting Lemma 1). In particular, two distinct ordinals α ∈ β are never isomorphic, since α is a proper initial segment of β. This gives <b>uniqueness</b>.</span>
+      <span class="zh"><b>引理 2.</b> 良序不同构于自身的任何真前段（若同构于 {y : y ◁ a}，就会把 a 送到 a 之下，与引理 1 矛盾）。特别地，两个不同的序数 α ∈ β 绝不同构，因为 α 是 β 的真前段。这就得到了<b>唯一性</b>。</span></div>
+    <div class="step def"><span class="en"><b>Existence.</b> Let A = {a ∈ W : the initial segment below a is isomorphic to some ordinal α_a}. By <b>Replacement</b>, a ↦ α_a gives a set of ordinals, and it is downward closed, so it is an ordinal α. The map a ↦ α_a is an isomorphism A ≅ α. If A ≠ W, A is an initial segment {y : y ◁ c} where c is the least element outside A; but then c ∈ A. Contradiction, so W ≅ α.</span>
+      <span class="zh"><b>存在性.</b> 令 A = {a ∈ W : a 下方的前段同构于某个序数 α_a}。由<b>替换公理</b>，a ↦ α_a 的像是一个序数之集，而且向下封闭，所以它本身是一个序数 α，且 a ↦ α_a 是同构 A ≅ α。若 A ≠ W，令 c 为 A 外的最小元，则 A = {y : y ◁ c}，于是 c ∈ A，矛盾。故 W ≅ α。</span></div>
+  </div>
+  <div class="toolbar"><button class="btn" id="isoStepNext"><span class="en">Reveal next step</span><span class="zh">揭晓下一步</span></button>
+    <button class="btn ghost" id="isoStepAll"><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+</section>
+
+<!-- ============ S5 ============ -->
+<section class="card" id="s5">
+  <div class="kicker">§5</div>
+  <h2><span class="en">Ordinal + and · as pictures</span><span class="zh">序数加法与乘法的图像</span></h2>
+  <div class="def"><span class="en"><b>α + β</b> = the order type of “a copy of α, followed by a copy of β”. &nbsp; <b>α · β</b> = the order type of “β copies of α, one after another” (replace every point of β by a copy of α).</span>
+    <span class="zh"><b>α + β</b> ＝ “先排一份 α，后面接一份 β”的序型。&nbsp; <b>α · β</b> ＝ “β 份 α 依次排开”的序型（把 β 的每个点换成一份 α）。</span></div>
+  <div class="row">
+    <div class="col" style="flex:0 1 auto"><b>α</b> = <span class="toolbar" id="arA" style="display:inline-flex;margin:0"></span></div>
+    <div class="col" style="flex:0 1 auto"><span class="toolbar" id="arOp" style="display:inline-flex;margin:0"></span></div>
+    <div class="col" style="flex:0 1 auto"><b>β</b> = <span class="toolbar" id="arB" style="display:inline-flex;margin:0"></span></div>
+    <div class="col" style="flex:0 1 auto"><button class="btn small" id="arSwap">α ⇄ β</button></div>
+  </div>
+  <h4 style="margin:10px 0 4px"><span class="il"><span class="en">Construction (literally concatenating / copying)</span><span class="zh">构造（字面意义上的拼接 / 复制）</span></span></h4>
+  <div class="stage"><svg id="arBuild" viewBox="0 0 900 120" width="900" height="120"></svg></div>
+  <h4 style="margin:10px 0 4px"><span class="il"><span class="en">The same order, redrawn in normal form</span><span class="zh">同一个序，按标准形式重画</span></span></h4>
+  <div class="stage"><svg id="arNorm" viewBox="0 0 900 120" width="900" height="120"></svg></div>
+  <div class="msg info" id="arMsg"></div>
+</section>
+
+<!-- ============ S6 ============ -->
+<section class="card" id="s6">
+  <div class="kicker">§6</div>
+  <h2><span class="en">Cantor normal form calculator (ordinals below ε₀)</span><span class="zh">康托尔范式计算器（ε₀ 以下的序数）</span></h2>
+  <div class="def"><span class="en"><b>Cantor Normal Form Theorem.</b> Every ordinal α &gt; 0 can be written uniquely as <span class="m">α = ω<sup>β₁</sup>·c₁ + ω<sup>β₂</sup>·c₂ + ⋯ + ω<sup>βₖ</sup>·cₖ</span> with <span class="m">α ≥ β₁ &gt; β₂ &gt; ⋯ &gt; βₖ</span> and positive integers cᵢ. Below <span class="m">ε₀ = sup{ω, ω<sup>ω</sup>, ω<sup>ω<sup>ω</sup></sup>, …}</span> the exponents are smaller than α, so the form can be expanded all the way down.</span>
+    <span class="zh"><b>康托尔范式定理.</b> 每个序数 α &gt; 0 都可以唯一地写成 <span class="m">α = ω<sup>β₁</sup>·c₁ + ω<sup>β₂</sup>·c₂ + ⋯ + ω<sup>βₖ</sup>·cₖ</span>，其中 <span class="m">α ≥ β₁ &gt; β₂ &gt; ⋯ &gt; βₖ</span>，cᵢ 为正整数。在 <span class="m">ε₀ = sup{ω, ω<sup>ω</sup>, ω<sup>ω<sup>ω</sup></sup>, …}</span> 以下，指数都比 α 小，可以一层层展开到底。</span></div>
+  <div class="note"><span class="en">Rules the calculator uses: <b>absorption</b> ω<sup>a</sup> + ω<sup>b</sup> = ω<sup>b</sup> when a &lt; b; <b>products</b> (for α &gt; 0) α·ω<sup>b</sup> = ω<sup>a₁+b</sup> for b ≥ 1 (a₁ = leading exponent of α), and α·n (n ≥ 1) multiplies only the leading coefficient; <b>powers</b> 2<sup>ω</sup> = ω and α<sup>λ</sup> = ω<sup>a₁·λ</sup> for limit λ and α ≥ ω.</span>
+    <span class="zh">计算器用到的规则：<b>吸收律</b> 当 a &lt; b 时 ω<sup>a</sup> + ω<sup>b</sup> = ω<sup>b</sup>；<b>乘法</b>（设 α &gt; 0）当 b ≥ 1 时 α·ω<sup>b</sup> = ω<sup>a₁+b</sup>（a₁ 为 α 的首项指数），而 α·n（n ≥ 1）只把首项系数乘 n；<b>乘幂</b> 2<sup>ω</sup> = ω，当 λ 为极限序数且 α ≥ ω 时 α<sup>λ</sup> = ω<sup>a₁·λ</sup>。</span></div>
+  <p class="muted"><span class="en">Type ω as <span class="m">w</span>, use <span class="m">+ * ^</span> and parentheses. Example: <span class="m">(w+1)^2</span>.</span><span class="zh">ω 可以打成 <span class="m">w</span>，运算用 <span class="m">+ * ^</span> 和括号，例如 <span class="m">(w+1)^2</span>。</span></p>
+  <div class="toolbar">
+    <b>α =</b> <input class="formula" id="cnfA" value="w+1">
+    <span class="toolbar" id="cnfOps" style="margin:0"></span>
+    <b>β =</b> <input class="formula" id="cnfB" value="w">
+  </div>
+  <div class="toolbar" id="cnfPresets"></div>
+  <div class="msg" id="cnfErr"></div>
+  <div class="res" id="cnfRes"></div>
+  <div class="m" id="cnfCmp" style="font-size:15px"></div>
+  <div class="stage" id="cnfStage" style="margin-top:8px"></div>
+  <div class="toolbar">
+    <button class="btn small" id="cnfOut"><span class="en">Zoom out</span><span class="zh">缩小</span></button>
+    <button class="btn small ghost" id="cnfReset"><span class="en">Reset zoom</span><span class="zh">还原</span></button>
+  </div>
+</section>
+
+<!-- ============ S7 ============ -->
+<section class="card" id="s7">
+  <div class="kicker">§7</div>
+  <h2><span class="en">Transfinite induction and recursion: climbing past ω</span><span class="zh">超限归纳与超限递归：越过 ω 继续爬</span></h2>
+  <div class="row">
+    <div class="col def"><span class="en"><b>Transfinite induction.</b> Let P be a property of ordinals. If<br>
+      (0) P(0);<br>(S) P(β) ⇒ P(β+1);<br>(L) for limit λ: P(β) for all β &lt; λ ⇒ P(λ),<br>then P(α) holds for every ordinal α.</span>
+      <span class="zh"><b>超限归纳法.</b> 设 P 是序数的性质。若<br>(0) P(0)；<br>(S) P(β) ⇒ P(β+1)；<br>(L) 对极限序数 λ：对一切 β &lt; λ 有 P(β) ⇒ P(λ)，<br>则 P 对所有序数成立。</span></div>
+    <div class="col def"><span class="en"><b>Transfinite recursion.</b> Given a start value a and a rule G, there is a unique class function F on the ordinals with<br>
+      F(0) = a,&nbsp; F(β+1) = G(F(β)),&nbsp; F(λ) = sup{F(β) : β &lt; λ} (or ⋃) for limit λ.</span>
+      <span class="zh"><b>超限递归定理.</b> 给定初值 a 和规则 G，存在唯一的序数上的类函数 F，满足<br>F(0) = a，F(β+1) = G(F(β))，对极限序数 λ 有 F(λ) = sup{F(β) : β &lt; λ}（或取并）。</span></div>
+  </div>
+  <p><span class="en">The climber below is proving P step by step. Ordinary induction only gets through the gold and grey steps; the purple <b>limit landings</b> need the third clause. Choose a recursion and watch its values being computed along the way.</span>
+     <span class="zh">下面的小人在一步步地验证 P。普通的数学归纳法只能走过金色和灰色的台阶，紫色的<b>极限平台</b>必须靠第三条。选一个递归定义，看它的值在攀登途中一个个算出来。</span></p>
+  <div class="toolbar" id="stairRules"></div>
+  <div class="stage"><svg id="stairSvg" viewBox="0 0 900 320" width="900" height="320"></svg></div>
+  <div class="toolbar">
+    <button class="btn primary" id="stairNext"><span class="en">Climb one step ▶</span><span class="zh">爬一级 ▶</span></button>
+    <button class="btn" id="stairAll"><span class="en">Show all</span><span class="zh">全部显示</span></button>
+    <button class="btn ghost" id="stairReset"><span class="en">Reset</span><span class="zh">重来</span></button>
+  </div>
+  <div class="log" id="stairLog"></div>
+
+  <h3><span class="en">Why transfinite induction works</span><span class="zh">超限归纳法为什么成立</span></h3>
+  <div class="steps" id="tiSteps">
+    <div class="step def"><span class="en">Suppose P fails for some ordinal γ. The set {α ≤ γ : ¬P(α)} = {α ∈ γ+1 : ¬P(α)} is a nonempty subset of the well-ordered set γ+1, so it has a <b>least element</b> α₀.</span>
+      <span class="zh">假设 P 对某个序数 γ 不成立。集合 {α ≤ γ : ¬P(α)} = {α ∈ γ+1 : ¬P(α)} 是良序集 γ+1 的非空子集，因此有<b>最小元</b> α₀。</span></div>
+    <div class="step def"><span class="en">α₀ is 0, a successor or a limit. α₀ = 0 contradicts (0). α₀ = β+1 means P(β) holds (β &lt; α₀), so (S) gives P(α₀). If α₀ is a limit, P holds below α₀, so (L) gives P(α₀). Every case is a contradiction. ∎</span>
+      <span class="zh">α₀ 要么是 0，要么是后继，要么是极限。α₀ = 0 与 (0) 矛盾；α₀ = β+1 时 P(β) 成立（因 β &lt; α₀），由 (S) 得 P(α₀)；α₀ 是极限时 P 在 α₀ 以下处处成立，由 (L) 得 P(α₀)。每种情形都矛盾。∎</span></div>
+    <div class="step def"><span class="en"><b>Recursion</b> is proved the same way: by induction, for each α there is a unique function on α+1 obeying the rules (“attempts” agree where they overlap), and by <b>Replacement</b> their union is F.</span>
+      <span class="zh"><b>递归定理</b>的证明如出一辙：用归纳法证明对每个 α，在 α+1 上恰有一个满足规则的函数（不同的“尝试”在公共部分上一致），再用<b>替换公理</b>把它们并起来，就得到 F。</span></div>
+  </div>
+  <div class="toolbar"><button class="btn" id="tiNext"><span class="en">Reveal next step</span><span class="zh">揭晓下一步</span></button>
+    <button class="btn ghost" id="tiAll"><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+</section>
+
+<!-- ============ S8 ============ -->
+<section class="card" id="s8">
+  <div class="kicker">§8</div>
+  <h2><span class="en">The Burali–Forti paradox: there is no set of all ordinals</span><span class="zh">布拉利–福尔蒂悖论：不存在由全体序数构成的集合</span></h2>
+  <div class="stage"><svg id="bfSvg" viewBox="0 0 900 230" width="900" height="230"></svg></div>
+  <div class="steps" id="bfSteps">
+    <div class="step def"><span class="en"><b>1.</b> Suppose the ordinals form a set Ω.</span><span class="zh"><b>1.</b> 假设全体序数构成一个集合 Ω。</span></div>
+    <div class="step def"><span class="en"><b>2.</b> Ω is <b>transitive</b>: an element of an ordinal is again an ordinal, so α ∈ Ω ⇒ α ⊆ Ω.</span><span class="zh"><b>2.</b> Ω 是<b>传递集</b>：序数的元素仍是序数，所以 α ∈ Ω ⇒ α ⊆ Ω。</span></div>
+    <div class="step def"><span class="en"><b>3.</b> Ω is <b>well-ordered by ∈</b>: any two ordinals are comparable, and a nonempty set S of ordinals has least element ⋂S. So Ω is itself an ordinal.</span><span class="zh"><b>3.</b> Ω 被 <b>∈ 良序</b>：任意两个序数可比较，非空序数集 S 有最小元 ⋂S。所以 Ω 本身也是序数。</span></div>
+    <div class="step def"><span class="en"><b>4.</b> Then Ω ∈ Ω, i.e. Ω &lt; Ω. But no ordinal is a member of itself (∈ is irreflexive on a well-order, and Foundation forbids it anyway). <b>Contradiction.</b> The ordinals form a <b>proper class</b> Ord. ∎</span><span class="zh"><b>4.</b> 于是 Ω ∈ Ω，即 Ω &lt; Ω。但没有序数属于它自身（良序中 ∈ 是反自反的，正则公理也禁止）。<b>矛盾。</b>全体序数构成一个<b>真类</b> Ord。∎</span></div>
+  </div>
+  <div class="toolbar"><button class="btn primary" id="bfNext"><span class="en">Next step ▶</span><span class="zh">下一步 ▶</span></button>
+    <button class="btn ghost" id="bfAll"><span class="en">Show all</span><span class="zh">全部显示</span></button>
+    <button class="btn ghost" id="bfReset"><span class="en">Reset</span><span class="zh">重来</span></button></div>
+  <div class="note"><span class="en">Compare Russell's paradox (Lesson 6): there, “the set of all sets” would contain {x : x ∉ x}; here, “the set of all ordinals” would be an ordinal longer than itself. Same lesson: collections that are too big are classes, not sets.</span>
+    <span class="zh">对比第 6 课的罗素悖论：“全体集合之集”会含有 {x : x ∉ x}；这里“全体序数之集”会成为一个比自己还长的序数。教训相同：太大的汇集只能是类，不是集合。</span></div>
+</section>
+
+<!-- ============ S9 ============ -->
+<section class="card" id="s9">
+  <div class="kicker">§9</div>
+  <h2><span class="en">Hartogs' theorem: every set is outrun by some ordinal</span><span class="zh">哈托格斯定理：每个集合都会被某个序数超过</span></h2>
+  <div class="def"><span class="en"><b>Theorem (Hartogs, ZF, no Choice).</b> For every set X there is an ordinal h(X) that does <b>not</b> inject into X. The least one is h(X) = {α : α injects into X}, the <b>Hartogs number</b> of X.</span>
+    <span class="zh"><b>定理（哈托格斯，ZF，不用选择公理）.</b> 对每个集合 X，都存在一个<b>不能</b>单射到 X 的序数 h(X)。最小的那个是 h(X) = {α : α 可单射到 X}，称为 X 的<b>哈托格斯数</b>。</span></div>
+  <p><span class="en">Concretely, list <b>all well-orders of all subsets</b> of X and sort them by order type. Each type that occurs is an ordinal that injects into X, and the first type that never occurs is h(X).</span>
+     <span class="zh">具体做法：列出 X 的<b>所有子集上的所有良序</b>，按序型分组。出现过的每个序型都是能单射进 X 的序数，第一个从未出现的序型就是 h(X)。</span></p>
+  <div class="toolbar" id="hgN"></div>
+  <div class="cols" id="hgCols"></div>
+  <div class="msg info" id="hgMsg"></div>
+  <div class="steps" id="hgSteps">
+    <div class="step def"><span class="en"><b>1.</b> Let 𝒲 = {(A, R) : A ⊆ X, R a well-order of A}. It is a set by Power Set and Separation (𝒲 ⊆ 𝒫(X) × 𝒫(X × X)).</span><span class="zh"><b>1.</b> 令 𝒲 = {(A, R) : A ⊆ X，R 是 A 上的良序}。由幂集公理和分离公理，它是集合（𝒲 ⊆ 𝒫(X) × 𝒫(X × X)）。</span></div>
+    <div class="step def"><span class="en"><b>2.</b> Each (A, R) has a unique order type (§4). By <b>Replacement</b>, H = {type(A, R) : (A, R) ∈ 𝒲} is a set of ordinals. It is exactly {α : α injects into X}: an injection α → X transports the order of α onto its image.</span><span class="zh"><b>2.</b> 每个 (A, R) 有唯一的序型（§4）。由<b>替换公理</b>，H = {type(A, R) : (A, R) ∈ 𝒲} 是一个序数之集。它恰好等于 {α : α 可单射到 X}：单射 α → X 把 α 的序搬到像集上。</span></div>
+    <div class="step def"><span class="en"><b>3.</b> H is downward closed (restrict the injection), so H is a transitive set of ordinals, i.e. an ordinal.</span><span class="zh"><b>3.</b> H 向下封闭（把单射限制到更小的序数上即可），所以 H 是传递的序数集，也就是一个序数。</span></div>
+    <div class="step def"><span class="en"><b>4.</b> If H injected into X, then H ∈ H, which is impossible. So H does not inject into X, and it is the least such ordinal. ∎ For X = ℕ, H is the set of all countable ordinals: the first uncountable ordinal <b>ω₁</b>, the star of Lesson 9.</span><span class="zh"><b>4.</b> 如果 H 能单射到 X，就有 H ∈ H，这不可能。所以 H 不能单射到 X，而且是这样的序数里最小的。∎ 当 X = ℕ 时，H 就是全体可数序数之集，即第一个不可数序数 <b>ω₁</b>，它是第 9 课的主角。</span></div>
+  </div>
+  <div class="toolbar"><button class="btn" id="hgNext"><span class="en">Reveal next step</span><span class="zh">揭晓下一步</span></button>
+    <button class="btn ghost" id="hgAll"><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+</section>
+
+<!-- ============ EXERCISES ============ -->
+<section class="card" id="exercises">
+  <div class="kicker"><span class="il"><span class="en">Exercises</span><span class="zh">练习</span></span></div>
+  <h2><span class="en">Your turn</span><span class="zh">轮到你了</span></h2>
+  <p class="muted"><span class="en">Progress is saved in your browser. A sidebar ✓ means solved by you; “Show answer” never counts.</span><span class="zh">进度保存在浏览器中，侧栏出现 ✓ 表示你自己做出来了；点“看答案”不计入。</span></p>
+
+  <div class="ex" id="e1" data-prog="L8E1">
+    <h3><span class="tag">E1</span><span class="il"><span class="en">Well-order or not?</span><span class="zh">是不是良序？</span></span></h3>
+    <p class="muted"><span class="en">Decide each one. If it is a well-order, the explanation gives its order type; if not, a descending chain.</span><span class="zh">逐个判断。若是良序，解答会给出序型；若不是，会给出一条无穷降链。</span></p>
+    <div id="e1List"></div>
+  </div>
+
+  <div class="ex" id="e2" data-prog="L8E2">
+    <h3><span class="tag">E2</span><span class="il"><span class="en">Compute in Cantor normal form</span><span class="zh">化成康托尔范式</span></span></h3>
+    <p class="muted"><span class="en">Type your answer in normal form (e.g. <span class="m">w^2*3+w+1</span>). The CNF engine checks it.</span><span class="zh">用范式写出答案（如 <span class="m">w^2*3+w+1</span>），由范式引擎检查。</span></p>
+    <div id="e2List"></div>
+  </div>
+
+  <div class="ex" id="e3" data-prog="L8E3">
+    <h3><span class="tag">E3</span><span class="il"><span class="en">Order types of sets of reals</span><span class="zh">实数子集的序型</span></span></h3>
+    <p class="muted"><span class="en">Each set carries the usual order of ℝ. The plot shows where its points lie.</span><span class="zh">每个集合都取 ℝ 上的通常序。图中画出了点的位置。</span></p>
+    <div id="e3List"></div>
+  </div>
+
+  <div class="ex" id="e4" data-prog="L8E4">
+    <h3><span class="tag">E4</span><span class="il"><span class="en">Find the flaw in a bogus induction</span><span class="zh">找出错误归纳证明的漏洞</span></span></h3>
+    <p><b>(a)</b> <span class="en">“Every ordinal is finite. Proof: 0 is finite, and if α is finite then so is α+1. By transfinite induction, every ordinal is finite.”</span><span class="zh">“每个序数都是有限的。证明：0 有限；若 α 有限则 α+1 有限。由超限归纳法，所有序数都有限。”</span></p>
+    <div id="e4a"></div><div class="msg" id="e4aMsg"></div>
+    <p><b>(b)</b> <span class="en">“For every ordinal α, α + 1 = 1 + α.” Bogus proof by transfinite induction on α:</span><span class="zh">“对每个序数 α，α + 1 = 1 + α。”下面是一个错误的超限归纳证明：</span></p>
+    <div class="bogus">
+      <div><span class="lbl">(A)</span> 0 + 1 = 1 = 1 + 0.</div>
+      <div><span class="lbl">(B)</span> (α+1)+1 = (1+α)+1 = 1+(α+1) <span class="muted">(<span class="il"><span class="en">induction hypothesis, associativity</span><span class="zh">归纳假设、结合律</span></span>)</span></div>
+      <div><span class="lbl">(C)</span> λ <span class="il"><span class="en">limit</span><span class="zh">极限</span></span>: 1+λ = sup{1+β : β &lt; λ} <span class="muted">(<span class="il"><span class="en">definition of +</span><span class="zh">加法的定义</span></span>)</span></div>
+      <div><span class="lbl">(D)</span> = sup{β+1 : β &lt; λ} = λ + 1 <span class="muted">(<span class="il"><span class="en">induction hypothesis, then “take the sup”</span><span class="zh">归纳假设，然后“取上确界”</span></span>)</span></div>
+    </div>
+    <div id="e4b"></div><div class="msg" id="e4bMsg"></div>
+    <div class="toolbar"><button class="btn ghost small" id="e4Show"><span class="en">Show answers</span><span class="zh">看答案</span></button></div>
+  </div>
+
+  <div class="ex" id="e5" data-prog="L8E5">
+    <h3><span class="tag">E5</span><span class="il"><span class="en">Solve ordinal equations</span><span class="zh">解序数方程</span></span></h3>
+    <p class="muted"><span class="en">Find any solution; the engine plugs it in and checks. Some equations have many solutions.</span><span class="zh">任给一个解即可，引擎会代入检验。有的方程有很多解。</span></p>
+    <div id="e5List"></div>
+  </div>
+
+  <div class="ex" id="e6" data-prog="L8E6">
+    <h3><span class="tag">E6</span><span class="il"><span class="en">Zero, successor or limit?</span><span class="zh">零、后继还是极限？</span></span></h3>
+    <p class="muted"><span class="en">Click a chip to cycle: ? → successor → limit → zero. Then check.</span><span class="zh">点击卡片循环切换：? → 后继 → 极限 → 零。然后检查。</span></p>
+    <div class="chips" id="e6Chips"></div>
+    <div class="toolbar"><button class="btn primary" id="e6Check"><span class="en">Check</span><span class="zh">检查</span></button>
+      <button class="btn ghost" id="e6Show"><span class="en">Show answer</span><span class="zh">看答案</span></button></div>
+    <div class="msg" id="e6Msg"></div>
+  </div>
+</section>
+
+<section class="card">
+  <div class="kicker"><span class="il"><span class="en">Next</span><span class="zh">下一课</span></span></div>
+  <h2><a href="lesson9.html" style="color:inherit"><span class="en">Lesson 9: Cardinals, ℵ numbers, cardinal arithmetic, cofinality →</span><span class="zh">第 9 课：基数、阿列夫数、基数运算、共尾性 →</span></a></h2>
+  <p><span class="en">ω, ω+1, ω·2 and ω² are different ordinals, but they are all <i>countable</i>. Next we measure size rather than length: cardinals are the ordinals that cannot be put in bijection with anything shorter. The first one after ω is ω₁ = ℵ₁, the Hartogs number of ℕ.</span>
+     <span class="zh">ω, ω+1, ω·2, ω² 是不同的序数，却都是<i>可数</i>的。下一课我们不再量“长度”，而是量“大小”：基数就是那些无法与更短序数建立双射的序数。ω 之后的第一个基数是 ω₁ = ℵ₁，也就是 ℕ 的哈托格斯数。</span></p>
+</section>
+</main>
+</div>
+
+<script src="assets/logic.js"></script>
+<script src="assets/lesson8.js"></script>
+</body>
+</html>

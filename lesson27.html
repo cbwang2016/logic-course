@@ -1,0 +1,566 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 27 · Frontiers of set theory 集合论前沿</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+.prereq { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 13px; color: var(--muted); margin: -2px 0 12px; }
+.prereq a.chip { text-decoration: none; color: var(--ink); padding: 2px 10px; font-size: 12.5px; }
+.prereq a.chip:hover { border-color: var(--accent); }
+.lang-both .prereq .chip .zh { font-size: 12px; }
+.idea { font-size: 15.5px; border-left: 4px solid var(--meta); background: var(--meta-soft); padding: 8px 14px; border-radius: 0 10px 10px 0; margin: 6px 0 14px; }
+.why { border-left: 4px solid #0c8599; background: #e3fafc; padding: 10px 14px; border-radius: 0 10px 10px 0; margin: 14px 0; }
+.why b.h { color: #0b7285; }
+.pit { border-left-color: var(--false); background: #fff1f1; }
+.pit b.h { color: #a61e1e; }
+.cy { border: 1.5px dashed var(--accent); border-radius: 12px; padding: 10px 14px 4px; margin: 16px 0 0; background: #fbfcff; }
+.cy .q { font-weight: 600; margin-bottom: 4px; }
+.cy .opts { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0; }
+.cy .opts .btn.right { border-color: var(--true); background: var(--true-soft); }
+.cy .opts .btn.wrongc { border-color: var(--false); background: var(--false-soft); }
+.status { display: inline-block; font-size: 11.5px; font-weight: 700; border-radius: 999px; padding: 1px 9px; margin: 0 4px 0 0; color: #fff; vertical-align: 1px; letter-spacing: .02em; }
+.lang-both .status .zh { display: inline; color: #fff; font-size: 11px; }
+.lang-both .status .zh::before { content: " · "; }
+.st-thm { background: var(--true); }
+.st-ind { background: var(--accent); }
+.st-open { background: var(--gold); }
+.st-prog { background: var(--meta); }
+.st-phil { background: #5c677d; }
+.st-no { background: var(--false); }
+.svgbox { background: #fbfaf6; border: 1px dashed var(--line); border-radius: 14px; padding: 8px; overflow-x: auto; }
+.svgbox svg { margin: 0 auto; }
+.lbl { font-family: var(--sans); }
+.seg { display: inline-flex; flex-wrap: wrap; gap: 6px; }
+/* dashboard */
+.dash { display: grid; grid-template-columns: repeat(auto-fill, minmax(215px, 1fr)); gap: 12px; margin: 12px 0; }
+.tile2 { border-radius: 14px; padding: 12px 14px; background: #fff; border: 2px solid var(--line); cursor: pointer; transition: transform .15s, box-shadow .15s, opacity .25s; position: relative; min-height: 112px; }
+.tile2:hover { transform: translateY(-3px); box-shadow: 0 10px 24px -14px rgba(0,0,0,.35); }
+.tile2 .tq { font-weight: 700; font-size: 14.5px; margin-top: 6px; }
+.tile2 .ts { font-size: 12.5px; color: var(--muted); margin-top: 4px; }
+.tile2 .go { position: absolute; right: 10px; bottom: 8px; font-size: 12px; color: var(--accent); font-weight: 700; }
+.tile2.k-thm { border-color: var(--true); }
+.tile2.k-open { border-color: var(--gold); background: #fffdf3; }
+.tile2.k-prog { border-color: var(--meta); background: #fffaff; }
+.tile2.k-phil { border-color: #5c677d; background: #f8f9fb; }
+.tile2.k-ind { border-color: var(--accent); }
+.tile2.faded { opacity: .18; }
+.flash { animation: flash 1.4s ease; }
+@keyframes flash { 0% { box-shadow: 0 0 0 0 rgba(59,91,219,.0); } 20% { box-shadow: 0 0 0 8px rgba(59,91,219,.35); } 100% { box-shadow: 0 0 0 0 rgba(59,91,219,0); } }
+/* misc */
+.node2 { cursor: pointer; }
+.node2:hover rect { filter: brightness(.96); stroke-width: 3; }
+.node2.sel rect { stroke: var(--ink); stroke-width: 3.5; }
+.order-list { display: flex; flex-direction: column; gap: 6px; max-width: 760px; }
+.order-list .chip { display: flex; align-items: center; gap: 10px; cursor: default; }
+.order-list .chip .num { font-family: var(--mono); font-weight: 800; color: var(--accent); width: 22px; }
+.order-list .chip .sp { flex: 1; }
+.order-list .chip button { font: inherit; font-size: 13px; border: 1px solid var(--line); background: #fff; border-radius: 7px; cursor: pointer; padding: 0 8px; }
+.matchrow { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 7px 0; border-bottom: 1px dashed var(--line); }
+.matchrow .cond { flex: 1 1 340px; font-size: 15px; }
+.matchrow select { font: inherit; font-size: 14px; padding: 4px 8px; border-radius: 8px; border: 1.5px solid var(--line); max-width: 100%; }
+.matchrow select.right { border-color: var(--true); background: var(--true-soft); }
+.matchrow select.wrong { border-color: var(--false); background: var(--false-soft); }
+.cards3 { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.ocard { border: 1.5px solid var(--line); border-radius: 14px; padding: 12px 14px; background: #fff; cursor: pointer; transition: transform .15s; }
+.ocard:hover { transform: translateY(-2px); }
+.ocard .more { display: none; font-size: 14px; margin-top: 6px; }
+.ocard.open .more { display: block; animation: fadein .4s ease both; }
+table.mini { border-collapse: collapse; font-size: 14px; margin: 8px 0; }
+table.mini td, table.mini th { border-bottom: 1px solid var(--line); padding: 5px 10px; text-align: left; vertical-align: top; }
+table.mini th { background: #f1efe7; }
+table.mx td.c { text-align: center; font-weight: 700; font-family: var(--mono); min-width: 74px; transition: background .3s; }
+table.mx td.yes { background: var(--true-soft); color: #1b5e20; }
+table.mx td.no { background: var(--false-soft); color: #8a1c1c; }
+table.mx td.und { background: #f1efe7; color: #555; }
+table.mx td.na { color: #aaa; font-weight: 400; }
+table.mx th.hl, table.mx td.hl { outline: 2.5px solid var(--accent); outline-offset: -2px; }
+.cmp { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.cmp .colh { font-weight: 800; text-align: center; padding: 6px; border-radius: 10px; }
+.cmp .cell { border: 1.5px solid var(--line); border-radius: 12px; padding: 10px 12px; background: #fff; min-height: 60px; font-size: 14.5px; }
+.cmp .cell.hid { color: transparent; background: repeating-linear-gradient(45deg, #f4f2ec, #f4f2ec 8px, #faf9f5 8px, #faf9f5 16px); cursor: pointer; }
+.cmp .cell.hid * { visibility: hidden; }
+.cmp .cell.hid { position: relative; }
+.cmp .cell.hid::after { content: "click to reveal · 点击揭示"; position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%); text-align: center; color: var(--muted); font-size: 13px; }
+.cmp .qrow { grid-column: 1 / span 2; font-weight: 700; margin-top: 8px; }
+@media (max-width: 700px) { .cmp { grid-template-columns: 1fr; } .cmp .qrow { grid-column: 1; } }
+.tline { display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 0; }
+input[type=range] { vertical-align: middle; }
+.cich-node { cursor: pointer; }
+.cich-node:hover rect { stroke-width: 3; }
+.legend2 { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; color: var(--muted); margin: 6px 0; }
+.legend2 i { display: inline-block; width: 14px; height: 14px; border-radius: 4px; vertical-align: -2px; margin-right: 5px; }
+</style>
+</head>
+<body class="lang-both">
+<header class="top">
+  <a class="home" href="index.html">∀∃ <span class="il"><span class="en">Logic &amp; Sets</span><span class="zh">逻辑与集合</span></span></a>
+  <span class="muted">/ L27</span>
+  <span class="spacer"></span>
+  <div class="lang-switch">
+    <button data-lang="en">EN</button><button data-lang="zh">中文</button><button data-lang="both">EN + 中</button>
+  </div>
+</header>
+
+<div class="layout">
+<nav class="side">
+  <div class="grp">Lesson 27</div>
+  <a href="index.html">← <span class="il"><span class="en">Course map</span><span class="zh">课程地图</span></span></a>
+  <a href="lesson26.html">← <span class="il"><span class="en">Lesson 26</span><span class="zh">第 26 课</span></span></a>
+  <a href="lesson28.html"><span class="il"><span class="en">Lesson 28</span><span class="zh">第 28 课</span></span> →</a>
+  <a href="#s1">1 · <span class="il"><span class="en">Map of open problems</span><span class="zh">问题地图</span></span></a>
+  <a href="#s2">2 · <span class="il"><span class="en">CH after Cohen</span><span class="zh">科恩之后的 CH</span></span></a>
+  <a href="#s3">3 · <span class="il"><span class="en">Generic absoluteness</span><span class="zh">力迫绝对性</span></span></a>
+  <a href="#s4">4 · <span class="il"><span class="en">Forcing axioms: 2^ℵ₀ = ℵ₂</span><span class="zh">力迫公理：2^ℵ₀ = ℵ₂</span></span></a>
+  <a href="#s5">5 · <span class="il"><span class="en">Ultimate L: CH</span><span class="zh">终极 L：CH</span></span></a>
+  <a href="#s6">6 · <span class="il"><span class="en">Inner model problem</span><span class="zh">内模型问题</span></span></a>
+  <a href="#s7">7 · <span class="il"><span class="en">HOD dichotomy</span><span class="zh">HOD 二分</span></span></a>
+  <a href="#s8">8 · <span class="il"><span class="en">Beyond choice</span><span class="zh">超越选择公理</span></span></a>
+  <a href="#s9">9 · <span class="il"><span class="en">Singular cardinals &amp; pcf</span><span class="zh">奇异基数与 pcf</span></span></a>
+  <a href="#s10">10 · <span class="il"><span class="en">Cichoń's diagram</span><span class="zh">Cichoń 图</span></span></a>
+  <a href="#s11">11 · <span class="il"><span class="en">Independence in mathematics</span><span class="zh">数学中的独立性</span></span></a>
+  <a href="#s12">12 · <span class="il"><span class="en">Universe or multiverse?</span><span class="zh">宇宙还是多宇宙？</span></span></a>
+  <div class="grp"><span class="il"><span class="en">Exercises</span><span class="zh">练习</span></span></div>
+  <a href="#e1" data-prog="L27E1">E1 · <span class="il"><span class="en">Status</span><span class="zh">判定状态</span></span></a>
+  <a href="#e2" data-prog="L27E2">E2 · <span class="il"><span class="en">Who proved it?</span><span class="zh">谁证明的？</span></span></a>
+  <a href="#e3" data-prog="L27E3">E3 · <span class="il"><span class="en">Cichoń checks</span><span class="zh">Cichoń 检验</span></span></a>
+  <a href="#e4" data-prog="L27E4">E4 · <span class="il"><span class="en">Why LCs can't decide CH</span><span class="zh">大基数为何定不了 CH</span></span></a>
+  <a href="#e5" data-prog="L27E5">E5 · <span class="il"><span class="en">Where can 2^ℵ<sub>ω</sub> land?</span><span class="zh">2^ℵ<sub>ω</sub> 落在哪</span></span></a>
+  <a href="#e6" data-prog="L27E6">E6 · <span class="il"><span class="en">Which axiom says what?</span><span class="zh">哪条公理说什么</span></span></a>
+</nav>
+
+<main>
+<div class="hero">
+  <div class="kicker">Part VI · Lesson 27</div>
+  <h1><span class="en">Frontiers of set theory: CH, Ultimate L, forcing axioms, HOD, pcf</span><span class="zh">集合论前沿：连续统假设、终极 L、力迫公理、HOD、pcf</span></h1>
+  <p><span class="en">Lessons 14–25 gave you the tools: models of ZFC, L, forcing, absoluteness, HOD, large cardinals, determinacy. This lesson uses them to survey where the field <i>is</i>: what has been proved, what is open, which research programs compete, and why anyone cares. Every claim carries a status tag, and every status is dated. Mathematics moves, so “open” here means open as of late 2026, to the best of our knowledge.</span>
+     <span class="zh">第 14–25 课给了你一整套工具：ZFC 的模型、L、力迫、绝对性、HOD、大基数、决定性。本课用这些工具巡视这个领域的<i>现状</i>：哪些已经证明，哪些仍未解决，哪些研究纲领在相互竞争，以及人们为什么关心它们。每个论断都带状态标记，并注明时间。数学在不断前进，所以这里的“未解决”指的是据我们所知截至 2026 年底仍未解决。</span></p>
+  <div class="note"><span class="en"><b>Status legend.</b> These labels mean different things. Never mix them up:</span><span class="zh"><b>状态标记说明。</b>这几种标记含义各不相同，千万不要混用：</span>
+    <div style="margin-top:6px;line-height:2.1">
+      <span class="status st-thm"><span class="en">THEOREM</span><span class="zh">定理</span></span> <span class="il"><span class="en">proved (we say who and when, and under which hypotheses)</span><span class="zh">已证明（注明证明者、年份与假设）</span></span><br>
+      <span class="status st-ind"><span class="en">INDEPENDENT</span><span class="zh">独立</span></span> <span class="il"><span class="en">proved neither provable nor refutable from the stated axioms (a theorem <i>about</i> provability)</span><span class="zh">已证明在所给公理下既不可证也不可否证（这是一条<i>关于</i>可证性的定理）</span></span><br>
+      <span class="status st-open"><span class="en">OPEN</span><span class="zh">未解决</span></span> <span class="il"><span class="en">a precise mathematical question nobody has answered</span><span class="zh">一个精确的数学问题，至今无人解答</span></span><br>
+      <span class="status st-prog"><span class="en">PROGRAM / CONJECTURE</span><span class="zh">纲领 / 猜想</span></span> <span class="il"><span class="en">a research direction or conjectured picture; may be refuted</span><span class="zh">研究方向或猜想中的图景，有可能被推翻</span></span><br>
+      <span class="status st-phil"><span class="en">PHILOSOPHICAL</span><span class="zh">哲学性</span></span> <span class="il"><span class="en">a question about what counts as true or as an answer; proofs alone do not settle it</span><span class="zh">关于“什么算真”“什么算解答”的问题，单靠证明无法了断</span></span>
+    </div></div>
+</div>
+
+<!-- ============ S1 ============ -->
+<section class="card" id="s1">
+  <div class="kicker">§1</div>
+  <h2><span class="en">A map of the frontier</span><span class="zh">前沿地图</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置</span></span>:
+    <a class="chip" href="lesson16.html">L16 · <span class="il"><span class="en">forcing, Con(¬CH)</span><span class="zh">力迫与 Con(¬CH)</span></span></a>
+    <a class="chip" href="lesson25.html">L25 · <span class="il"><span class="en">large cardinals &amp; determinacy</span><span class="zh">大基数与决定性</span></span></a></div>
+  <div class="idea"><span class="en"><b>One idea.</b> After Gödel and Cohen, the field split into a few big questions. Can new axioms settle what ZFC leaves open (CH first)? How far do canonical models of large cardinals reach? What does arithmetic of infinite cardinals look like when ZFC leaves room? The tiles below are the landmarks. Click one to jump to its step, or filter by status.</span>
+    <span class="zh"><b>核心思想。</b>哥德尔与科恩之后，这个领域分化出几个大问题：新公理能否判定 ZFC 判定不了的命题（首先是 CH）？大基数的典范模型能造到多高？在 ZFC 留下余地的地方，无穷基数的算术长什么样？下面每块砖是一个地标。点击就跳到对应的步骤，也可以按状态筛选。</span></div>
+  <div class="toolbar"><span class="seg" id="dashFilter"></span></div>
+  <div class="dash" id="dash"></div>
+  <div class="why"><span class="en"><b class="h">Why people care / 动机.</b> ZFC is the accepted foundation of mathematics, yet it cannot answer “how many real numbers are there?” This is not a curiosity. Questions from analysis, algebra and topology hit the same wall (§11). The frontier problems ask: what should we add to ZFC, if anything, and how do we tell a good new axiom from an arbitrary one?</span>
+    <span class="zh"><b class="h">动机。</b>ZFC 是公认的数学基础，却回答不了“实数有多少个”。这不是什么猎奇问题：分析、代数、拓扑中的问题也会撞上同一堵墙（见 §11）。前沿问题追问的是：要不要给 ZFC 添加新公理？添加什么？又如何区分好的新公理和任意拍脑袋的公理？</span></div>
+  <div class="note pit"><span class="en"><b class="h">⚠ Common pitfall.</b> “Independent of ZFC” is not the same as “open”. CH's independence is a <b>theorem</b> (Gödel 1938, Cohen 1963). What is open is whether some <i>justified</i> extension of ZFC settles it, and that question has a mathematical part and a philosophical part.</span>
+    <span class="zh"><b class="h">⚠ 常见误区。</b>“独立于 ZFC”不等于“未解决”。CH 的独立性是一条<b>定理</b>（哥德尔 1938，科恩 1963）。真正悬而未决的是：有没有某个<i>站得住脚</i>的 ZFC 扩张能判定 CH？这个问题既有数学的一面，也有哲学的一面。</span></div>
+  <div class="cy" id="cy1"></div>
+</section>
+
+<!-- ============ S2 ============ -->
+<section class="card" id="s2">
+  <div class="kicker">§2</div>
+  <h2><span class="en">The continuum problem after Cohen, and why large cardinals can't settle it</span><span class="zh">科恩之后的连续统问题，以及大基数为何判定不了它</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置</span></span>:
+    <a class="chip" href="lesson15.html">L15 · <span class="il"><span class="en">L ⊨ GCH</span><span class="zh">L ⊨ GCH</span></span></a>
+    <a class="chip" href="lesson16.html">L16 · <span class="il"><span class="en">forcing, Cohen reals</span><span class="zh">力迫与科恩实数</span></span></a>
+    <a class="chip" href="lesson24.html">L24 · <span class="il"><span class="en">measurable cardinals</span><span class="zh">可测基数</span></span></a></div>
+  <div class="idea"><span class="en"><b>One idea.</b> Gödel hoped that large cardinal axioms would decide CH. They cannot, for a simple reason: CH lives at the bottom of the universe (sets of size about <span class="m">2^ℵ₀</span>), large cardinals live far above, and a <b>small</b> forcing can change the bottom without touching the top.</span>
+    <span class="zh"><b>核心思想。</b>哥德尔曾希望大基数公理能判定 CH。这做不到，原因很简单：CH 住在宇宙的底层（规模约为 <span class="m">2^ℵ₀</span> 的集合），大基数住在极高处，而<b>小</b>力迫可以改动底层，却碰不到顶层。</span></div>
+  <p><span class="en">Press the forcing buttons in any order. The gauge on the left shows <span class="m">2^ℵ₀</span>; the ladder on the right shows the large cardinals of the current model. The gray bar shows the size of the forcing notion. Watch which part of the picture moves. Then try the last button, a <i>large</i> forcing, for contrast.</span>
+     <span class="zh">以任意顺序按下力迫按钮。左边的仪表显示 <span class="m">2^ℵ₀</span>，右边的梯子显示当前模型里的大基数，灰色条表示力迫偏序的大小。看看图中哪一部分在动。最后按一下“大”力迫的按钮作对比。</span></p>
+  <div class="toolbar">
+    <button class="btn small" id="lsNeg"><span class="en">Add ℵ₂ Cohen reals → ¬CH</span><span class="zh">添加 ℵ₂ 个科恩实数 → ¬CH</span></button>
+    <button class="btn small" id="lsNeg3"><span class="en">Add ℵ₃ Cohen reals</span><span class="zh">添加 ℵ₃ 个科恩实数</span></button>
+    <button class="btn small" id="lsPos"><span class="en">Collapse 2^ℵ₀ to ℵ₁ → CH</span><span class="zh">把 2^ℵ₀ 坍缩为 ℵ₁ → CH</span></button>
+    <button class="btn small" id="lsBig"><span class="en">Large forcing: collapse κ to ω₁</span><span class="zh">大力迫：把 κ 坍缩为 ω₁</span></button>
+    <button class="btn small ghost" id="lsReset"><span class="en">Reset</span><span class="zh">重置</span></button>
+  </div>
+  <div class="svgbox"><svg id="lsSvg" viewBox="0 0 860 380" width="860" height="380"></svg></div>
+  <div class="msg info" id="lsInfo"></div>
+  <div class="def"><span class="en"><b>Theorem (Lévy–Solovay 1967)</b> <span class="status st-thm">THEOREM</span>. If κ is measurable and ℙ is a forcing notion with <span class="m">|ℙ| &lt; κ</span>, then κ remains measurable in every extension <span class="m">V[G]</span>. Analogous preservation results hold for the standard large cardinals (Woodin, supercompact, extendible, …).<br>
+    <b>Corollary</b> <span class="status st-ind">INDEPENDENT</span>. Let LC be any of these large cardinal axioms. If <span class="m">ZFC + LC</span> is consistent, so are <span class="m">ZFC + LC + CH</span> and <span class="m">ZFC + LC + ¬CH</span>. Reason: <span class="m">Add(ω, ω₂)</span> (forces ¬CH) and <span class="m">Col(ω₁, 2^ℵ₀)</span> (forces CH) both have size below the least inaccessible above <span class="m">2^ℵ₀</span>, hence below κ.</span>
+    <span class="zh"><b>定理（列维–索洛维 1967）</b> <span class="status st-thm">定理</span>。若 κ 是可测基数，ℙ 是满足 <span class="m">|ℙ| &lt; κ</span> 的力迫偏序，则 κ 在每个扩张 <span class="m">V[G]</span> 中仍是可测基数。对常见的大基数（伍丁、超紧、可扩……）也有类似的保持定理。<br>
+    <b>推论</b> <span class="status st-ind">独立</span>。设 LC 是上述任一大基数公理。若 <span class="m">ZFC + LC</span> 一致，则 <span class="m">ZFC + LC + CH</span> 与 <span class="m">ZFC + LC + ¬CH</span> 都一致。理由：<span class="m">Add(ω, ω₂)</span>（迫使 ¬CH）与 <span class="m">Col(ω₁, 2^ℵ₀)</span>（迫使 CH）的大小都小于 <span class="m">2^ℵ₀</span> 之上的第一个不可达基数，因而小于 κ。</span></div>
+  <div class="why"><span class="en"><b class="h">Why people care / 动机.</b> <b>Gödel's program</b> (1947): find new axioms, justified by their consequences and intrinsic plausibility, that decide what ZFC leaves open. Large cardinals were the first candidates, and they did spectacularly well on <i>definable</i> sets of reals (§3). Lévy–Solovay shows they will never reach CH on their own. Any solution needs a <b>different kind</b> of axiom. §4 and §5 are the two main candidates.</span>
+    <span class="zh"><b class="h">动机。</b><b>哥德尔纲领</b>（1947）：寻找新公理，用它们的推论和内在合理性来论证其正当性，用它们去判定 ZFC 判定不了的命题。大基数是第一批候选者，在<i>可定义</i>实数集上战果辉煌（见 §3）。列维–索洛维定理表明，单靠大基数永远够不到 CH。任何解决方案都需要<b>另一类</b>公理。§4 和 §5 是两个主要候选。</span></div>
+  <div class="note pit"><span class="en"><b class="h">⚠ Common pitfall.</b> “Large cardinals don't affect CH” does <b>not</b> mean they don't affect the reals. A measurable already implies every <span class="m">Σ¹₂</span> set of reals is Lebesgue measurable and has the perfect set property, so there is no <span class="m">Σ¹₂</span> counterexample to CH. What large cardinals can't touch is CH for <b>arbitrary</b> sets of reals.</span>
+    <span class="zh"><b class="h">⚠ 常见误区。</b>“大基数不影响 CH”<b>并不</b>意味着它们不影响实数。一个可测基数就已推出每个 <span class="m">Σ¹₂</span> 实数集都勒贝格可测且有完美集性质，所以不存在 <span class="m">Σ¹₂</span> 的 CH 反例。大基数够不着的，是关于<b>任意</b>实数集的 CH。</span></div>
+  <div class="cy" id="cy2"></div>
+</section>
+
+<!-- ============ S3 ============ -->
+<section class="card" id="s3">
+  <div class="kicker">§3</div>
+  <h2><span class="en">Generic absoluteness: what large cardinals <i>do</i> freeze</span><span class="zh">力迫绝对性：大基数<i>能</i>冻结什么</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置</span></span>:
+    <a class="chip" href="lesson19.html">L19 · <span class="il"><span class="en">projective hierarchy</span><span class="zh">投影层级</span></span></a>
+    <a class="chip" href="lesson20.html">L20 · <span class="il"><span class="en">absoluteness, Shoenfield</span><span class="zh">绝对性、Shoenfield</span></span></a>
+    <a class="chip" href="lesson25.html">L25 · <span class="il"><span class="en">Woodin cardinals, AD^L(ℝ)</span><span class="zh">伍丁基数、AD^L(ℝ)</span></span></a></div>
+  <div class="idea"><span class="en"><b>One idea.</b> Forcing is our main tool for proving independence. If a statement has the same truth value in <b>every</b> forcing extension, forcing can never show it independent. Large cardinals “freeze” more and more levels of complexity in this way, up to all of <span class="m">L(ℝ)</span>. CH sits exactly one level above, at <span class="m">Σ²₁</span>.</span>
+    <span class="zh"><b>核心思想。</b>力迫是证明独立性的主要工具。如果一个命题在<b>每个</b>力迫扩张中真值都不变，力迫就永远无法证明它独立。大基数以这种方式“冻结”越来越高的复杂度层次，一直到整个 <span class="m">L(ℝ)</span>。而 CH 恰好位于再高一层：<span class="m">Σ²₁</span>。</span></div>
+  <p><span class="en">Drag the slider to add large cardinal strength. A level turns blue with a lock when its truth values can no longer be changed by set forcing. Toggle “assume CH” at the top setting to see Woodin's conditional result.</span>
+     <span class="zh">拖动滑块来增加大基数强度。某一层变成蓝色并上锁，表示它的真值再也不能被集合力迫改变。在最高档位打开“假设 CH”，看伍丁的条件性结果。</span></p>
+  <div class="toolbar"><input type="range" id="gaSlider" min="0" max="4" step="1" value="0" style="width:320px"> <b id="gaName"></b>
+    <label style="margin-left:10px"><input type="checkbox" id="gaCH"> <span class="il"><span class="en">assume CH</span><span class="zh">假设 CH</span></span></label></div>
+  <div class="svgbox"><svg id="gaSvg" viewBox="0 0 860 400" width="860" height="400"></svg></div>
+  <div class="msg info" id="gaInfo"></div>
+  <div class="def"><span class="en"><b>Theorem (Woodin)</b> <span class="status st-thm">THEOREM</span>. Assume there is a proper class of Woodin cardinals. Then for every sentence φ and every set forcing ℙ: <span class="m">L(ℝ) ⊨ φ</span> iff <span class="m">L(ℝ)<sup>V[G]</sup> ⊨ φ</span>. In particular every projective statement has the same truth value in all set-forcing extensions, and <span class="m">AD</span> holds in <span class="m">L(ℝ)</span>.<br>
+    <b>Theorem (Woodin 1985, Σ²₁ absoluteness)</b> <span class="status st-thm">THEOREM</span>. Assume there is a proper class of measurable Woodin cardinals. If a <span class="m">Σ²₁</span> sentence holds in some set-forcing extension satisfying CH, it holds in every set-forcing extension satisfying CH. (In Ω-logic language: <span class="m">ZFC + CH</span> is Ω-complete for <span class="m">Σ²₁</span>.)<br>
+    <span class="muted">Σ²₁ sentences: “there is a set of reals A such that (projective statement about A)”. CH itself is Σ²₁: “there is a well-ordering of ℝ all of whose proper initial segments are countable”.</span></span>
+    <span class="zh"><b>定理（伍丁）</b> <span class="status st-thm">定理</span>。设存在真类多个伍丁基数。则对任意语句 φ 和任意集合力迫 ℙ：<span class="m">L(ℝ) ⊨ φ</span> 当且仅当 <span class="m">L(ℝ)<sup>V[G]</sup> ⊨ φ</span>。特别地，每个投影命题在所有集合力迫扩张中真值相同，并且 <span class="m">L(ℝ)</span> 满足 <span class="m">AD</span>。<br>
+    <b>定理（伍丁 1985，Σ²₁ 绝对性）</b> <span class="status st-thm">定理</span>。设存在真类多个可测伍丁基数。若某个 <span class="m">Σ²₁</span> 语句在某个满足 CH 的集合力迫扩张中成立，则它在每个满足 CH 的集合力迫扩张中都成立。（用 Ω-逻辑的话说：<span class="m">ZFC + CH</span> 对 <span class="m">Σ²₁</span> 是 Ω-完全的。）<br>
+    <span class="muted">Σ²₁ 语句形如“存在实数集 A，使得（关于 A 的某个投影命题）”。CH 本身就是 Σ²₁ 的：“存在 ℝ 的一个良序，其每个真前段都可数”。</span></span></div>
+  <div class="why"><span class="en"><b class="h">Why people care / 动机.</b> This is the strongest evidence that large cardinals are “the right axioms” for second-order arithmetic: they make the theory of the projective sets as complete as forcing can test, and the answers agree with the determinacy picture of L25. Woodin's Σ²₁ theorem says CH is the <b>natural next question</b>: once you accept CH, the entire Σ²₁ level becomes frozen as well. That is one argument for CH. The opposing camp asks why CH, and not some <span class="m">Π²₁</span> axiom, should get this privileged role.</span>
+    <span class="zh"><b class="h">动机。</b>这是“大基数是二阶算术的正确公理”最有力的证据：它们让投影集合的理论在力迫所能检验的范围内完全确定下来，而且给出的答案与第 25 课决定性的图景一致。伍丁的 Σ²₁ 定理说明 CH 是<b>自然的下一个问题</b>：一旦接受 CH，整个 Σ²₁ 层也被冻结。这是支持 CH 的一条论证；反方则会问：凭什么是 CH，而不是某条 <span class="m">Π²₁</span> 公理，享有这种特殊地位？</span></div>
+  <div class="note pit"><span class="en"><b class="h">⚠ Common pitfall.</b> “Frozen under forcing” is not “provable”. Gödel's incompleteness still applies: <span class="m">Con(ZFC + LC)</span> is an <b>arithmetic</b> sentence that <span class="m">ZFC + LC</span> does not prove (if consistent), even though forcing can't change it. Generic absoluteness kills <i>forcing-style</i> independence only.</span>
+    <span class="zh"><b class="h">⚠ 常见误区。</b>“在力迫下冻结”不等于“可证明”。哥德尔不完全性定理依然有效：<span class="m">Con(ZFC + LC)</span> 是<b>算术</b>语句，ZFC + LC（若一致）证明不了它，尽管力迫改变不了它的真值。力迫绝对性消灭的只是<i>力迫式</i>的独立性。</span></div>
+  <div class="cy" id="cy3"></div>
+</section>
+
+<!-- ============ S4 ============ -->
+<section class="card" id="s4">
+  <div class="kicker">§4</div>
+  <h2><span class="en">Candidate answer I: forcing axioms give 2^ℵ₀ = ℵ₂</span><span class="zh">候选答案一：力迫公理给出 2^ℵ₀ = ℵ₂</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置</span></span>:
+    <a class="chip" href="lesson16.html">L16 · <span class="il"><span class="en">dense sets, generic filters</span><span class="zh">稠密集与脱殊滤</span></span></a>
+    <a class="chip" href="lesson9.html">L9 · <span class="il"><span class="en">ℵ₁, ℵ₂, cofinality</span><span class="zh">ℵ₁、ℵ₂ 与共尾性</span></span></a></div>
+  <div class="idea"><span class="en"><b>One idea.</b> A forcing axiom says: for a class of “nice” forcings, generic filters (meeting ℵ₁ dense sets) <b>already exist in V</b>. It is a Baire category theorem one cardinal higher: “the universe is saturated; whatever could be forced into existence, already exists”. The bigger the class of forcings, the stronger the axiom, and the strong ones pin <span class="m">2^ℵ₀</span> at exactly ℵ₂.</span>
+    <span class="zh"><b>核心思想。</b>力迫公理说：对某一类“好”的力迫，（与 ℵ₁ 个稠密集都相交的）脱殊滤<b>在 V 中已经存在</b>。这是往上提了一个基数的贝尔纲定理：“宇宙是饱和的，凡是能力迫出来的东西，早已存在。”力迫的类越大，公理越强，而强的力迫公理把 <span class="m">2^ℵ₀</span> 恰好钉在 ℵ₂。</span></div>
+  <p><span class="en">Click a class of forcings. Each class contains the ones inside it.</span>
+     <span class="zh">点击一类力迫。每一类都包含它内部的各类。</span></p>
+  <div class="svgbox"><svg id="faSvg" viewBox="0 0 860 330" width="860" height="330"></svg></div>
+  <div class="msg info" id="faInfo"></div>
+  <div class="def"><span class="en"><b>Definition.</b> For a class Γ of forcings, <span class="m">FA(Γ)</span>: for every ℙ ∈ Γ and every family 𝒟 of at most ℵ₁ dense subsets of ℙ, there is a filter on ℙ meeting every member of 𝒟. <span class="m">MA<sub>ℵ₁</sub> = FA(ccc)</span>, <span class="m">PFA = FA(proper)</span>, <span class="m">MM = FA(stationary-set-preserving)</span>. <span class="m">MM⁺⁺</span> strengthens MM by also asking the filter to interpret ℵ₁ names for stationary subsets of ω₁ as stationary sets.<br>
+    <b>Theorems</b> <span class="status st-thm">THEOREM</span>. MA<sub>ℵ₁</sub> is consistent relative to ZFC alone (Martin–Solovay 1970; Solovay–Tennenbaum 1971) and does not decide <span class="m">2^ℵ₀</span> beyond <span class="m">2^ℵ₀ ≥ ℵ₂</span>. PFA and MM are consistent relative to a supercompact cardinal (Baumgartner; Foreman–Magidor–Shelah 1988). <b>MM ⇒ 2^ℵ₀ = ℵ₂</b> (Foreman–Magidor–Shelah 1988); <b>PFA ⇒ 2^ℵ₀ = ℵ₂</b> (Todorčević; Veličković); even the bounded version BPFA implies it (Moore 2005). PFA ⇒ SCH (Viale 2006).</span>
+    <span class="zh"><b>定义.</b> 对一类力迫 Γ，<span class="m">FA(Γ)</span> 指：对每个 ℙ ∈ Γ 以及 ℙ 的任何一族至多 ℵ₁ 个稠密子集 𝒟，存在 ℙ 上的滤与 𝒟 的每个成员相交。<span class="m">MA<sub>ℵ₁</sub> = FA(ccc)</span>，<span class="m">PFA = FA(真力迫)</span>（真力迫公理），<span class="m">MM = FA(保平稳集)</span>（马丁极大）。<span class="m">MM⁺⁺</span> 加强 MM：还要求这个滤把 ℵ₁ 个“ω₁ 的平稳子集”的名字解释成真正的平稳集。<br>
+    <b>定理</b> <span class="status st-thm">定理</span>。MA<sub>ℵ₁</sub> 相对于 ZFC 本身一致（Martin–Solovay 1970；Solovay–Tennenbaum 1971），它对 <span class="m">2^ℵ₀</span> 除了 <span class="m">2^ℵ₀ ≥ ℵ₂</span> 之外什么也不决定。PFA 与 MM 相对于一个超紧基数一致（Baumgartner；Foreman–Magidor–Shelah 1988）。<b>MM ⇒ 2^ℵ₀ = ℵ₂</b>（Foreman–Magidor–Shelah 1988）；<b>PFA ⇒ 2^ℵ₀ = ℵ₂</b>（Todorčević；Veličković）；连有界版本 BPFA 也能推出它（Moore 2005）。PFA ⇒ SCH（Viale 2006）。</span></div>
+  <div class="def"><span class="en"><b>Woodin's axiom (*)</b> (1999): AD holds in <span class="m">L(ℝ)</span> and <span class="m">L(P(ω₁))</span> is a <span class="m">ℙ<sub>max</sub></span>-generic extension of <span class="m">L(ℝ)</span>. It implies <span class="m">2^ℵ₀ = ℵ₂</span> and makes the theory of <span class="m">H(ω₂)</span> “as rich as possible” in a precise sense (Π₂-maximality).<br>
+    <b>Theorem (Asperó–Schindler, Annals of Mathematics 2021)</b> <span class="status st-thm">THEOREM</span>. <span class="m">MM⁺⁺ ⇒ (*)</span>. Two rival routes to ℵ₂, one combinatorial (MM) and one descriptive-set-theoretic ((*)), turned out to point the same way.<br>
+    <b>Open</b> <span class="status st-open">OPEN</span>. The exact consistency strength of PFA. Known: a supercompact suffices; PFA implies inner models far beyond many Woodin cardinals (core model induction, e.g. Jensen–Schimmerling–Schindler–Steel 2009); standard iterations need at least a strongly compact (Viale–Weiß 2011). Whether a supercompact is <i>necessary</i> is open.</span>
+    <span class="zh"><b>伍丁的 (*) 公理</b>（1999）：<span class="m">L(ℝ)</span> 满足 AD，并且 <span class="m">L(P(ω₁))</span> 是 <span class="m">L(ℝ)</span> 的 <span class="m">ℙ<sub>max</sub></span>-脱殊扩张。它推出 <span class="m">2^ℵ₀ = ℵ₂</span>，并在精确的意义下（Π₂-极大性）使 <span class="m">H(ω₂)</span> 的理论“尽可能丰富”。<br>
+    <b>定理（Asperó–Schindler，《数学年刊》2021）</b> <span class="status st-thm">定理</span>。<span class="m">MM⁺⁺ ⇒ (*)</span>。两条通往 ℵ₂ 的竞争路线，一条组合式（MM），一条描述集合论式（(*)），原来指向同一个方向。<br>
+    <b>未解决</b> <span class="status st-open">未解决</span>。PFA 的精确一致性强度。已知：一个超紧基数足够；PFA 推出远超多个伍丁基数的内模型（核心模型归纳，例如 Jensen–Schimmerling–Schindler–Steel 2009）；标准的迭代方法至少需要一个强紧基数（Viale–Weiß 2011）。超紧基数是否<i>必需</i>，尚不清楚。</span></div>
+  <div class="why"><span class="en"><b class="h">Why people care / 动机.</b> <b>Maximality</b>: a forcing axiom says that V is closed under every “reasonable” way of adding objects, so existence questions about structures of size ℵ₁ get decided uniformly. The axioms are also <b>useful</b>: they settle many problems in topology, algebra and operator algebras (§11), and the answers fit together. For many researchers, that coherence plus <span class="m">2^ℵ₀ = ℵ₂</span> makes this the leading answer to the continuum problem.</span>
+    <span class="zh"><b class="h">动机。</b><b>极大性</b>：力迫公理说 V 对一切“合理的”添加对象的方式都封闭，于是关于 ℵ₁ 规模结构的存在性问题被统一地判定。这些公理也很<b>好用</b>：它们解决了拓扑、代数、算子代数中的大量问题（见 §11），而且答案相互吻合。在许多研究者看来，这种协调一致再加上 <span class="m">2^ℵ₀ = ℵ₂</span>，使它成为连续统问题的头号候选答案。</span></div>
+  <div class="note pit"><span class="en"><b class="h">⚠ Common pitfall.</b> “MM is the strongest forcing axiom” has a precise meaning: for some forcing that fails to preserve stationary subsets of ω₁, the corresponding forcing axiom (even for ℵ₁ dense sets) is <b>false</b> in ZFC (Foreman–Magidor–Shelah). So the class can't be enlarged in this direction. Stronger variants exist (MM⁺⁺, axioms for larger cardinals), but they strengthen the conclusion, not the class.</span>
+    <span class="zh"><b class="h">⚠ 常见误区。</b>“MM 是最强的力迫公理”有精确含义：存在某个不保持 ω₁ 平稳子集的力迫，其力迫公理（即使只要求 ℵ₁ 个稠密集）在 ZFC 中<b>不成立</b>（Foreman–Magidor–Shelah）。所以力迫的类不能在这个方向上再扩大。更强的变体（MM⁺⁺、关于更大基数的公理）确实存在，但它们加强的是结论，而不是力迫的类。</span></div>
+  <div class="cy" id="cy4"></div>
+</section>
+
+<!-- ============ S5 ============ -->
+<section class="card" id="s5">
+  <div class="kicker">§5</div>
+  <h2><span class="en">Candidate answer II: Ultimate L gives CH. The fork</span><span class="zh">候选答案二：终极 L 给出 CH。岔路口</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置</span></span>:
+    <a class="chip" href="lesson15.html">L15 · <span class="il"><span class="en">V = L decides CH</span><span class="zh">V = L 判定 CH</span></span></a>
+    <a class="chip" href="lesson22.html">L22 · <span class="il"><span class="en">HOD</span><span class="zh">HOD</span></span></a>
+    <a class="chip" href="#s4">§4</a></div>
+  <div class="idea"><span class="en"><b>One idea.</b> V = L decides CH (it implies GCH) but contradicts measurable cardinals. Woodin's program asks for an <b>L-like</b> axiom, “V = Ultimate L”, that is compatible with <i>all</i> large cardinals. If it exists and is accepted, CH is true. So the field faces a fork: <b>maximize</b> the universe (forcing axioms, ℵ₂) or make it <b>canonical</b> (Ultimate L, ℵ₁).</span>
+    <span class="zh"><b>核心思想。</b>V = L 判定了 CH（它推出 GCH），但与可测基数矛盾。伍丁的纲领要寻找一条<b>像 L 一样</b>的公理“V = 终极 L”，它要与<i>一切</i>大基数相容。如果它存在并被接受，CH 就为真。于是领域面临一个岔路口：把宇宙做到<b>极大</b>（力迫公理，ℵ₂），还是让宇宙<b>典范</b>（终极 L，ℵ₁）？</span></div>
+  <p><span class="en">Click the nodes of the fork. Drag the timeline to see how the debate developed, including Woodin's own change of mind.</span>
+     <span class="zh">点击岔路图中的结点。拖动时间轴，看这场争论如何演变，包括伍丁本人立场的转变。</span></p>
+  <div class="toolbar"><span class="il"><span class="en">Timeline</span><span class="zh">时间轴</span></span>: <input type="range" id="fkYear" min="0" max="5" step="1" value="5" style="width:300px"> <b id="fkYearLab" class="m"></b></div>
+  <div class="svgbox"><svg id="fkSvg" viewBox="0 0 860 420" width="860" height="420"></svg></div>
+  <div class="msg info" id="fkInfo"></div>
+  <div class="def"><span class="en"><b>Definition (Woodin), V = Ultimate L.</b> (1) There is a proper class of Woodin cardinals; (2) for every <span class="m">Σ₂</span> sentence φ true in V, there is a universally Baire set <span class="m">A ⊆ ℝ</span> with <span class="m">HOD<sup>L(A,ℝ)</sup> ⊨ φ</span>.<br>
+    <b>Theorem (Woodin)</b> <span class="status st-thm">THEOREM</span>. V = Ultimate L implies CH, and also V = HOD. (Proof idea: ¬CH is a Σ₂ sentence; if it held in V, it would hold in some <span class="m">HOD<sup>L(A,ℝ)</sup></span>, but CH holds in all such models under AD⁺.)<br>
+    <b>Ultimate-L Conjecture (Woodin)</b> <span class="status st-open">OPEN</span>. (ZFC) If δ is an extendible cardinal, then (provably) there is a transitive class N such that N is a weak extender model for “δ is supercompact”, <span class="m">N ⊨ V = Ultimate L</span>, and <span class="m">N ⊆ HOD</span>.<br>
+    <b>Ω-Conjecture (Woodin)</b> <span class="status st-open">OPEN</span>. With a proper class of Woodin cardinals, Ω-validity equals Ω-provability. Woodin's 2001 argument against CH assumed (the strong form of) this conjecture.</span>
+    <span class="zh"><b>定义（伍丁），V = 终极 L。</b>(1) 存在真类多个伍丁基数；(2) 对 V 中成立的每个 <span class="m">Σ₂</span> 语句 φ，都存在普遍贝尔集 <span class="m">A ⊆ ℝ</span> 使 <span class="m">HOD<sup>L(A,ℝ)</sup> ⊨ φ</span>。<br>
+    <b>定理（伍丁）</b> <span class="status st-thm">定理</span>。V = 终极 L 推出 CH，也推出 V = HOD。（证明思路：¬CH 是 Σ₂ 语句，若它在 V 中成立，就会在某个 <span class="m">HOD<sup>L(A,ℝ)</sup></span> 中成立；但在 AD⁺ 下所有这类模型都满足 CH。）<br>
+    <b>终极 L 猜想（伍丁）</b> <span class="status st-open">未解决</span>。（ZFC）若 δ 是可扩基数，则（可证地）存在传递类 N，使得 N 是“δ 超紧”的弱扩张子模型，<span class="m">N ⊨ V = 终极 L</span>，且 <span class="m">N ⊆ HOD</span>。<br>
+    <b>Ω 猜想（伍丁）</b> <span class="status st-open">未解决</span>。在存在真类多个伍丁基数时，Ω-有效等同于 Ω-可证。伍丁 2001 年反对 CH 的论证假设了这个猜想（的强形式）。</span></div>
+  <div class="why"><span class="en"><b class="h">Why people care / 动机.</b> If the Ultimate-L Conjecture is proved, then <span class="m">ZFC + V = Ultimate L</span> is compatible with every large cardinal we know, and (Woodin argues) it would settle essentially all questions that forcing can make independent. That would be a new “V = L” without L's defect. Woodin's 2025 Takagi Lectures (published 2026) present this as a realistic program. Critics reply that canonicity is not evidence of truth, and that forcing axioms have the richer mathematical consequences.</span>
+    <span class="zh"><b class="h">动机。</b>如果终极 L 猜想得证，<span class="m">ZFC + V = 终极 L</span> 就与我们知道的所有大基数相容，而且（伍丁认为）它将判定几乎所有能被力迫弄成独立的问题。那会是一个没有 L 的缺陷的新“V = L”。伍丁在 2025 年的高木讲座（2026 年发表）中把它当作一个现实可行的纲领。批评者则回应：典范性不等于真理的证据，而且力迫公理的数学推论更丰富。</span></div>
+  <div class="note pit"><span class="en"><b class="h">⚠ Common pitfall.</b> Nobody has proved CH is true, and nobody has proved <span class="m">2^ℵ₀ = ℵ₂</span>. The <b>theorems</b> are implications: <span class="m">MM ⇒ 2^ℵ₀ = ℵ₂</span>, <span class="m">V = Ultimate L ⇒ CH</span>. Choosing between the antecedents is the open part, and that choice is partly <span class="status st-phil">PHILOSOPHICAL</span>.</span>
+    <span class="zh"><b class="h">⚠ 常见误区。</b>没有人证明了 CH 为真，也没有人证明了 <span class="m">2^ℵ₀ = ℵ₂</span>。<b>定理</b>只是蕴涵式：<span class="m">MM ⇒ 2^ℵ₀ = ℵ₂</span>，<span class="m">V = 终极 L ⇒ CH</span>。在两个前件之间作选择才是悬而未决的部分，而这个选择部分是<span class="status st-phil">哲学性</span>的。</span></div>
+  <div class="cy" id="cy5"></div>
+</section>
+
+<!-- ============ S6 ============ -->
+<section class="card" id="s6">
+  <div class="kicker">§6</div>
+  <h2><span class="en">The inner model problem: how high can canonical models reach?</span><span class="zh">内模型问题：典范模型能造到多高？</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置</span></span>:
+    <a class="chip" href="lesson15.html">L15 · <span class="il"><span class="en">L, condensation</span><span class="zh">L 与凝聚性</span></span></a>
+    <a class="chip" href="lesson24.html">L24 · <span class="il"><span class="en">L[U], ultrapowers</span><span class="zh">L[U] 与超幂</span></span></a>
+    <a class="chip" href="lesson25.html">L25 · <span class="il"><span class="en">consistency ladder</span><span class="zh">一致性强度阶梯</span></span></a></div>
+  <div class="idea"><span class="en"><b>One idea.</b> For each large cardinal, build the <b>smallest, most L-like</b> universe containing it: an inner model with a fine structure, in which GCH and much more can be computed. Each rung reached this way is a triumph; the rung of a <b>supercompact</b> cardinal is still out of reach, and Ultimate L (§5) is the conjectured model at the very top.</span>
+    <span class="zh"><b>核心思想。</b>对每个大基数，构造包含它的<b>最小、最像 L</b> 的宇宙：一个具有精细结构的内模型，在其中 GCH 等许多性质都能算清楚。用这种方式每登上一级阶梯都是一次胜利；而<b>超紧</b>基数这一级至今仍够不着，终极 L（§5）就是猜想中位于最顶端的那个模型。</span></div>
+  <p><span class="en">Drag the year slider. The frontier line marks where inner models with <b>proved</b> iterability stop; the dashed band marks constructions that work under extra iterability hypotheses.</span>
+     <span class="zh">拖动年份滑块。实线前沿表示<b>已证明</b>可迭代性的内模型到达的位置；虚线带表示在额外的可迭代性假设下可行的构造。</span></p>
+  <div class="toolbar"><input type="range" id="imYear" min="0" max="7" step="1" value="7" style="width:340px"> <b id="imYearLab" class="m"></b></div>
+  <div class="svgbox"><svg id="imSvg" viewBox="0 0 860 520" width="860" height="520"></svg></div>
+  <div class="msg info" id="imInfo"></div>
+  <div class="def"><span class="en"><b>Landmarks</b> <span class="status st-thm">THEOREM</span>: L (Gödel 1938); L[U] for one measurable (Silver 1971, Kunen 1970); models for many measurables / Mitchell order (Mitchell 1974–84); a Woodin cardinal (Mitchell–Steel 1994); finitely and infinitely many Woodins (Steel and others, 1990s); iterability up to a Woodin limit of Woodin cardinals (Neeman 2002). Beyond that, fine structure is developed past superstrong and subcompact levels, but the needed iterability is assumed rather than proved.<br>
+    <b>Inner model problem for a supercompact</b> <span class="status st-open">OPEN</span>. Construct a canonical (fine-structural, iterable) inner model with a supercompact cardinal. Extender models with only “short” extenders cannot do this; models with long extenders are under development (Woodin; Neeman–Steel; Schlutzenberg), and it is not known whether those constructions succeed.</span>
+    <span class="zh"><b>里程碑</b> <span class="status st-thm">定理</span>：L（哥德尔 1938）；一个可测基数的 L[U]（Silver 1971，Kunen 1970）；多个可测基数 / Mitchell 序的模型（Mitchell 1974–84）；一个伍丁基数（Mitchell–Steel 1994）；有限多个和无穷多个伍丁基数（Steel 等，1990 年代）；可迭代性一直证到伍丁基数之极限的伍丁基数（Neeman 2002）。再往上，精细结构理论已推进到超强基数和次紧基数之上，但所需的可迭代性是假设的，而非证明的。<br>
+    <b>超紧基数的内模型问题</b> <span class="status st-open">未解决</span>。构造一个具有超紧基数的典范（有精细结构、可迭代的）内模型。只用“短”扩张子的扩张子模型做不到这一点；使用长扩张子的模型正在发展中（伍丁；Neeman–Steel；Schlutzenberg），这些构造能否成功尚不可知。</span></div>
+  <div class="why"><span class="en"><b class="h">Why people care / 动机.</b> (1) Inner models give <b>lower bounds</b>: to show a statement needs a Woodin cardinal, build the core model and show the statement fails without one. That is how equiconsistencies like “¬SCH ≡ o(κ) = κ⁺⁺” (§9) are proved. (2) An inner model is a <b>certificate</b> that the large cardinal is coherent, an L-like picture of it. (3) Woodin's universality theorem suggests that a model reaching one supercompact would automatically reach all larger cardinals, which is why the supercompact rung is the decisive one.</span>
+    <span class="zh"><b class="h">动机。</b>(1) 内模型提供<b>下界</b>：要证明某命题需要一个伍丁基数，就构造核心模型，再证明没有伍丁基数时该命题不成立。“¬SCH ≡ o(κ) = κ⁺⁺”（§9）这类等一致性正是这样证明的。(2) 内模型是大基数自洽的<b>证书</b>，是它的一幅像 L 一样的画像。(3) 伍丁的普遍性定理暗示：一个能达到超紧基数的模型会自动达到所有更大的基数，所以超紧这一级才是决定性的。</span></div>
+  <div class="note pit"><span class="en"><b class="h">⚠ Common pitfall.</b> An inner model for a large cardinal is <b>not</b> evidence that V is that model. Inner models with a measurable satisfy GCH, but V may not. The inner model program describes the canonical “core”. Whether V equals such a model is exactly the debate of §5.</span>
+    <span class="zh"><b class="h">⚠ 常见误区。</b>某个大基数的内模型<b>并不</b>说明 V 就是那个模型。含可测基数的内模型满足 GCH，V 却未必。内模型纲领描述的是典范的“核心”，V 是否等于这样一个模型，正是 §5 争论的焦点。</span></div>
+  <div class="cy" id="cy6"></div>
+</section>
+
+<!-- ============ S7 ============ -->
+<section class="card" id="s7">
+  <div class="kicker">§7</div>
+  <h2><span class="en">The HOD dichotomy and the HOD Conjecture</span><span class="zh">HOD 二分定理与 HOD 猜想</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置</span></span>:
+    <a class="chip" href="lesson22.html">L22 · <span class="il"><span class="en">OD, HOD</span><span class="zh">OD 与 HOD</span></span></a>
+    <a class="chip" href="lesson25.html">L25 · <span class="il"><span class="en">extendible, supercompact</span><span class="zh">可扩与超紧</span></span></a>
+    <a class="chip" href="lesson15.html">L15 · <span class="il"><span class="en">Jensen covering</span><span class="zh">Jensen 覆盖</span></span></a></div>
+  <div class="idea"><span class="en"><b>One idea.</b> Jensen's covering lemma says L is either very close to V or very far from it (0<sup>#</sup> exists). Woodin proved the same kind of fork for <b>HOD</b>, above an extendible cardinal. The HOD Conjecture says the “far” side never happens. Unlike L, there is no known “HOD-sharp” to make HOD far, which is why many expect the conjecture to be true.</span>
+    <span class="zh"><b>核心思想。</b>Jensen 覆盖引理说：L 要么离 V 很近，要么离 V 很远（0<sup>#</sup> 存在）。伍丁对 <b>HOD</b> 在可扩基数之上证明了同类的二分。HOD 猜想说“远离”的情形永远不会发生。与 L 不同，目前不知道有什么“HOD 的升号”能把 HOD 推远，这正是许多人预期该猜想为真的原因。</span></div>
+  <p><span class="en">Toggle the two scenarios. Each tick is a cardinal above the extendible δ. Compare what HOD thinks of it with what V thinks.</span>
+     <span class="zh">切换两种情形。每个刻度是可扩基数 δ 之上的一个基数。对比 HOD 怎么看它、V 怎么看它。</span></p>
+  <div class="toolbar"><span class="seg"><button class="btn small sel" id="hodClose"><span class="en">(1) HOD close to V</span><span class="zh">(1) HOD 接近 V</span></button><button class="btn small" id="hodFar"><span class="en">(2) HOD far from V</span><span class="zh">(2) HOD 远离 V</span></button><button class="btn small" id="hodL"><span class="en">Compare: L and Jensen</span><span class="zh">对照：L 与 Jensen</span></button></span></div>
+  <div class="svgbox"><svg id="hodSvg" viewBox="0 0 860 280" width="860" height="280"></svg></div>
+  <div class="msg info" id="hodInfo"></div>
+  <div class="def"><span class="en"><b>HOD Dichotomy (Woodin)</b> <span class="status st-thm">THEOREM</span>. Suppose δ is an extendible cardinal. Then exactly one of the following holds:<br>
+    (1) every singular cardinal <span class="m">γ &gt; δ</span> is singular in HOD and <span class="m">(γ⁺)^HOD = γ⁺</span>;<br>
+    (2) every regular cardinal <span class="m">γ &gt; δ</span> is ω-strongly measurable in HOD (in particular, measurable in HOD).<br>
+    Goldberg (2020s) reduced the hypothesis from extendible to strongly compact.<br>
+    <b>HOD Hypothesis</b>: there is a proper class of regular cardinals that are not ω-strongly measurable in HOD (so, with an extendible, case (1) holds). <b>HOD Conjecture (Woodin)</b> <span class="status st-open">OPEN</span>: the HOD Hypothesis is provable in <span class="m">ZFC + “there is an extendible cardinal”</span>. Woodin showed that the Ultimate-L Conjecture implies (a slightly weaker form of) the HOD Conjecture.</span>
+    <span class="zh"><b>HOD 二分定理（伍丁）</b> <span class="status st-thm">定理</span>。设 δ 是可扩基数。则下列两者恰有一个成立：<br>
+    (1) 每个奇异基数 <span class="m">γ &gt; δ</span> 在 HOD 中也是奇异的，并且 <span class="m">(γ⁺)^HOD = γ⁺</span>；<br>
+    (2) 每个正则基数 <span class="m">γ &gt; δ</span> 在 HOD 中都是 ω-强可测的（特别地，在 HOD 中可测）。<br>
+    Goldberg（2020 年代）把假设从可扩基数减弱到了强紧基数。<br>
+    <b>HOD 假说</b>：存在真类多个在 HOD 中不是 ω-强可测的正则基数（于是在有可扩基数时，情形 (1) 成立）。<b>HOD 猜想（伍丁）</b> <span class="status st-open">未解决</span>：HOD 假说在 <span class="m">ZFC + “存在可扩基数”</span> 中可证。伍丁证明了：终极 L 猜想推出 HOD 猜想（的一个稍弱的形式）。</span></div>
+  <div class="why"><span class="en"><b class="h">Why people care / 动机.</b> HOD is a canonical, definable inner model of ZFC that exists <b>no matter what</b>. If it is close to V, then V has an L-like core that inherits all large cardinals, which is good news for Ultimate L. If it is far, there is a whole new realm of large cardinal structure “beyond HOD”. Recent work (Aguilera–Bagaria–Lücke 2024; Aguilera–Bagaria–Goldberg–Lücke 2025) introduced <b>exacting</b> and <b>ultraexacting</b> cardinals. They are consistent with ZFC relative to rank-into-rank axioms (exacting cardinals lie strictly between I3 and I2 in strength; ultraexacting ones are equiconsistent with I0), and they imply <span class="m">V ≠ HOD</span>. An exacting cardinal above an extendible forces case (2), so if <span class="m">ZFC + “an exacting cardinal above an extendible”</span> is consistent, the HOD Conjecture is false. Whether that combination is consistent is <span class="status st-open">OPEN</span>.</span>
+    <span class="zh"><b class="h">动机。</b>HOD 是一个<b>无论如何都存在</b>的、可定义的、典范的 ZFC 内模型。如果它接近 V，那么 V 就有一个继承全部大基数的“像 L 的核心”，这对终极 L 是好消息；如果它远离 V，就会出现一整片“超越 HOD”的大基数新天地。最近的工作（Aguilera–Bagaria–Lücke 2024；Aguilera–Bagaria–Goldberg–Lücke 2025）引入了<b>严格（exacting）基数</b>与<b>超严格（ultraexacting）基数</b>，它们相对于秩到秩（rank-into-rank）公理与 ZFC 一致（严格基数的强度严格介于 I3 与 I2 之间；超严格基数与 I0 等一致），并推出 <span class="m">V ≠ HOD</span>。可扩基数之上的严格基数会迫使情形 (2) 成立，所以若 <span class="m">ZFC + “可扩基数之上有严格基数”</span> 一致，HOD 猜想就是错的。这种组合是否一致，<span class="status st-open">未解决</span>。</span></div>
+  <div class="note pit"><span class="en"><b class="h">⚠ Common pitfall.</b> The <b>dichotomy</b> is a theorem; the <b>conjecture</b> (that case (2) cannot happen, provably) is open. Also, <span class="m">V ≠ HOD</span> by itself is harmless and easily forced (add a Cohen real). The dichotomy is about something much more drastic: whether HOD gets the <i>cardinal structure</i> above δ right.</span>
+    <span class="zh"><b class="h">⚠ 常见误区。</b><b>二分</b>是定理；<b>猜想</b>（情形 (2) 可证地不会发生）尚未解决。另外，<span class="m">V ≠ HOD</span> 本身无伤大雅，很容易力迫得到（添加一个科恩实数即可）。二分定理关心的是严重得多的事：HOD 能否正确地把握 δ 之上的<i>基数结构</i>。</span></div>
+  <div class="cy" id="cy7"></div>
+</section>
+
+<!-- ============ S8 ============ -->
+<section class="card" id="s8">
+  <div class="kicker">§8</div>
+  <h2><span class="en">Beyond choice: Reinhardt and Berkeley cardinals</span><span class="zh">超越选择公理：Reinhardt 基数与 Berkeley 基数</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置</span></span>:
+    <a class="chip" href="lesson25.html">L25 · <span class="il"><span class="en">Kunen inconsistency, I0–I3</span><span class="zh">库能不相容性、I0–I3</span></span></a>
+    <a class="chip" href="lesson10.html">L10 · <span class="il"><span class="en">Axiom of Choice</span><span class="zh">选择公理</span></span></a>
+    <a class="chip" href="#s7">§7</a></div>
+  <div class="idea"><span class="en"><b>One idea.</b> Kunen (1971) showed that with AC there is no nontrivial elementary <span class="m">j : V → V</span>. The proof uses choice. Without AC, nobody has refuted such embeddings, and they sit at the very top of the large-cardinal hierarchy, <b>above the wall</b> that AC builds. Whether they are consistent is linked to the HOD Conjecture.</span>
+    <span class="zh"><b>核心思想。</b>库能（1971）证明：在 AC 下不存在非平凡的初等嵌入 <span class="m">j : V → V</span>。证明用到了选择公理。没有 AC 时，还没有人推翻这类嵌入，它们位于大基数层级的最顶端，在 AC 筑起的那堵<b>墙之上</b>。它们是否一致，和 HOD 猜想紧密相连。</span></div>
+  <p><span class="en">Flip the AC switch to see which part of the ladder survives. Click a rung for its status.</span>
+     <span class="zh">拨动 AC 开关，看梯子的哪一段能幸存。点击一级阶梯查看其状态。</span></p>
+  <div class="toolbar"><div class="switches" id="acSw"></div></div>
+  <div class="svgbox"><svg id="acSvg" viewBox="0 0 860 435" width="860" height="435"></svg></div>
+  <div class="msg info" id="acInfo"></div>
+  <div class="def"><span class="en"><b>Definitions (in ZF).</b> κ is <b>Reinhardt</b> if κ is the critical point of a nontrivial elementary <span class="m">j : V → V</span> (j a class, with V satisfying ZF in the language with j). δ is <b>Berkeley</b> if for every transitive set <span class="m">M</span> with <span class="m">δ ∈ M</span> and every <span class="m">η &lt; δ</span> there is an elementary <span class="m">j : M → M</span> with <span class="m">η &lt; crit(j) &lt; δ</span>.<br>
+    <b>Kunen 1971</b> <span class="status st-thm">THEOREM</span>: ZFC proves there is no Reinhardt cardinal; in fact no nontrivial <span class="m">j : V<sub>λ+2</sub> → V<sub>λ+2</sub></span>.<br>
+    <b>Consistency of ZF + a Reinhardt cardinal</b> <span class="status st-open">OPEN</span>. Known: assuming DC, a Reinhardt cardinal yields the consistency of ZFC + I0 (Goldberg). Schlutzenberg showed that ZF + a nontrivial <span class="m">j : V<sub>λ+2</sub> → V<sub>λ+2</sub></span> is consistent relative to ZFC + I0. A January 2026 preprint (McCallum, arXiv:2601.10231) claimed to refute Reinhardt cardinals in ZF; the author withdrew it on 23 August 2026 after an error was identified in its final section. (An earlier 2017 claim by the same author was withdrawn in January 2018.)<br>
+    <b>Link to HOD</b> <span class="status st-thm">THEOREM</span> (Woodin): (ZF) assume the HOD Conjecture is true. If δ is extendible, then for every λ &gt; δ there is no nontrivial <span class="m">j : V<sub>λ+2</sub> → V<sub>λ+2</sub></span>. Bagaria–Koellner–Woodin (2019) explain why, if Berkeley cardinals are consistent, the (weak) Ultimate-L Conjecture must fail.</span>
+    <span class="zh"><b>定义（在 ZF 中）。</b>若 κ 是某个非平凡初等嵌入 <span class="m">j : V → V</span> 的临界点（j 为类，V 在含 j 的语言中满足 ZF），则称 κ 为 <b>Reinhardt 基数</b>。若对每个满足 <span class="m">δ ∈ M</span> 的传递集 <span class="m">M</span> 及每个 <span class="m">η &lt; δ</span>，都存在初等嵌入 <span class="m">j : M → M</span> 使 <span class="m">η &lt; crit(j) &lt; δ</span>，则称 δ 为 <b>Berkeley 基数</b>。<br>
+    <b>库能 1971</b> <span class="status st-thm">定理</span>：ZFC 证明不存在 Reinhardt 基数；事实上不存在非平凡的 <span class="m">j : V<sub>λ+2</sub> → V<sub>λ+2</sub></span>。<br>
+    <b>ZF + Reinhardt 基数的一致性</b> <span class="status st-open">未解决</span>。已知：在 DC 下，Reinhardt 基数给出 ZFC + I0 的一致性（Goldberg）。Schlutzenberg 证明了 ZF + 非平凡 <span class="m">j : V<sub>λ+2</sub> → V<sub>λ+2</sub></span> 相对于 ZFC + I0 一致。2026 年 1 月有一篇预印本（McCallum，arXiv:2601.10231）声称在 ZF 中否证了 Reinhardt 基数；由于其最后一节被发现有错误，作者已于 2026 年 8 月 23 日撤稿。（同一作者 2017 年的类似声称已于 2018 年 1 月撤回。）<br>
+    <b>与 HOD 的联系</b> <span class="status st-thm">定理</span>（伍丁）：（在 ZF 中）假设 HOD 猜想为真。若 δ 是可扩基数，则对每个 λ &gt; δ 都不存在非平凡的 <span class="m">j : V<sub>λ+2</sub> → V<sub>λ+2</sub></span>。Bagaria–Koellner–Woodin（2019）说明了：如果 Berkeley 基数是一致的，那么（弱）终极 L 猜想必定不成立。</span></div>
+  <div class="why"><span class="en"><b class="h">Why people care / 动机.</b> Two possibilities, and either is dramatic. If choiceless cardinals are inconsistent, the large cardinal hierarchy has a <b>natural ceiling</b>, and the inconsistency proof would probably say something deep about HOD (and support the HOD and Ultimate-L Conjectures). If they are consistent, then AC is what keeps the universe below them, and V is “far from HOD”-style structure is real. The question tests whether our large-cardinal intuitions are trustworthy all the way up.</span>
+    <span class="zh"><b class="h">动机。</b>两种可能，无论哪种都很惊人。如果无选择大基数不一致，大基数层级就有了<b>天然的天花板</b>，而这个不一致性证明多半会揭示关于 HOD 的深刻事实（并支持 HOD 猜想与终极 L 猜想）。如果它们一致，那么正是 AC 把宇宙挡在它们之下，“V 远离 HOD”式的结构也就是真实存在的。这个问题检验的是：我们对大基数的直觉，能不能一路信到顶。</span></div>
+  <div class="note pit"><span class="en"><b class="h">⚠ Common pitfall.</b> “Reinhardt cardinals are inconsistent” is a theorem of <b>ZFC</b>, not of ZF. When people say the consistency of Reinhardt cardinals is open, they mean over ZF. Also beware of claimed refutations: there have been at least two (2017, 2026), both withdrawn.</span>
+    <span class="zh"><b class="h">⚠ 常见误区。</b>“Reinhardt 基数不一致”是 <b>ZFC</b> 的定理，而不是 ZF 的定理。说 Reinhardt 基数的一致性尚未解决，指的是在 ZF 之上。还要警惕声称的否证：至少有过两次（2017、2026），都已撤回。</span></div>
+  <div class="cy" id="cy8"></div>
+</section>
+
+<!-- ============ S9 ============ -->
+<section class="card" id="s9">
+  <div class="kicker">§9</div>
+  <h2><span class="en">Cardinal arithmetic: Easton, SCH, and Shelah's ℵ<sub>ω</sub> bound</span><span class="zh">基数算术：Easton、SCH 与 Shelah 的 ℵ<sub>ω</sub> 上界</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置</span></span>:
+    <a class="chip" href="lesson9.html">L9 · <span class="il"><span class="en">cofinality, König</span><span class="zh">共尾性、König 定理</span></span></a>
+    <a class="chip" href="lesson16.html">L16 · <span class="il"><span class="en">forcing 2^κ</span><span class="zh">力迫 2^κ</span></span></a>
+    <a class="chip" href="lesson24.html">L24 · <span class="il"><span class="en">measurables, Prikry</span><span class="zh">可测基数、Prikry</span></span></a></div>
+  <div class="idea"><span class="en"><b>One idea.</b> At <b>regular</b> cardinals, ZFC says almost nothing about <span class="m">2^κ</span> (Easton). At <b>singular</b> cardinals it says a lot, and the gap between what is proved and what is known to be consistent is one of the cleanest open problems in set theory.</span>
+    <span class="zh"><b>核心思想。</b>在<b>正则</b>基数处，ZFC 对 <span class="m">2^κ</span> 几乎什么也没说（Easton）。在<b>奇异</b>基数处它却说了很多；“已证明的”与“已知一致的”之间的缺口，是集合论中最干净利落的未解问题之一。</span></div>
+  <p><span class="en"><b>Part A (regular).</b> Pick a value for <span class="m">2^ℵ₀</span>. The checker applies König's theorem <span class="m">cf(2^κ) &gt; κ</span>.</span>
+     <span class="zh"><b>A 部分（正则）。</b>给 <span class="m">2^ℵ₀</span> 选一个值。检查器会应用 König 定理 <span class="m">cf(2^κ) &gt; κ</span>。</span></p>
+  <div class="toolbar"><span class="seg" id="c0Btns"></span></div>
+  <div class="msg" id="c0Info"></div>
+  <p><span class="en"><b>Part B (singular).</b> Assume <span class="m">ℵ<sub>ω</sub></span> is a <b>strong limit</b> (<span class="m">2^ℵₙ &lt; ℵ<sub>ω</sub></span> for all n). Click a spot on the aleph line to propose a value of <span class="m">2^ℵ<sub>ω</sub></span>.</span>
+     <span class="zh"><b>B 部分（奇异）。</b>设 <span class="m">ℵ<sub>ω</sub></span> 是<b>强极限</b>基数（对一切 n，<span class="m">2^ℵₙ &lt; ℵ<sub>ω</sub></span>）。点击阿列夫数轴上的一个位置，为 <span class="m">2^ℵ<sub>ω</sub></span> 提一个值。</span></p>
+  <div class="svgbox"><svg id="pcfSvg" viewBox="0 0 860 250" width="860" height="250"></svg></div>
+  <div class="legend2"><span><i style="background:var(--true)"></i><span class="il"><span class="en">consistent (relative to large cardinals if ≠ ℵ<sub>ω+1</sub>)</span><span class="zh">一致（若 ≠ ℵ<sub>ω+1</sub> 则相对于大基数）</span></span></span>
+    <span><i style="background:var(--gold)"></i><span class="il"><span class="en">open</span><span class="zh">未解决</span></span></span>
+    <span><i style="background:var(--false)"></i><span class="il"><span class="en">impossible (ZFC theorem)</span><span class="zh">不可能（ZFC 定理）</span></span></span></div>
+  <div class="msg info" id="pcfInfo"></div>
+  <div class="def"><span class="en"><b>Easton 1970</b> <span class="status st-thm">THEOREM</span>. Over GCH, for any class function F on regular cardinals with F monotone and <span class="m">cf F(κ) &gt; κ</span>, some cardinal-preserving forcing makes <span class="m">2^κ = F(κ)</span> for all regular κ.<br>
+    <b>SCH</b>: for every singular strong limit κ, <span class="m">2^κ = κ⁺</span>. <b>Silver 1974</b> <span class="status st-thm">THEOREM</span>: if κ is singular of <b>uncountable</b> cofinality and <span class="m">2^λ = λ⁺</span> for all λ &lt; κ, then <span class="m">2^κ = κ⁺</span>. <b>Solovay 1974</b>: SCH holds above a strongly compact cardinal. <b>Gitik 1989/1991</b> <span class="status st-thm">THEOREM</span>: <span class="m">ZFC + ¬SCH</span> is equiconsistent with a measurable κ of Mitchell order <span class="m">o(κ) = κ⁺⁺</span>.<br>
+    <b>Shelah (pcf theory, 1990s)</b> <span class="status st-thm">THEOREM</span>: if <span class="m">ℵ<sub>ω</sub></span> is a strong limit, then <span class="m">2^ℵ<sub>ω</sub> &lt; ℵ<sub>ω₄</sub></span>. <b>Magidor 1977, Shelah, Gitik–Magidor 1992</b>: for every countable α ≥ 1, <span class="m">“ℵ<sub>ω</sub> strong limit and 2^ℵ<sub>ω</sub> = ℵ<sub>ω+α+1</sub>”</span> is consistent relative to large cardinals.<br>
+    <b>Open problem</b> <span class="status st-open">OPEN</span>: if <span class="m">ℵ<sub>ω</sub></span> is a strong limit, must <span class="m">2^ℵ<sub>ω</sub> &lt; ℵ<sub>ω₁</sub></span>? Equivalently: can <span class="m">pcf{ℵₙ : n &lt; ω}</span> be uncountable? Shelah conjectures <span class="m">|pcf(A)| = |A|</span> for progressive A, which would give the ω₁ bound.</span>
+    <span class="zh"><b>Easton 1970</b> <span class="status st-thm">定理</span>。在 GCH 之上，对正则基数上任意满足单调且 <span class="m">cf F(κ) &gt; κ</span> 的类函数 F，存在保持基数的力迫，使得对所有正则 κ 都有 <span class="m">2^κ = F(κ)</span>。<br>
+    <b>奇异基数假设（SCH）</b>：对每个奇异强极限基数 κ，<span class="m">2^κ = κ⁺</span>。<b>Silver 1974</b> <span class="status st-thm">定理</span>：若 κ 是共尾性<b>不可数</b>的奇异基数，且对所有 λ &lt; κ 有 <span class="m">2^λ = λ⁺</span>，则 <span class="m">2^κ = κ⁺</span>。<b>Solovay 1974</b>：SCH 在强紧基数之上成立。<b>Gitik 1989/1991</b> <span class="status st-thm">定理</span>：<span class="m">ZFC + ¬SCH</span> 与“存在 Mitchell 序 <span class="m">o(κ) = κ⁺⁺</span> 的可测基数 κ”等一致。<br>
+    <b>Shelah（可能共尾理论，即 pcf 理论，1990 年代）</b> <span class="status st-thm">定理</span>：若 <span class="m">ℵ<sub>ω</sub></span> 是强极限，则 <span class="m">2^ℵ<sub>ω</sub> &lt; ℵ<sub>ω₄</sub></span>。<b>Magidor 1977、Shelah、Gitik–Magidor 1992</b>：对每个可数序数 α ≥ 1，<span class="m">“ℵ<sub>ω</sub> 是强极限且 2^ℵ<sub>ω</sub> = ℵ<sub>ω+α+1</sub>”</span> 相对于大基数一致。<br>
+    <b>未解决问题</b> <span class="status st-open">未解决</span>：若 <span class="m">ℵ<sub>ω</sub></span> 是强极限，是否必有 <span class="m">2^ℵ<sub>ω</sub> &lt; ℵ<sub>ω₁</sub></span>？等价地：<span class="m">pcf{ℵₙ : n &lt; ω}</span> 能否不可数？Shelah 猜想对“渐进的”A 有 <span class="m">|pcf(A)| = |A|</span>，由此即得 ω₁ 这个上界。</span></div>
+  <div class="why"><span class="en"><b class="h">Why people care / 动机.</b> Shelah's theorem was a shock: after Cohen and Easton, cardinal exponentiation looked hopelessly independent, yet pcf theory finds <b>ZFC structure</b> exactly at singular cardinals. It recasts the problem as the theory of cofinalities of reduced products <span class="m">∏ A / D</span>, with applications in algebra, topology and model theory. The ω₁-versus-ω₄ gap is the cleanest test of how much of this structure ZFC really controls.</span>
+    <span class="zh"><b class="h">动机。</b>Shelah 的定理令人震惊：在科恩和 Easton 之后，基数幂看起来已毫无希望地处处独立，可 pcf 理论偏偏在奇异基数处找到了 <b>ZFC 能证明的结构</b>。它把问题改写成约化积 <span class="m">∏ A / D</span> 的共尾性理论，在代数、拓扑和模型论中都有应用。ω₁ 与 ω₄ 之间的缺口，正是检验 ZFC 到底掌控多少这种结构的最清晰试金石。</span></div>
+  <div class="note pit"><span class="en"><b class="h">⚠ Common pitfall.</b> The hypothesis “ℵ<sub>ω</sub> is a strong limit” matters. Without it, <span class="m">2^ℵ<sub>ω</sub> ≥ 2^ℵ₀</span> can be made as large as you like by Easton forcing at ℵ₀, and the ω₄ bound says nothing. Also, the subscript is <span class="m">ω₄</span> (the fourth uncountable ordinal), not <span class="m">ω + 4</span>: the bound allows <span class="m">2^ℵ<sub>ω</sub></span> to sit above uncountably many alephs.</span>
+    <span class="zh"><b class="h">⚠ 常见误区。</b>“ℵ<sub>ω</sub> 是强极限”这个假设很关键。没有它，用 Easton 力迫在 ℵ₀ 处可以让 <span class="m">2^ℵ<sub>ω</sub> ≥ 2^ℵ₀</span> 要多大有多大，ω₄ 上界也就无从谈起。另外，下标是 <span class="m">ω₄</span>（第四个不可数序数），不是 <span class="m">ω + 4</span>：这个上界允许 <span class="m">2^ℵ<sub>ω</sub></span> 高出不可数多个阿列夫。</span></div>
+  <div class="cy" id="cy9"></div>
+</section>
+
+<!-- ============ S10 ============ -->
+<section class="card" id="s10">
+  <div class="kicker">§10</div>
+  <h2><span class="en">Combinatorics of the continuum: Cichoń's diagram</span><span class="zh">连续统的组合学：Cichoń 图</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置</span></span>:
+    <a class="chip" href="lesson16.html">L16 · <span class="il"><span class="en">forcing, ccc</span><span class="zh">力迫与 ccc</span></span></a>
+    <a class="chip" href="lesson19.html">L19 · <span class="il"><span class="en">meager, null sets</span><span class="zh">贫集与零测集</span></span></a></div>
+  <div class="idea"><span class="en"><b>One idea.</b> When CH fails, many natural “sizes” between <span class="m">ℵ₁</span> and <span class="m">2^ℵ₀</span> can differ: how many null sets you need to cover ℝ, how small a non-meager set can be, and so on. ZFC proves a fixed web of inequalities between them (the arrows), and, remarkably, <b>nothing more</b>.</span>
+    <span class="zh"><b>核心思想。</b>当 CH 不成立时，介于 <span class="m">ℵ₁</span> 与 <span class="m">2^ℵ₀</span> 之间的许多自然“尺寸”可以各不相同：需要多少个零测集才能覆盖 ℝ，非贫集最小能有多小，等等。ZFC 证明了它们之间一张固定的不等式网（图中的箭头），而且值得注意的是，<b>除此之外再无其他</b>。</span></div>
+  <p><span class="en">Click a cardinal to toggle it between ℵ₁ and ℵ₂ (we work in models with <span class="m">2^ℵ₀ ≤ ℵ₂</span>). An arrow <span class="m">x → y</span> means ZFC proves <span class="m">x ≤ y</span>; violated arrows turn red. Two dotted equalities also hold in ZFC: <span class="m">add(𝓜) = min(b, cov(𝓜))</span> and <span class="m">cof(𝓜) = max(d, non(𝓜))</span>.</span>
+     <span class="zh">点击一个基数，在 ℵ₁ 与 ℵ₂ 之间切换（我们只看 <span class="m">2^ℵ₀ ≤ ℵ₂</span> 的模型）。箭头 <span class="m">x → y</span> 表示 ZFC 证明 <span class="m">x ≤ y</span>；被违反的箭头会变红。另有两条 ZFC 等式（虚线）：<span class="m">add(𝓜) = min(b, cov(𝓜))</span>，<span class="m">cof(𝓜) = max(d, non(𝓜))</span>。</span></p>
+  <div class="toolbar">
+    <button class="btn small" id="ciAll1"><span class="en">All ℵ₁ (CH)</span><span class="zh">全部 ℵ₁（CH）</span></button>
+    <button class="btn small" id="ciMA"><span class="en">Martin's Axiom + 2^ℵ₀ = ℵ₂</span><span class="zh">马丁公理 + 2^ℵ₀ = ℵ₂</span></button>
+    <button class="btn small" id="ciCohen"><span class="en">Cohen model</span><span class="zh">科恩模型</span></button>
+    <button class="btn small" id="ciRandom"><span class="en">Random model</span><span class="zh">随机实数模型</span></button>
+    <button class="btn small" id="ciRand"><span class="en">Random assignment 🎲</span><span class="zh">随机赋值 🎲</span></button>
+  </div>
+  <div class="svgbox"><svg id="ciSvg" viewBox="0 0 860 340" width="860" height="340"></svg></div>
+  <div class="msg" id="ciInfo"></div>
+  <div class="def"><span class="en"><b>Definitions</b> (𝓝 = null ideal, 𝓜 = meager ideal). For an ideal 𝓘 on ℝ: <span class="m">add(𝓘)</span> = least size of a family in 𝓘 whose union is not in 𝓘; <span class="m">cov(𝓘)</span> = least size of a family in 𝓘 covering ℝ; <span class="m">non(𝓘)</span> = least size of a set of reals not in 𝓘; <span class="m">cof(𝓘)</span> = least size of a cofinal subfamily of 𝓘. <span class="m">b</span> = least size of an unbounded family in <span class="m">(ω^ω, ≤*)</span>, <span class="m">d</span> = least size of a dominating family.<br>
+    <b>Theorem (Bartoszyński, Fremlin, Miller, Raisonnier–Stern, Cichoń and others, 1980s)</b> <span class="status st-thm">THEOREM</span>: the arrows and the two equalities are provable in ZFC. <b>Completeness for ℵ₁/ℵ₂</b> <span class="status st-ind">INDEPENDENT</span>: every ℵ₁/ℵ₂ assignment respecting them is consistent with ZFC (see Bartoszyński–Judah 1995, ch. 7). There are 23 such assignments with <span class="m">2^ℵ₀ = ℵ₂</span>.<br>
+    <b>Cichoń's Maximum</b> <span class="status st-thm">THEOREM</span>: it is consistent that the ten independent entries are pairwise different: <span class="m">ℵ₁ &lt; add(𝓝) &lt; cov(𝓝) &lt; b &lt; non(𝓜) &lt; cov(𝓜) &lt; d &lt; non(𝓝) &lt; cof(𝓝) &lt; 2^ℵ₀</span>. First proved from four strongly compact cardinals by <b>Goldstern–Kellner–Shelah</b> (Annals of Mathematics 2019); the large cardinals were removed by <b>Goldstern–Kellner–Mejía–Shelah</b> (J. Eur. Math. Soc. 2022).</span>
+    <span class="zh"><b>定义</b>（𝓝 为零测理想，𝓜 为贫集理想）。对 ℝ 上的理想 𝓘：<span class="m">add(𝓘)</span>（可加性）是并集不属于 𝓘 的 𝓘 中子族的最小大小；<span class="m">cov(𝓘)</span>（覆盖数）是覆盖 ℝ 的 𝓘 中子族的最小大小；<span class="m">non(𝓘)</span>（一致性数）是不属于 𝓘 的实数集的最小大小；<span class="m">cof(𝓘)</span>（共尾数）是 𝓘 的共尾子族的最小大小。<span class="m">b</span>（无界数）是 <span class="m">(ω^ω, ≤*)</span> 中无界族的最小大小，<span class="m">d</span>（控制数）是控制族的最小大小。<br>
+    <b>定理（Bartoszyński、Fremlin、Miller、Raisonnier–Stern、Cichoń 等，1980 年代）</b> <span class="status st-thm">定理</span>：图中箭头和两条等式都在 ZFC 中可证。<b>ℵ₁/ℵ₂ 完全性</b> <span class="status st-ind">独立</span>：每个满足这些约束的 ℵ₁/ℵ₂ 赋值都与 ZFC 一致（见 Bartoszyński–Judah 1995 第 7 章）。在 <span class="m">2^ℵ₀ = ℵ₂</span> 时这样的赋值共有 23 种。<br>
+    <b>Cichoń 极大</b> <span class="status st-thm">定理</span>：十个独立的项两两不同是一致的：<span class="m">ℵ₁ &lt; add(𝓝) &lt; cov(𝓝) &lt; b &lt; non(𝓜) &lt; cov(𝓜) &lt; d &lt; non(𝓝) &lt; cof(𝓝) &lt; 2^ℵ₀</span>。最早由 <b>Goldstern–Kellner–Shelah</b> 从四个强紧基数证明（《数学年刊》2019）；后来 <b>Goldstern–Kellner–Mejía–Shelah</b> 去掉了大基数假设（《欧洲数学会杂志》2022）。</span></div>
+  <div class="why"><span class="en"><b class="h">Why people care / 动机.</b> These cardinals measure the combinatorics behind measure, category and growth rates, used constantly in real analysis, topology and descriptive set theory. Separating them forces set theorists to invent new iteration techniques. These techniques matter beyond the diagram: the open frontier now includes separating <b>more</b> characteristics at once and making the continuum <b>large</b> (above ℵ₂) while keeping control, where the classical tools break down.</span>
+    <span class="zh"><b class="h">动机。</b>这些基数刻画的是测度、范畴和增长速度背后的组合学，在实分析、拓扑和描述集合论中随处可见。要把它们分开，集合论学者必须发明新的迭代力迫技术，而这些技术的意义远超这张图：如今的前沿包括同时分开<b>更多</b>的特征数，以及在连续统很<b>大</b>（大于 ℵ₂）时仍保持控制，而那正是经典工具失效的地方。</span></div>
+  <div class="note pit"><span class="en"><b class="h">⚠ Common pitfall.</b> With only two values, ℵ₁ and ℵ₂, at most two distinct values occur, so the toy above can't show Cichoń's Maximum, which needs <span class="m">2^ℵ₀ ≥ ℵ₁₀</span>. Also “consistent” here means “consistent relative to ZFC”, proved by building a forcing extension, not “true”.</span>
+    <span class="zh"><b class="h">⚠ 常见误区。</b>只用 ℵ₁、ℵ₂ 两个值时，图中最多出现两个不同的值，所以上面的小玩具展示不了 Cichoń 极大，那需要 <span class="m">2^ℵ₀ ≥ ℵ₁₀</span>。另外这里的“一致”指“相对于 ZFC 一致”，是通过构造力迫扩张证明的，并不是“为真”。</span></div>
+  <div class="cy" id="cy10"></div>
+</section>
+
+<!-- ============ S11 ============ -->
+<section class="card" id="s11">
+  <div class="kicker">§11</div>
+  <h2><span class="en">Independence in mainstream mathematics</span><span class="zh">主流数学中的独立性</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置</span></span>:
+    <a class="chip" href="lesson15.html">L15 · <span class="il"><span class="en">V = L, ◇</span><span class="zh">V = L 与 ◇</span></span></a>
+    <a class="chip" href="lesson16.html">L16 · <span class="il"><span class="en">forcing</span><span class="zh">力迫</span></span></a>
+    <a class="chip" href="#s4">§4 · MA, PFA</a></div>
+  <div class="idea"><span class="en"><b>One idea.</b> These are not set theorists' questions. They come from group theory, analysis, topology and operator algebras, and set theory showed they have <b>no answer in ZFC</b>. Pick an axiom and see how it answers each problem. Different axioms give different, internally coherent worlds.</span>
+    <span class="zh"><b>核心思想。</b>这些都不是集合论学者自己提的问题。它们来自群论、分析、拓扑和算子代数，而集合论证明了它们<b>在 ZFC 中没有答案</b>。选一条公理，看它如何回答每个问题。不同的公理给出不同的、内部自洽的世界。</span></div>
+  <div class="toolbar"><span class="seg" id="mxBtns"></span></div>
+  <div class="svgbox" style="background:#fff"><div id="mxTable"></div></div>
+  <div class="legend2"><span><i style="background:var(--true-soft);border:1px solid var(--true)"></i><span class="il"><span class="en">YES under this axiom</span><span class="zh">在此公理下“是”</span></span></span>
+    <span><i style="background:var(--false-soft);border:1px solid var(--false)"></i><span class="il"><span class="en">NO under this axiom</span><span class="zh">在此公理下“否”</span></span></span>
+    <span><i style="background:#f1efe7;border:1px solid #ccc"></i><span class="il"><span class="en">not decided by this axiom</span><span class="zh">此公理判定不了</span></span></span>
+    <span>—  <span class="il"><span class="en">not covered here</span><span class="zh">此处不讨论</span></span></span></div>
+  <p class="muted" style="font-size:14px"><span class="en">Click a card for the history.</span><span class="zh">点击卡片查看来龙去脉。</span></p>
+  <div class="cards3" id="mxCards"></div>
+  <div class="def"><span class="en"><b>Status</b> <span class="status st-ind">INDEPENDENT</span>: each problem in the table is independent of ZFC (by the theorems on the cards). Implications used: V = L ⇒ CH and ◇; PFA ⇒ MA<sub>ℵ₁</sub> + 2^ℵ₀ = ℵ₂ and OCA (Todorčević's Open Coloring Axiom).</span>
+    <span class="zh"><b>状态</b> <span class="status st-ind">独立</span>：表中每个问题都独立于 ZFC（见卡片上的定理）。用到的蕴涵：V = L ⇒ CH 与 ◇；PFA ⇒ MA<sub>ℵ₁</sub> + 2^ℵ₀ = ℵ₂ 以及 OCA（Todorčević 的开着色公理）。</span></div>
+  <div class="why"><span class="en"><b class="h">Why people care / 动机.</b> This is the practical face of the frontier. If the community adopted forcing axioms, Whitehead's problem and Suslin's problem would have definite answers. If it adopted V = Ultimate L (which implies CH), Kaplansky's question would have the opposite flavor of answer. The choice of axioms is not idle. It changes theorems in other fields.</span>
+    <span class="zh"><b class="h">动机。</b>这是前沿问题在实际中的面貌。如果学界采纳力迫公理，怀特海问题和苏斯林问题就有了确定答案；如果采纳 V = 终极 L（它推出 CH），Kaplansky 的问题就会得到另一种风格的答案。选择公理并非无关痛痒，它会改变其他领域里的定理。</span></div>
+  <div class="note pit"><span class="en"><b class="h">⚠ Common pitfall.</b> “Forcing axioms make everything nice” is false. The Borel conjecture fails under MA, hence under PFA. It holds in Laver's model, which is built specially. Each problem must be checked individually.</span>
+    <span class="zh"><b class="h">⚠ 常见误区。</b>“力迫公理让一切都变美好”是错的。博雷尔猜想在 MA 下不成立，因而在 PFA 下也不成立；它在 Laver 专门构造的模型中成立。每个问题都得单独检查。</span></div>
+  <div class="cy" id="cy11"></div>
+</section>
+
+<!-- ============ S12 ============ -->
+<section class="card" id="s12">
+  <div class="kicker">§12</div>
+  <h2><span class="en">One universe or many? The universe vs multiverse debate</span><span class="zh">一个宇宙还是多个？宇宙观与多宇宙观之争</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置</span></span>:
+    <a class="chip" href="lesson14.html">L14 · <span class="il"><span class="en">models of ZFC</span><span class="zh">ZFC 的模型</span></span></a>
+    <a class="chip" href="lesson16.html">L16 · <span class="il"><span class="en">forcing extensions</span><span class="zh">力迫扩张</span></span></a>
+    <a class="chip" href="#s5">§5</a></div>
+  <div class="idea"><span class="en"><b>One idea.</b> Does CH have a definite truth value that we haven't found yet, or is the “universe of sets” really a family of equally legitimate universes, connected by forcing, where CH is true in some and false in others? This is <span class="status st-phil">PHILOSOPHICAL</span>, but it shapes which mathematical programs people pursue.</span>
+    <span class="zh"><b>核心思想。</b>CH 究竟是有一个确定但我们尚未找到的真值，还是说“集合宇宙”其实是一族同样合法、由力迫相互联结的宇宙，CH 在其中一些里为真、在另一些里为假？这是<span class="status st-phil">哲学性</span>问题，但它决定了人们追求哪些数学纲领。</span></div>
+  <p><span class="en">Each row is a question. Click a cell to reveal how each view answers. Both columns are written by their own proponents' lights; this lesson takes no side.</span>
+     <span class="zh">每行是一个问题。点击格子，揭示每种观点如何作答。两栏都按各自支持者的思路来写，本课不站队。</span></p>
+  <div class="toolbar"><button class="btn small" id="mvAll"><span class="en">Reveal all</span><span class="zh">全部揭示</span></button></div>
+  <div class="cmp" id="mvGrid"></div>
+  <div class="def"><span class="en"><b>Sources.</b> Universe view: Gödel (1947); Woodin, e.g. “The Continuum Hypothesis, the generic-multiverse of sets, and the Ω Conjecture” (2011), where he argues that, if the Ω Conjecture holds, truth in the generic multiverse is too weak (it reduces to an Ω-logic computation and fails a “transcendence” requirement). Multiverse view: Hamkins, “The set-theoretic multiverse” (Review of Symbolic Logic, 2012). Intermediate positions: Steel's generic multiverse with a definable core (2014); Koellner's analysis (SEP “The Continuum Hypothesis”).</span>
+    <span class="zh"><b>文献。</b>宇宙观：哥德尔（1947）；伍丁，例如《连续统假设、集合的脱殊多宇宙与 Ω 猜想》（2011），他论证说：若 Ω 猜想成立，脱殊多宇宙中的“真”就太弱了（它归结为一种 Ω-逻辑计算，且不满足“超越性”要求）。多宇宙观：Hamkins，《集合论多宇宙》（《符号逻辑评论》，2012）。中间立场：Steel 带可定义核心的脱殊多宇宙（2014）；Koellner 的分析（斯坦福哲学百科“连续统假设”条目）。</span></div>
+  <div class="why"><span class="en"><b class="h">Why people care / 动机.</b> On the universe view, §4 versus §5 is a genuine contest with one right answer, and evidence (fruitfulness, coherence, canonicity) is how we find it. On the multiverse view, the right task is to map the whole landscape of models (§9, §10, §11 are already doing that), and asking “but is CH <i>really</i> true?” is a confusion. Much of the mathematics is the same either way. What changes is what counts as solving the continuum problem.</span>
+    <span class="zh"><b class="h">动机。</b>按宇宙观，§4 与 §5 是一场真正的竞争，只有一个正确答案，而证据（丰富性、协调性、典范性）就是寻找答案的途径。按多宇宙观，正确的任务是绘制所有模型的全景图（§9、§10、§11 已经在这样做），追问“CH <i>到底</i>真不真”是一种混淆。无论采取哪种观点，大部分数学都一样，改变的是：什么才算解决了连续统问题。</span></div>
+  <div class="note pit"><span class="en"><b class="h">⚠ Common pitfall.</b> Neither view is a theorem, and neither is “refuted by Gödel” or “proved by Cohen”. The incompleteness theorems and forcing are neutral data that both views must explain.</span>
+    <span class="zh"><b class="h">⚠ 常见误区。</b>两种观点都不是定理，也谈不上“被哥德尔推翻”或“被科恩证明”。不完全性定理和力迫是中立的事实，两种观点都必须给出解释。</span></div>
+  <div class="cy" id="cy12"></div>
+</section>
+
+<!-- ============ EXERCISES ============ -->
+<section class="card" id="exercises">
+  <div class="kicker"><span class="il"><span class="en">Exercises</span><span class="zh">练习</span></span></div>
+  <h2><span class="en">Your turn</span><span class="zh">轮到你了</span></h2>
+  <p class="muted"><span class="en">Progress is saved in your browser. A sidebar ✓ means solved. Every exercise has a “Show answer” button; revealing does not count as solving.</span><span class="zh">进度保存在浏览器中，侧栏出现 ✓ 表示已完成。每道题都有“看答案”按钮；看答案不计为完成。</span></p>
+
+  <div class="ex" id="e1" data-prog="L27E1">
+    <h3><span class="tag">E1</span><span class="il"><span class="en">Theorem, independent, or open?</span><span class="zh">定理、独立，还是未解决？</span></span></h3>
+    <p><span class="en">Classify each statement as of 2026. “Independent” means: proved to be neither provable nor refutable from the stated theory (assuming it is consistent).</span>
+       <span class="zh">按 2026 年的状况给每条命题分类。“独立”指：已证明它在所给理论中既不可证也不可否证（假设该理论一致）。</span></p>
+    <div id="e1List"></div>
+    <div class="toolbar"><button class="btn primary" id="e1Check"><span class="en">Check</span><span class="zh">检查</span></button><button class="btn ghost" id="e1Show"><span class="en">Show answer</span><span class="zh">看答案</span></button></div>
+    <div class="msg" id="e1Msg"></div>
+  </div>
+
+  <div class="ex" id="e2" data-prog="L27E2">
+    <h3><span class="tag">E2</span><span class="il"><span class="en">Match results to their authors</span><span class="zh">把结果与作者配对</span></span></h3>
+    <div id="e2List"></div>
+    <div class="toolbar"><button class="btn primary" id="e2Check"><span class="en">Check</span><span class="zh">检查</span></button><button class="btn ghost" id="e2Show"><span class="en">Show answer</span><span class="zh">看答案</span></button></div>
+    <div class="msg" id="e2Msg"></div>
+  </div>
+
+  <div class="ex" id="e3" data-prog="L27E3">
+    <h3><span class="tag">E3</span><span class="il"><span class="en">Cichoń consistency checks</span><span class="zh">Cichoń 一致性检验</span></span></h3>
+    <p><span class="en">Each row lists an ℵ₁/ℵ₂ assignment (only the ℵ₂ entries are named; everything else is ℵ₁, and <span class="m">2^ℵ₀ = ℵ₂</span>). Decide whether it respects all ZFC arrows and both equalities of §10. If not, think about which one breaks.</span>
+       <span class="zh">每行给出一个 ℵ₁/ℵ₂ 赋值（只列出取 ℵ₂ 的项，其余都是 ℵ₁，且 <span class="m">2^ℵ₀ = ℵ₂</span>）。判断它是否满足 §10 的所有 ZFC 箭头和两条等式。若不满足，想想是哪一条被破坏了。</span></p>
+    <div id="e3List"></div>
+    <div class="toolbar"><button class="btn primary" id="e3Check"><span class="en">Check</span><span class="zh">检查</span></button><button class="btn ghost" id="e3Show"><span class="en">Show answer</span><span class="zh">看答案</span></button></div>
+    <div class="msg" id="e3Msg"></div>
+  </div>
+
+  <div class="ex" id="e4" data-prog="L27E4">
+    <h3><span class="tag">E4</span><span class="il"><span class="en">Why large cardinals can't decide CH: put the argument in order</span><span class="zh">大基数为何判定不了 CH：把论证排好序</span></span></h3>
+    <p><span class="en">Use ↑/↓ to put the steps into a correct proof that <span class="m">ZFC + “κ is measurable”</span> does not decide CH (assuming it is consistent).</span>
+       <span class="zh">用 ↑/↓ 把各步排成一个正确的证明：<span class="m">ZFC + “κ 是可测基数”</span>（若一致）判定不了 CH。</span></p>
+    <div class="order-list" id="e4List"></div>
+    <div class="toolbar"><button class="btn primary" id="e4Check"><span class="en">Check</span><span class="zh">检查</span></button><button class="btn ghost" id="e4Show"><span class="en">Show answer</span><span class="zh">看答案</span></button></div>
+    <div class="msg" id="e4Msg"></div>
+  </div>
+
+  <div class="ex" id="e5" data-prog="L27E5">
+    <h3><span class="tag">E5</span><span class="il"><span class="en">Where can 2^ℵ<sub>ω</sub> land?</span><span class="zh">2^ℵ<sub>ω</sub> 能落在哪里？</span></span></h3>
+    <p><span class="en">Assume <span class="m">ℵ<sub>ω</sub></span> is a strong limit. For each proposed value of <span class="m">2^ℵ<sub>ω</sub></span>, choose: impossible in ZFC, known consistent (relative to large cardinals), or open.</span>
+       <span class="zh">设 <span class="m">ℵ<sub>ω</sub></span> 是强极限。对 <span class="m">2^ℵ<sub>ω</sub></span> 的每个候选值，选择：ZFC 中不可能、已知一致（相对于大基数）、或未解决。</span></p>
+    <div id="e5List"></div>
+    <div class="toolbar"><button class="btn primary" id="e5Check"><span class="en">Check</span><span class="zh">检查</span></button><button class="btn ghost" id="e5Show"><span class="en">Show answer</span><span class="zh">看答案</span></button></div>
+    <div class="msg" id="e5Msg"></div>
+  </div>
+
+  <div class="ex" id="e6" data-prog="L27E6">
+    <h3><span class="tag">E6</span><span class="il"><span class="en">Which axiom says what about the continuum?</span><span class="zh">哪条公理对连续统说了什么？</span></span></h3>
+    <p><span class="en">For each axiom (added to ZFC), what does it imply about <span class="m">2^ℵ₀</span>?</span>
+       <span class="zh">对每条（加到 ZFC 上的）公理，它对 <span class="m">2^ℵ₀</span> 推出什么？</span></p>
+    <div id="e6List"></div>
+    <div class="toolbar"><button class="btn primary" id="e6Check"><span class="en">Check</span><span class="zh">检查</span></button><button class="btn ghost" id="e6Show"><span class="en">Show answer</span><span class="zh">看答案</span></button></div>
+    <div class="msg" id="e6Msg"></div>
+  </div>
+</section>
+
+<section class="card">
+  <div class="kicker"><span class="il"><span class="en">Next</span><span class="zh">下一课</span></span></div>
+  <h2><a href="lesson28.html" style="color:inherit"><span class="en">Lesson 28: frontiers of model theory, computability &amp; proof theory →</span><span class="zh">第 28 课：模型论、可计算性与证明论的前沿 →</span></a></h2>
+  <p><span class="en">Set theory is one corner of logic. The final lesson visits the other three: model theory's classification program and its links to geometry, computability's degree structures and reverse mathematics, and proof theory's ordinal analysis. Each has its own open problems, and the same pattern returns: precise questions about what can be proved from what.</span>
+     <span class="zh">集合论只是逻辑学的一角。最后一课去看另外三块：模型论的分类纲领及其与几何的联系，可计算性的度结构与反推数学，以及证明论的序数分析。每个分支都有自己的未解问题，同样的主题会再次出现：从什么能证出什么，这类问题可以问得非常精确。</span></p>
+</section>
+</main>
+</div>
+
+<script src="assets/logic.js"></script>
+<script src="assets/lesson27.js"></script>
+</body>
+</html>

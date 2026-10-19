@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 4 · First-order proofs &amp; Gödel completeness 一阶证明与哥德尔完备性定理</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  .proof { position: relative; }
+  .pgut { position: absolute; left: 0; top: 0; overflow: visible; }
+  .pline { display: none; padding: 5px 10px; border-radius: 8px; margin: 3px 0; transition: background .3s; }
+  .pline.on { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 12px; animation: fadein .4s ease both; }
+  .pline .pn { width: 26px; color: var(--muted); font-family: var(--mono); font-size: 14px; }
+  .pline .pf { flex: 1 1 250px; font-size: 16px; }
+  .pline .pj { color: var(--muted); font-size: 13px; }
+  .pline .pb { flex-basis: 100%; font-size: 13px; padding-left: 38px; font-weight: 700; }
+  .pline .pb:empty { display: none; }
+  .pline .pb.b1 { color: var(--true); }
+  .pline .pb.b0 { color: var(--false); }
+  .pline .pb .pwhy { font-weight: 400; }
+  .pline.inner { border-left: 3px solid var(--gold); background: #fffdf5; }
+  .pline.cur { background: var(--accent-soft); }
+  .pline.cited { background: #efeaff; }
+  .pline.bugpick { background: var(--false-soft) !important; outline: 2px solid var(--false); }
+  .pline.okpick { background: #f1efe7; }
+  .stile { width: 34px; height: 34px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; margin: 3px; }
+  .stile.good { background: var(--true-soft); color: var(--true); }
+  .stile.bad { background: var(--false-soft); color: var(--false); border: 2px solid var(--false); cursor: pointer; }
+  .stile.bad:hover { transform: scale(1.1); }
+  .evrow { font-size: 16px; margin: 4px 0; display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+  .tv1 { color: var(--true); }
+  .tv0 { color: var(--false); }
+  .rmat td.click { min-width: 34px; }
+  .rbox rect { transition: fill .3s, stroke .3s; }
+  .rbox.on rect { stroke: #3b5bdb; fill: #e7ecff; }
+  .rbox:hover rect { stroke: #3b5bdb; }
+  .capflash { animation: pulse 1.2s infinite; }
+  .ctab { table-layout: fixed; width: 100%; }
+  .ctab td.ccell { min-width: 0; }
+  table.tt.ctab th, table.tt.ctab td { vertical-align: middle; white-space: normal; padding: 6px 8px; }
+  table.tt.ctab th { font-family: var(--sans); vertical-align: top; }
+  table.tt.ctab th .m { font-size: 13px; word-break: break-word; }
+  .ctab td.ccell.click { font-size: 20px; color: #b9b29c; }
+  .axgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(255px, 1fr)); gap: 10px; margin: 10px 0; }
+  .axgrid > div { border: 1.5px solid var(--line); border-radius: 12px; padding: 10px 12px; background: #fff; }
+  .axgrid .ax { font-family: var(--mono); font-weight: 700; color: var(--meta); }
+  .axgrid .side { font-size: 13px; color: var(--muted); }
+  .seqbox { min-height: 60px; border: 2px dashed var(--line); border-radius: 12px; padding: 10px; display: flex; flex-direction: column; gap: 6px; }
+  .seqchip { cursor: pointer; }
+  .bugbox { border-top: 1px dashed var(--line); padding-top: 8px; margin-top: 8px; }
+  .bcard rect { filter: drop-shadow(0 2px 2px rgba(0,0,0,.12)); }
+  .bcard.queued { opacity: .45; }
+  .vs { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .vs > div { border-radius: 14px; padding: 12px 16px; }
+  .vs .a { background: var(--gold-soft); border: 2px solid var(--gold); }
+  .vs .b { background: var(--accent-soft); border: 2px solid var(--accent); }
+  @media (max-width: 800px) { .vs { grid-template-columns: 1fr; } }
+  select.formula { min-width: 64px; font-size: 17px; padding: 6px 8px; }
+  .tmmini { flex-wrap: wrap; }
+  .tmmini svg { max-width: 100%; height: auto; }
+</style>
+</head>
+<body class="lang-both">
+<header class="top">
+  <a class="home" href="index.html">∀∃ <span class="il"><span class="en">Logic &amp; Sets</span><span class="zh">逻辑与集合</span></span></a>
+  <span class="muted">/ L4</span>
+  <span class="spacer"></span>
+  <div class="lang-switch">
+    <button data-lang="en">EN</button><button data-lang="zh">中文</button><button data-lang="both">EN + 中</button>
+  </div>
+</header>
+
+<div class="layout">
+<nav class="side">
+  <div class="grp">Lesson 4</div>
+  <a href="index.html">← <span class="il"><span class="en">Course map</span><span class="zh">课程地图</span></span></a>
+  <a href="lesson3.html">← <span class="il"><span class="en">Lesson 3</span><span class="zh">第 3 课</span></span></a>
+  <a href="lesson5.html"><span class="il"><span class="en">Lesson 5</span><span class="zh">第 5 课</span></span> →</a>
+  <a href="#s1">1 · <span class="il"><span class="en">Substitution</span><span class="zh">代入与捕获</span></span></a>
+  <a href="#s2">2 · <span class="il"><span class="en">Proof system</span><span class="zh">证明系统</span></span></a>
+  <a href="#s3">3 · <span class="il"><span class="en">Proofs</span><span class="zh">证明实例</span></span></a>
+  <a href="#s4">4 · <span class="il"><span class="en">Soundness</span><span class="zh">可靠性</span></span></a>
+  <a href="#s5">5 · <span class="il"><span class="en">Road map</span><span class="zh">完备性路线图</span></span></a>
+  <a href="#s6">6 · <span class="il"><span class="en">Witnesses</span><span class="zh">见证与极大化</span></span></a>
+  <a href="#s7">7 · <span class="il"><span class="en">Term model</span><span class="zh">项模型</span></span></a>
+  <a href="#s8">8 · <span class="il"><span class="en">Corollaries</span><span class="zh">推论</span></span></a>
+  <a href="#s9">9 · <span class="il"><span class="en">Complete ≠ completeness</span><span class="zh">完全 ≠ 完备</span></span></a>
+  <div class="grp"><span class="il"><span class="en">Exercises</span><span class="zh">练习</span></span></div>
+  <a href="#e1" data-prog="L4E1">E1 · φ[t/x]</a>
+  <a href="#e2" data-prog="L4E2">E2 · ⊭</a>
+  <a href="#e3" data-prog="L4E3">E3 · Henkin</a>
+  <a href="#e4" data-prog="L4E4">E4 · Terms/∼</a>
+  <a href="#e5" data-prog="L4E5">E5 · <span class="il"><span class="en">complete?</span><span class="zh">完全？</span></span></a>
+  <a href="#e6" data-prog="L4E6">E6 · <span class="il"><span class="en">bug hunt</span><span class="zh">找错</span></span></a>
+</nav>
+
+<main>
+<div class="hero">
+  <div class="kicker">Part I · Lesson 4</div>
+  <h1><span class="en">First-order Proofs &amp; Gödel's Completeness Theorem</span><span class="zh">一阶证明与哥德尔完备性定理</span></h1>
+  <p><span class="en">In Lesson 3 truth (⊨) was defined by looking inside structures. Now we build a symbol-pushing proof system (⊢) for first-order logic and prove Gödel's 1929 theorem: <b>Γ ⊢ φ ⇔ Γ ⊨ φ</b>. The hard direction builds a model out of pure syntax.</span>
+     <span class="zh">第 3 课里，“真”（⊨）是看着结构内部来定义的。这一课我们为一阶逻辑搭一台只摆弄符号的证明系统（⊢），并证明哥德尔 1929 年的定理：<b>Γ ⊢ φ ⇔ Γ ⊨ φ</b>。难的那个方向，要用纯粹的语法材料造出一个模型。</span></p>
+</div>
+
+<!-- ============ S1 ============ -->
+<section class="card" id="s1">
+  <div class="kicker">§1</div>
+  <h2><span class="en">Substitution and variable capture</span><span class="zh">代入与变元捕获</span></h2>
+  <p><span class="en">The quantifier axiom says: from “for all x, φ” infer φ about any particular term t. Write <span class="m">φ[t/x]</span> for φ with every <b>free</b> occurrence of x replaced by t. The danger: a variable of t can fall inside a quantifier that binds it. Then it is <b>captured</b> and the meaning changes.</span>
+     <span class="zh">量词公理说：由“对所有 x，φ”可以推出 φ 对任意一个具体的项 t 成立。记 <span class="m">φ[t/x]</span> 为把 φ 中 x 的每个<b>自由</b>出现都换成 t 的结果。危险在于：t 中的变元可能落进约束它的量词辖域，于是被<b>捕获</b>，公式的意思就变了。</span></p>
+  <div class="def"><span class="en"><b>Definition.</b> t is <b>substitutable</b> for x in φ if no free occurrence of x in φ lies within the scope of a quantifier ∀y or ∃y with y a variable of t. (Closed terms, e.g. constants, are always substitutable.)</span>
+    <span class="zh"><b>定义.</b> 若 φ 中 x 的自由出现都不落在 ∀y 或 ∃y（y 为 t 中的变元）的辖域内，就称 t 在 φ 中对 x <b>可代入</b>。（闭项，例如常元，总是可代入的。）</span></div>
+  <p class="muted" style="font-size:14px"><span class="en">Picture: coloured brackets under a formula show quantifier scopes; dashed arcs link each bound variable to its quantifier; gold = free occurrences of x. Bottom row: the result, with t in blue and captured variables in red.</span>
+    <span class="zh">图示：公式下方的彩色括线是量词辖域；虚线弧把每个约束变元连到约束它的量词；金色 = x 的自由出现。下面一行是代入结果，t 为蓝底，被捕获的变元为红色。</span></p>
+  <div class="toolbar">
+    <button class="btn small" data-sub="∃y(y ≠ x)|x|y"><span class="m">∃y(y≠x) [y/x]</span></button>
+    <button class="btn small" data-sub="∃y(y ≠ x)|x|z"><span class="m">∃y(y≠x) [z/x]</span></button>
+    <button class="btn small" data-sub="∀yR(x,y) ∧ ∃xQ(x)|x|f(y)"><span class="m">∀yR(x,y) ∧ ∃xQ(x) [f(y)/x]</span></button>
+    <button class="btn small" data-sub="∀z(P(z) → ∃yR(y,x)) ∨ P(x)|x|g(y,z)"><span class="m">… [g(y,z)/x]</span></button>
+    <button class="btn small" data-sub="∀x(P(x) → Q(y))|x|c"><span class="m">∀x(…) [c/x]</span></button>
+  </div>
+  <div class="keys" id="subKeys"></div>
+  <div class="toolbar">
+    <b>φ</b> <input class="formula" id="subPhi" value="∃y(y ≠ x)" style="min-width:300px">
+    <b>x</b> <select class="formula" id="subX"><option>x</option><option>y</option><option>z</option><option>u</option><option>v</option><option>w</option></select>
+    <b>t</b> <input class="formula" id="subT" value="y" style="min-width:110px;width:130px">
+    <button class="btn primary" id="subGo"><span class="en">Substitute ▶</span><span class="zh">代入 ▶</span></button>
+  </div>
+  <p class="muted" style="font-size:13px"><span class="en">Signature: variables u–z; constants a, b, c, d, e, 0, 1; unary f, h; binary g; unary predicates P, Q; binary R, S; equality.</span><span class="zh">符号表：变元 u–z；常元 a, b, c, d, e, 0, 1；一元函数 f, h；二元函数 g；一元谓词 P, Q；二元谓词 R, S；等词。</span></p>
+  <div class="stage"><svg id="subSvg"></svg></div>
+  <div class="msg" id="subMsg"></div>
+  <div class="toolbar"><button class="btn" id="subTestGo"><span class="en">Hunt for a counterexample to ∀xφ → φ[t/x]</span><span class="zh">为 ∀xφ → φ[t/x] 寻找反例</span></button></div>
+  <div class="msg" id="subTest"></div>
+  <div class="note"><span class="en">Classic: <span class="m">∀x∃y(y ≠ x)</span> (“everything has something else”) is true in any structure with ≥ 2 elements, but the captured instance <span class="m">∃y(y ≠ y)</span> is false everywhere. The fix is not to forbid the substitution forever: rename the bound variable first (<span class="m">∃z(z ≠ x)</span>), then substitute.</span>
+    <span class="zh">经典例子：<span class="m">∀x∃y(y ≠ x)</span>（“每个东西都有别的东西”）在至少 2 个元素的结构中都为真，但被捕获的实例 <span class="m">∃y(y ≠ y)</span> 处处为假。补救办法不是永远禁止代入，而是先给约束变元改名（<span class="m">∃z(z ≠ x)</span>），再代入。</span></div>
+</section>
+
+<!-- ============ S2 ============ -->
+<section class="card" id="s2">
+  <div class="kicker">§2</div>
+  <h2><span class="en">A Hilbert-style proof system for first-order logic</span><span class="zh">一阶逻辑的希尔伯特式证明系统</span></h2>
+  <p><span class="en">The propositional system of Lesson 2, plus two quantifier schemes, two equality schemes and one new rule. A <b>derivation</b> of φ from Γ is a finite list of formulas, each an axiom, a member of Γ, or obtained from earlier ones by a rule. ∃xφ abbreviates ¬∀x¬φ.</span>
+     <span class="zh">在第 2 课的命题系统上，再加两条量词公理模式、两条等词公理模式和一条新规则。从 Γ 出发的 φ 的<b>推导</b>是一个有限的公式序列，其中每个公式要么是公理，要么属于 Γ，要么由前面的公式经推理规则得到。∃xφ 是 ¬∀x¬φ 的缩写。</span></p>
+  <div class="axgrid">
+    <div><div class="ax">P</div><span class="m">A1–A3</span> <span class="side"><span class="en">of Lesson 2 with first-order formulas plugged in (equivalently: every tautology instance)</span><span class="zh">第 2 课的 A1–A3，代入一阶公式（等价地：所有重言式实例）</span></span></div>
+    <div><div class="ax">Q1</div><span class="m">∀xφ → φ[t/x]</span><div class="side"><span class="en">t substitutable for x in φ</span><span class="zh">t 在 φ 中对 x 可代入</span></div></div>
+    <div><div class="ax">Q2</div><span class="m">∀x(φ → ψ) → (φ → ∀xψ)</span><div class="side"><span class="en">x not free in φ</span><span class="zh">x 在 φ 中不自由出现</span></div></div>
+    <div><div class="ax">E1</div><span class="m">x = x</span></div>
+    <div><div class="ax">E2</div><span class="m">x = y → (φ → φ′)</span><div class="side"><span class="en">φ atomic, φ′ = φ with some occurrences of x replaced by y</span><span class="zh">φ 为原子公式，φ′ 由 φ 把 x 的某些出现换成 y 得到</span></div></div>
+    <div><div class="ax">MP</div><span class="m">φ, φ → ψ ⟹ ψ</span></div>
+    <div><div class="ax">Gen</div><span class="m">Γ ⊢ φ ⟹ Γ ⊢ ∀xφ</span><div class="side"><span class="en">x not free in any formula of Γ actually used</span><span class="zh">x 在所用到的 Γ 中公式里都不自由出现</span></div></div>
+  </div>
+  <p><span class="en"><b>Why the side condition on Gen?</b> Below, the hypothesis <span class="m">P(x)</span> talks about one particular x (whatever s assigns). Click elements to toggle P, and move x with the buttons.</span>
+     <span class="zh"><b>Gen 为什么要有附加条件？</b>下面的假设 <span class="m">P(x)</span> 谈的是某一个特定的 x（赋值 s 给的那个）。点击元素切换 P，用按钮移动 x。</span></p>
+  <div class="row" style="align-items:center">
+    <div class="stage" style="flex:0 0 auto"><svg id="genSvg"></svg></div>
+    <div class="col">
+      <div class="toolbar" id="genX"></div>
+      <div id="genVals"></div>
+      <div class="msg" id="genMsg"></div>
+      <div class="legend"><span><i style="background:#ffe8a3;border:1px solid #1f2430"></i><span class="il"><span class="en">in P</span><span class="zh">属于 P</span></span></span><span><i style="background:#3b5bdb"></i><span class="il"><span class="en">s(x)</span><span class="zh">s(x)</span></span></span></div>
+    </div>
+  </div>
+  <div class="note"><span class="en">With this restriction the <b>deduction theorem</b> holds as in Lesson 2: Γ ∪ {φ} ⊢ ψ ⇒ Γ ⊢ φ → ψ. And a theorem with no hypotheses can always be generalized: if ⊢ φ(x) then ⊢ ∀xφ(x), since with no hypotheses the side condition of Gen is vacuous. (Semantically: a formula true under <i>every</i> assignment is true for every value of x.)</span>
+    <span class="zh">有了这条限制，<b>演绎定理</b>和第 2 课一样成立：Γ ∪ {φ} ⊢ ψ ⇒ Γ ⊢ φ → ψ。而不带假设的定理总能概括：若 ⊢ φ(x) 则 ⊢ ∀xφ(x)，因为没有假设时 Gen 的附加条件自动满足。（从语义上看：在<i>每个</i>赋值下都真的公式，对 x 的每个取值都真。）</span></div>
+</section>
+
+<!-- ============ S3 ============ -->
+<section class="card" id="s3">
+  <div class="kicker">§3</div>
+  <h2><span class="en">Proofs, step by step</span><span class="zh">一步一步看证明</span></h2>
+  <p><span class="en">Press <b>Next line</b>. The arrows on the left show which earlier lines a step uses. The second proof uses two derived rules: <b>∃-introduction</b> (the axiom <span class="m">φ[t/x] → ∃xφ</span>, the contrapositive of Q1) and <b>∃-elimination</b> (if Γ, φ ⊢ θ and x is not free in Γ or θ, then Γ, ∃xφ ⊢ θ; proved from the deduction theorem, Gen and Q2).</span>
+     <span class="zh">按<b>下一行</b>。左侧箭头标出每一步用到了前面哪几行。第二个证明用到两条导出规则：<b>∃ 引入</b>（公理 <span class="m">φ[t/x] → ∃xφ</span>，即 Q1 的逆否形式）和 <b>∃ 消去</b>（若 Γ, φ ⊢ θ，且 x 在 Γ 和 θ 中都不自由出现，则 Γ, ∃xφ ⊢ θ；可由演绎定理、Gen 和 Q2 证出）。</span></p>
+  <div class="toolbar">
+    <button class="btn small" data-pf="swap"><span class="m">∀x∀y ⊢ ∀y∀x</span></button>
+    <button class="btn small" data-pf="exall"><span class="m">∃x∀y ⊢ ∀y∃x</span></button>
+    <span id="pfGoal" style="font-size:18px;margin-left:10px"></span>
+  </div>
+  <div id="pfBox"></div>
+  <div class="toolbar">
+    <button class="btn primary" id="pfNext"><span class="en">Next line ▶</span><span class="zh">下一行 ▶</span></button>
+    <button class="btn" id="pfAll"><span class="en">Show all</span><span class="zh">全部显示</span></button>
+    <button class="btn ghost" id="pfReset"><span class="en">Reset</span><span class="zh">重置</span></button>
+  </div>
+  <div class="msg" id="pfMsg"></div>
+
+  <h3><span class="en">The converse fails: build the counterexample</span><span class="zh">逆命题不成立：亲手造反例</span></h3>
+  <p><span class="en">Is <span class="m">∀y∃xR(x,y) ⊢ ∃x∀yR(x,y)</span>? Soundness says: if some structure makes the premise true and the conclusion false, then <b>no</b> proof exists. Toggle arrows (R(a,b) = arrow a → b) until you find one.</span>
+     <span class="zh"><span class="m">∀y∃xR(x,y) ⊢ ∃x∀yR(x,y)</span> 成立吗？可靠性定理告诉我们：只要有一个结构使前提真、结论假，就<b>不存在</b>证明。切换箭头（R(a,b) 即箭头 a → b），直到找到这样的结构。</span></p>
+  <div class="toolbar"><span class="il"><span class="en">size</span><span class="zh">规模</span></span>: <button class="btn small" data-cvn="2">2</button><button class="btn small" data-cvn="3">3</button><button class="btn small" data-cvn="4">4</button></div>
+  <div class="row" style="align-items:center">
+    <div class="stage" style="flex:0 0 auto"><svg id="cvSvg"></svg></div>
+    <div id="cvMat"></div>
+    <div class="col"><div id="cvVals"></div></div>
+  </div>
+  <div class="msg" id="cvMsg"></div>
+</section>
+
+<!-- ============ S4 ============ -->
+<section class="card" id="s4">
+  <div class="kicker">§4</div>
+  <h2><span class="en">Soundness: truth flows down a derivation</span><span class="zh">可靠性：真值沿推导往下流</span></h2>
+  <div class="def"><span class="en"><b>Soundness Theorem.</b> If Γ ⊢ φ then Γ ⊨ φ: every structure and assignment satisfying Γ satisfies φ.<br><b>Proof.</b> Induction on the derivation. Axioms are valid (Q1 by the substitution lemma, which is where substitutability is needed; Q2 because x is not free in φ). Members of Γ hold by assumption. MP preserves truth. Gen: if x is not free in Γ, any variant s(x ↦ a) still satisfies Γ, hence φ, so ∀xφ holds. ∎</span>
+    <span class="zh"><b>可靠性定理.</b> 若 Γ ⊢ φ，则 Γ ⊨ φ：满足 Γ 的每个结构和赋值也满足 φ。<br><b>证明.</b> 对推导归纳。公理普遍有效（Q1 依赖代入引理，可代入条件正用在这里；Q2 是因为 x 在 φ 中不自由）。Γ 中的公式按假设成立。MP 保持真。Gen：若 x 在 Γ 中不自由，则把赋值改成 s(x ↦ a) 后 Γ 仍满足，因而 φ 也满足，所以 ∀xφ 成立。∎</span></div>
+  <p><span class="en">Watch it happen. Γ = {<span class="m">∀x(P(x) → Q(x)), P(c)</span>}. Pick a random <b>model</b> of Γ and watch every line light up green. Then pick an arbitrary structure: hypotheses may fail, but axiom lines never do.</span>
+     <span class="zh">亲眼看一遍。Γ = {<span class="m">∀x(P(x) → Q(x)), P(c)</span>}。随机取一个 Γ 的<b>模型</b>，看每一行依次亮绿。再取一个任意结构：假设可能不成立，但公理行永远为真。</span></p>
+  <div class="toolbar">
+    <button class="btn primary" id="sdGo"><span class="en">Random model of Γ 🎲</span><span class="zh">随机取 Γ 的模型 🎲</span></button>
+    <button class="btn" id="sdAny"><span class="en">Random structure that is not a model</span><span class="zh">随机取一个非模型的结构</span></button>
+    <span id="sdModel"></span>
+  </div>
+  <div class="row">
+    <div style="flex:0 0 auto"><div class="stage"><svg id="sdSvg"></svg></div><div id="sdLegend"></div></div>
+    <div class="col"><div id="sdBox"></div></div>
+  </div>
+  <div class="msg" id="sdMsg"></div>
+
+  <h3><span class="en">Stress-test the axioms (and some fakes)</span><span class="zh">给公理做压力测试（顺便测几个冒牌货）</span></h3>
+  <p><span class="en">Each tile is a random structure of size ≤ 3; the formula is checked under <b>every</b> assignment. Genuine axioms never turn red. The fakes violate a side condition, and a red tile is a concrete counterexample: click it.</span>
+     <span class="zh">每块砖是一个规模 ≤ 3 的随机结构，在<b>所有</b>赋值下检查公式。真正的公理永远不会变红。冒牌货违反了某个附加条件，每块红砖都是一个具体反例：点开看看。</span></p>
+  <div class="toolbar" id="axBtns"></div>
+  <div id="axGrid" style="display:flex;flex-wrap:wrap"></div>
+  <div class="msg" id="axMsg"></div>
+  <div id="axDetail"></div>
+</section>
+
+<!-- ============ S5 ============ -->
+<section class="card" id="s5">
+  <div class="kicker">§5</div>
+  <h2><span class="en">The Completeness Theorem: a road map</span><span class="zh">完备性定理：路线图</span></h2>
+  <div class="def"><span class="en"><b>Gödel's Completeness Theorem (1929).</b> For every set Γ of sentences and every sentence φ: Γ ⊨ φ ⇒ Γ ⊢ φ.<br>
+    Equivalent form (Henkin 1949): <b>every consistent set of sentences has a model.</b></span>
+    <span class="zh"><b>哥德尔完备性定理（1929）.</b> 对任意语句集 Γ 和语句 φ：Γ ⊨ φ ⇒ Γ ⊢ φ。<br>
+    等价形式（亨金，1949）：<b>每个一致的语句集都有模型。</b></span></div>
+  <div class="steps" id="redSteps">
+    <div class="step"><span class="en"><b>Why the forms are equivalent (⇐).</b> Suppose Γ ⊬ φ.</span><span class="zh"><b>两种形式为何等价（⇐）.</b> 设 Γ ⊬ φ。</span></div>
+    <div class="step"><span class="en">Then Γ ∪ {¬φ} is consistent: otherwise Γ ∪ {¬φ} ⊢ ⊥, so by the deduction theorem Γ ⊢ ¬φ → ⊥, hence Γ ⊢ φ.</span><span class="zh">则 Γ ∪ {¬φ} 一致：否则 Γ ∪ {¬φ} ⊢ ⊥，由演绎定理 Γ ⊢ ¬φ → ⊥，从而 Γ ⊢ φ，矛盾。</span></div>
+    <div class="step"><span class="en">By the model existence form, some 𝔄 ⊨ Γ ∪ {¬φ}. This 𝔄 is a counterexample, so Γ ⊭ φ. Contrapositive: Γ ⊨ φ ⇒ Γ ⊢ φ. (⇒ is similar: if Γ is consistent but had no model, Γ ⊨ ⊥, so Γ ⊢ ⊥.) ∎</span><span class="zh">由模型存在形式，有 𝔄 ⊨ Γ ∪ {¬φ}。这个 𝔄 就是反例，故 Γ ⊭ φ。逆否即得：Γ ⊨ φ ⇒ Γ ⊢ φ。（⇒ 方向类似：若 Γ 一致却没有模型，则 Γ ⊨ ⊥，于是 Γ ⊢ ⊥。）∎</span></div>
+  </div>
+  <div class="toolbar"><button class="btn" id="redNext"><span class="en">Next step</span><span class="zh">下一步</span></button><button class="btn ghost" id="redAll"><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+  <p><span class="en">Henkin's proof of the model existence form has five stations. Click a box, or play the whole journey.</span>
+     <span class="zh">亨金对模型存在形式的证明分五站。点击方框，或者从头播放一遍。</span></p>
+  <div class="toolbar"><button class="btn primary" id="roadPlay"><span class="en">Play the road map ▶</span><span class="zh">播放路线图 ▶</span></button></div>
+  <div class="stage"><svg id="roadSvg" viewBox="0 0 1010 160" width="1010" height="160"></svg></div>
+  <div class="msg info" id="roadInfo"></div>
+  <div class="note"><span class="en"><b>The big idea:</b> we have no structure to start from, only syntax. So we let the <b>terms themselves</b> be the elements. The two problems: (1) ∃xφ may be in Γ* without any term t with φ(t) in Γ* (fixed by witnesses), and (2) Γ* must decide every sentence so that “truth” in the term model is well-defined (fixed by maximality).</span>
+    <span class="zh"><b>核心想法：</b>我们手里没有现成的结构，只有语法。那就让<b>项本身</b>来充当元素。两个难点：(1) ∃xφ 属于 Γ*，却可能没有哪个项 t 使 φ(t) 属于 Γ*（用见证常元解决）；(2) Γ* 必须判定每个语句，项模型里的“真”才有确定的意义（用极大性解决）。</span></div>
+</section>
+
+<!-- ============ S6 ============ -->
+<section class="card" id="s6">
+  <div class="kicker">§6</div>
+  <h2><span class="en">Henkin witnesses and Lindenbaum's lemma</span><span class="zh">亨金见证常元与林登鲍姆引理</span></h2>
+  <p><span class="en">Step 1: give every existential formula its own name for a witness. Each step attaches a fresh constant and records the <b>Henkin axiom</b> <span class="m">∃xφ → φ(c_φ)</span>.</span>
+     <span class="zh">第一步：给每个存在公式的见证起一个专属名字。每一步都挂上一个新常元，并记下<b>亨金公理</b> <span class="m">∃xφ → φ(c_φ)</span>。</span></p>
+  <div class="toolbar">
+    <button class="btn primary" id="wNext"><span class="en">Next witness ▶</span><span class="zh">下一个见证 ▶</span></button>
+    <button class="btn" id="wAll"><span class="en">Show all</span><span class="zh">全部显示</span></button>
+    <button class="btn ghost" id="wReset"><span class="en">Reset</span><span class="zh">重置</span></button>
+  </div>
+  <div class="stage"><svg id="wSvg" viewBox="0 0 900 356" width="900" height="356"></svg></div>
+  <div class="msg info" id="wInfo"></div>
+  <div id="wAx" style="font-size:14px;margin:6px 0"></div>
+  <h3><span class="en">Why adding Henkin axioms keeps Γ consistent</span><span class="zh">为什么加入亨金公理后 Γ 仍一致</span></h3>
+  <div class="steps" id="hkSteps">
+    <div class="step"><span class="en">Let T be consistent and c a constant not occurring in T or φ. Suppose T ∪ {∃xφ → φ(c)} ⊢ ⊥.</span><span class="zh">设 T 一致，常元 c 不在 T 和 φ 中出现。假设 T ∪ {∃xφ → φ(c)} ⊢ ⊥。</span></div>
+    <div class="step"><span class="en">Deduction theorem: T ⊢ ¬(∃xφ → φ(c)). Propositionally this gives T ⊢ ∃xφ and T ⊢ ¬φ(c).</span><span class="zh">由演绎定理：T ⊢ ¬(∃xφ → φ(c))。按命题逻辑可得 T ⊢ ∃xφ 且 T ⊢ ¬φ(c)。</span></div>
+    <div class="step"><span class="en"><b>Constants lemma:</b> since c is new, the derivation of ¬φ(c) works with a fresh variable y in place of c, so T ⊢ ¬φ(y); by Gen, T ⊢ ∀y¬φ(y), i.e. T ⊢ ∀x¬φ.</span><span class="zh"><b>常元引理：</b>c 是新常元，把 ¬φ(c) 的推导中的 c 全换成一个新变元 y 仍是推导，所以 T ⊢ ¬φ(y)；由 Gen，T ⊢ ∀y¬φ(y)，即 T ⊢ ∀x¬φ。</span></div>
+    <div class="step"><span class="en">But ∃xφ is ¬∀x¬φ. So T proves both ∀x¬φ and its negation: T is inconsistent, contradiction. Each new axiom uses its own new constant, and a derivation of ⊥ uses finitely many axioms; adding those finitely many one at a time, layer by layer (so each constant is still new when its axiom is added), keeps consistency, so adding all of them at once is consistent too. ∎</span><span class="zh">可 ∃xφ 就是 ¬∀x¬φ。于是 T 同时证明了 ∀x¬φ 及其否定，T 不一致，矛盾。每条新公理都用自己的新常元，而 ⊥ 的推导只用到有限条公理；把这有限条按层逐条加入（保证加入每条时它的常元仍是新的），一致性始终保持，所以一次全部加入也是一致的。∎</span></div>
+  </div>
+  <div class="toolbar"><button class="btn" id="hkNext"><span class="en">Next step</span><span class="zh">下一步</span></button><button class="btn ghost" id="hkAll"><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+
+  <h3><span class="en">Lindenbaum: walk down the tree of all decisions</span><span class="zh">林登鲍姆：沿“所有抉择之树”往下走</span></h3>
+  <p><span class="en">Same picture as in Lesson 2, now with first-order sentences. Here Γ = {<span class="m">∀x(P(x) → Q(x)), P(c)</span>} plus the Henkin axioms (Γ_H).</span>
+     <span class="zh">和第 2 课同一幅图，只是换成一阶语句。这里 Γ = {<span class="m">∀x(P(x) → Q(x)), P(c)</span>} 再加上亨金公理（记作 Γ_H）。</span></p>
+  <div class="toolbar">
+    <button class="btn primary" id="lbNext"><span class="en">Decide next σ ▶</span><span class="zh">判定下一个 σ ▶</span></button>
+    <button class="btn" id="lbAll"><span class="en">Show all</span><span class="zh">全部显示</span></button>
+    <button class="btn ghost" id="lbReset"><span class="en">Reset</span><span class="zh">重置</span></button>
+  </div>
+  <div class="stage"><svg id="lbSvg" viewBox="0 0 940 340" width="940" height="340"></svg></div>
+  <div id="lbT" style="margin:8px 0;font-size:15px"></div>
+  <div class="msg info" id="lbInfo"></div>
+  <div class="note"><span class="en"><b>Lindenbaum's lemma.</b> Γ* = ⋃ Tₙ is consistent (a derivation of ⊥ would use finitely many sentences, all in some Tₙ) and maximal (for each σ = σₙ, either σ or ¬σ went in). Key step: if Tₙ ∪ {σ} is inconsistent then Tₙ ⊢ ¬σ, so Tₙ ∪ {¬σ} is consistent. This is an existence proof: “is it consistent?” is not decidable in general. For uncountable languages, use Zorn's lemma instead of the enumeration.</span>
+    <span class="zh"><b>林登鲍姆引理.</b> Γ* = ⋃ Tₙ 是一致的（⊥ 的推导只用到有限多个语句，它们都在某个 Tₙ 中），也是极大的（对每个 σ = σₙ，σ 和 ¬σ 必有一个被加入）。关键一步：若 Tₙ ∪ {σ} 不一致，则 Tₙ ⊢ ¬σ，于是 Tₙ ∪ {¬σ} 一致。这是存在性证明：“是否一致”一般是不可判定的。对不可数语言，用佐恩引理代替枚举。</span></div>
+</section>
+
+<!-- ============ S7 ============ -->
+<section class="card" id="s7">
+  <div class="kicker">§7</div>
+  <h2><span class="en">The term model: closed terms, glued by provable equality</span><span class="zh">项模型：闭项按可证相等粘合</span></h2>
+  <p><span class="en">Universe of 𝔄: the equivalence classes [t] of closed terms (of the enlarged language L_ω), where t ∼ s iff <span class="m">(t = s) ∈ Γ*</span>. Interpret <span class="m">f^𝔄([t]) = [f(t)]</span> and <span class="m">P^𝔄 = {[t] : P(t) ∈ Γ*}</span>. The equality axioms make this well defined. Toy version below: language {c, d, f}, and t ∼ s iff Γ ⊢ t = s for the equations you switch on. Watch classes merge, and how congruence (t ∼ s ⇒ f(t) ∼ f(s)) spreads each merge along the chain.</span>
+     <span class="zh">𝔄 的论域：（扩充语言 L_ω 的）闭项的等价类 [t]，其中 t ∼ s 当且仅当 <span class="m">(t = s) ∈ Γ*</span>。解释 <span class="m">f^𝔄([t]) = [f(t)]</span>，<span class="m">P^𝔄 = {[t] : P(t) ∈ Γ*}</span>。等词公理保证这些定义合理。下面是一个玩具版本：语言 {c, d, f}，t ∼ s 当且仅当由你打开的等式能证出 Γ ⊢ t = s。看等价类如何合并，以及同余性（t ∼ s ⇒ f(t) ∼ f(s)）如何把每次合并沿着链条传下去。</span></p>
+  <div class="toolbar"><b>Γ:</b> <span id="tmEqs" style="display:flex;gap:6px;flex-wrap:wrap"></span></div>
+  <div class="row">
+    <div class="stage col" style="flex:1 1 520px"><svg id="tmTerms" width="700" height="280"></svg></div>
+    <div class="stage col" style="flex:1 1 380px"><svg id="tmModel" width="520" height="300"></svg></div>
+  </div>
+  <div class="msg info" id="tmInfo"></div>
+  <h3><span class="en">The truth lemma: 𝔄 ⊨ σ ⇔ σ ∈ Γ*</span><span class="zh">真引理：𝔄 ⊨ σ ⇔ σ ∈ Γ*</span></h3>
+  <div class="steps" id="tlSteps">
+    <div class="step"><span class="en"><b>Atomic.</b> 𝔄 ⊨ t = s ⇔ [t] = [s] ⇔ (t = s) ∈ Γ*, by definition; likewise for P(t). (Every closed term t denotes [t].)</span><span class="zh"><b>原子公式.</b> 𝔄 ⊨ t = s ⇔ [t] = [s] ⇔ (t = s) ∈ Γ*，按定义即得；P(t) 同理。（每个闭项 t 的指称就是 [t]。）</span></div>
+    <div class="step"><span class="en"><b>¬ and →.</b> 𝔄 ⊨ ¬σ ⇔ 𝔄 ⊭ σ ⇔ σ ∉ Γ* ⇔ ¬σ ∈ Γ*: the last step is <b>maximality + consistency</b>. Similarly (σ → τ) ∈ Γ* ⇔ σ ∉ Γ* or τ ∈ Γ*, because Γ* is maximal consistent, hence deductively closed.</span><span class="zh"><b>¬ 与 →.</b> 𝔄 ⊨ ¬σ ⇔ 𝔄 ⊭ σ ⇔ σ ∉ Γ* ⇔ ¬σ ∈ Γ*，最后一步用的是<b>极大性 + 一致性</b>。同理 (σ → τ) ∈ Γ* ⇔ σ ∉ Γ* 或 τ ∈ Γ*，因为 Γ* 极大一致，从而对推导封闭。</span></div>
+    <div class="step"><span class="en"><b>∃ (⇐).</b> If ∃xφ ∈ Γ*, the Henkin axiom gives φ(c_φ) ∈ Γ*; by induction 𝔄 ⊨ φ(c_φ), so 𝔄 ⊨ ∃xφ with witness [c_φ]. <b>This is exactly where the witnesses are needed.</b></span><span class="zh"><b>∃（⇐）.</b> 若 ∃xφ ∈ Γ*，由亨金公理 φ(c_φ) ∈ Γ*；由归纳假设 𝔄 ⊨ φ(c_φ)，故 𝔄 ⊨ ∃xφ，见证为 [c_φ]。<b>见证常元正是在这里派上用场。</b></span></div>
+    <div class="step"><span class="en"><b>∃ (⇒).</b> If 𝔄 ⊨ ∃xφ, some element witnesses it, and every element is [t] for a closed term t. So 𝔄 ⊨ φ(t), by induction φ(t) ∈ Γ*, and since φ(t) ⊢ ∃xφ, also ∃xφ ∈ Γ*. ∎ Hence 𝔄 ⊨ Γ* ⊇ Γ, and 𝔄 has at most |L| + ℵ₀ elements: a countable language gives a <b>countable model</b> (Lesson 5).</span><span class="zh"><b>∃（⇒）.</b> 若 𝔄 ⊨ ∃xφ，有某个元素作见证，而每个元素都形如 [t]（t 为闭项）。于是 𝔄 ⊨ φ(t)，由归纳假设 φ(t) ∈ Γ*，又 φ(t) ⊢ ∃xφ，所以 ∃xφ ∈ Γ*。∎ 于是 𝔄 ⊨ Γ* ⊇ Γ，且 𝔄 至多有 |L| + ℵ₀ 个元素：可数语言给出<b>可数模型</b>（第 5 课）。</span></div>
+  </div>
+  <div class="toolbar"><button class="btn" id="tlNext"><span class="en">Next case</span><span class="zh">下一种情形</span></button><button class="btn ghost" id="tlAll"><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+</section>
+
+<!-- ============ S8 ============ -->
+<section class="card" id="s8">
+  <div class="kicker">§8</div>
+  <h2><span class="en">Two corollaries: compactness and an enumeration of all valid sentences</span><span class="zh">两个推论：紧致性，以及所有有效语句的枚举</span></h2>
+  <h3><span class="en">Compactness Theorem for first-order logic</span><span class="zh">一阶逻辑的紧致性定理</span></h3>
+  <p><span class="en">Γ has a model iff every finite subset of Γ has a model. Press the button to see why: a refutation can only touch finitely many premises.</span>
+     <span class="zh">Γ 有模型当且仅当 Γ 的每个有限子集都有模型。按下按钮看原因：一个反驳只能碰到有限多个前提。</span></p>
+  <div class="toolbar"><button class="btn primary" id="cpGo"><span class="en">Run a refutation of Γ ▶</span><span class="zh">对 Γ 跑一个反驳 ▶</span></button></div>
+  <div class="stage"><svg id="cpSvg" viewBox="0 0 860 280" width="860" height="280"></svg></div>
+  <div class="msg" id="cpMsg"></div>
+
+  <h3><span class="en">The valid sentences are recursively enumerable</span><span class="zh">有效语句集是递归可枚举的</span></h3>
+  <p><span class="en">Derivations are finite strings over a countable alphabet; if the symbols of the language can be listed effectively, a machine can list <i>all</i> candidates #0, #1, #2, … and mechanically check each one. By completeness, the theorems it outputs are exactly the valid sentences. Below, a tiny genuine checker runs over candidates built from six formulas F₁–F₆ (in shortlex order).</span>
+     <span class="zh">推导是可数字母表上的有限串；只要语言的符号能被能行地列出，机器就可以把<i>所有</i>候选 #0, #1, #2, … 列出来，逐个机械地检查。由完备性定理，它输出的定理恰好就是全部有效语句。下面是一台真正的小检查器，候选由 F₁–F₆ 这六个公式按长度再字典序排出。</span></p>
+  <div id="beltPool" style="font-size:14px;columns:2;column-gap:24px;margin:6px 0"></div>
+  <div class="toolbar">
+    <button class="btn primary" id="beltGo"><span class="en">Run ▶</span><span class="zh">运行 ▶</span></button>
+    <button class="btn" id="beltStep"><span class="en">One candidate</span><span class="zh">检查一个候选</span></button>
+    <button class="btn ghost" id="beltReset"><span class="en">Reset</span><span class="zh">重置</span></button>
+    <label style="font-size:14px"><input type="checkbox" id="beltFast"> <span class="il"><span class="en">fast</span><span class="zh">快速</span></span></label>
+  </div>
+  <div class="stage"><svg id="belt" viewBox="0 0 900 240" width="900" height="240"></svg></div>
+  <div class="msg" id="beltMsg"></div>
+  <div id="beltBin" style="margin:8px 0"></div>
+  <div class="note"><span class="en">So validity is <b>semi-decidable</b>: if σ is valid, the machine eventually prints it; if not, you may wait forever. Church and Turing (1936) showed this cannot be improved: validity in first-order logic is <b>undecidable</b> (as soon as the language has a binary relation symbol; Lesson 11). The same machine with an r.e. set of axioms Γ enumerates {σ : Γ ⊨ σ}.</span>
+    <span class="zh">所以有效性是<b>半可判定</b>的：σ 有效时，机器迟早会把它打印出来；σ 无效时，你可能永远等下去。丘奇和图灵（1936）证明这已无法改进：一阶逻辑的有效性是<b>不可判定</b>的（只要语言中有一个二元关系符号；第 11 课）。若公理集 Γ 递归可枚举，同一台机器就能枚举 {σ : Γ ⊨ σ}。</span></div>
+</section>
+
+<!-- ============ S9 ============ -->
+<section class="card" id="s9">
+  <div class="kicker">§9</div>
+  <h2><span class="en">“Complete theory” vs “completeness theorem”</span><span class="zh">“完全理论”与“完备性定理”</span></h2>
+  <div class="vs">
+    <div class="a"><b><span class="il"><span class="en">Completeness theorem</span><span class="zh">完备性定理</span></span></b><br>
+      <span class="en">A property of the <b>proof system</b>: for <i>every</i> Γ and φ, Γ ⊨ φ ⇒ Γ ⊢ φ. Proved once and for all (Gödel 1929).</span>
+      <span class="zh">是<b>证明系统</b>的性质：对<i>任意</i> Γ 和 φ，Γ ⊨ φ ⇒ Γ ⊢ φ。一劳永逸地证明了（哥德尔 1929）。</span></div>
+    <div class="b"><b><span class="il"><span class="en">Complete theory</span><span class="zh">完全理论</span></span></b><br>
+      <span class="en">A property of a particular <b>theory</b> T: for every sentence σ, T ⊢ σ or T ⊢ ¬σ. Some theories have it, most do not (and PA does not, by Gödel 1931).</span>
+      <span class="zh">是某个具体<b>理论</b> T 的性质：对每个语句 σ，T ⊢ σ 或 T ⊢ ¬σ。有的理论具有它，大多数没有（PA 就没有，这是哥德尔 1931 年的结果）。</span></div>
+  </div>
+  <p><span class="en">The completeness theorem translates “T decides σ” into a statement about models: T is complete iff all models of T satisfy the same sentences. Click the cells (language {&lt;}; x ≤ y abbreviates x &lt; y ∨ x = y).</span>
+     <span class="zh">完备性定理把“T 判定 σ”翻译成关于模型的话：T 完全当且仅当 T 的所有模型满足相同的语句。点击格子（语言为 {&lt;}；x ≤ y 是 x &lt; y ∨ x = y 的缩写）。</span></p>
+  <div class="stage" id="ctGrid"></div>
+  <div class="toolbar"><button class="btn ghost" id="ctAll"><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+  <div class="msg" id="ctDetail"></div>
+  <div class="note"><span class="en">That DLO is complete is a real theorem (Cantor's back-and-forth, Lesson 5). For Th(ℕ,&lt;) it is automatic, since Th(𝔐) always decides every sentence. Note the word choice: in Chinese, 完备性定理 vs 完全理论 keeps the two apart.</span>
+    <span class="zh">DLO 是完全理论，这是一个真正的定理（康托尔的来回论证，见第 5 课）。Th(ℕ,&lt;) 则是自动完全的，因为 Th(𝔐) 总是判定每个语句。注意用词：中文里“完备性定理”和“完全理论”正好把两件事分开。</span></div>
+</section>
+
+<!-- ============ EXERCISES ============ -->
+<section class="card" id="exercises">
+  <div class="kicker"><span class="il"><span class="en">Exercises</span><span class="zh">练习</span></span></div>
+  <h2><span class="en">Your turn</span><span class="zh">轮到你了</span></h2>
+  <p class="muted"><span class="en">Progress is saved in your browser. A sidebar ✓ means solved.</span><span class="zh">进度保存在浏览器中，侧栏出现 ✓ 表示已完成。</span></p>
+
+  <div class="ex" id="e1" data-prog="L4E1">
+    <h3><span class="tag">E1</span><span class="il"><span class="en">Substitutable or captured?</span><span class="zh">可代入还是被捕获？</span></span></h3>
+    <p><span class="en">For each φ, term t and variable, decide whether t is substitutable. Use the lab in §1 if you like.</span><span class="zh">对每组 φ、项 t 和变元，判断 t 是否可代入。可以借助 §1 的实验台。</span></p>
+    <div id="e1List"></div>
+    <div class="toolbar"><button class="btn ghost small" id="e1All"><span class="en">Show all answers</span><span class="zh">显示全部答案</span></button></div>
+  </div>
+
+  <div class="ex" id="e2" data-prog="L4E2">
+    <h3><span class="tag">E2</span><span class="il"><span class="en">Build counterexample structures</span><span class="zh">构造反例结构</span></span></h3>
+    <p><span class="en">None of these inferences is valid. For each, build a finite structure making all premises true and the conclusion false. Click table cells to toggle.</span>
+       <span class="zh">下面的推理都不有效。对每一个，构造一个有限结构，使前提全真而结论为假。点击表格格子切换。</span></p>
+    <div class="toolbar" id="e2Tabs"></div>
+    <div id="e2Goal" style="margin:6px 0"></div>
+    <div class="row" style="align-items:flex-start">
+      <div style="flex:0 0 auto"><div class="stage"><svg id="e2Svg"></svg></div><div id="e2Legend"></div></div>
+      <div class="col"><div id="e2Ctl"></div><div id="e2Vals"></div></div>
+    </div>
+    <div class="msg" id="e2Msg"></div>
+    <div class="toolbar"><button class="btn ghost small" id="e2Show"><span class="en">Show answer for this one</span><span class="zh">看本题答案</span></button></div>
+  </div>
+
+  <div class="ex" id="e3" data-prog="L4E3">
+    <h3><span class="tag">E3</span><span class="il"><span class="en">Put Henkin's proof in order</span><span class="zh">给亨金证明排序</span></span></h3>
+    <div class="chips" id="e3Pool" style="flex-direction:column;align-items:flex-start"></div>
+    <h4><span class="il"><span class="en">Your sequence</span><span class="zh">你的顺序</span></span></h4>
+    <div class="seqbox" id="e3Seq"></div>
+    <div class="toolbar">
+      <button class="btn primary" id="e3Check"><span class="en">Check</span><span class="zh">检查</span></button>
+      <button class="btn ghost" id="e3Reset"><span class="en">Reset</span><span class="zh">重置</span></button>
+      <button class="btn ghost" id="e3Show"><span class="en">Show answer</span><span class="zh">看答案</span></button>
+    </div>
+    <div class="msg" id="e3Msg"></div>
+  </div>
+
+  <div class="ex" id="e4" data-prog="L4E4">
+    <h3><span class="tag">E4</span><span class="il"><span class="en">How big is the term model?</span><span class="zh">项模型有多大？</span></span></h3>
+    <p><span class="en">Language {c, d, f}. Take closed terms modulo t ∼ s ⇔ Γ ⊢ t = s. How many elements? (Type a number, or ∞.)</span>
+       <span class="zh">语言 {c, d, f}。闭项按 t ∼ s ⇔ Γ ⊢ t = s 取商。有多少个元素？（填数字，或 ∞。）</span></p>
+    <div id="e4List"></div>
+  </div>
+
+  <div class="ex" id="e5" data-prog="L4E5">
+    <h3><span class="tag">E5</span><span class="il"><span class="en">Complete or completeness?</span><span class="zh">完全还是完备？</span></span></h3>
+    <div id="e5List"></div>
+  </div>
+
+  <div class="ex" id="e6" data-prog="L4E6">
+    <h3><span class="tag">E6</span><span class="il"><span class="en">Bug hunt: find the illegal line</span><span class="zh">找错：哪一行不合法</span></span></h3>
+    <p><span class="en">Each “derivation” proves something false. Click the line that breaks a rule.</span>
+       <span class="zh">每个“推导”都证出了假的东西。点击违反规则的那一行。</span></p>
+    <div id="e6List"></div>
+  </div>
+</section>
+
+<section class="card">
+  <div class="kicker"><span class="il"><span class="en">Next</span><span class="zh">下一课</span></span></div>
+  <h2><a href="lesson5.html" style="color:inherit"><span class="en">Lesson 5: compactness and Löwenheim–Skolem →</span><span class="zh">第 5 课：紧致性与勒文海姆–斯科伦定理 →</span></a></h2>
+  <p><span class="en">The term model has at most |L| + ℵ₀ elements, and every proof is finite. These two innocent facts give nonstandard numbers, countable models of set theory, and the surprising limits of what first-order logic can say.</span>
+     <span class="zh">项模型至多有 |L| + ℵ₀ 个元素，而每个证明都是有限的。这两个看似平常的事实，会带来非标准数、集合论的可数模型，以及一阶逻辑表达能力令人意外的局限。</span></p>
+</section>
+</main>
+</div>
+
+<script src="assets/logic.js"></script>
+<script src="assets/lesson4.js"></script>
+</body>
+</html>

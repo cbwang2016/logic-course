@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 18 · Analytical Hierarchy, HYP, ω₁^CK · 分析层级、超算术集与 ω₁^CK</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  .prereq { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 4px 0 10px; font-size: 13px; color: var(--muted); }
+  .prereq a { text-decoration: none; padding: 1px 9px; border-radius: 999px; border: 1px solid var(--line); background: #fbfaf6; color: var(--accent); font-size: 12.5px; }
+  .prereq a:hover { border-color: var(--accent); }
+  .lang-both .prereq .zh { display: inline; }
+  .core { font-weight: 600; margin: 6px 0 10px; }
+  .intu { border-left: 4px solid var(--true); background: #eefbf0; padding: 10px 14px; border-radius: 0 10px 10px 0; margin: 14px 0; }
+  .pit { border-left: 4px solid var(--false); background: #fff3f3; padding: 10px 14px; border-radius: 0 10px 10px 0; margin: 14px 0; }
+  .pit b.hd, .intu b.hd { display: block; margin-bottom: 2px; }
+  .cy { border: 1.5px dashed var(--meta); border-radius: 14px; padding: 12px 16px; margin: 16px 0 4px; background: #fdf8fe; }
+  .cy .q { font-weight: 600; margin-bottom: 6px; }
+  .cy .opts { display: flex; flex-wrap: wrap; gap: 8px; }
+  .cy .opts .btn { text-align: left; }
+  .cy .btn.right { border-color: var(--true); background: var(--true-soft); }
+  .cy .btn.wrongc { border-color: var(--false); background: var(--false-soft); }
+  .step-nav { display: flex; gap: 10px; margin: 8px 0; }
+  sup, sub { line-height: 0; }
+  .qbox { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; min-width: 46px; padding: 6px 10px; border-radius: 10px; border: 2px solid var(--line); background: #fff; font-family: var(--mono); font-size: 17px; transition: all .4s; }
+  .qbox.fn { border-color: var(--meta); background: var(--meta-soft); font-weight: 700; }
+  .qbox.num { border-color: var(--gold); background: var(--gold-soft); }
+  .qbox.mat { border-color: var(--accent); background: var(--accent-soft); min-width: 90px; }
+  .qbox small { font-size: 10px; color: var(--muted); font-family: var(--sans); }
+  .qrow { display: flex; gap: 6px; align-items: stretch; flex-wrap: wrap; margin: 6px 0; }
+  .qrow .lab { width: 170px; font-size: 13px; color: var(--muted); align-self: center; }
+  .qres { font-size: 22px; font-weight: 800; color: var(--meta); font-family: var(--mono); align-self: center; margin-left: 8px; }
+  svg .nd { cursor: pointer; }
+  svg .nd circle, svg .nd rect { transition: fill .25s, stroke .25s; }
+  svg .nd:hover circle, svg .nd:hover rect { stroke: var(--accent); stroke-width: 3; }
+  .seqline { font-family: var(--mono); font-size: 15px; min-height: 26px; margin: 6px 0; }
+  .ord-chip { display: inline-block; padding: 1px 8px; border-radius: 8px; background: var(--accent-soft); margin: 2px; }
+  table.ptab { border-collapse: collapse; font-size: 14px; margin: 8px 0; }
+  table.ptab th, table.ptab td { border: 1px solid var(--line); padding: 6px 10px; text-align: center; }
+  table.ptab th { background: #f1efe7; cursor: pointer; }
+  table.ptab th.selc, table.ptab td.selc { background: var(--gold-soft); }
+  .lang-both table.ptab .zh { font-size: 12px; }
+  .ordq { display: flex; flex-direction: column; gap: 6px; }
+  .ordq .btn { text-align: left; }
+  .ordq .btn.used { opacity: .35; pointer-events: none; }
+  .olist { counter-reset: oi; padding-left: 0; list-style: none; }
+  .olist li { counter-increment: oi; padding: 6px 10px; margin: 4px 0; border-radius: 10px; border: 1.5px solid var(--line); background: #fff; }
+  .olist li::before { content: counter(oi) ". "; font-weight: 800; color: var(--accent); }
+  .olist li.right { border-color: var(--true); background: var(--true-soft); }
+  .olist li.wrongc { border-color: var(--false); background: var(--false-soft); }
+  .zone.z1 { background: #eefbf0; border: 2px solid var(--true); }
+  .zone.z2 { background: var(--accent-soft); border: 2px solid var(--accent); }
+  .zone.z3 { background: var(--meta-soft); border: 2px solid var(--meta); }
+  .zone.z4 { background: var(--gold-soft); border: 2px solid var(--gold); }
+  .zgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-top: 10px; }
+  .zgrid .zone { min-height: 110px; }
+  .shake { animation: shake .3s; }
+</style>
+</head>
+<body class="lang-both">
+<header class="top">
+  <a class="home" href="index.html">∀∃ <span class="il"><span class="en">Logic &amp; Sets</span><span class="zh">逻辑与集合</span></span></a>
+  <span class="muted">/ L18</span>
+  <span class="spacer"></span>
+  <div class="lang-switch">
+    <button data-lang="en">EN</button><button data-lang="zh">中文</button><button data-lang="both">EN + 中</button>
+  </div>
+</header>
+
+<div class="layout">
+<nav class="side">
+  <div class="grp">Lesson 18</div>
+  <a href="index.html">← <span class="il"><span class="en">Course map</span><span class="zh">课程地图</span></span></a>
+  <a href="lesson17.html">← <span class="il"><span class="en">Lesson 17</span><span class="zh">第 17 课</span></span></a>
+  <a href="lesson19.html"><span class="il"><span class="en">Lesson 19</span><span class="zh">第 19 课</span></span> →</a>
+  <div class="grp"><span class="il"><span class="en">Steps</span><span class="zh">步骤</span></span></div>
+  <a href="#s1">1 · <span class="il"><span class="en">Quantifying over reals</span><span class="zh">对实数量化</span></span></a>
+  <a href="#s2">2 · <span class="il"><span class="en">Trees &amp; Π¹₁</span><span class="zh">树与 Π¹₁</span></span></a>
+  <a href="#s3">3 · <span class="il"><span class="en">WO and ranks</span><span class="zh">WO 与秩</span></span></a>
+  <a href="#s4">4 · <span class="il"><span class="en">Recursive ordinals</span><span class="zh">递归序数</span></span></a>
+  <a href="#s5">5 · <span class="il"><span class="en">Kleene's O</span><span class="zh">克莱尼 O</span></span></a>
+  <a href="#s6">6 · <span class="il"><span class="en">Boundedness</span><span class="zh">有界性定理</span></span></a>
+  <a href="#s7">7 · <span class="il"><span class="en">Transfinite jumps</span><span class="zh">超限跳跃</span></span></a>
+  <a href="#s8">8 · <span class="il"><span class="en">Δ¹₁ = HYP</span><span class="zh">Δ¹₁ = HYP</span></span></a>
+  <a href="#s9">9 · <span class="il"><span class="en">Spector–Gandy, uniformization</span><span class="zh">Spector–Gandy 与单值化</span></span></a>
+  <a href="#s10">10 · <span class="il"><span class="en">Boldface &amp; Σ¹₂</span><span class="zh">粗体与 Σ¹₂</span></span></a>
+  <div class="grp"><span class="il"><span class="en">Exercises</span><span class="zh">练习</span></span></div>
+  <a href="#e1" data-prog="L18E1">E1 · <span class="il"><span class="en">Classify</span><span class="zh">分类</span></span></a>
+  <a href="#e2" data-prog="L18E2">E2 · <span class="il"><span class="en">Branch hunt</span><span class="zh">找分支</span></span></a>
+  <a href="#e3" data-prog="L18E3">E3 · <span class="il"><span class="en">Recursive?</span><span class="zh">递归吗？</span></span></a>
+  <a href="#e4" data-prog="L18E4">E4 · <span class="il"><span class="en">Kleene's proof</span><span class="zh">克莱尼的证明</span></span></a>
+  <a href="#e5" data-prog="L18E5">E5 · O</a>
+  <a href="#e6" data-prog="L18E6">E6 · Σ¹₂</a>
+</nav>
+
+<main>
+<div class="hero">
+  <div class="kicker">Part V · Lesson 18</div>
+  <h1><span class="en">Analytical Hierarchy, Hyperarithmetic Sets, ω₁<sup>CK</sup></span><span class="zh">分析层级、超算术集与 ω₁<sup>CK</sup></span></h1>
+  <p><span class="en">In Lesson 17 we only quantified over <i>numbers</i>, and the jumps ∅′, ∅″, … climbed the arithmetical ladder. Now we allow quantifiers over <i>infinite sequences</i> (“reals”). One such quantifier already captures “this tree has no infinite branch” and “this order is a well-order”. Following that thread leads to computable ordinals, a wall at ω₁<sup>CK</sup>, and Kleene's theorem: the sets definable both ways, Δ¹₁, are exactly the sets computable from a transfinite iterate of the jump ∅<sup>(α)</sup> with α &lt; ω₁<sup>CK</sup>.</span>
+     <span class="zh">第 17 课只对<i>自然数</i>量化，跳跃 ∅′、∅″、…… 爬的是算术层级的梯子。现在允许对<i>无穷序列</i>（“实数”）量化。仅一个这样的量词就能表达“这棵树没有无穷分支”“这个序是良序”。顺着这条线走下去，会遇到可计算序数、ω₁<sup>CK</sup> 处的一堵墙，以及克莱尼定理：两种方式都能定义的集合 Δ¹₁，恰好就是能由某个超限迭代跳跃 ∅<sup>(α)</sup>（α &lt; ω₁<sup>CK</sup>）计算出来的集合。</span></p>
+  <p class="muted" style="font-size:14px"><span class="en">Conventions: “real” means an element of Baire space ω<sup>ω</sup> (or of 2<sup>ω</sup> when said). ⟨·,·⟩ is a fixed recursive pairing, f↾n = ⟨f(0),…,f(n−1)⟩, φ<sub>e</sub> is the e-th partial recursive function. Unless marked otherwise, classes are <b>lightface</b> (no real parameters).</span>
+     <span class="zh">约定：“实数”指贝尔空间 ω<sup>ω</sup> 的元素（特别说明时指 2<sup>ω</sup>）。⟨·,·⟩ 是固定的递归配对函数，f↾n = ⟨f(0),…,f(n−1)⟩，φ<sub>e</sub> 是第 e 个部分递归函数。除非另有说明，所有类都是<b>细体</b>的（不带实数参数）。</span></p>
+</div>
+
+<!-- ============ S1 ============ -->
+<section class="card" id="s1">
+  <div class="kicker">Step 1 · <span class="il"><span class="en">Second-order arithmetic</span><span class="zh">二阶算术</span></span></div>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置</span></span>: <a href="lesson17.html">L17 <span class="il"><span class="en">arithmetical hierarchy Σ⁰ₙ/Π⁰ₙ</span><span class="zh">算术层级 Σ⁰ₙ/Π⁰ₙ</span></span></a><a href="lesson11.html">L11 <span class="il"><span class="en">recursive relations</span><span class="zh">递归关系</span></span></a></div>
+  <h2><span class="en">Quantifying over reals: Σ¹ₙ and Π¹ₙ</span><span class="zh">对实数量化：Σ¹ₙ 与 Π¹ₙ</span></h2>
+  <p class="core"><span class="en">Core idea: count only the alternations of <b>function</b> quantifiers. Number quantifiers can always be pushed inside and swallowed.</span>
+    <span class="zh">核心思想：只数<b>函数</b>量词的交替次数。数量词总能被推到里面“吞掉”。</span></p>
+  <div class="def"><span class="en"><b>Definition.</b> The language of second-order arithmetic has number variables m, n, … (ranging over ω) and function variables f, g, … (ranging over ω<sup>ω</sup>). A formula is <b>arithmetical</b> if it has no function quantifiers (free function variables are allowed). A relation R ⊆ ω<sup>k</sup> × (ω<sup>ω</sup>)<sup>l</sup> (x below stands for a tuple of numbers and reals) is
+    <b>Σ¹₁</b> if R(x) ⇔ ∃f A(x, f) and <b>Π¹₁</b> if R(x) ⇔ ∀f A(x, f), with A arithmetical;
+    <b>Σ¹ₙ₊₁</b> if R(x) ⇔ ∃f P(x, f) with P Π¹ₙ, and <b>Π¹ₙ₊₁</b> if R(x) ⇔ ∀f S(x, f) with S Σ¹ₙ;
+    <b>Δ¹ₙ</b> = Σ¹ₙ ∩ Π¹ₙ. All formulas are read in the standard model (ω, ω<sup>ω</sup>) and contain <b>no real parameters</b> (lightface).</span>
+    <span class="zh"><b>定义.</b> 二阶算术的语言有数变元 m, n, …（取值于 ω）和函数变元 f, g, …（取值于 ω<sup>ω</sup>）。不含函数量词的公式称为<b>算术公式</b>（允许出现自由函数变元）。关系 R ⊆ ω<sup>k</sup> × (ω<sup>ω</sup>)<sup>l</sup>（下文 x 代表由数与实数组成的元组）称为
+    <b>Σ¹₁</b> 的，若 R(x) ⇔ ∃f A(x, f)；称为 <b>Π¹₁</b> 的，若 R(x) ⇔ ∀f A(x, f)，其中 A 为算术公式；
+    <b>Σ¹ₙ₊₁</b>：R(x) ⇔ ∃f P(x, f)，P 为 Π¹ₙ；<b>Π¹ₙ₊₁</b>：R(x) ⇔ ∀f S(x, f)，S 为 Σ¹ₙ；
+    <b>Δ¹ₙ</b> = Σ¹ₙ ∩ Π¹ₙ。所有公式都在标准模型 (ω, ω<sup>ω</sup>) 中解释，且<b>不含实数参数</b>（细体）。</span></div>
+  <p><span class="en">Build a quantifier prefix in front of a recursive matrix R, then press <b>Collapse</b>. Watch the number quantifiers (gold) slide into the matrix and equal function quantifiers (purple) merge.</span>
+     <span class="zh">在递归母式 R 前面拼一个量词前缀，然后按<b>化简</b>。观察数量词（金色）滑进母式，相邻同类函数量词（紫色）合并。</span></p>
+  <div class="toolbar" id="qPal"></div>
+  <div class="toolbar" id="qPresets"></div>
+  <div class="stage" id="qStage"></div>
+  <div class="msg info" id="qMsg"></div>
+  <div class="steps" id="qWhy">
+    <div class="step"><span class="en"><b>Why the moves are legal.</b> (1) Same-type quantifiers commute. (2) <span class="m">∀n ∃f A(n,f) ⇔ ∃g ∀n A(n, g<sub>n</sub>)</span> where g<sub>n</sub>(m) = g(⟨n,m⟩): pack countably many witnesses into one real (this uses countable choice for reals, available in ZFC). Dually <span class="m">∃n ∀f ⇔ ∀g ∃n</span>. So every number quantifier can be moved to the right past function quantifiers. (3) <span class="m">∃f ∃g ⇔ ∃h</span> with h = f ⊕ g (h(2k) = f(k), h(2k+1) = g(k)). (4) Every arithmetical matrix is Δ¹₁: add a dummy quantifier ∃f or ∀f.</span>
+      <span class="zh"><b>这些变形为什么合法.</b> (1) 同类量词可交换。(2) <span class="m">∀n ∃f A(n,f) ⇔ ∃g ∀n A(n, g<sub>n</sub>)</span>，其中 g<sub>n</sub>(m) = g(⟨n,m⟩)：把可数个见证打包成一个实数（用到实数的可数选择，ZFC 中可用）。对偶地 <span class="m">∃n ∀f ⇔ ∀g ∃n</span>。所以任何数量词都可以越过函数量词移到右边。(3) <span class="m">∃f ∃g ⇔ ∃h</span>，h = f ⊕ g（h(2k) = f(k)，h(2k+1) = g(k)）。(4) 任何算术母式都是 Δ¹₁ 的：添一个哑量词 ∃f 或 ∀f 即可。</span></div>
+  </div>
+  <div class="step-nav"><button class="btn small" data-steps="qWhy" data-act="all"><span class="en">Show why</span><span class="zh">显示理由</span></button></div>
+  <div class="def"><span class="en"><b>Normal form theorem (Kleene).</b> A ⊆ ω is Π¹₁ iff there is a <b>recursive</b> R ⊆ ω × ω with
+    <span class="m">n ∈ A ⇔ ∀f ∈ ω<sup>ω</sup> ∃m R(n, f↾m)</span>; dually Σ¹₁ iff <span class="m">n ∈ A ⇔ ∃f ∀m R(n, f↾m)</span>. The same holds for subsets of ω<sup>ω</sup> with R(x↾m, f↾m). <b>Every arithmetical set is Δ¹₁</b>, and the hierarchy is proper: Σ¹ₙ ∪ Π¹ₙ ⊊ Δ¹ₙ₊₁.</span>
+    <span class="zh"><b>范式定理（克莱尼）.</b> A ⊆ ω 是 Π¹₁ 的，当且仅当存在<b>递归</b>关系 R ⊆ ω × ω，使得
+    <span class="m">n ∈ A ⇔ ∀f ∈ ω<sup>ω</sup> ∃m R(n, f↾m)</span>；对偶地，A 是 Σ¹₁ 的当且仅当 <span class="m">n ∈ A ⇔ ∃f ∀m R(n, f↾m)</span>。对 ω<sup>ω</sup> 的子集同样成立（换成 R(x↾m, f↾m)）。<b>每个算术集都是 Δ¹₁ 的</b>，并且层级是真包含的：Σ¹ₙ ∪ Π¹ₙ ⊊ Δ¹ₙ₊₁。</span></div>
+  <div class="pit"><b class="hd"><span class="il"><span class="en">⚠ Common pitfall</span><span class="zh">常见误区</span></span></b><span class="en">The collapse gives an <b>upper bound</b>. “Defined by a Σ¹₁ formula” does not mean “not arithmetical”: ∃f (f(0) = n ∧ n is even) defines a recursive set. Also, function quantifiers over the <i>compact</i> space 2<sup>ω</sup> are weaker: with R recursive, ∀f ∈ 2<sup>ω</sup> ∃m R(n, f↾m) ⇔ ∃k ∀σ ∈ 2<sup>k</sup> ∃m ≤ k R(n, σ↾m), which is Σ⁰₁ (that is Kőnig's lemma, Step 2). The real power needs ω<sup>ω</sup>.</span>
+    <span class="zh">化简得到的只是<b>上界</b>。“能用 Σ¹₁ 公式定义”不等于“不是算术集”：∃f (f(0) = n ∧ n 是偶数) 定义的是递归集。另外，对<i>紧</i>空间 2<sup>ω</sup> 的函数量词要弱得多：R 递归时，∀f ∈ 2<sup>ω</sup> ∃m R(n, f↾m) ⇔ ∃k ∀σ ∈ 2<sup>k</sup> ∃m ≤ k R(n, σ↾m)，这只是 Σ⁰₁（即第 2 步的柯尼希引理）。真正的威力来自 ω<sup>ω</sup>。</span></div>
+  <div class="cy" data-cy="s1"></div>
+</section>
+
+<!-- ============ S2 ============ -->
+<section class="card" id="s2">
+  <div class="kicker">Step 2 · <span class="il"><span class="en">Trees</span><span class="zh">树</span></span></div>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置</span></span>: <a href="#s1">§1 <span class="il"><span class="en">normal form</span><span class="zh">范式</span></span></a><a href="lesson8.html">L8 <span class="il"><span class="en">well-founded relations</span><span class="zh">良基关系</span></span></a></div>
+  <h2><span class="en">Π¹₁ = “a recursive tree has no infinite branch”</span><span class="zh">Π¹₁ = “某棵递归树没有无穷分支”</span></h2>
+  <p class="core"><span class="en">Core idea: the normal form ∀f ∃m R(n, f↾m) says exactly that the tree of “still-alive” finite sequences has no infinite path.</span>
+    <span class="zh">核心思想：范式 ∀f ∃m R(n, f↾m) 说的恰好是：由“尚未失败”的有限序列构成的树没有无穷路径。</span></p>
+  <div class="def"><span class="en"><b>Definitions.</b> A <b>tree</b> on ω is a set T ⊆ ω<sup>&lt;ω</sup> closed under initial segments. A <b>branch</b> (infinite path) is f ∈ ω<sup>ω</sup> with f↾m ∈ T for all m; [T] is the set of branches. T is <b>well-founded</b> (WF) if [T] = ∅. For WF T the <b>rank</b> is ρ(σ) = sup{ρ(τ) + 1 : τ a child of σ in T} (leaves get 0), and ρ(T) = ρ(⟨⟩).<br>
+    <b>Tree form of Π¹₁.</b> Given R recursive, put T<sub>n</sub> = {σ : ∀k ≤ |σ| ¬R(n, σ↾k)}. Then (T<sub>n</sub>) is uniformly recursive and <span class="m">n ∈ A ⇔ ∀f ∃m R(n, f↾m) ⇔ T<sub>n</sub> is WF</span>. Conversely “T is WF” is ∀f ∃m (f↾m ∉ T), a Π¹₁ statement about T.</span>
+    <span class="zh"><b>定义.</b> ω 上的<b>树</b>是对前段封闭的集合 T ⊆ ω<sup>&lt;ω</sup>。<b>分支</b>（无穷路径）是满足“对所有 m 都有 f↾m ∈ T”的 f ∈ ω<sup>ω</sup>；[T] 表示全体分支。若 [T] = ∅，称 T <b>良基</b>（WF）。良基树的<b>秩</b>定义为 ρ(σ) = sup{ρ(τ) + 1 : τ 是 σ 在 T 中的子结点}（叶子为 0），ρ(T) = ρ(⟨⟩)。<br>
+    <b>Π¹₁ 的树形式.</b> 给定递归 R，令 T<sub>n</sub> = {σ : ∀k ≤ |σ| ¬R(n, σ↾k)}。则 (T<sub>n</sub>) 一致递归，且 <span class="m">n ∈ A ⇔ ∀f ∃m R(n, f↾m) ⇔ T<sub>n</sub> 良基</span>。反过来，“T 良基”即 ∀f ∃m (f↾m ∉ T)，是关于 T 的 Π¹₁ 陈述。</span></div>
+  <p><span class="en"><b>Tree explorer.</b> Click a child to walk down; click a node higher up to back up. Try to find an infinite branch. In the ω-branching trees press “more →” to see further children (there are infinitely many).</span>
+     <span class="zh"><b>树探险.</b> 点子结点往下走，点上方的结点可以退回。试着找一条无穷分支。在 ω 分叉的树里按“更多 →”查看后面的子结点（子结点有无穷多个）。</span></p>
+  <div class="toolbar" id="treePick"></div>
+  <div class="toolbar">
+    <button class="btn small" id="trBack"><span class="en">↑ Back</span><span class="zh">↑ 后退</span></button>
+    <button class="btn small" id="trReset"><span class="en">Reset</span><span class="zh">重置</span></button>
+    <button class="btn small" id="trInfo"><span class="en">Show ranks / sizes</span><span class="zh">显示秩/子树大小</span></button>
+    <button class="btn small" id="trKonig"><span class="en">Kőnig's strategy ▶</span><span class="zh">柯尼希策略 ▶</span></button>
+  </div>
+  <div class="stage"><svg id="trSvg" viewBox="0 0 900 400" width="900" height="400"></svg></div>
+  <div class="msg info" id="trMsg"></div>
+  <div class="def"><span class="en"><b>Kőnig's lemma.</b> Every infinite <b>finitely branching</b> tree has an infinite branch. <i>Proof:</i> if σ has infinitely many nodes above it and finitely many children, one child also has infinitely many above it (pigeonhole); keep choosing such a child. The “broom” tree shows that ω-branching breaks the pigeonhole step: the root has infinitely many nodes above it, yet every child has only finitely many.</span>
+    <span class="zh"><b>柯尼希引理.</b> 每棵无穷的<b>有限分叉</b>树都有无穷分支。<i>证明：</i>若 σ 上方有无穷多个结点而子结点只有有限个，则由抽屉原理，某个子结点上方也有无穷多个结点；不断选这样的子结点即可。“扫帚树”说明 ω 分叉会让抽屉原理这一步失效：根上方有无穷多个结点，可每个子结点上方都只有有限个。</span></div>
+  <div class="intu"><b class="hd"><span class="il"><span class="en">Intuition</span><span class="zh">直观</span></span></b><span class="en">Showing a tree is <i>ill-founded</i> takes one object, a branch (∃f). Showing it is <i>well-founded</i> means every attempt dies, ∀f, and for ω-branching trees no finite amount of searching can certify that. This asymmetry is the whole story of Σ¹₁ vs Π¹₁.</span>
+    <span class="zh">要说明一棵树<i>非良基</i>，只需一个对象：一条分支（∃f）。要说明它<i>良基</i>，就得每一次尝试都失败（∀f），而对 ω 分叉的树，任何有限的搜索都无法证实这一点。Σ¹₁ 与 Π¹₁ 的差别全在于这种不对称。</span></div>
+  <div class="pit"><b class="hd"><span class="il"><span class="en">⚠ Common pitfall</span><span class="zh">常见误区</span></span></b><span class="en">“The tree has nodes at every level, so it has a branch.” True for finitely branching trees, false in general (the broom). Also: a WF tree can be infinite and have infinite rank; WF says no <i>infinite path</i>, not “finite”.</span>
+    <span class="zh">“每一层都有结点，所以一定有分支。”对有限分叉的树成立，一般情形不成立（扫帚树）。另外，良基树可以是无穷的，秩也可以是无穷序数；良基说的是没有<i>无穷路径</i>，不是“有限”。</span></div>
+  <div class="cy" data-cy="s2"></div>
+</section>
+
+<!-- ============ S3 ============ -->
+<section class="card" id="s3">
+  <div class="kicker">Step 3 · WO</div>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置</span></span>: <a href="lesson8.html">L8 <span class="il"><span class="en">well-orders, order types</span><span class="zh">良序与序型</span></span></a><a href="#s2">§2 <span class="il"><span class="en">trees, rank</span><span class="zh">树与秩</span></span></a></div>
+  <h2><span class="en">WO: codes of well-orders, and rank = order type</span><span class="zh">WO：良序的编码，秩 = 序型</span></h2>
+  <p class="core"><span class="en">Core idea: a real x ∈ 2<sup>ω</sup> can code a linear order on (part of) ω. Well-foundedness of that order is a Π¹₁ property of x, and it is the hardest one.</span>
+    <span class="zh">核心思想：一个实数 x ∈ 2<sup>ω</sup> 可以编码 ω（的一部分）上的线序。这个序是否良基，是 x 的一个 Π¹₁ 性质，而且是最难的一个。</span></p>
+  <div class="def"><span class="en"><b>Definition.</b> For x ∈ 2<sup>ω</sup> let m ≤<sub>x</sub> n ⇔ x(⟨m,n⟩) = 1, with field F<sub>x</sub> = {n : x(⟨n,n⟩) = 1}.
+    LO = {x : ≤<sub>x</sub> is a linear order of F<sub>x</sub>}, an arithmetical (Π⁰₁) set.
+    <span class="m">WO = {x ∈ LO : ∀f ∈ ω<sup>ω</sup> ∃k ¬(f(k+1) &lt;<sub>x</sub> f(k))}</span> (no infinite descending sequence), a Π¹₁ set. For x ∈ WO, |x| = the order type of ≤<sub>x</sub>; every countable ordinal is |x| for some x.<br>
+    <b>Theorem.</b> WO is <b>Π¹₁-complete</b>: for every Π¹₁ set A ⊆ ω<sup>ω</sup> there is a recursive (hence continuous) F with A = F<sup>−1</sup>[WO]. (Send x to the Kleene–Brouwer order of T<sub>x</sub>; T<sub>x</sub> is WF iff that order is a well-order.) Similarly the index set W = {e : φ<sub>e</sub> is the characteristic function of some x ∈ WO} is Π¹₁-complete among subsets of ω. In particular WO is not Σ¹₁ and W is not Σ¹₁. The set IF of codes of ill-founded trees is Σ¹₁-complete.</span>
+    <span class="zh"><b>定义.</b> 对 x ∈ 2<sup>ω</sup>，令 m ≤<sub>x</sub> n ⇔ x(⟨m,n⟩) = 1，域为 F<sub>x</sub> = {n : x(⟨n,n⟩) = 1}。
+    LO = {x : ≤<sub>x</sub> 是 F<sub>x</sub> 上的线序}，这是算术集（Π⁰₁）。
+    <span class="m">WO = {x ∈ LO : ∀f ∈ ω<sup>ω</sup> ∃k ¬(f(k+1) &lt;<sub>x</sub> f(k))}</span>（没有无穷降链），这是 Π¹₁ 集。对 x ∈ WO，|x| 表示 ≤<sub>x</sub> 的序型；每个可数序数都等于某个 |x|。<br>
+    <b>定理.</b> WO 是 <b>Π¹₁-完全</b>的：对每个 Π¹₁ 集 A ⊆ ω<sup>ω</sup>，存在递归（因而连续）的 F 使 A = F<sup>−1</sup>[WO]。（把 x 映到 T<sub>x</sub> 的 Kleene–Brouwer 序；T<sub>x</sub> 良基当且仅当该序是良序。）同样，指标集 W = {e : φ<sub>e</sub> 是某个 x ∈ WO 的特征函数} 在 ω 的子集中是 Π¹₁-完全的。特别地，WO 和 W 都不是 Σ¹₁ 的。非良基树的编码之集 IF 是 Σ¹₁-完全的。</span></div>
+  <p><span class="en"><b>Descent game.</b> Pick an order, then click points to build a strictly descending sequence x₀ &gt; x₁ &gt; …. Each descending sequence is a node of the <i>tree of descending sequences</i>; the order is a well-order iff this tree is well-founded, and then the node ending at x has rank = the ordinal position of x. The matrix on the right is (a corner of) the actual code x: row m, column n is 1 iff (the element numbered) m ≤ n.</span>
+     <span class="zh"><b>下降游戏.</b> 选一个序，然后点击各点，造一个严格下降序列 x₀ &gt; x₁ &gt; …。每个下降序列都是<i>下降序列树</i>中的一个结点；序是良序当且仅当这棵树良基，此时以 x 结尾的结点的秩恰好等于 x 的序数位置。右边的矩阵是编码 x 本身（的左上角）：第 m 行第 n 列为 1 当且仅当（编号为）m 的元素 ≤ n 的元素。</span></p>
+  <div class="toolbar" id="dPick"></div>
+  <div class="stage"><svg id="dSvg" viewBox="0 0 900 160" width="900" height="160"></svg></div>
+  <div class="row" style="margin-top:10px">
+    <div class="col" style="flex:0 0 250px"><div class="stage"><svg id="dMat" viewBox="0 0 230 230" width="230" height="230"></svg></div></div>
+    <div class="col">
+      <div class="toolbar">
+        <button class="btn small" id="dReset"><span class="en">New descent</span><span class="zh">重新下降</span></button>
+        <button class="btn small" id="dAuto"><span class="en">Auto-descend ▶</span><span class="zh">自动下降 ▶</span></button>
+      </div>
+      <div class="seqline" id="dSeq"></div>
+      <div class="msg info" id="dMsg"></div>
+    </div>
+  </div>
+  <div class="pit"><b class="hd"><span class="il"><span class="en">⚠ Common pitfall</span><span class="zh">常见误区</span></span></b><span class="en">In a well-order descents are always finite but <b>not uniformly bounded</b>: from ω you may jump to any n and then take n more steps. “Every descent stops” is weaker than “there is a bound on the length of descents”. Also, LO is only Π⁰₁; all the difficulty of WO sits in the single quantifier ∀f.</span>
+    <span class="zh">在良序中，下降总是有限的，但长度<b>没有统一上界</b>：从 ω 可以跳到任意 n，再走 n 步。“每次下降都会停”比“下降长度有统一上界”弱。另外 LO 只是 Π⁰₁；WO 的难度全部集中在那一个 ∀f 上。</span></div>
+  <div class="cy" data-cy="s3"></div>
+</section>
+
+<!-- ============ S4 ============ -->
+<section class="card" id="s4">
+  <div class="kicker">Step 4 · Church–Kleene</div>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置</span></span>: <a href="#s3">§3 WO</a><a href="lesson8.html">L8 <span class="il"><span class="en">ordinal arithmetic</span><span class="zh">序数运算</span></span></a><a href="lesson11.html">L11 <span class="il"><span class="en">computability</span><span class="zh">可计算性</span></span></a></div>
+  <h2><span class="en">Recursive ordinals and the Church–Kleene ordinal</span><span class="zh">递归序数与丘奇–克莱尼序数</span></h2>
+  <p class="core"><span class="en">Core idea: the ordinals you can <i>compute</i> form an initial segment of the countable ordinals. It ends at a countable ordinal, ω₁<sup>CK</sup>.</span>
+    <span class="zh">核心思想：能被<i>计算</i>出来的序数构成可数序数的一个前段，它终止于一个可数序数 ω₁<sup>CK</sup>。</span></p>
+  <div class="def"><span class="en"><b>Definition.</b> An ordinal α is <b>recursive</b> (computable) if α = |x| for some recursive x ∈ WO, i.e. α is the order type of a recursive well-ordering of a recursive subset of ω. <span class="m">ω₁<sup>CK</sup> = sup{α : α recursive}</span>.<br>
+    <b>Facts.</b> (i) Recursive ordinals are closed downward (an initial segment of a recursive well-order is recursive) and under +1, +, ·, exponentiation. (ii) Hence ω₁<sup>CK</sup> is a limit ordinal and is the <b>least non-recursive ordinal</b>; the recursive ordinals are exactly the α &lt; ω₁<sup>CK</sup>. (iii) ω₁<sup>CK</sup> is <b>countable</b>: there are only countably many recursive x, so it is a countable sup of countable ordinals. (iv) ω₁<sup>CK</sup> is the least admissible ordinal &gt; ω (stated only).</span>
+    <span class="zh"><b>定义.</b> 若存在递归的 x ∈ WO 使 α = |x|，即 α 是 ω 的某个递归子集上某个递归良序的序型，则称序数 α 是<b>递归的</b>（可计算的）。<span class="m">ω₁<sup>CK</sup> = sup{α : α 递归}</span>。<br>
+    <b>事实.</b> (i) 递归序数向下封闭（递归良序的前段仍递归），并对 +1、+、·、幂运算封闭。(ii) 因此 ω₁<sup>CK</sup> 是极限序数，是<b>最小的非递归序数</b>；递归序数恰好是所有 α &lt; ω₁<sup>CK</sup>。(iii) ω₁<sup>CK</sup> 是<b>可数的</b>：递归的 x 只有可数多个，可数多个可数序数的上确界仍可数。(iv) ω₁<sup>CK</sup> 是大于 ω 的最小容许序数（仅陈述）。</span></div>
+  <p><span class="en">Click a rung to see a recursive well-order of that type, or why there is none. Then press <b>Climb</b>.</span>
+     <span class="zh">点击梯子上的刻度，查看该序型的一个递归良序，或者为什么不存在。然后按<b>攀登</b>。</span></p>
+  <div class="toolbar"><button class="btn primary" id="lClimb"><span class="en">Climb ▶</span><span class="zh">攀登 ▶</span></button></div>
+  <div class="stage"><svg id="lSvg" viewBox="0 0 940 200" width="940" height="200"></svg></div>
+  <div class="msg info" id="lMsg"></div>
+  <div class="pit"><b class="hd"><span class="il"><span class="en">⚠ Common pitfalls</span><span class="zh">常见误区</span></span></b><span class="en">(1) “Non-recursive” does not mean “uncountable”: ω₁<sup>CK</sup> &lt; ω₁. (2) Every α &lt; ω₁<sup>CK</sup> has a recursive code, but there is <b>no algorithm</b> deciding whether an index e codes a well-order: W is Π¹₁-complete. (3) A recursive linear order with no <i>recursive</i> descending sequence need not be a well-order. Harrison's order is recursive, ill-founded, and has no hyperarithmetic descending sequence; its type is ω₁<sup>CK</sup>·(1+η) (η = type of ℚ).</span>
+    <span class="zh">(1) “非递归”不等于“不可数”：ω₁<sup>CK</sup> &lt; ω₁。(2) 每个 α &lt; ω₁<sup>CK</sup> 都有递归编码，但<b>没有算法</b>能判定指标 e 是否编码良序：W 是 Π¹₁-完全的。(3) 没有<i>递归</i>降链的递归线序未必是良序。Harrison 序是递归的、非良基的，却没有超算术的降链；其序型为 ω₁<sup>CK</sup>·(1+η)（η 为 ℚ 的序型）。</span></div>
+  <div class="cy" data-cy="s4"></div>
+</section>
+
+<!-- ============ S5 ============ -->
+<section class="card" id="s5">
+  <div class="kicker">Step 5 · O</div>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置</span></span>: <a href="#s4">§4 <span class="il"><span class="en">recursive ordinals</span><span class="zh">递归序数</span></span></a><a href="lesson11.html">L11 <span class="il"><span class="en">indices φ<sub>e</sub></span><span class="zh">指标 φ<sub>e</sub></span></span></a></div>
+  <h2><span class="en">Kleene's O: names for every recursive ordinal</span><span class="zh">克莱尼 O：给每个递归序数起名字</span></h2>
+  <p class="core"><span class="en">Core idea: a notation is a natural number that tells you <i>how</i> to build an ordinal: “successor of a” or “limit of the sequence computed by program e”.</span>
+    <span class="zh">核心思想：记号是一个自然数，它告诉你<i>怎样</i>造出一个序数：“a 的后继”，或者“程序 e 算出的序列的极限”。</span></p>
+  <div class="def"><span class="en"><b>Definition</b> (Kleene; convention of Rogers and Sacks). O and &lt;<sub>O</sub> are defined by simultaneous induction, O being the least set closed under the rules:
+    (1) 1 ∈ O, |1| = 0. (2) If a ∈ O then 2<sup>a</sup> ∈ O, |2<sup>a</sup>| = |a| + 1, and a &lt;<sub>O</sub> 2<sup>a</sup>. (3) If φ<sub>e</sub> is <b>total</b> and φ<sub>e</sub>(0) &lt;<sub>O</sub> φ<sub>e</sub>(1) &lt;<sub>O</sub> ⋯ (all in O), then 3·5<sup>e</sup> ∈ O, |3·5<sup>e</sup>| = sup<sub>n</sub> |φ<sub>e</sub>(n)|, and φ<sub>e</sub>(n) &lt;<sub>O</sub> 3·5<sup>e</sup> for all n. &lt;<sub>O</sub> is the transitive closure of these relations. (Some texts use 0 instead of 1 for the zero notation.)<br>
+    <b>Theorem.</b> {|a| : a ∈ O} = ω₁<sup>CK</sup>, i.e. exactly the recursive ordinals have notations. For a ∈ O, {b : b &lt;<sub>O</sub> a} is r.e. uniformly in a and is well-ordered by &lt;<sub>O</sub> with type |a|. <b>O is Π¹₁-complete</b>: every Π¹₁ A ⊆ ω is many-one reducible to O. Finite ordinals have exactly one notation; every infinite recursive ordinal has infinitely many.</span>
+    <span class="zh"><b>定义</b>（克莱尼；采用 Rogers 与 Sacks 的约定）. O 与 &lt;<sub>O</sub> 同时归纳定义，O 是对下列规则封闭的最小集合：
+    (1) 1 ∈ O，|1| = 0。(2) 若 a ∈ O，则 2<sup>a</sup> ∈ O，|2<sup>a</sup>| = |a| + 1，且 a &lt;<sub>O</sub> 2<sup>a</sup>。(3) 若 φ<sub>e</sub> <b>全定义</b>且 φ<sub>e</sub>(0) &lt;<sub>O</sub> φ<sub>e</sub>(1) &lt;<sub>O</sub> ⋯（都属于 O），则 3·5<sup>e</sup> ∈ O，|3·5<sup>e</sup>| = sup<sub>n</sub> |φ<sub>e</sub>(n)|，且对所有 n 有 φ<sub>e</sub>(n) &lt;<sub>O</sub> 3·5<sup>e</sup>。&lt;<sub>O</sub> 取上述关系的传递闭包。（有些书用 0 而不是 1 作为零的记号。）<br>
+    <b>定理.</b> {|a| : a ∈ O} = ω₁<sup>CK</sup>，即恰好递归序数有记号。对 a ∈ O，{b : b &lt;<sub>O</sub> a} 关于 a 一致地递归可枚举，并在 &lt;<sub>O</sub> 下良序，序型为 |a|。<b>O 是 Π¹₁-完全的</b>：每个 Π¹₁ 集 A ⊆ ω 都可多一归约到 O。有限序数恰有一个记号；每个无穷递归序数都有无穷多个记号。</span></div>
+  <p><span class="en">Build part of O. Select a node, then add a successor or a limit. Use <b>Compare</b> to test two nodes under &lt;<sub>O</sub>. Challenge: make two different notations for ω and compare them.</span>
+     <span class="zh">亲手搭建 O 的一部分。选中一个结点，再添加后继或极限。用<b>比较</b>检验两个结点在 &lt;<sub>O</sub> 下的关系。挑战：造出 ω 的两个不同记号并比较它们。</span></p>
+  <div class="toolbar">
+    <button class="btn" id="oSucc"><span class="en">Successor 2<sup>a</sup></span><span class="zh">后继 2<sup>a</sup></span></button>
+    <button class="btn" id="oLimA"><span class="en">Limit: 3·5<sup>e</sup>, φ<sub>e</sub>(n) = (n+1)-th successor of a</span><span class="zh">极限：3·5<sup>e</sup>，φ<sub>e</sub>(n) = a 的第 n+1 个后继</span></button>
+    <button class="btn" id="oLimB"><span class="en">Limit: 3·5<sup>e</sup>, φ<sub>e</sub>(n) = (2n+1)-th successor of a</span><span class="zh">极限：3·5<sup>e</sup>，φ<sub>e</sub>(n) = a 的第 2n+1 个后继</span></button>
+    <button class="btn" id="oCmp"><span class="en">Compare two nodes</span><span class="zh">比较两个结点</span></button>
+    <button class="btn ghost" id="oReset"><span class="en">Reset</span><span class="zh">重置</span></button>
+  </div>
+  <div class="stage"><svg id="oSvg" viewBox="0 0 900 520" width="900" height="520"></svg></div>
+  <div class="msg info" id="oMsg"></div>
+  <div class="pit"><b class="hd"><span class="il"><span class="en">⚠ Common pitfalls</span><span class="zh">常见误区</span></span></b><span class="en">(1) &lt;<sub>O</sub> is a <b>tree order</b>, not a linear order: two notations for ω are &lt;<sub>O</sub>-incomparable, and the predecessors of a notation form a single path. (2) The limit rule demands φ<sub>e</sub>(n) be &lt;<sub>O</sub>-increasing, not merely that |φ<sub>e</sub>(n)| increase. (3) You cannot decide membership 3·5<sup>e</sup> ∈ O by running φ<sub>e</sub>: one must check totality and that every value is again in O, all the way down. That is why O is Π¹₁-complete, not arithmetical.</span>
+    <span class="zh">(1) &lt;<sub>O</sub> 是<b>树序</b>而不是线序：ω 的两个记号在 &lt;<sub>O</sub> 下不可比较，而一个记号的所有前驱构成一条路径。(2) 极限规则要求 φ<sub>e</sub>(n) 在 &lt;<sub>O</sub> 下递增，而不只是 |φ<sub>e</sub>(n)| 递增。(3) 不能靠运行 φ<sub>e</sub> 来判定 3·5<sup>e</sup> ∈ O：必须检查全定义性，还要检查每个值本身又属于 O，一路查到底。正因为如此，O 是 Π¹₁-完全的，而不是算术集。</span></div>
+  <div class="cy" data-cy="s5"></div>
+</section>
+
+<!-- ============ S6 ============ -->
+<section class="card" id="s6">
+  <div class="kicker">Step 6 · <span class="il"><span class="en">Σ¹₁ bounding</span><span class="zh">Σ¹₁ 有界性</span></span></div>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置</span></span>: <a href="#s3">§3 WO</a><a href="#s4">§4 ω₁<sup>CK</sup></a></div>
+  <h2><span class="en">The boundedness theorem</span><span class="zh">有界性定理</span></h2>
+  <p class="core"><span class="en">Core idea: a Σ¹₁ family of well-orders cannot reach all the way up. In the lightface case it stops <b>strictly below</b> ω₁<sup>CK</sup>.</span>
+    <span class="zh">核心思想：一族 Σ¹₁ 的良序够不到顶。在细体情形下，它停在 ω₁<sup>CK</sup> <b>严格下方</b>。</span></p>
+  <div class="def"><span class="en"><b>Boundedness theorem.</b> (a) If A ⊆ WO is <b>Σ¹₁</b> (lightface), then sup{|x| : x ∈ A} &lt; ω₁<sup>CK</sup>. (b) If A ⊆ WO is boldface Σ¹₁ (Σ¹₁ in some real parameter), then sup{|x| : x ∈ A} &lt; ω₁. (c) Number form: if X ⊆ O is Σ¹₁, then sup{|a| : a ∈ X} &lt; ω₁<sup>CK</sup>.</span>
+    <span class="zh"><b>有界性定理.</b> (a) 若 A ⊆ WO 是（细体）<b>Σ¹₁</b> 的，则 sup{|x| : x ∈ A} &lt; ω₁<sup>CK</sup>。(b) 若 A ⊆ WO 是粗体 Σ¹₁ 的（以某个实数为参数的 Σ¹₁），则 sup{|x| : x ∈ A} &lt; ω₁。(c) 数的形式：若 X ⊆ O 是 Σ¹₁ 的，则 sup{|a| : a ∈ X} &lt; ω₁<sup>CK</sup>。</span></div>
+  <p><span class="en">Choose a subset of WO and watch where its order types land.</span><span class="zh">选一个 WO 的子集，看它的序型落在哪里。</span></p>
+  <div class="toolbar" id="bPick"></div>
+  <div class="stage"><svg id="bSvg" viewBox="0 0 920 170" width="920" height="170"></svg></div>
+  <div class="msg info" id="bMsg"></div>
+  <div class="steps" id="bProof">
+    <div class="step"><span class="en"><b>Proof of (a), step 1.</b> Suppose not: every recursive ordinal is &lt; |x| for some x ∈ A. (This covers sup = ω₁<sup>CK</sup> even when it is not attained.)</span><span class="zh"><b>(a) 的证明，第 1 步.</b> 假设结论不成立：每个递归序数都小于某个 x ∈ A 的 |x|。（sup = ω₁<sup>CK</sup> 但取不到的情形也包含在内。）</span></div>
+    <div class="step"><span class="en"><b>Step 2.</b> Then for an index e: e ∈ W ⇔ ≤<sub>e</sub> is a linear order ∧ ∃x ∃g (x ∈ A ∧ g is an order-embedding of ≤<sub>e</sub> into ≤<sub>x</sub>). “⇒” by the assumption, since |≤<sub>e</sub>| is recursive. “⇐” because a linear order that embeds into a well-order is a well-order.</span><span class="zh"><b>第 2 步.</b> 于是对指标 e：e ∈ W ⇔ ≤<sub>e</sub> 是线序 ∧ ∃x ∃g (x ∈ A ∧ g 是 ≤<sub>e</sub> 到 ≤<sub>x</sub> 的保序嵌入)。“⇒”由假设得到，因为 ≤<sub>e</sub> 的序型是递归序数；“⇐”是因为能嵌入良序的线序本身是良序。</span></div>
+    <div class="step"><span class="en"><b>Step 3.</b> The right-hand side is Σ¹₁ (existential real quantifiers over an arithmetical matrix plus x ∈ A). So W would be Σ¹₁, contradicting that W is Π¹₁-complete and not Σ¹₁. ∎ For (b), run the same argument with WO in place of W and the parameter of A carried along.</span><span class="zh"><b>第 3 步.</b> 右边是 Σ¹₁ 的（对实数的存在量词，加上算术母式和 x ∈ A）。于是 W 就是 Σ¹₁ 的，与 W 为 Π¹₁-完全且不是 Σ¹₁ 矛盾。∎ 对 (b)，用 WO 代替 W、带着 A 的参数，同样论证即可。</span></div>
+  </div>
+  <div class="step-nav"><button class="btn small" data-steps="bProof" data-act="next"><span class="en">Next step</span><span class="zh">下一步</span></button><button class="btn small ghost" data-steps="bProof" data-act="all"><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+  <div class="intu"><b class="hd"><span class="il"><span class="en">Corollaries</span><span class="zh">推论</span></span></b><span class="en">WO is not Σ¹₁ (its ranks reach every countable ordinal). If x ∈ WO is hyperarithmetic, then |x| &lt; ω₁<sup>CK</sup>: the singleton {x} is Δ¹₁, hence a Σ¹₁ subset of WO. So hyperarithmetic well-orders are no longer than recursive ones.</span>
+    <span class="zh">WO 不是 Σ¹₁ 的（它的秩取遍所有可数序数）。若 x ∈ WO 是超算术的，则 |x| &lt; ω₁<sup>CK</sup>：单点集 {x} 是 Δ¹₁ 的，从而是 WO 的 Σ¹₁ 子集。所以超算术良序不比递归良序更长。</span></div>
+  <div class="pit"><b class="hd"><span class="il"><span class="en">⚠ Common pitfall</span><span class="zh">常见误区</span></span></b><span class="en">Boundedness is about <b>Σ¹₁</b> subsets. A Π¹₁ subset of WO can be unbounded (WO itself), and so can {x ∈ WO : x recursive}, whose types fill all of ω₁<sup>CK</sup>. By (a), that set is therefore not Σ¹₁. And the bound is <b>strict</b>: “&lt; ω₁<sup>CK</sup>”, not “≤”.</span>
+    <span class="zh">有界性说的是 <b>Σ¹₁</b> 子集。WO 的 Π¹₁ 子集可以无界（WO 本身就是），{x ∈ WO : x 递归} 也一样，它的序型填满整个 ω₁<sup>CK</sup>；由 (a)，这个集合因此不是 Σ¹₁ 的。并且界是<b>严格</b>的：“&lt; ω₁<sup>CK</sup>”，而不是“≤”。</span></div>
+  <div class="cy" data-cy="s6"></div>
+</section>
+
+<!-- ============ S7 ============ -->
+<section class="card" id="s7">
+  <div class="kicker">Step 7 · HYP</div>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置</span></span>: <a href="lesson17.html">L17 <span class="il"><span class="en">Turing jump, Post's theorem</span><span class="zh">图灵跳跃、波斯特定理</span></span></a><a href="#s5">§5 O</a></div>
+  <h2><span class="en">Iterating the jump into the transfinite: ∅<sup>(α)</sup></span><span class="zh">把跳跃迭代到超限：∅<sup>(α)</sup></span></h2>
+  <p class="core"><span class="en">Core idea: continue the L17 ladder ∅, ∅′, ∅″, … past ω by taking joins at limits. A notation in O tells you exactly how.</span>
+    <span class="zh">核心思想：把第 17 课的梯子 ∅, ∅′, ∅″, … 越过 ω 继续往上搭，在极限处取并（join）。O 中的记号恰好告诉你怎么做。</span></p>
+  <div class="def"><span class="en"><b>Definition (H-sets).</b> For a ∈ O define H(a) by effective transfinite recursion along &lt;<sub>O</sub>:
+    <span class="m">H(1) = ∅;&nbsp; H(2<sup>a</sup>) = H(a)′ (Turing jump);&nbsp; H(3·5<sup>e</sup>) = {⟨n, m⟩ : m ∈ H(φ<sub>e</sub>(n))}</span>.<br>
+    <b>Spector's theorem (1955).</b> If a, b ∈ O and |a| ≤ |b|, then H(a) ≤<sub>T</sub> H(b). So for α &lt; ω₁<sup>CK</sup>, <b>∅<sup>(α)</sup></b> := H(a) for any a with |a| = α is well defined up to Turing degree, and α &lt; β ⇒ ∅<sup>(α)</sup> &lt;<sub>T</sub> ∅<sup>(β)</sup>.<br>
+    A ⊆ ω is <b>hyperarithmetic</b> (A ∈ HYP) if A ≤<sub>T</sub> H(a) for some a ∈ O, i.e. A ≤<sub>T</sub> ∅<sup>(α)</sup> for some α &lt; ω₁<sup>CK</sup>.</span>
+    <span class="zh"><b>定义（H 集）.</b> 对 a ∈ O，沿 &lt;<sub>O</sub> 作能行超限递归定义 H(a)：
+    <span class="m">H(1) = ∅；&nbsp; H(2<sup>a</sup>) = H(a)′（图灵跳跃）；&nbsp; H(3·5<sup>e</sup>) = {⟨n, m⟩ : m ∈ H(φ<sub>e</sub>(n))}</span>。<br>
+    <b>Spector 定理（1955）.</b> 若 a, b ∈ O 且 |a| ≤ |b|，则 H(a) ≤<sub>T</sub> H(b)。因此对 α &lt; ω₁<sup>CK</sup>，取任意满足 |a| = α 的 a，令 <b>∅<sup>(α)</sup></b> := H(a)，它在图灵度意义下是良定义的，且 α &lt; β ⇒ ∅<sup>(α)</sup> &lt;<sub>T</sub> ∅<sup>(β)</sup>。<br>
+    若存在 a ∈ O 使 A ≤<sub>T</sub> H(a)，即存在 α &lt; ω₁<sup>CK</sup> 使 A ≤<sub>T</sub> ∅<sup>(α)</sup>，则称 A ⊆ ω 是<b>超算术的</b>（A ∈ HYP）。</span></div>
+  <p><span class="en">Climb the ladder: <b>Jump</b> adds one ′; <b>Limit</b> joins the whole ω-sequence below into one set (drawn as stacked rows: row n is the n-th set of the sequence).</span>
+     <span class="zh">爬梯子：<b>跳跃</b>加一撇；<b>极限</b>把下方整条 ω 序列并成一个集合（画成叠起来的行：第 n 行是序列中的第 n 个集合）。</span></p>
+  <div class="toolbar">
+    <button class="btn primary" id="hJump"><span class="en">Jump ′</span><span class="zh">跳跃 ′</span></button>
+    <button class="btn primary" id="hLim"><span class="en">Limit ⊕</span><span class="zh">极限 ⊕</span></button>
+    <button class="btn" id="hAuto"><span class="en">Auto-climb ▶</span><span class="zh">自动攀登 ▶</span></button>
+    <button class="btn ghost" id="hReset"><span class="en">Reset</span><span class="zh">重置</span></button>
+  </div>
+  <div class="stage"><svg id="hSvg" viewBox="0 0 900 330" width="900" height="330"></svg></div>
+  <div class="msg info" id="hMsg"></div>
+  <div class="pit"><b class="hd"><span class="il"><span class="en">⚠ Common pitfalls</span><span class="zh">常见误区</span></span></b><span class="en">(1) ∅<sup>(ω)</sup> is <b>not arithmetical</b>: every arithmetical set is ≤<sub>T</sub> some ∅<sup>(n)</sup> (Post), while ∅<sup>(n+1)</sup> ≤<sub>T</sub> ∅<sup>(ω)</sup> and ∅<sup>(n+1)</sup> ≰<sub>T</sub> ∅<sup>(n)</sup>. (2) H(a) depends on the notation a. Only its <b>Turing degree</b> depends on |a| alone. (3) The ladder stops at ω₁<sup>CK</sup> because there are no notations beyond it, not because jumping becomes impossible. Every hyperarithmetic set is recursive in O, and O is not hyperarithmetic.</span>
+    <span class="zh">(1) ∅<sup>(ω)</sup> <b>不是算术集</b>：每个算术集都 ≤<sub>T</sub> 某个 ∅<sup>(n)</sup>（波斯特定理），而 ∅<sup>(n+1)</sup> ≤<sub>T</sub> ∅<sup>(ω)</sup> 且 ∅<sup>(n+1)</sup> ≰<sub>T</sub> ∅<sup>(n)</sup>。(2) H(a) 依赖于记号 a；只有它的<b>图灵度</b>只依赖于 |a|。(3) 梯子停在 ω₁<sup>CK</sup>，是因为那之后没有记号了，而不是跳跃做不下去。每个超算术集都递归于 O，而 O 本身不是超算术的。</span></div>
+  <div class="cy" data-cy="s7"></div>
+</section>
+
+<!-- ============ S8 ============ -->
+<section class="card" id="s8">
+  <div class="kicker">Step 8 · <span class="il"><span class="en">Kleene's theorem</span><span class="zh">克莱尼定理</span></span></div>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置</span></span>: <a href="#s2">§2 <span class="il"><span class="en">tree form</span><span class="zh">树形式</span></span></a><a href="#s6">§6 <span class="il"><span class="en">boundedness</span><span class="zh">有界性</span></span></a><a href="#s7">§7 H-sets</a></div>
+  <h2><span class="en">Δ¹₁ = HYP</span><span class="zh">Δ¹₁ = HYP</span></h2>
+  <p class="core"><span class="en">Core idea: the sets definable both by “∃ real” and by “∀ real” are exactly the sets computable from some transfinite jump below ω₁<sup>CK</sup>.</span>
+    <span class="zh">核心思想：既能用“∃ 实数”又能用“∀ 实数”定义的集合，恰好是能由 ω₁<sup>CK</sup> 以下某个超限跳跃计算出来的集合。</span></p>
+  <div class="def"><span class="en"><b>Kleene's theorem (1955).</b> For A ⊆ ω: A is Δ¹₁ ⇔ A is hyperarithmetic ⇔ A ≤<sub>T</sub> ∅<sup>(α)</sup> for some α &lt; ω₁<sup>CK</sup>.</span>
+    <span class="zh"><b>克莱尼定理（1955）.</b> 对 A ⊆ ω：A 是 Δ¹₁ 的 ⇔ A 是超算术的 ⇔ 存在 α &lt; ω₁<sup>CK</sup> 使 A ≤<sub>T</sub> ∅<sup>(α)</sup>。</span></div>
+  <p><span class="en">The map of sets of natural numbers. Click a set to see where it lives and why.</span><span class="zh">自然数集合的地图。点击一个集合，看它住在哪里以及为什么。</span></p>
+  <div class="toolbar" id="vPick"></div>
+  <div class="stage"><svg id="vSvg" viewBox="0 0 900 340" width="900" height="340"></svg></div>
+  <div class="msg info" id="vMsg"></div>
+  <h3><span class="en">Proof sketch</span><span class="zh">证明概要</span></h3>
+  <div class="steps" id="kProof">
+    <div class="step"><span class="en"><b>1 · HYP ⊆ Δ¹₁, uniqueness.</b> For a ∈ O, let Hier(a, Y) say: “Y codes a family (Y<sub>b</sub>)<sub>b ≤<sub>O</sub> a</sub> with Y<sub>1</sub> = ∅, Y<sub>2<sup>b</sup></sub> = (Y<sub>b</sub>)′, Y<sub>3·5<sup>e</sup></sub> = ⊕<sub>n</sub> Y<sub>φ<sub>e</sub>(n)</sub>”. Since {b : b ≤<sub>O</sub> a} is r.e., Hier is arithmetical. By transfinite induction along the well-order &lt;<sub>O</sub> below a, there is <b>exactly one</b> such Y, and Y<sub>a</sub> = H(a).</span>
+      <span class="zh"><b>1 · HYP ⊆ Δ¹₁：唯一性.</b> 对 a ∈ O，令 Hier(a, Y) 表示：“Y 编码一族 (Y<sub>b</sub>)<sub>b ≤<sub>O</sub> a</sub>，满足 Y<sub>1</sub> = ∅，Y<sub>2<sup>b</sup></sub> = (Y<sub>b</sub>)′，Y<sub>3·5<sup>e</sup></sub> = ⊕<sub>n</sub> Y<sub>φ<sub>e</sub>(n)</sub>”。由于 {b : b ≤<sub>O</sub> a} 递归可枚举，Hier 是算术的。沿 a 以下的良序 &lt;<sub>O</sub> 作超限归纳，这样的 Y <b>恰有一个</b>，且 Y<sub>a</sub> = H(a)。</span></div>
+    <div class="step"><span class="en"><b>2 · Two definitions.</b> Hence n ∈ H(a) ⇔ ∃Y (Hier(a,Y) ∧ n ∈ Y<sub>a</sub>) ⇔ ∀Y (Hier(a,Y) → n ∈ Y<sub>a</sub>): Σ¹₁ and Π¹₁. Δ¹₁ is closed under ≤<sub>T</sub> (if A ≤<sub>T</sub> B, A is arithmetical in B, i.e. Δ⁰₁ in B), so every A ≤<sub>T</sub> H(a) is Δ¹₁.</span>
+      <span class="zh"><b>2 · 两种定义.</b> 于是 n ∈ H(a) ⇔ ∃Y (Hier(a,Y) ∧ n ∈ Y<sub>a</sub>) ⇔ ∀Y (Hier(a,Y) → n ∈ Y<sub>a</sub>)：既是 Σ¹₁ 又是 Π¹₁。Δ¹₁ 对 ≤<sub>T</sub> 封闭（若 A ≤<sub>T</sub> B，则 A 是 B 中的 Δ⁰₁ 集），所以每个 A ≤<sub>T</sub> H(a) 都是 Δ¹₁ 的。</span></div>
+    <div class="step"><span class="en"><b>3 · Δ¹₁ ⊆ HYP, trees.</b> Let A be Δ¹₁. Since A is Π¹₁, by §2 there are uniformly recursive trees T<sub>n</sub> with n ∈ A ⇔ T<sub>n</sub> is WF.</span>
+      <span class="zh"><b>3 · Δ¹₁ ⊆ HYP：树.</b> 设 A 是 Δ¹₁ 的。因为 A 是 Π¹₁ 的，由 §2，存在一致递归的树 T<sub>n</sub>，使 n ∈ A ⇔ T<sub>n</sub> 良基。</span></div>
+    <div class="step"><span class="en"><b>4 · Bounding.</b> Since A is <i>also</i> Σ¹₁, the set {code of KB(T<sub>n</sub>) : n ∈ A} is a Σ¹₁ subset of WO. By boundedness its order types, and hence the ranks ρ(T<sub>n</sub>) ≤ |KB(T<sub>n</sub>)| for n ∈ A, are all &lt; some recursive α.</span>
+      <span class="zh"><b>4 · 有界.</b> 因为 A <i>同时</i>是 Σ¹₁ 的，集合 {KB(T<sub>n</sub>) 的编码 : n ∈ A} 是 WO 的 Σ¹₁ 子集。由有界性定理，它的序型，从而 n ∈ A 时的秩 ρ(T<sub>n</sub>) ≤ |KB(T<sub>n</sub>)|，都小于某个递归序数 α。</span></div>
+    <div class="step"><span class="en"><b>5 · Computing.</b> Now n ∈ A ⇔ ρ(T<sub>n</sub>) &lt; α (for n ∉ A, T<sub>n</sub> is ill-founded and has no rank). The relation “σ ∈ T<sub>n</sub> and ρ(σ) &lt; β” is built by effective transfinite recursion along a recursive well-order of type α: each successor step is Π⁰₁ in the previous stage (one jump), each limit is a join. So A ≤<sub>T</sub> H(b) for a suitable b ∈ O, i.e. A ∈ HYP. ∎</span>
+      <span class="zh"><b>5 · 计算.</b> 于是 n ∈ A ⇔ ρ(T<sub>n</sub>) &lt; α（n ∉ A 时 T<sub>n</sub> 非良基，没有秩）。关系“σ ∈ T<sub>n</sub> 且 ρ(σ) &lt; β”可以沿一个序型为 α 的递归良序作能行超限递归构造：每个后继步相对前一阶段是 Π⁰₁ 的（多一次跳跃），每个极限步取并。所以对适当的 b ∈ O 有 A ≤<sub>T</sub> H(b)，即 A ∈ HYP。∎</span></div>
+  </div>
+  <div class="step-nav"><button class="btn small" data-steps="kProof" data-act="next"><span class="en">Next step</span><span class="zh">下一步</span></button><button class="btn small ghost" data-steps="kProof" data-act="all"><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+  <div class="pit"><b class="hd"><span class="il"><span class="en">⚠ Common pitfall</span><span class="zh">常见误区</span></span></b><span class="en">Step 1 needs <b>uniqueness</b>, not just existence: with only existence, “∀Y (Hier → n ∈ Y<sub>a</sub>)” could fail on a fake Y. Uniqueness holds because &lt;<sub>O</sub> below a is a genuine well-order. Along ill-founded recursive orders (Harrison's) “jump hierarchies” can exist without being unique or hyperarithmetic.</span>
+    <span class="zh">第 1 步需要的是<b>唯一性</b>，不只是存在性：若只有存在性，“∀Y (Hier → n ∈ Y<sub>a</sub>)”可能被某个冒牌的 Y 破坏。唯一性成立，是因为 a 以下的 &lt;<sub>O</sub> 是真正的良序。沿着非良基的递归序（如 Harrison 序），“跳跃层级”可能存在，但既不唯一，也不是超算术的。</span></div>
+  <div class="cy" data-cy="s8"></div>
+</section>
+
+<!-- ============ S9 ============ -->
+<section class="card" id="s9">
+  <div class="kicker">Step 9 · Spector–Gandy · Kondo–Addison</div>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置</span></span>: <a href="#s8">§8 Δ¹₁ = HYP</a><a href="#s3">§3 <span class="il"><span class="en">ranks</span><span class="zh">秩</span></span></a></div>
+  <h2><span class="en">Two structure theorems for Π¹₁ (stated)</span><span class="zh">Π¹₁ 的两个结构定理（只陈述）</span></h2>
+  <p class="core"><span class="en">Core idea: a universal quantifier over <i>all</i> reals can be traded for an existential quantifier over the countably many <i>hyperarithmetic</i> reals; and Π¹₁ relations can choose a single witness definably.</span>
+    <span class="zh">核心思想：对<i>所有</i>实数的全称量词，可以换成对可数多个<i>超算术</i>实数的存在量词；并且 Π¹₁ 关系可以可定义地挑出唯一的见证。</span></p>
+  <div class="def"><span class="en"><b>Spector–Gandy theorem (1960).</b> A ⊆ ω is Π¹₁ ⇔ there is an arithmetical R with <span class="m">n ∈ A ⇔ ∃Y ∈ HYP R(n, Y)</span>. Equivalently, the Π¹₁ subsets of ω are exactly the sets Σ₁-definable over L<sub>ω₁<sup>CK</sup></sub>.</span>
+    <span class="zh"><b>Spector–Gandy 定理（1960）.</b> A ⊆ ω 是 Π¹₁ 的 ⇔ 存在算术关系 R 使 <span class="m">n ∈ A ⇔ ∃Y ∈ HYP R(n, Y)</span>。等价地，ω 的 Π¹₁ 子集恰好是在 L<sub>ω₁<sup>CK</sup></sub> 上 Σ₁ 可定义的集合。</span></div>
+  <div class="toolbar">
+    <button class="btn" id="sgAll"><span class="en">Π¹₁ view: check ∀ y ∈ ω<sup>ω</sup></span><span class="zh">Π¹₁ 视角：检查 ∀ y ∈ ω<sup>ω</sup></span></button>
+    <button class="btn" id="sgHyp"><span class="en">Spector–Gandy view: find ∃ Y ∈ HYP</span><span class="zh">Spector–Gandy 视角：寻找 ∃ Y ∈ HYP</span></button>
+  </div>
+  <div class="stage"><svg id="sgSvg" viewBox="0 0 900 200" width="900" height="200"></svg></div>
+  <div class="msg info" id="sgMsg"></div>
+  <div class="def"><span class="en"><b>Π¹₁ uniformization (Kondo 1938; lightface: Addison 1959).</b> If P ⊆ ω<sup>ω</sup> × ω<sup>ω</sup> is Π¹₁, there is a Π¹₁ set P* ⊆ P such that for every x: if ∃y P(x, y), then there is <b>exactly one</b> y with P*(x, y). (The boldface version holds as well.) Consequence: Σ¹₂ relations can be uniformized by Σ¹₂ relations.</span>
+    <span class="zh"><b>Π¹₁ 单值化定理（近藤 1938；细体版本：Addison 1959）.</b> 若 P ⊆ ω<sup>ω</sup> × ω<sup>ω</sup> 是 Π¹₁ 的，则存在 Π¹₁ 集 P* ⊆ P，使得对每个 x：若 ∃y P(x, y)，则<b>恰有一个</b> y 满足 P*(x, y)。（粗体版本同样成立。）推论：Σ¹₂ 关系可以被 Σ¹₂ 关系单值化。</span></div>
+  <p><span class="en">A cartoon of P (columns = x, cells = candidate y). Click cells to edit P, then <b>Uniformize</b>: in each nonempty column, keep the candidate with least norm, ties broken by least y. Kondo's real proof does this along y digit by digit, interleaving Π¹₁-norms, so that the choice stays Π¹₁.</span>
+     <span class="zh">P 的示意图（列 = x，格子 = 候选的 y）。点击格子修改 P，再按<b>单值化</b>：在每个非空列里，留下范数最小的候选，范数相同则取 y 最小的。近藤的真正证明是沿着 y 一位一位地做，并穿插 Π¹₁ 范数，从而保证选择仍是 Π¹₁ 的。</span></p>
+  <div class="toolbar">
+    <button class="btn primary" id="uGo"><span class="en">Uniformize ▶</span><span class="zh">单值化 ▶</span></button>
+    <button class="btn" id="uNew"><span class="en">Random P</span><span class="zh">随机 P</span></button>
+  </div>
+  <div class="stage"><svg id="uSvg" viewBox="0 0 900 300" width="900" height="300"></svg></div>
+  <div class="msg info" id="uMsg"></div>
+  <div class="pit"><b class="hd"><span class="il"><span class="en">⚠ Common pitfall</span><span class="zh">常见误区</span></span></b><span class="en">The chosen y need not be simple. Kleene: there is a nonempty Π⁰₁ set of reals (the branches of a recursive tree on ω) with <b>no hyperarithmetic member</b>. Uniformizing it picks a y such that {y} is Π¹₁, yet y ∉ HYP. Similarly, “a recursive ill-founded tree has a hyperarithmetic branch” is false. What is true is that it has a branch recursive in O (Kleene basis theorem).</span>
+    <span class="zh">被选出的 y 未必简单。克莱尼：存在一个非空的 Π⁰₁ 实数集（ω 上某棵递归树的分支集），它<b>没有超算术元素</b>。对它单值化，选出的 y 满足 {y} 是 Π¹₁ 的，但 y ∉ HYP。同理，“非良基的递归树一定有超算术分支”是错的；正确的是：它有一条递归于 O 的分支（克莱尼基定理）。</span></div>
+  <div class="cy" data-cy="s9"></div>
+</section>
+
+<!-- ============ S10 ============ -->
+<section class="card" id="s10">
+  <div class="kicker">Step 10 · <span class="il"><span class="en">Relativization, Σ¹₂</span><span class="zh">相对化、Σ¹₂</span></span></div>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置</span></span>: <a href="#s1">§1</a><a href="lesson15.html">L15 <span class="il"><span class="en">constructible universe L</span><span class="zh">可构成宇宙 L</span></span></a><a href="lesson16.html">L16 <span class="il"><span class="en">forcing</span><span class="zh">力迫</span></span></a><span class="il"><span class="en">preview</span><span class="zh">预告</span></span>: <a href="lesson19.html">L19</a><a href="lesson20.html">L20</a></div>
+  <h2><span class="en">Lightface vs boldface, and Shoenfield absoluteness</span><span class="zh">细体与粗体，以及 Shoenfield 绝对性</span></h2>
+  <p class="core"><span class="en">Core idea: allowing a real parameter a gives Σ¹ₙ(a); boldface Σ¹ₙ is the union over all a. For sets of numbers that union is trivial; for sets of reals it is the projective hierarchy of L19.</span>
+    <span class="zh">核心思想：允许一个实数参数 a，就得到 Σ¹ₙ(a)；粗体 Σ¹ₙ 是对所有 a 取并。对自然数集合而言这个并是平凡的；对实数集合而言，它就是第 19 课的投影层级。</span></p>
+  <div class="def"><span class="en"><b>Relativization.</b> Σ¹ₙ(a), Π¹ₙ(a), O<sup>a</sup>, ω₁<sup>a</sup> (sup of order types of a-recursive well-orders), H<sup>a</sup>-sets: everything above with “recursive” replaced by “recursive in a”. All theorems relativize, e.g. Δ¹₁(a) = HYP(a) and boundedness below ω₁<sup>a</sup>. <b>Boldface</b>: <b>Σ</b>¹ₙ = ⋃<sub>a∈ω<sup>ω</sup></sub> Σ¹ₙ(a), etc. For subsets of ω<sup>ω</sup>: boldface Σ¹₁ = analytic sets, boldface Δ¹₁ = Borel sets (Suslin), see L19. Lightface Δ¹₁ subsets of ω<sup>ω</sup> are the “effectively Borel” sets (Kleene–Suslin), a countable family.</span>
+    <span class="zh"><b>相对化.</b> Σ¹ₙ(a)、Π¹ₙ(a)、O<sup>a</sup>、ω₁<sup>a</sup>（a-递归良序序型的上确界）、H<sup>a</sup> 集：把上面所有的“递归”换成“相对 a 递归”。所有定理都可以相对化，例如 Δ¹₁(a) = HYP(a)，有界性的界变为 ω₁<sup>a</sup>。<b>粗体</b>：<b>Σ</b>¹ₙ = ⋃<sub>a∈ω<sup>ω</sup></sub> Σ¹ₙ(a)，其余类似。对 ω<sup>ω</sup> 的子集：粗体 Σ¹₁ = 解析集，粗体 Δ¹₁ = 博雷尔集（Suslin 定理），见第 19 课。细体 Δ¹₁ 的 ω<sup>ω</sup> 子集是“能行博雷尔集”（Kleene–Suslin），只有可数多个。</span></div>
+  <p><span class="en">Click a column to choose the parameter a. The table shows the best classification relative to a.</span><span class="zh">点击某一列选择参数 a。表中显示相对于 a 的最佳分类。</span></p>
+  <div id="pTab"></div>
+  <div class="pit"><b class="hd"><span class="il"><span class="en">⚠ Common pitfall</span><span class="zh">常见误区</span></span></b><span class="en">For <b>sets of numbers</b>, boldface is useless: every A ⊆ ω is Δ⁰₁(A), hence boldface Δ⁰₁. Lightface is the meaningful notion for subsets of ω; boldface is for sets of reals. Also ω₁<sup>a</sup> ≥ ω₁<sup>CK</sup> always, with equality for every hyperarithmetic a. By Spector, ω₁<sup>a</sup> &gt; ω₁<sup>CK</sup> iff O ∈ HYP(a).</span>
+    <span class="zh">对<b>自然数集合</b>，粗体没有意义：每个 A ⊆ ω 都是 Δ⁰₁(A) 的，从而是粗体 Δ⁰₁。对 ω 的子集，有意义的是细体；粗体是为实数集合准备的。另外总有 ω₁<sup>a</sup> ≥ ω₁<sup>CK</sup>，a 超算术时取等号；由 Spector 定理，ω₁<sup>a</sup> &gt; ω₁<sup>CK</sup> 当且仅当 O ∈ HYP(a)。</span></div>
+
+  <h3><span class="en">One level up: Σ¹₂ and Shoenfield absoluteness</span><span class="zh">再往上一层：Σ¹₂ 与 Shoenfield 绝对性</span></h3>
+  <div class="def"><span class="en"><b>Σ¹₂ normal form.</b> A is Σ¹₂ iff n ∈ A ⇔ ∃f ∀g ∃m R(n, f↾m, g↾m) with R recursive, i.e. ∃f (the recursive tree T<sub>n,f</sub> is WF): a projection of a Π¹₁ set.<br>
+    <b>Mostowski absoluteness.</b> Σ¹₁(a) statements are absolute between V and any transitive model of ZF containing a.<br>
+    <b>Shoenfield absoluteness theorem.</b> If M is an inner model of ZF + DC and a ∈ M ∩ ω<sup>ω</sup>, then every Σ¹₂(a) (and Π¹₂(a)) statement is true in M iff it is true in V. In particular this holds for M = L with a ∈ L. So forcing cannot change the truth value of a Σ¹₂ sentence. (More generally it holds for transitive models of ZF + DC containing ω₁; details in L20.)</span>
+    <span class="zh"><b>Σ¹₂ 范式.</b> A 是 Σ¹₂ 的，当且仅当 n ∈ A ⇔ ∃f ∀g ∃m R(n, f↾m, g↾m)，R 递归；即 ∃f（递归树 T<sub>n,f</sub> 良基），也就是 Π¹₁ 集的投影。<br>
+    <b>Mostowski 绝对性.</b> Σ¹₁(a) 陈述在 V 与任何包含 a 的 ZF 传递模型之间是绝对的。<br>
+    <b>Shoenfield 绝对性定理.</b> 若 M 是 ZF + DC 的内模型且 a ∈ M ∩ ω<sup>ω</sup>，则每个 Σ¹₂(a)（以及 Π¹₂(a)）陈述在 M 中成立当且仅当在 V 中成立。特别地，对 M = L（a ∈ L）成立。所以力迫无法改变 Σ¹₂ 语句的真值。（更一般地，对包含 ω₁ 的 ZF + DC 传递模型也成立；细节见第 20 课。）</span></div>
+  <p><span class="en">Drop a sentence into the universes: L inside V, where V is a universe containing a non-constructible real (for example after adding a Cohen real; this is consistent if ZFC is).</span>
+     <span class="zh">把一句话放进两个宇宙：V 里面套着 L，这里的 V 含有一个非可构成实数（例如添加一个 Cohen 实数之后；只要 ZFC 一致，这就是一致的）。</span></p>
+  <div class="toolbar" id="abPick"></div>
+  <div class="stage"><svg id="abSvg" viewBox="0 0 900 230" width="900" height="230"></svg></div>
+  <div class="msg info" id="abMsg"></div>
+  <div class="pit"><b class="hd"><span class="il"><span class="en">⚠ Common pitfall</span><span class="zh">常见误区</span></span></b><span class="en">Absoluteness ≠ decidability. Shoenfield says L and V <b>agree</b> on Σ¹₂ sentences, not that ZFC <b>proves or refutes</b> them: Con(ZFC) is even arithmetical (Π⁰₁), so absolute, yet unprovable in ZFC if ZFC is consistent. And the agreement stops at Σ¹₃: “∃x (x ∉ L)” is Σ¹₃ (the set of constructible reals is Σ¹₂), false in L, true after adding a Cohen real.</span>
+    <span class="zh">绝对性 ≠ 可判定性。Shoenfield 说的是 L 与 V 在 Σ¹₂ 语句上<b>意见一致</b>，而不是 ZFC 能<b>证明或否证</b>它们：Con(ZFC) 甚至是算术语句（Π⁰₁），因此是绝对的，但若 ZFC 一致，它在 ZFC 中不可证。而且这种一致在 Σ¹₃ 就停止了：“∃x (x ∉ L)”是 Σ¹₃ 的（可构成实数之集是 Σ¹₂ 的），它在 L 中为假，添加 Cohen 实数之后为真。</span></div>
+  <div class="cy" data-cy="s10"></div>
+</section>
+
+<!-- ============ EXERCISES ============ -->
+<section class="card" id="exercises">
+  <div class="kicker"><span class="il"><span class="en">Exercises</span><span class="zh">练习</span></span></div>
+  <h2><span class="en">Your turn</span><span class="zh">轮到你了</span></h2>
+  <p class="muted"><span class="en">Progress is saved in your browser. A sidebar ✓ means solved by you (using “Show answer” does not count).</span><span class="zh">进度保存在浏览器中，侧栏出现 ✓ 表示你亲自做出（使用“看答案”不计入）。</span></p>
+
+  <div class="ex" id="e1" data-prog="L18E1">
+    <h3><span class="tag">E1</span><span class="il"><span class="en">Classify the sets</span><span class="zh">给集合分类</span></span></h3>
+    <p><span class="en">Click a card repeatedly to move it through the four zones; choose the <b>exact</b> position (the strongest true description). Codes are as in §3; trees are coded as subsets of ω<sup>&lt;ω</sup>.</span>
+       <span class="zh">反复点击卡片，让它在四个区域间移动；选<b>最精确</b>的位置（成立的最强描述）。编码方式同 §3；树编码为 ω<sup>&lt;ω</sup> 的子集。</span></p>
+    <div class="zone tray"><div class="chips" id="e1Tray"></div></div>
+    <div class="zgrid">
+      <div class="zone z1"><h4><span class="il"><span class="en">Arithmetical</span><span class="zh">算术集</span></span></h4><div class="chips" id="e1z1"></div></div>
+      <div class="zone z2"><h4><span class="il"><span class="en">Δ¹₁, not arithmetical</span><span class="zh">Δ¹₁ 但非算术</span></span></h4><div class="chips" id="e1z2"></div></div>
+      <div class="zone z3"><h4><span class="il"><span class="en">Π¹₁, not Σ¹₁</span><span class="zh">Π¹₁ 但非 Σ¹₁</span></span></h4><div class="chips" id="e1z3"></div></div>
+      <div class="zone z4"><h4><span class="il"><span class="en">Σ¹₁, not Π¹₁</span><span class="zh">Σ¹₁ 但非 Π¹₁</span></span></h4><div class="chips" id="e1z4"></div></div>
+    </div>
+    <div class="toolbar"><button class="btn primary" id="e1Check"><span class="en">Check</span><span class="zh">检查</span></button><button class="btn ghost" id="e1Show"><span class="en">Show answer</span><span class="zh">看答案</span></button></div>
+    <div class="msg" id="e1Msg"></div>
+  </div>
+
+  <div class="ex" id="e2" data-prog="L18E2">
+    <h3><span class="tag">E2</span><span class="il"><span class="en">Hunt the infinite branch</span><span class="zh">寻找无穷分支</span></span></h3>
+    <p><span class="en">This recursive ω-branching tree has exactly one infinite branch f, given by a simple formula. Every node off the branch dies within at most 3 more steps. Reach depth 10 on the branch, then type the formula for f(i).</span>
+       <span class="zh">这棵 ω 分叉的递归树恰有一条无穷分支 f，由一个简单公式给出。偏离分支的结点最多再走 3 步就会死掉。沿分支走到第 10 层，然后写出 f(i) 的公式。</span></p>
+    <div class="toolbar"><button class="btn small" id="e2Back"><span class="en">↑ Back</span><span class="zh">↑ 后退</span></button><button class="btn small" id="e2Reset"><span class="en">Reset</span><span class="zh">重置</span></button><button class="btn small ghost" id="e2Show"><span class="en">Show answer</span><span class="zh">看答案</span></button></div>
+    <div class="stage"><svg id="e2Svg" viewBox="0 0 900 400" width="900" height="400"></svg></div>
+    <div class="msg info" id="e2Msg"></div>
+    <div class="toolbar"><span class="m">f(i) =</span> <input class="formula" id="e2In" placeholder="(… i …) mod 10" style="min-width:220px"><button class="btn small" id="e2Go"><span class="en">Check formula</span><span class="zh">检查公式</span></button></div>
+    <div class="msg" id="e2FMsg"></div>
+  </div>
+
+  <div class="ex" id="e3" data-prog="L18E3">
+    <h3><span class="tag">E3</span><span class="il"><span class="en">Recursive or not?</span><span class="zh">递归还是非递归？</span></span></h3>
+    <div id="e3List"></div>
+  </div>
+
+  <div class="ex" id="e4" data-prog="L18E4">
+    <h3><span class="tag">E4</span><span class="il"><span class="en">Put Kleene's proof in order</span><span class="zh">把克莱尼的证明排好顺序</span></span></h3>
+    <p><span class="en">Click the steps in the logical order of the proof of Δ¹₁ ⊆ HYP and HYP ⊆ Δ¹₁ (start with HYP ⊆ Δ¹₁, as in §8).</span>
+       <span class="zh">按逻辑顺序点击各步，组成 HYP ⊆ Δ¹₁ 与 Δ¹₁ ⊆ HYP 的证明（与 §8 一样，先证 HYP ⊆ Δ¹₁）。</span></p>
+    <div class="row"><div class="col"><div class="ordq" id="e4Pool"></div></div><div class="col"><ol class="olist" id="e4List"></ol></div></div>
+    <div class="toolbar"><button class="btn primary" id="e4Check"><span class="en">Check</span><span class="zh">检查</span></button><button class="btn" id="e4Undo"><span class="en">Undo</span><span class="zh">撤销</span></button><button class="btn ghost" id="e4Show"><span class="en">Show answer</span><span class="zh">看答案</span></button></div>
+    <div class="msg" id="e4Msg"></div>
+  </div>
+
+  <div class="ex" id="e5" data-prog="L18E5">
+    <h3><span class="tag">E5</span><span class="il"><span class="en">Working with notations</span><span class="zh">记号练习</span></span></h3>
+    <div id="e5List"></div>
+    <div class="toolbar"><button class="btn ghost" id="e5Show"><span class="en">Show answers</span><span class="zh">看答案</span></button></div>
+  </div>
+
+  <div class="ex" id="e6" data-prog="L18E6">
+    <h3><span class="tag">E6</span><span class="il"><span class="en">Boldface, bases, absoluteness</span><span class="zh">粗体、基定理与绝对性</span></span></h3>
+    <div id="e6List"></div>
+  </div>
+</section>
+
+<section class="card">
+  <div class="kicker"><span class="il"><span class="en">Next</span><span class="zh">下一课</span></span></div>
+  <h2><a href="lesson19.html" style="color:inherit"><span class="en">Lesson 19: Borel and projective hierarchies →</span><span class="zh">第 19 课：博雷尔层级与投影层级 →</span></a></h2>
+  <p><span class="en">Add real parameters everywhere and the lightface picture becomes the classical one: Σ¹₁ becomes analytic sets, Δ¹₁ becomes Borel (Suslin), and ω₁<sup>CK</sup> becomes ω₁. Next lesson builds the Borel hierarchy level by level and climbs the projective hierarchy.</span>
+     <span class="zh">处处允许实数参数，细体图景就变成经典图景：Σ¹₁ 变成解析集，Δ¹₁ 变成博雷尔集（Suslin），ω₁<sup>CK</sup> 变成 ω₁。下一课逐层搭建博雷尔层级，并攀登投影层级。</span></p>
+</section>
+</main>
+</div>
+
+<script src="assets/logic.js"></script>
+<script src="assets/lesson18.js"></script>
+</body>
+</html>

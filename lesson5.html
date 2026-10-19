@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 5 · Compactness &amp; Löwenheim–Skolem · 紧致性与勒文海姆–斯科伦定理</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+.chip.sel { border-color: var(--accent); background: var(--accent-soft); font-weight: 700; }
+.chip.m, .chips.m .chip { font-family: var(--mono); }
+.chip.dim { opacity: .45; }
+svg .clk { cursor: pointer; }
+svg .clk:hover circle { filter: drop-shadow(0 0 4px rgba(59,91,219,.7)); }
+.mv { transition: transform .9s cubic-bezier(.2,.9,.3,1); }
+.fadeop { transition: opacity .6s; }
+table.tt.rows td, table.tt.rows th { text-align: left; white-space: nowrap; }
+table.tt.rows tr.clk { cursor: pointer; }
+table.tt.rows tr.clk:hover td { background: var(--accent-soft); }
+table.tt.rows tr.cur td { background: #fff8db; }
+table.tt.rows td.q { color: var(--muted); text-align: center; }
+.qchip { display: inline-block; padding: 1px 7px; margin: 2px; border-radius: 7px; border: 1px solid var(--line); font-family: var(--mono); font-size: 13px; background: #fff; }
+.qchip.used { background: var(--true-soft); border-color: var(--true); color: #1b5e20; }
+.qchip.next { border: 2px solid var(--gold); background: var(--gold-soft); }
+.bflog { font-family: var(--mono); font-size: 13px; max-height: 210px; overflow: auto; background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; }
+.bflog div { padding: 1px 0; border-bottom: 1px dotted #eee; }
+.cardsel { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
+.formula-big { font-family: var(--mono); font-size: 17px; background: #fffdf8; border: 1px solid var(--line); border-radius: 10px; padding: 8px 12px; display: inline-block; margin: 6px 0; }
+.lang-both .il .zh.nodot::before { content: ""; }
+.ex .tf .stmt { font-family: var(--sans); font-size: 15px; }
+</style>
+</head>
+<body class="lang-both">
+<header class="top">
+  <a class="home" href="index.html">∀∃ <span class="il"><span class="en">Logic &amp; Sets</span><span class="zh">逻辑与集合</span></span></a>
+  <span class="muted">/ L5</span>
+  <span class="spacer"></span>
+  <div class="lang-switch">
+    <button data-lang="en">EN</button><button data-lang="zh">中文</button><button data-lang="both">EN + 中</button>
+  </div>
+</header>
+
+<div class="layout">
+<nav class="side">
+  <div class="grp">Lesson 5</div>
+  <a href="index.html">← <span class="il"><span class="en">Course map</span><span class="zh">课程地图</span></span></a>
+  <a href="lesson4.html">← <span class="il"><span class="en">Lesson 4</span><span class="zh">第 4 课</span></span></a>
+  <a href="lesson6.html"><span class="il"><span class="en">Lesson 6</span><span class="zh">第 6 课</span></span> →</a>
+  <a href="#s1">1 · <span class="il"><span class="en">Compactness</span><span class="zh">紧致性定理</span></span></a>
+  <a href="#s2">2 · <span class="il"><span class="en">Finiteness</span><span class="zh">有限性不可定义</span></span></a>
+  <a href="#s3">3 · <span class="il"><span class="en">Nonstandard ℕ</span><span class="zh">非标准算术模型</span></span></a>
+  <a href="#s4">4 · <span class="il"><span class="en">Graph coloring</span><span class="zh">图着色</span></span></a>
+  <a href="#s5">5 · <span class="il"><span class="en">Downward LS</span><span class="zh">向下 LS 定理</span></span></a>
+  <a href="#s6">6 · <span class="il"><span class="en">Elementary substructures</span><span class="zh">初等子结构</span></span></a>
+  <a href="#s7">7 · <span class="il"><span class="en">Skolem's paradox</span><span class="zh">斯科伦悖论</span></span></a>
+  <a href="#s8">8 · <span class="il"><span class="en">Upward LS</span><span class="zh">向上 LS 定理</span></span></a>
+  <a href="#s9">9 · <span class="il"><span class="en">Back-and-forth</span><span class="zh">来回论证</span></span></a>
+  <div class="grp"><span class="il"><span class="en">Exercises</span><span class="zh">练习</span></span></div>
+  <a href="#e1" data-prog="L5E1">E1 · <span class="il"><span class="en">Compactness</span><span class="zh">紧致性</span></span></a>
+  <a href="#e2" data-prog="L5E2">E2 · ≼ ?</a>
+  <a href="#e3" data-prog="L5E3">E3 · <span class="il"><span class="en">Back &amp; forth</span><span class="zh">来回</span></span></a>
+  <a href="#e4" data-prog="L5E4">E4 · <span class="il"><span class="en">Cardinalities</span><span class="zh">基数</span></span></a>
+  <a href="#e5" data-prog="L5E5">E5 · ℕ*</a>
+  <a href="#e6" data-prog="L5E6">E6 · Skolem</a>
+</nav>
+
+<main>
+<div class="hero">
+  <div class="kicker">Part I · Lesson 5</div>
+  <h1><span class="en">Compactness &amp; Löwenheim–Skolem</span><span class="zh">紧致性与勒文海姆–斯科伦定理</span></h1>
+  <p><span class="en">First-order logic cannot count past “finite”, cannot pin down ℕ, and cannot control the size of its models. This lesson shows why, with pictures you can drive. We assume Gödel's completeness theorem (Lesson 4).</span>
+     <span class="zh">一阶逻辑数不清“有限”，刻画不了 ℕ，也管不住自己模型的大小。本课用一组可以亲手操作的图来说明原因。前提是第 4 课的哥德尔完备性定理。</span></p>
+</div>
+
+<!-- ============ S1 ============ -->
+<section class="card" id="s1">
+  <div class="kicker">§1</div>
+  <h2><span class="en">The Compactness Theorem for first-order logic</span><span class="zh">一阶逻辑的紧致性定理</span></h2>
+  <div class="def"><span class="en"><b>Compactness Theorem.</b> A set Γ of first-order sentences has a model if and only if every <b>finite</b> subset of Γ has a model. Equivalently: Γ ⊨ φ iff Δ ⊨ φ for some finite Δ ⊆ Γ.</span>
+    <span class="zh"><b>紧致性定理.</b> 一阶语句集 Γ 有模型，当且仅当 Γ 的每个<b>有限</b>子集都有模型。等价说法：Γ ⊨ φ 当且仅当存在有限的 Δ ⊆ Γ 使 Δ ⊨ φ。</span></div>
+  <p><span class="en">Proof idea: proofs are finite. Suppose Γ had no model. Completeness turns that into a formal proof of ⊥ from Γ, and a proof is a finite object. Press “Trace premises” to see which premises it actually uses.</span>
+     <span class="zh">证明思路：证明是有限的。假设 Γ 没有模型，完备性定理把这件事变成一个从 Γ 推出 ⊥ 的形式证明，而证明是有限对象。按“追踪前提”，看看它实际用到了哪些前提。</span></p>
+  <div class="toolbar">
+    <button class="btn primary" id="cpTrace"><span class="en">Trace premises ▶</span><span class="zh">追踪前提 ▶</span></button>
+    <button class="btn" id="cpNew"><span class="en">Another proof of ⊥</span><span class="zh">换一个 ⊥ 的证明</span></button>
+  </div>
+  <div class="stage"><svg id="cpSvg" viewBox="0 0 880 340" width="880" height="340"></svg></div>
+  <div class="steps" id="cpSteps">
+    <div class="step def"><span class="en"><b>1.</b> Assume every finite Δ ⊆ Γ has a model, but Γ has none.</span><span class="zh"><b>1.</b> 设 Γ 的每个有限子集 Δ 都有模型，而 Γ 本身没有模型。</span></div>
+    <div class="step def"><span class="en"><b>2.</b> “Γ has no model” means Γ ⊨ ⊥. By Gödel's <b>completeness</b> theorem, Γ ⊢ ⊥.</span><span class="zh"><b>2.</b> “Γ 没有模型”就是 Γ ⊨ ⊥。由哥德尔<b>完备性定理</b>，Γ ⊢ ⊥。</span></div>
+    <div class="step def"><span class="en"><b>3.</b> A derivation is a finite sequence of formulas, so it cites only finitely many premises Δ ⊆ Γ (the gold boxes). Hence Δ ⊢ ⊥.</span><span class="zh"><b>3.</b> 推导是有限长的公式序列，只引用了有限多个前提 Δ ⊆ Γ（图中金色方框），所以 Δ ⊢ ⊥。</span></div>
+    <div class="step def"><span class="en"><b>4.</b> By <b>soundness</b>, Δ ⊨ ⊥, so the finite set Δ has no model. This contradicts 1. ∎</span><span class="zh"><b>4.</b> 由<b>可靠性定理</b>，Δ ⊨ ⊥，即有限集 Δ 没有模型，与 1 矛盾。∎</span></div>
+  </div>
+  <div class="toolbar"><button class="btn" id="cpNext"><span class="en">Next step</span><span class="zh">下一步</span></button><button class="btn ghost" id="cpAll"><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+
+  <h3><span class="en">Play with finite subsets</span><span class="zh">动手挑有限子集</span></h3>
+  <p><span class="en">Language: only “=”. Let <span class="m">λₙ</span> say “there are at least n elements” and <span class="m">μₙ</span> say “there are at most n elements”. Click sentences to put them into a finite set Δ. The picture shows a model of Δ, or explains why there is none.</span>
+     <span class="zh">语言里只有“=”。令 <span class="m">λₙ</span> 表示“至少有 n 个元素”，<span class="m">μₙ</span> 表示“至多有 n 个元素”。点击语句把它放进有限集 Δ，右边会画出 Δ 的一个模型，或者说明为什么没有模型。</span></p>
+  <div class="row">
+    <div class="col">
+      <div class="m" style="font-size:14px">λₙ := ∃x₁…∃xₙ ⋀<sub>i&lt;j</sub> xᵢ ≠ xⱼ</div>
+      <div class="chips m" id="pkL" style="margin:6px 0 12px"></div>
+      <div class="m" style="font-size:14px">μₙ := ∀x₀…∀xₙ ⋁<sub>i&lt;j</sub> xᵢ = xⱼ</div>
+      <div class="chips m" id="pkM" style="margin:6px 0 12px"></div>
+      <div class="toolbar"><button class="btn small" id="pkRand"><span class="en">Random Δ</span><span class="zh">随机 Δ</span></button><button class="btn small ghost" id="pkClear"><span class="en">Clear</span><span class="zh">清空</span></button></div>
+    </div>
+    <div class="col" style="flex:0 1 380px"><div class="stage"><svg id="pkSvg" viewBox="0 0 360 210" width="360" height="210"></svg></div></div>
+  </div>
+  <div class="msg" id="pkMsg"></div>
+</section>
+
+<!-- ============ S2 ============ -->
+<section class="card" id="s2">
+  <div class="kicker">§2</div>
+  <h2><span class="en">“Finite” is not first-order</span><span class="zh">“有限”不是一阶性质</span></h2>
+  <p><span class="en">Move the slider. Each box is a structure in the empty language; it lights up when it satisfies <span class="m">λₙ</span>. The infinite box is lit for <b>every</b> n, so the models of <span class="m">{λ₁, λ₂, λ₃, …}</span> are exactly the infinite structures.</span>
+     <span class="zh">拖动滑块。每个方框是空语言上的一个结构，满足 <span class="m">λₙ</span> 时就亮起。无穷的那个方框对<b>每个</b> n 都亮着，所以 <span class="m">{λ₁, λ₂, λ₃, …}</span> 的模型恰好是全体无穷结构。</span></p>
+  <div class="toolbar">n = <input type="range" id="finN" min="1" max="8" value="3"> <b class="m" id="finNv">3</b></div>
+  <div class="formula-big" id="finFormula"></div>
+  <div class="stage"><svg id="finSvg" viewBox="0 0 880 190" width="880" height="190"></svg></div>
+  <div class="def"><span class="en"><b>Theorem.</b> If a set of sentences T has arbitrarily large finite models, then T has an infinite model.</span>
+    <span class="zh"><b>定理.</b> 若语句集 T 有任意大的有限模型，则 T 有无穷模型。</span></div>
+  <div class="steps" id="finSteps">
+    <div class="step def"><span class="en"><b>Proof.</b> Consider T ∪ {λₙ : n ≥ 1}. A finite subset mentions only λₙ with n ≤ N for some N; a finite model of T with at least N elements satisfies it. By compactness the whole set has a model: a model of T that satisfies every λₙ, so it is infinite. ∎</span>
+      <span class="zh"><b>证明.</b> 考虑 T ∪ {λₙ : n ≥ 1}。它的任一有限子集只涉及 n ≤ N 的 λₙ，T 的任何至少有 N 个元素的有限模型都满足它。由紧致性，整个集合有模型；这个模型是 T 的模型，又满足每个 λₙ，所以是无穷的。∎</span></div>
+    <div class="step def"><span class="en"><b>Corollary 1.</b> No set of sentences has exactly the finite structures as its models. (Such a set would have arbitrarily large finite models and no infinite one.)</span>
+      <span class="zh"><b>推论 1.</b> 不存在一个语句集，其模型恰好是全体有限结构。（否则它有任意大的有限模型，却没有无穷模型。）</span></div>
+    <div class="step def"><span class="en"><b>Corollary 2.</b> “Infinite” is axiomatized by the infinite set {λₙ}, but by <b>no single sentence</b> σ. If σ held exactly in the infinite structures, ¬σ would hold exactly in the finite ones, contradicting Corollary 1.</span>
+      <span class="zh"><b>推论 2.</b> “无穷”可以用无穷集 {λₙ} 公理化，却<b>不能用单个语句</b> σ 公理化。若 σ 恰好在无穷结构中成立，则 ¬σ 恰好在有限结构中成立，与推论 1 矛盾。</span></div>
+  </div>
+  <div class="toolbar"><button class="btn" id="finNext"><span class="en">Next step</span><span class="zh">下一步</span></button><button class="btn ghost" id="finAll"><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+</section>
+
+<!-- ============ S3 ============ -->
+<section class="card" id="s3">
+  <div class="kicker">§3</div>
+  <h2><span class="en">A nonstandard model of arithmetic</span><span class="zh">算术的非标准模型</span></h2>
+  <p><span class="en">Add a new constant <span class="m">c</span> to the language of arithmetic and take
+     <span class="m">Γ = Th(ℕ, 0, 1, +, ·, &lt;) ∪ {c &gt; n̄ : n ∈ ℕ}</span>, where <span class="m">n̄ = 1+⋯+1</span>. Click sentences to build a finite Δ ⊆ Γ. The true ℕ always satisfies Δ: just interpret c as a large enough number.</span>
+     <span class="zh">在算术语言里加一个新常元 <span class="m">c</span>，令
+     <span class="m">Γ = Th(ℕ, 0, 1, +, ·, &lt;) ∪ {c &gt; n̄ : n ∈ ℕ}</span>，其中 <span class="m">n̄ = 1+⋯+1</span>。点击语句组成有限集 Δ ⊆ Γ。真正的 ℕ 总能满足 Δ，只要把 c 解释成一个足够大的数。</span></p>
+  <div class="chips m" id="nsChips"></div>
+  <div class="toolbar">
+    <button class="btn small" id="nsRand"><span class="en">Random finite Δ</span><span class="zh">随机有限 Δ</span></button>
+    <button class="btn small ghost" id="nsClear"><span class="en">Clear</span><span class="zh">清空</span></button>
+    <button class="btn small primary" id="nsAll"><span class="en">Take all of Γ</span><span class="zh">取整个 Γ</span></button>
+  </div>
+  <div class="stage"><svg id="nsA" viewBox="0 0 900 130" width="900" height="130"></svg></div>
+  <div class="msg" id="nsMsgA"></div>
+  <h3><span class="en">What the model looks like</span><span class="zh">这个模型长什么样</span></h3>
+  <p><span class="en">Every model of Th(ℕ) begins with a copy of ℕ (the standard part). Each nonstandard element sits in a <b>ℤ-block</b> {…, x−1, x, x+1, …}, and the blocks are ordered <b>densely, with no first and no last block</b>. Click a ⊕ to produce a new block in that gap.</span>
+     <span class="zh">Th(ℕ) 的每个模型都以 ℕ 的一个拷贝开头（标准部分）。每个非标准元素落在一个 <b>ℤ 块</b> {…, x−1, x, x+1, …} 里，各块之间<b>稠密排列，没有第一块，也没有最后一块</b>。点击 ⊕，在那个空隙里造出一个新块。</span></p>
+  <div class="toolbar"><button class="btn small ghost" id="nsReset"><span class="en">Reset blocks</span><span class="zh">重置</span></button></div>
+  <div class="stage"><svg id="nsB" viewBox="0 0 900 190" width="900" height="190"></svg></div>
+  <div class="msg info" id="nsMsgB"></div>
+  <div class="note"><span class="en">Every countable nonstandard model of arithmetic (of PA, in particular of Th(ℕ)) has order type <span class="m">ω + ζ·η</span>: ℕ, followed by ℚ-many copies of ℤ. So Th(ℕ) does <b>not</b> pin down ℕ up to isomorphism, even among countable models. The set of standard elements is not definable in the model: if it were, induction would force it to be everything.</span>
+    <span class="zh">每个可数非标准算术模型（PA 的模型，特别是 Th(ℕ) 的模型）的序型都是 <span class="m">ω + ζ·η</span>：先是 ℕ，后面跟着按 ℚ 排列的许多个 ℤ 拷贝。所以即使只看可数模型，Th(ℕ) 也<b>不能</b>在同构意义下确定 ℕ。标准元素全体在模型中不可定义：如果可定义，归纳法就会迫使它等于整个模型。</span></div>
+</section>
+
+<!-- ============ S4 ============ -->
+<section class="card" id="s4">
+  <div class="kicker">§4</div>
+  <h2><span class="en">Infinite graphs: colorable iff every finite piece is</span><span class="zh">无穷图：可着色当且仅当每个有限部分可着色</span></h2>
+  <div class="def"><span class="en"><b>De Bruijn–Erdős theorem.</b> A graph G is k-colorable iff every finite subgraph of G is k-colorable.</span>
+    <span class="zh"><b>德布鲁因–埃尔德什定理.</b> 图 G 可 k 着色，当且仅当 G 的每个有限子图都可 k 着色。</span></div>
+  <p><span class="en">The graph continues forever to the right. You only ever see a finite window. Click vertices to cycle their color. Clashing edges turn red. “Auto-color” searches the window by backtracking.</span>
+     <span class="zh">这个图向右无限延伸，你看到的永远只是一个有限窗口。点击顶点切换颜色，同色相邻的边会变红。“自动着色”用回溯法搜索整个窗口。</span></p>
+  <div class="toolbar">
+    <span class="il"><span class="en">Graph</span><span class="zh">图</span></span>:
+    <button class="btn small sel" data-gk="strip"><span class="en">Triangle strip</span><span class="zh">三角带</span></button>
+    <button class="btn small" data-gk="ladder"><span class="en">Ladder</span><span class="zh">梯子</span></button>
+    &nbsp; k:
+    <button class="btn small" data-kk="2">2</button><button class="btn small sel" data-kk="3">3</button><button class="btn small" data-kk="4">4</button>
+    &nbsp; <span class="il"><span class="en">window</span><span class="zh">窗口</span></span> N = <input type="range" id="gcN" min="3" max="16" value="9"> <b class="m" id="gcNv">9</b>
+  </div>
+  <div class="toolbar">
+    <button class="btn primary" id="gcAuto"><span class="en">Auto-color (backtracking)</span><span class="zh">自动着色（回溯）</span></button>
+    <button class="btn ghost" id="gcClear"><span class="en">Clear colors</span><span class="zh">清除颜色</span></button>
+  </div>
+  <div class="stage"><svg id="gcSvg" viewBox="0 0 900 230" width="900" height="230"></svg></div>
+  <div class="msg" id="gcMsg"></div>
+  <div class="steps" id="gcSteps">
+    <div class="step def"><span class="en"><b>1.</b> For each vertex v and color i (1 ≤ i ≤ k) take a propositional variable <span class="m">p<sub>v,i</sub></span>: “v gets color i”.</span><span class="zh"><b>1.</b> 对每个顶点 v 和颜色 i（1 ≤ i ≤ k）引入命题变元 <span class="m">p<sub>v,i</sub></span>，意为“v 染第 i 种颜色”。</span></div>
+    <div class="step def"><span class="en"><b>2.</b> Γ consists of: <span class="m">p<sub>v,1</sub> ∨ ⋯ ∨ p<sub>v,k</sub></span> (each v gets a color); <span class="m">¬(p<sub>v,i</sub> ∧ p<sub>v,j</sub>)</span> for i ≠ j (at most one); <span class="m">¬(p<sub>u,i</sub> ∧ p<sub>v,i</sub>)</span> for each edge uv and each i (neighbors differ).</span>
+      <span class="zh"><b>2.</b> Γ 由以下公式组成：<span class="m">p<sub>v,1</sub> ∨ ⋯ ∨ p<sub>v,k</sub></span>（每个顶点有颜色）；i ≠ j 时 <span class="m">¬(p<sub>v,i</sub> ∧ p<sub>v,j</sub>)</span>（至多一种）；对每条边 uv 和每个 i，<span class="m">¬(p<sub>u,i</sub> ∧ p<sub>v,i</sub>)</span>（相邻顶点不同色）。</span></div>
+    <div class="step def"><span class="en"><b>3.</b> A finite Δ ⊆ Γ mentions only finitely many vertices V₀. A k-coloring of the finite subgraph on V₀ satisfies Δ.</span><span class="zh"><b>3.</b> 有限的 Δ ⊆ Γ 只涉及有限个顶点 V₀。有限子图 G[V₀] 的一个 k 着色就满足 Δ。</span></div>
+    <div class="step def"><span class="en"><b>4.</b> By propositional compactness (Lesson 2), some valuation satisfies all of Γ. Color each v by the unique i with <span class="m">p<sub>v,i</sub></span> true. ∎ (For uncountable G this uses compactness for uncountably many variables, which needs a weak form of choice.)</span>
+      <span class="zh"><b>4.</b> 由命题逻辑的紧致性定理（第 2 课），存在满足整个 Γ 的赋值。把 v 染成使 <span class="m">p<sub>v,i</sub></span> 为真的那个唯一的 i。∎（G 不可数时要用到不可数多个变元的紧致性，这需要选择公理的一个弱形式。）</span></div>
+  </div>
+  <div class="toolbar"><button class="btn" id="gcNext"><span class="en">Next step</span><span class="zh">下一步</span></button><button class="btn ghost" id="gcAll"><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+</section>
+
+<!-- ============ S5 ============ -->
+<section class="card" id="s5">
+  <div class="kicker">§5</div>
+  <h2><span class="en">Downward Löwenheim–Skolem: the Skolem hull</span><span class="zh">向下勒文海姆–斯科伦定理：斯科伦闭包</span></h2>
+  <div class="def"><span class="en"><b>Downward LS.</b> Let M be an L-structure and X ⊆ M. Then there is an elementary substructure N ≼ M with X ⊆ N and |N| ≤ |X| + |L| + ℵ₀. In particular, every theory in a countable language with an infinite model has a countably infinite model.</span>
+    <span class="zh"><b>向下勒文海姆–斯科伦定理.</b> 设 M 是 L-结构，X ⊆ M。则存在初等子结构 N ≼ M，使 X ⊆ N 且 |N| ≤ |X| + |L| + ℵ₀。特别地，可数语言中的理论若有无穷模型，就有可数无穷模型。</span></div>
+  <p><span class="en">Inside the big structure (ℝ, &lt;, +), start from a few seeds and close them under <b>Skolem functions</b>: for each formula ∃y φ(x̄, y), a function picking a witness. Here: x ↦ −x, x ↦ x/n (witness for ∃y y+⋯+y = x, with n summands) and (x, y) ↦ x + y, x − y. The picture only uses n = 2, 3. Each press adds one layer.</span>
+     <span class="zh">在大结构 (ℝ, &lt;, +) 里，从几个种子出发，对<b>斯科伦函数</b>取闭包：对每个公式 ∃y φ(x̄, y)，取一个负责挑选见证的函数。这里用 x ↦ −x、x ↦ x/n（给 ∃y y+⋯+y = x（n 个加项）提供见证）以及 (x, y) ↦ x + y、x − y。图中只用 n = 2, 3。每按一次多加一层。</span></p>
+  <div class="toolbar">
+    <span class="il"><span class="en">Seeds</span><span class="zh">种子</span></span>:
+    <button class="btn small sel" data-seed="1">X = {1}</button>
+    <button class="btn small" data-seed="2">X = {1, √2}</button>
+    <button class="btn primary" id="shStep"><span class="en">Add a layer ▶</span><span class="zh">再加一层 ▶</span></button>
+    <button class="btn ghost" id="shAll"><span class="en">Show 4 layers</span><span class="zh">直接显示 4 层</span></button>
+  </div>
+  <div class="stage"><svg id="shSvg" viewBox="0 0 900 240" width="900" height="240"></svg></div>
+  <div class="msg info" id="shMsg"></div>
+  <div class="def"><span class="en"><b>Tarski–Vaught test.</b> A substructure N ⊆ M is elementary (N ≼ M) iff for every formula φ(x̄, y) and every tuple ā from N: if M ⊨ ∃y φ(ā, y), then there is b ∈ N with M ⊨ φ(ā, b). Note that truth is always evaluated in <b>M</b>. A set closed under Skolem functions passes the test by construction.</span>
+    <span class="zh"><b>塔斯基–沃特判别法.</b> 子结构 N ⊆ M 是初等子结构（N ≼ M），当且仅当对每个公式 φ(x̄, y) 和 N 中的每组元素 ā：若 M ⊨ ∃y φ(ā, y)，则存在 b ∈ N 使 M ⊨ φ(ā, b)。注意真假始终在 <b>M</b> 中判定。对斯科伦函数封闭的集合，按构造就通过这个判别法。</span></div>
+  <div class="steps" id="shSteps">
+    <div class="step def"><span class="en"><b>1.</b> For each formula ∃y φ(x̄, y) of L fix a Skolem function f<sub>φ</sub>: Mⁿ → M with M ⊨ φ(ā, f<sub>φ</sub>(ā)) whenever M ⊨ ∃y φ(ā, y). (This uses the axiom of choice.)</span><span class="zh"><b>1.</b> 对 L 的每个公式 ∃y φ(x̄, y)，取定斯科伦函数 f<sub>φ</sub>: Mⁿ → M，使得只要 M ⊨ ∃y φ(ā, y)，就有 M ⊨ φ(ā, f<sub>φ</sub>(ā))。（这里用到选择公理。）</span></div>
+    <div class="step def"><span class="en"><b>2.</b> X₀ = X, X<sub>n+1</sub> = Xₙ ∪ {f<sub>φ</sub>(ā) : φ ∈ L, ā ∈ Xₙ}, N = ⋃ₙ Xₙ. That is exactly the layers in the picture.</span><span class="zh"><b>2.</b> 令 X₀ = X，X<sub>n+1</sub> = Xₙ ∪ {f<sub>φ</sub>(ā) : φ ∈ L, ā ∈ Xₙ}，N = ⋃ₙ Xₙ。这正是图中一层层长出来的点。</span></div>
+    <div class="step def"><span class="en"><b>3.</b> Counting: there are |L| + ℵ₀ formulas and each layer has size ≤ |X| + |L| + ℵ₀; a countable union keeps that bound.</span><span class="zh"><b>3.</b> 计数：公式共 |L| + ℵ₀ 个，每层大小 ≤ |X| + |L| + ℵ₀，可数并仍不超过这个界。</span></div>
+    <div class="step def"><span class="en"><b>4.</b> N is closed under the functions (term φ: ∃y (y = f(x̄))) so it is a substructure, and it passes Tarski–Vaught by construction, so N ≼ M. ∎ For (ℝ,&lt;,+), with suitably chosen Skolem functions, the hull of {1} is ℚ, and that of {1, √2} is ℚ + ℚ√2. Both countable. (The Skolem functions can be chosen this way because both sets are divisible ordered subgroups and hence already elementary substructures of (ℝ,&lt;,+); other choices of Skolem functions give other countable hulls.)</span><span class="zh"><b>4.</b> N 对函数封闭（考虑公式 ∃y (y = f(x̄))），所以是子结构；它按构造通过塔斯基–沃特判别法，故 N ≼ M。∎ 在 (ℝ,&lt;,+) 中，适当选取斯科伦函数，{1} 的闭包是 ℚ，{1, √2} 的闭包是 ℚ + ℚ√2，都可数。（之所以能这样选，是因为这两个集合都是可除有序子群，本身已是 (ℝ,&lt;,+) 的初等子结构；换一组斯科伦函数，会得到别的可数闭包。）</span></div>
+  </div>
+  <div class="toolbar"><button class="btn" id="shNext"><span class="en">Next step</span><span class="zh">下一步</span></button><button class="btn ghost" id="shAllP"><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+</section>
+
+<!-- ============ S6 ============ -->
+<section class="card" id="s6">
+  <div class="kicker">§6</div>
+  <h2><span class="en">Substructure vs elementary substructure</span><span class="zh">子结构与初等子结构</span></h2>
+  <div class="def"><span class="en"><b>Definition.</b> M ⊆ N is an <b>elementary substructure</b>, M ≼ N, if for every formula φ(x̄) and every tuple ā from M: M ⊨ φ(ā) ⇔ N ⊨ φ(ā). Being merely a substructure only guarantees this for quantifier-free φ. Also M ≡ N (elementarily equivalent) means: the same <i>sentences</i> are true. M ≼ N implies M ≡ N, but not conversely.</span>
+    <span class="zh"><b>定义.</b> 若 M ⊆ N，且对每个公式 φ(x̄) 和 M 中的每组元素 ā 都有 M ⊨ φ(ā) ⇔ N ⊨ φ(ā)，则称 M 是 N 的<b>初等子结构</b>，记作 M ≼ N。仅仅是子结构，只能保证无量词公式满足这一点。M ≡ N（初等等价）指两者满足相同的<i>语句</i>。M ≼ N 蕴涵 M ≡ N，反之不然。</span></div>
+  <p><span class="en">Pick a pair. Click each formula row to evaluate it at the given parameters <b>in both structures</b>. Blue = the small structure M, grey = the big one N. A witness found in N is green if it lies in M and red if it does not.</span>
+     <span class="zh">选一对结构，点击每一行公式，在给定参数下<b>分别在两个结构中</b>求值。蓝色是小结构 M，灰色是大结构 N。在 N 中找到的见证若落在 M 里就画成绿色，否则画成红色。</span></p>
+  <div class="toolbar" id="elPairs"></div>
+  <div class="stage"><svg id="elSvg" viewBox="0 0 900 170" width="900" height="170"></svg></div>
+  <div id="elTable"></div>
+  <div class="msg" id="elMsg"></div>
+  <div class="toolbar"><button class="btn" id="elVerdictBtn"><span class="en">Verdict for this pair</span><span class="zh">这一对的结论</span></button></div>
+  <div class="msg" id="elVerdict"></div>
+</section>
+
+<!-- ============ S7 ============ -->
+<section class="card" id="s7">
+  <div class="kicker">§7</div>
+  <h2><span class="en">Skolem's paradox</span><span class="zh">斯科伦悖论</span></h2>
+  <p><span class="en">ZFC is a theory in the countable language {∈}. If it is consistent, it has a model, so by downward LS it has a <b>countable</b> model M. But ZFC proves “ℝ is uncountable”, so M ⊨ “ℝ is uncountable”. Yet M contains only countably many elements, so ℝ<sup>M</sup> has only countably many members. Toggle the point of view.</span>
+     <span class="zh">ZFC 是可数语言 {∈} 中的理论。如果它一致，它就有模型，于是由向下 LS 定理，它有<b>可数</b>模型 M。可 ZFC 能证明“ℝ 不可数”，所以 M ⊨ “ℝ 不可数”。然而 M 只有可数个元素，ℝ<sup>M</sup> 的成员也只有可数个。切换视角看看。</span></p>
+  <div class="toolbar">
+    <button class="btn sel" data-sk="in"><span class="en">Inside M</span><span class="zh">从 M 内部看</span></button>
+    <button class="btn" data-sk="out"><span class="en">Outside, in V</span><span class="zh">从外面（V 中）看</span></button>
+    <button class="btn primary" id="skGo"><span class="en">Run ▶</span><span class="zh">演示 ▶</span></button>
+  </div>
+  <div class="stage"><svg id="skSvg" viewBox="0 0 900 360" width="900" height="360"></svg></div>
+  <div class="msg info" id="skMsg"></div>
+  <div class="steps" id="skSteps">
+    <div class="step def"><span class="en"><b>Resolution 1.</b> “X is uncountable” means “there is <b>no</b> surjection ω → X”. Inside M this quantifies only over functions that are <b>elements of M</b>.</span><span class="zh"><b>化解 1.</b> “X 不可数”的意思是“<b>不存在</b>从 ω 到 X 的满射”。在 M 内部，这个量词只管 <b>M 中的</b>函数。</span></div>
+    <div class="step def"><span class="en"><b>Resolution 2.</b> The enumeration f: ℕ → ℝ<sup>M</sup> that exists in V is simply <b>not an element of M</b>. M is missing the very function that would make its ℝ countable.</span><span class="zh"><b>化解 2.</b> 在 V 中存在的枚举 f: ℕ → ℝ<sup>M</sup> 恰恰<b>不是 M 的元素</b>。M 里缺的正是能让它的 ℝ 变得可数的那个函数。</span></div>
+    <div class="step def"><span class="en"><b>Moral.</b> “Countable” and “uncountable” are <b>not absolute</b>: they depend on which functions the model contains. The argument yields no contradiction in ZFC, only a mismatch between the model's view and ours.</span><span class="zh"><b>启示.</b> “可数”与“不可数”<b>不是绝对的</b>，取决于模型里有哪些函数。这个论证并没有在 ZFC 中导出矛盾，只是模型内部的看法与我们外部的看法不一致。</span></div>
+  </div>
+  <div class="toolbar"><button class="btn" id="skNext"><span class="en">Next step</span><span class="zh">下一步</span></button><button class="btn ghost" id="skAll"><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+</section>
+
+<!-- ============ S8 ============ -->
+<section class="card" id="s8">
+  <div class="kicker">§8</div>
+  <h2><span class="en">Upward Löwenheim–Skolem and the spectrum of a theory</span><span class="zh">向上勒文海姆–斯科伦定理与理论的模型谱</span></h2>
+  <div class="def"><span class="en"><b>Upward LS.</b> If T has an infinite model and κ ≥ |L| + ℵ₀, then T has a model of cardinality exactly κ.</span>
+    <span class="zh"><b>向上勒文海姆–斯科伦定理.</b> 若 T 有无穷模型且 κ ≥ |L| + ℵ₀，则 T 有基数恰为 κ 的模型。</span></div>
+  <p><span class="en">The construction in two moves: blow the model up with κ new constants, then shrink it back to exactly κ.</span>
+     <span class="zh">构造分两步：先用 κ 个新常元把模型“吹大”，再把它“削”到恰好 κ。</span></p>
+  <div class="toolbar">κ =
+    <button class="btn small sel" data-kap="ℵ₁">ℵ₁</button><button class="btn small" data-kap="ℵ₂">ℵ₂</button><button class="btn small" data-kap="2^ℵ₀">2^ℵ₀</button><button class="btn small" data-kap="ℵ_ω">ℵ_ω</button>
+    <button class="btn primary" id="upStep"><span class="en">Next move ▶</span><span class="zh">下一步 ▶</span></button>
+    <button class="btn ghost" id="upReset"><span class="en">Reset</span><span class="zh">重置</span></button>
+  </div>
+  <div class="stage"><svg id="upSvg" viewBox="0 0 900 210" width="900" height="210"></svg></div>
+  <div class="msg info" id="upMsg"></div>
+
+  <h3><span class="en">Spectra: which sizes have models?</span><span class="zh">模型谱：哪些大小有模型？</span></h3>
+  <p><span class="en">Green dot = T has a model of that size. Gold ring = all models of that size are isomorphic (T is <b>κ-categorical</b>). Note how, once there is one infinite model, LS fills in every infinite size ≥ |L| (here every infinite size, since L is countable).</span>
+     <span class="zh">绿点表示 T 有这个大小的模型；金圈表示这个大小的模型彼此同构（T 是 <b>κ-范畴的</b>）。注意：一旦有一个无穷模型，LS 定理就填满了所有 ≥ |L| 的无穷基数（这里 L 可数，所以是所有无穷基数）。</span></p>
+  <div class="toolbar" id="spBtns"></div>
+  <div class="stage"><svg id="spSvg" viewBox="0 0 900 140" width="900" height="140"></svg></div>
+  <div class="msg info" id="spMsg"></div>
+</section>
+
+<!-- ============ S9 ============ -->
+<section class="card" id="s9">
+  <div class="kicker">§9</div>
+  <h2><span class="en">Categoricity: Cantor's back-and-forth</span><span class="zh">范畴性：康托尔的来回论证</span></h2>
+  <div class="def"><span class="en"><b>Theorem (Cantor).</b> Any two countable dense linear orders without endpoints are isomorphic. So DLO is <b>ℵ₀-categorical</b>.</span>
+    <span class="zh"><b>定理（康托尔）.</b> 任意两个可数、无端点的稠密线序都同构。因此 DLO 是 <b>ℵ₀-范畴的</b>。</span></div>
+  <p><span class="en">Top: A = ℚ ∩ (0,1), listed by denominator. Bottom: B = dyadic rationals in (0,1), listed by 2ᵏ. Both are countable DLOs without endpoints. <b>Forth</b> steps take the first unmatched a and find a partner b in the right gap; <b>back</b> steps do the same from B. Because the map preserves order, the matching lines <b>never cross</b>.</span>
+     <span class="zh">上方：A = ℚ ∩ (0,1)，按分母排成一列。下方：B = (0,1) 中的二进有理数，按 2ᵏ 排成一列。两者都是可数、无端点的稠密线序。<b>“去”</b>的一步取 A 中第一个尚未配对的 a，在正确的空隙里为它找到 b；<b>“回”</b>的一步从 B 出发做同样的事。映射保序，所以配对线<b>永不交叉</b>。</span></p>
+  <div class="toolbar">
+    <button class="btn primary" id="bfStep"><span class="en">One step ▶</span><span class="zh">走一步 ▶</span></button>
+    <button class="btn" id="bfPlay"><span class="en">Play / pause</span><span class="zh">播放 / 暂停</span></button>
+    <button class="btn" id="bf10"><span class="en">+10 steps</span><span class="zh">再走 10 步</span></button>
+    <button class="btn ghost" id="bfReset"><span class="en">Reset</span><span class="zh">重置</span></button>
+  </div>
+  <div class="stage"><svg id="bfSvg" viewBox="0 0 900 240" width="900" height="240"></svg></div>
+  <div class="row" style="margin-top:10px">
+    <div class="col">
+      <div><b>A</b> <span class="muted" style="font-size:13px">(<span class="il"><span class="en">enumeration; green = matched, gold = next</span><span class="zh">枚举顺序；绿＝已配对，金＝下一个</span></span>)</span></div>
+      <div id="bfQA"></div>
+      <div style="margin-top:6px"><b>B</b></div>
+      <div id="bfQB"></div>
+    </div>
+    <div class="col"><div class="bflog" id="bfLog"></div></div>
+  </div>
+  <div class="steps" id="bfSteps">
+    <div class="step def"><span class="en"><b>Why it works.</b> At every stage the matching is a finite order-isomorphism p. Given a new a, it falls in some gap between matched points (or beyond all of them); B is dense without endpoints, so the corresponding gap in B is nonempty, and the enumeration of B eventually reaches a point in it. Step 2n handles aₙ (so the union is total) and step 2n+1 handles bₙ (so it is onto). The union of the chain p₀ ⊆ p₁ ⊆ ⋯ is an isomorphism A ≅ B. ∎</span>
+      <span class="zh"><b>为什么行得通.</b> 每个阶段的配对都是一个有限保序同构 p。新来的 a 落在已配对点之间的某个空隙里（或在所有点之外）；B 稠密且无端点，所以 B 中对应的空隙非空，B 的枚举迟早会走到其中的点。第 2n 步处理 aₙ（保证并是全函数），第 2n+1 步处理 bₙ（保证是满射）。链 p₀ ⊆ p₁ ⊆ ⋯ 的并就是同构 A ≅ B。∎</span></div>
+    <div class="step def"><span class="en"><b>Łoś–Vaught test.</b> If T has no finite models and is κ-categorical for some κ ≥ |L| + ℵ₀, then T is complete. (Proof: if T ⊬ σ and T ⊬ ¬σ, then T∪{σ} and T∪{¬σ} have infinite models, hence by LS models of size κ; they are isomorphic, yet disagree on σ.) So DLO is complete, and (ℚ,&lt;) ≡ (ℝ,&lt;).</span>
+      <span class="zh"><b>Łoś–Vaught 判别法.</b> 若 T 没有有限模型，且对某个 κ ≥ |L| + ℵ₀ 是 κ-范畴的，则 T 是完全理论。（证明：若 T ⊬ σ 且 T ⊬ ¬σ，则 T∪{σ} 与 T∪{¬σ} 都有无穷模型，由 LS 定理都有大小为 κ 的模型；它们同构，却对 σ 给出不同真值。）所以 DLO 是完全的，且 (ℚ,&lt;) ≡ (ℝ,&lt;)。</span></div>
+    <div class="step def"><span class="en"><b>Not categorical at 2^ℵ₀.</b> ℝ and ℝ∖{0} are both DLOs without endpoints of size 2^ℵ₀, but ℝ is Dedekind-complete and ℝ∖{0} is not (the negatives have no supremum). The back-and-forth needs countability: it runs through an ω-enumeration.</span>
+      <span class="zh"><b>在 2^ℵ₀ 处不是范畴的.</b> ℝ 和 ℝ∖{0} 都是大小为 2^ℵ₀ 的无端点稠密线序，但 ℝ 是戴德金完备的，ℝ∖{0} 不是（负数没有上确界）。来回论证离不开可数性：它要沿着一个 ω 型枚举走下去。</span></div>
+    <div class="step def"><span class="en"><b>Cantor, twice.</b> The diagonal method shows that <i>no</i> list hits every real; the back-and-forth method uses two lists to <i>build</i> a bijection step by step. Both are “walk down an ω-sequence and handle the n-th item at stage n”.</span>
+      <span class="zh"><b>两个康托尔.</b> 对角线方法说明<i>任何</i>清单都列不全实数；来回方法则利用两份清单一步一步地<i>造出</i>双射。二者是同一个套路：沿着 ω 序列走，在第 n 步处理第 n 项。</span></div>
+  </div>
+  <div class="toolbar"><button class="btn" id="bfNext"><span class="en">Next step</span><span class="zh">下一步</span></button><button class="btn ghost" id="bfAllP"><span class="en">Show all</span><span class="zh">全部显示</span></button></div>
+</section>
+
+<!-- ============ EXERCISES ============ -->
+<section class="card" id="exercises">
+  <div class="kicker"><span class="il"><span class="en">Exercises</span><span class="zh">练习</span></span></div>
+  <h2><span class="en">Your turn</span><span class="zh">轮到你了</span></h2>
+  <p class="muted"><span class="en">Progress is saved in your browser. A sidebar ✓ means you solved it yourself.</span><span class="zh">进度保存在浏览器中，侧栏出现 ✓ 表示你独立完成了。</span></p>
+
+  <div class="ex" id="e1" data-prog="L5E1">
+    <h3><span class="tag">E1</span><span class="il"><span class="en">Applying compactness</span><span class="zh">运用紧致性</span></span></h3>
+    <p class="muted"><span class="en">True or false? Each answer comes with the compactness argument.</span><span class="zh">判断对错。每题答完会给出相应的紧致性论证。</span></p>
+    <div id="e1List"></div>
+  </div>
+
+  <div class="ex" id="e2" data-prog="L5E2">
+    <h3><span class="tag">E2</span><span class="il"><span class="en">Elementary or not?</span><span class="zh">是不是初等子结构？</span></span></h3>
+    <p class="muted"><span class="en">For each inclusion M ⊆ N decide whether M ≼ N. Hint: look for a formula with parameters from M whose witness in N lies outside M.</span><span class="zh">对每个包含关系 M ⊆ N，判断是否 M ≼ N。提示：找一个以 M 中元素为参数的公式，它在 N 中的见证落在 M 之外。</span></p>
+    <div id="e2List"></div>
+  </div>
+
+  <div class="ex" id="e3" data-prog="L5E3">
+    <h3><span class="tag">E3</span><span class="il"><span class="en">Do a back-and-forth step yourself</span><span class="zh">亲手走一步来回</span></span></h3>
+    <p id="e3Prompt"></p>
+    <div class="stage"><svg id="e3Svg" viewBox="0 0 900 220" width="900" height="220"></svg></div>
+    <div class="toolbar"><button class="btn ghost" id="e3Show"><span class="en">Show answer</span><span class="zh">显示答案</span></button><button class="btn ghost" id="e3Reset"><span class="en">Reset</span><span class="zh">重置</span></button></div>
+    <div class="msg" id="e3Msg"></div>
+  </div>
+
+  <div class="ex" id="e4" data-prog="L5E4">
+    <h3><span class="tag">E4</span><span class="il"><span class="en">What LS says about sizes</span><span class="zh">LS 定理对大小说了什么</span></span></h3>
+    <p><span class="en"><b>(a)</b> Let T = Th(ℕ, 0, 1, +, ·, &lt;) (countable language). Select every cardinality in which T has a model.</span>
+       <span class="zh"><b>(a)</b> 令 T = Th(ℕ, 0, 1, +, ·, &lt;)（可数语言）。选出 T 有模型的所有基数。</span></p>
+    <div class="chips m" id="e4Cards"></div>
+    <div class="toolbar"><button class="btn primary" id="e4Check"><span class="en">Check</span><span class="zh">检查</span></button></div>
+    <div class="msg" id="e4aMsg"></div>
+    <p><span class="en"><b>(b)</b> A theory T in a countable language has a model of size ℵ₅. Must T have a countable model?</span>
+       <span class="zh"><b>(b)</b> 可数语言中的理论 T 有一个大小为 ℵ₅ 的模型。T 一定有可数模型吗？</span></p>
+    <div id="e4b"></div>
+    <div class="msg" id="e4bMsg"></div>
+    <div class="toolbar"><button class="btn ghost" id="e4Show"><span class="en">Show answer</span><span class="zh">显示答案</span></button></div>
+  </div>
+
+  <div class="ex" id="e5" data-prog="L5E5">
+    <h3><span class="tag">E5</span><span class="il"><span class="en">Life in a nonstandard model</span><span class="zh">非标准模型里的生活</span></span></h3>
+    <p class="muted"><span class="en">M ⊨ Th(ℕ, 0, 1, +, ·, &lt;) is nonstandard and c ∈ M is a nonstandard element. True or false?</span><span class="zh">M ⊨ Th(ℕ, 0, 1, +, ·, &lt;) 是非标准模型，c ∈ M 是非标准元素。判断对错。</span></p>
+    <div id="e5List"></div>
+  </div>
+
+  <div class="ex" id="e6" data-prog="L5E6">
+    <h3><span class="tag">E6</span><span class="il"><span class="en">Resolve Skolem's paradox</span><span class="zh">化解斯科伦悖论</span></span></h3>
+    <p><span class="en">M is a countable model of ZFC, and M ⊨ “ℝ is uncountable”. Which statement correctly resolves the apparent contradiction?</span>
+       <span class="zh">M 是 ZFC 的可数模型，且 M ⊨ “ℝ 不可数”。哪一项正确地化解了这个表面矛盾？</span></p>
+    <div id="e6Choices"></div>
+    <div class="toolbar"><button class="btn ghost" id="e6Show"><span class="en">Show answer</span><span class="zh">显示答案</span></button></div>
+    <div class="msg" id="e6Msg"></div>
+  </div>
+</section>
+
+<section class="card">
+  <div class="kicker"><span class="il"><span class="en">Next</span><span class="zh">下一课</span></span></div>
+  <h2><a href="lesson6.html" style="color:inherit"><span class="en">Lesson 6: Russell's paradox &amp; the ZF axioms →</span><span class="zh">第 6 课：罗素悖论与 ZF 公理 →</span></a></h2>
+  <p><span class="en">Part I ends here: first-order logic is complete and compact, but it cannot control the size of its models. Next we use it anyway, as the language of set theory, starting from the paradox that forced axioms on us.</span>
+     <span class="zh">第一部分到此结束：一阶逻辑完备又紧致，却管不住模型的大小。下一课我们照样用它作为集合论的语言，从那个逼着我们走向公理化的悖论讲起。</span></p>
+</section>
+</main>
+</div>
+
+<script src="assets/logic.js"></script>
+<script src="assets/lesson5.js"></script>
+</body>
+</html>

@@ -1,0 +1,727 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 28 · Frontiers of model theory, computability &amp; proof theory 模型论、可计算性与证明论的前沿</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+.prereq { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 13px; color: var(--muted); margin: -2px 0 12px; }
+.prereq a.chip { text-decoration: none; color: var(--ink); padding: 2px 10px; font-size: 12.5px; }
+.prereq a.chip:hover { border-color: var(--accent); }
+.lang-both .prereq .chip .zh { font-size: 12px; }
+.idea { font-size: 15.5px; border-left: 4px solid var(--meta); background: var(--meta-soft); padding: 8px 14px; border-radius: 0 10px 10px 0; margin: 6px 0 14px; }
+.why { border-left: 4px solid var(--true); background: #ecfbef; padding: 10px 14px; border-radius: 0 10px 10px 0; margin: 14px 0; }
+.why b.h { color: #1b5e20; }
+.pit { border-left-color: var(--false); background: #fff1f1; }
+.pit b.h { color: #a61e1e; }
+.cy { border: 1.5px dashed var(--accent); border-radius: 12px; padding: 10px 14px 4px; margin: 16px 0 0; background: #fbfcff; }
+.cy .q { font-weight: 600; margin-bottom: 4px; }
+.cy .opts { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0; }
+.btn.right { border-color: var(--true) !important; background: var(--true-soft) !important; }
+.btn.wrongc { border-color: var(--false) !important; background: var(--false-soft) !important; }
+.status { display: inline-block; font-size: 11.5px; font-weight: 700; border-radius: 999px; padding: 1px 9px; margin: 0 4px 0 0; color: #fff; vertical-align: 1px; letter-spacing: .02em; white-space: nowrap; }
+.lang-both .status .zh { display: inline; color: #fff; font-size: 11px; }
+.lang-both .status .zh::before { content: " · "; }
+.st-thm { background: var(--true); }
+.st-open { background: var(--gold); }
+.st-conj { background: var(--meta); }
+.st-prog { background: var(--accent); }
+.st-claim { background: #d9480f; }
+.st-ann { background: #e8590c; }
+.st-ind { background: #1098ad; }
+.svgbox { background: #fbfaf6; border: 1px dashed var(--line); border-radius: 14px; padding: 8px; overflow-x: auto; }
+.svgbox svg { margin: 0 auto; }
+svg text.s { font-family: var(--sans); }
+.partban { margin: 38px 0 18px; padding: 14px 22px; border-radius: 16px; color: #fff; font-weight: 800; font-size: 20px; }
+.partban .zh { color: #f1f3f5 !important; }
+.partban small { display: block; font-weight: 500; font-size: 14px; opacity: .92; }
+.seg { display: inline-flex; flex-wrap: wrap; gap: 6px; }
+.info { min-height: 60px; }
+.clk { cursor: pointer; }
+.clk:hover { filter: brightness(.94); }
+table.mini { border-collapse: collapse; font-size: 14px; margin: 8px 0; }
+table.mini td, table.mini th { border-bottom: 1px solid var(--line); padding: 4px 10px; text-align: left; vertical-align: top; }
+table.mini th { background: #f1efe7; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.tile2 { border: 2px solid var(--line); border-radius: 12px; padding: 8px 10px; background: #fff; cursor: pointer; font-size: 14px; transition: transform .15s; }
+.tile2:hover { transform: translateY(-2px); }
+.tile2 .ring { font-family: var(--mono); font-size: 20px; font-weight: 800; }
+.tile2.sel { box-shadow: 0 0 0 3px var(--accent-soft); border-color: var(--accent); }
+.subsets { display: flex; flex-wrap: wrap; gap: 4px; margin: 8px 0; }
+.subsets span { font-family: var(--mono); font-size: 12px; padding: 2px 5px; border-radius: 6px; cursor: pointer; border: 1.5px solid transparent; }
+.subsets span.ok { background: var(--true-soft); color: #1b5e20; }
+.subsets span.no { background: var(--false-soft); color: #8a1c1c; border-color: var(--false); }
+.bitrow { font-family: var(--mono); font-size: 13px; word-break: break-all; background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; }
+.bar { height: 18px; border-radius: 6px; transition: width .6s; }
+.matchrow { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 7px 0; border-bottom: 1px dashed var(--line); }
+.matchrow .cond { flex: 1 1 320px; font-size: 15px; }
+.matchrow select { font: inherit; font-size: 14px; padding: 4px 8px; border-radius: 8px; border: 1.5px solid var(--line); max-width: 100%; }
+.matchrow select.right { border-color: var(--true); background: var(--true-soft); }
+.matchrow select.wrong { border-color: var(--false); background: var(--false-soft); }
+table.grid3 { border-collapse: collapse; font-size: 14px; margin: 8px 0; }
+table.grid3 td, table.grid3 th { border: 1px solid var(--line); padding: 5px 10px; text-align: center; }
+table.grid3 th { background: #f1efe7; }
+table.grid3 td.c { cursor: pointer; min-width: 64px; font-weight: 700; user-select: none; }
+table.grid3 td.c:hover { background: var(--gold-soft); }
+table.grid3 td.right { background: var(--true-soft); }
+table.grid3 td.wrong { background: var(--false-soft); }
+.fcards { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; margin-top: 10px; }
+.fcard { border: 1.5px solid var(--line); border-left-width: 6px; border-radius: 12px; padding: 9px 12px; background: #fff; font-size: 14px; transition: transform .15s, box-shadow .2s; }
+.fcard.hi { box-shadow: 0 0 0 3px var(--accent-soft); transform: translateY(-2px); }
+.fcard .t { font-weight: 700; font-size: 14.5px; }
+.fcard a { font-size: 12px; }
+.chipbar { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; align-items: center; }
+.chipbar .chip.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+.chipbar .chip.on .zh { color: #ddd; }
+.lang-both .chipbar .chip .zh { font-size: 12px; }
+.readlist { columns: 2 320px; font-size: 14.5px; }
+.readlist li { break-inside: avoid; margin-bottom: 6px; }
+.legendrow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 6px 0; }
+.speculate { border: 2px dashed #adb5bd; border-radius: 12px; padding: 10px 14px; background: #f8f9fa; margin: 14px 0; }
+input[type=range] { vertical-align: middle; }
+.gstep { font-family: var(--mono); font-size: 13px; }
+.updates { border: 2px solid #d9480f; background: #fff4e6; border-radius: 14px; padding: 12px 16px; margin: 14px 0; }
+</style>
+</head>
+<body class="lang-both">
+<header class="top">
+  <a class="home" href="index.html">∀∃ <span class="il"><span class="en">Logic &amp; Sets</span><span class="zh">逻辑与集合</span></span></a>
+  <span class="muted">/ L28</span>
+  <span class="spacer"></span>
+  <div class="lang-switch">
+    <button data-lang="en">EN</button><button data-lang="zh">中文</button><button data-lang="both">EN + 中</button>
+  </div>
+</header>
+
+<div class="layout">
+<nav class="side">
+  <div class="grp">Lesson 28</div>
+  <a href="index.html">← <span class="il"><span class="en">Course map</span><span class="zh">课程地图</span></span></a>
+  <a href="lesson27.html">← <span class="il"><span class="en">Lesson 27</span><span class="zh">第 27 课</span></span></a>
+  <a href="#status"><span class="il"><span class="en">How to read statuses</span><span class="zh">状态标记说明</span></span></a>
+  <div class="grp"><span class="il"><span class="en">A · Model theory</span><span class="zh">A · 模型论</span></span></div>
+  <a href="#s1">1 · <span class="il"><span class="en">Map of theories</span><span class="zh">理论的宇宙地图</span></span></a>
+  <a href="#s2">2 · <span class="il"><span class="en">Vaught's conjecture</span><span class="zh">沃特猜想</span></span></a>
+  <a href="#s3">3 · <span class="il"><span class="en">o-minimality</span><span class="zh">o-极小性</span></span></a>
+  <a href="#s4">4 · <span class="il"><span class="en">exp, Schanuel, Zilber</span><span class="zh">指数、沙努埃尔、齐尔伯</span></span></a>
+  <a href="#s5">5 · <span class="il"><span class="en">NIP &amp; VC dimension</span><span class="zh">NIP 与 VC 维</span></span></a>
+  <div class="grp"><span class="il"><span class="en">B · Computability</span><span class="zh">B · 可计算性</span></span></div>
+  <a href="#s6">6 · <span class="il"><span class="en">Hilbert's 10th</span><span class="zh">希尔伯特第十问题</span></span></a>
+  <a href="#s7">7 · <span class="il"><span class="en">Turing degrees</span><span class="zh">图灵度</span></span></a>
+  <a href="#s8">8 · <span class="il"><span class="en">Reverse mathematics</span><span class="zh">反推数学</span></span></a>
+  <a href="#s9">9 · <span class="il"><span class="en">Randomness</span><span class="zh">算法随机性</span></span></a>
+  <a href="#s10">10 · <span class="il"><span class="en">Complexity</span><span class="zh">计算复杂性</span></span></a>
+  <div class="grp"><span class="il"><span class="en">C · Proofs &amp; foundations</span><span class="zh">C · 证明与基础</span></span></div>
+  <a href="#s11">11 · <span class="il"><span class="en">Ordinal analysis</span><span class="zh">序数分析</span></span></a>
+  <a href="#s12">12 · <span class="il"><span class="en">Concrete incompleteness</span><span class="zh">具体的不完全性</span></span></a>
+  <a href="#s13">13 · <span class="il"><span class="en">Machines &amp; foundations</span><span class="zh">机器与基础</span></span></a>
+  <div class="grp"><span class="il"><span class="en">Synthesis</span><span class="zh">综合</span></span></div>
+  <a href="#s14">14 · <span class="il"><span class="en">Frontier map</span><span class="zh">前沿地图</span></span></a>
+  <div class="grp"><span class="il"><span class="en">Exercises</span><span class="zh">练习</span></span></div>
+  <a href="#e1" data-prog="L28E1">E1 · <span class="il"><span class="en">Status?</span><span class="zh">什么状态？</span></span></a>
+  <a href="#e2" data-prog="L28E2">E2 · <span class="il"><span class="en">Ladder</span><span class="zh">梯子</span></span></a>
+  <a href="#e3" data-prog="L28E3">E3 · <span class="il"><span class="en">Dividing lines</span><span class="zh">分界线</span></span></a>
+  <a href="#e4" data-prog="L28E4">E4 · <span class="il"><span class="en">Shattering</span><span class="zh">打散</span></span></a>
+  <a href="#e5" data-prog="L28E5">E5 · <span class="il"><span class="en">Motivations</span><span class="zh">动机</span></span></a>
+  <a href="#e6" data-prog="L28E6">E6 · <span class="il"><span class="en">What follows?</span><span class="zh">能推出吗？</span></span></a>
+  <div class="grp"><span class="il"><span class="en">The end</span><span class="zh">结语</span></span></div>
+  <a href="#fieldmap"><span class="il"><span class="en">Map of the field</span><span class="zh">全领域地图</span></span></a>
+  <a href="#reading"><span class="il"><span class="en">Further reading</span><span class="zh">延伸阅读</span></span></a>
+</nav>
+
+<main>
+<div class="hero">
+  <div class="kicker">Part VI · Lesson 28 · <span class="il"><span class="en">the final lesson</span><span class="zh">最后一课</span></span></div>
+  <h1><span class="en">Frontiers of model theory, computability &amp; proof theory</span><span class="zh">模型论、可计算性与证明论的前沿</span></h1>
+  <p><span class="en">Lesson 27 walked to the edge of set theory. This lesson does the same for the other three pillars of logic. Each step is one open problem (or one research direction): what it says precisely, what is already proved, and <b>why anyone cares</b>. Every step has a picture you can play with.</span>
+     <span class="zh">第 27 课走到了集合论的边缘，这一课对逻辑的另外三大支柱做同样的事。每一步讲一个未解决问题（或一个研究方向）：它精确地说了什么，已经证明了什么，以及<b>人们为什么关心它</b>。每一步都配有一张可以动手玩的图。</span></p>
+</div>
+
+<section class="card" id="status">
+  <div class="kicker"><span class="il"><span class="en">Read this first</span><span class="zh">先读这里</span></span></div>
+  <h2><span class="en">How to read the status labels</span><span class="zh">怎样读状态标记</span></h2>
+  <p><span class="en">An open-problems lesson is only useful if it is honest about what is known. Every claim on this page carries one of these labels. Statuses are <b>as of 2025</b> unless stated otherwise; developments from 2026 are flagged explicitly (sources last checked 19 October 2026).</span>
+     <span class="zh">讲未解决问题的课，必须对“已知什么”绝对诚实才有用。本页每个论断都带一个标记。除非另有说明，状态均以 <b>2025 年</b>为准；2026 年的进展单独标出（资料最后核对于 2026 年 10 月 19 日）。</span></p>
+  <table class="mini">
+    <tr><td><span class="status st-thm" data-st="thm"></span></td><td><span class="en">Proved and accepted by the community. We give who and when.</span><span class="zh">已证明，并为学界接受。注明作者与年份。</span></td></tr>
+    <tr><td><span class="status st-open" data-st="open"></span></td><td><span class="en">An explicit question whose answer is unknown (either answer would be news).</span><span class="zh">答案未知的明确问题（无论哪个答案都是新闻）。</span></td></tr>
+    <tr><td><span class="status st-conj" data-st="conj"></span></td><td><span class="en">Open, and experts predict a specific answer.</span><span class="zh">尚未解决，但专家预期某个特定答案。</span></td></tr>
+    <tr><td><span class="status st-prog" data-st="prog"></span></td><td><span class="en">A research direction, not a single yes/no question.</span><span class="zh">研究方向，而不是一个是非题。</span></td></tr>
+    <tr><td><span class="status st-ind" data-st="ind"></span></td><td><span class="en">Proved to be neither provable nor refutable in a stated theory.</span><span class="zh">已证明在指定理论中既不可证也不可驳。</span></td></tr>
+    <tr><td><span class="status st-ann" data-st="ann"></span></td><td><span class="en">A proof was announced (before 2026) by experts but is not yet fully checked and accepted.</span><span class="zh">专家已宣布证明（2026 年以前），但尚未完全核查并被接受。</span></td></tr>
+    <tr><td><span class="status st-claim" data-st="claim"></span></td><td><span class="en">A proof has been announced recently but has not yet been checked and digested by experts.</span><span class="zh">最近有人宣布了证明，但尚未经过专家核查与消化。</span></td></tr>
+  </table>
+  <div class="updates"><span class="en"><b>Late-breaking (September–October 2026).</b> On 6 October 2026 OpenAI published 722 manuscripts (in 372 “result families”) that it says were produced by an unreleased internal AI model (<a href="https://github.com/openai/math">github.com/openai/math</a>). Most are dated late September to early October 2026. Three were withdrawn the next day because of an error. None has been refereed. Three of them claim to settle problems in this lesson, and they differ in how far they have been checked:
+    <br>· <b>Rigidity of the Turing degrees</b> (§7): the repository includes a Lean formalization of the main theorem, and A. Marks (Berkeley) has posted an expository note on the argument (7 Oct 2026).
+    <br>· <b>Hilbert's tenth problem over ℚ</b> (§6): no Lean formalization; not independently verified.
+    <br>· <b>Shelah's eventual categoricity conjecture</b> (§1): the main theorem is not formalized (only a side counterexample is).
+    <br>Other 2026 claims by human authors (one of them found with AI help) also appear below: SOP₂ = SOP₃ (§1) and a counterexample to Vaught's conjecture for L<sub>ω₁,ω</sub> (§2). We mark all of these <span class="status st-claim" data-st="claim"></span> and keep the 2025 status next to them. Do not treat a claim as a theorem until the community has checked it, whether it comes from a machine or a human (§2 has a human claim from 2002 that was never accepted).</span>
+    <span class="zh"><b>最新动态（2026 年 9–10 月）。</b>2026 年 10 月 6 日，OpenAI 公布了 722 篇数学手稿（分为 372 个“结果族”），称其由一个未公开的内部 AI 模型生成（<a href="https://github.com/openai/math">github.com/openai/math</a>）。手稿大多注明的日期在 2026 年 9 月下旬至 10 月上旬。次日有三篇因错误被撤回。这些手稿都未经同行评审。其中三篇声称解决了本课涉及的问题，它们的核查程度各不相同：
+    <br>· <b>图灵度的刚性</b>（§7）：仓库中附有主定理的 Lean 形式化，A. Marks（伯克利）已发布一份阐释该论证的笔记（2026 年 10 月 7 日）。
+    <br>· <b>ℚ 上的希尔伯特第十问题</b>（§6）：没有 Lean 形式化，也未经独立核实。
+    <br>· <b>谢拉赫的最终范畴性猜想</b>（§1）：主定理未形式化（只形式化了一个附带的反例）。
+    <br>下文还有 2026 年由人类作者提出的其他声称（其中一个借助了 AI）：SOP₂ = SOP₃（§1），以及 L<sub>ω₁,ω</sub> 中沃特猜想的反例（§2）。这些我们一律标为 <span class="status st-claim" data-st="claim"></span>，并在旁边保留 2025 年的状态。在学界核查之前，不要把“声称”当作“定理”，无论它出自机器还是人（§2 就有一个 2002 年的人类声称，始终未被接受）。</span></div>
+</section>
+
+<div class="partban" style="background:#0c8599"><span class="en">Part A · Model theory</span><span class="zh">A 部分 · 模型论</span>
+  <small><span class="en">Which theories are “tame”, and what does tameness buy?</span><span class="zh">哪些理论是“驯顺”的？驯顺又能换来什么？</span></small></div>
+
+<!-- ============ S1 ============ -->
+<section class="card" id="s1">
+  <div class="kicker">§1 · <span class="il"><span class="en">Model theory</span><span class="zh">模型论</span></span></div>
+  <h2><span class="en">From Morley to Shelah: a map of the universe of theories</span><span class="zh">从莫利到谢拉赫：理论宇宙的地图</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置</span></span>:
+    <a class="chip" href="lesson3.html">L3 · <span class="il"><span class="en">structures</span><span class="zh">结构</span></span></a>
+    <a class="chip" href="lesson5.html">L5 · <span class="il"><span class="en">compactness, Löwenheim–Skolem</span><span class="zh">紧致性、勒文海姆–斯科伦</span></span></a>
+    <a class="chip" href="lesson9.html">L9 · <span class="il"><span class="en">cardinals</span><span class="zh">基数</span></span></a></div>
+  <div class="idea"><span class="en"><b>One idea.</b> Shelah's classification theory looks for <b>dividing lines</b>: properties of a theory such that on one side there is a structure theory (dimension, independence, few models) and on the other side there is provable chaos (as many models as possible). The map below places theories you know relative to these lines.</span>
+    <span class="zh"><b>核心思想。</b>谢拉赫的分类理论寻找<b>分界线</b>：分界线一侧的理论有结构理论（维数、独立性、模型很少），另一侧则可以证明一片混乱（模型多到不能再多）。下图把你熟悉的理论放到这些分界线之间。</span></div>
+  <p><span class="en">It started with <b>Morley's theorem</b>. By Löwenheim–Skolem, a theory with an infinite model has models of every infinite size, so the best one can hope for is <i>one model per size</i> (categoricity). Morley showed this hope is very rigid: categoricity in one uncountable size forces it in all of them. Shelah's question was: what is it about a theory that controls how many models it has? Click a region or a theory.</span>
+     <span class="zh">一切始于<b>莫利定理</b>。由勒文海姆–斯科伦定理，有无穷模型的理论在每个无穷基数上都有模型，所以最好的情形就是<i>每个基数上只有一个模型</i>（范畴性）。莫利证明这种情形非常“刚硬”：在某一个不可数基数上范畴，就在所有不可数基数上范畴。谢拉赫接着问：理论的什么性质决定了它有多少个模型？点击区域或理论试试。</span></p>
+  <div class="svgbox"><svg id="uniSvg" viewBox="0 0 900 520" width="900" height="520"></svg></div>
+  <div class="msg info info" id="uniInfo"></div>
+  <div class="def"><span class="en"><b>Morley's categoricity theorem</b> <span class="status st-thm" data-st="thm"></span> (Morley 1965). Let T be a complete theory in a countable language. If T is κ-categorical for <i>some</i> uncountable κ, then T is κ-categorical for <i>every</i> uncountable κ.<br>
+    <b>Dividing lines</b> (formula φ(x; y), tuples a<sub>i</sub>, b<sub>j</sub> in a model of T):<br>
+    · φ has the <b>order property</b> if there are a<sub>i</sub>, b<sub>j</sub> (i, j &lt; ω) with ⊨ φ(a<sub>i</sub>, b<sub>j</sub>) ⇔ i &lt; j. T is <b>stable</b> if no formula has it.<br>
+    · φ has the <b>independence property</b> if there are a<sub>i</sub> (i &lt; ω) and b<sub>S</sub> (S ⊆ ω) with ⊨ φ(a<sub>i</sub>, b<sub>S</sub>) ⇔ i ∈ S. T is <b>NIP</b> if no formula has it.<br>
+    · T is <b>simple</b> if no formula has the tree property; NTP₂ and NSOP₁ are weaker “tree-type” conditions.<br>
+    <b>Facts</b> <span class="status st-thm" data-st="thm"></span> (Shelah; Džamonja–Shelah; Kaplan–Ramsey; Mutchnik for the last one: arXiv 2022, <i>J. Eur. Math. Soc.</i> 2026): stable = NIP ∩ simple; simple ∪ NIP ⊆ NTP₂; simple ⊆ NSOP₁; NTP₂ ∩ NSOP₁ = simple; NSOP₁ = NSOP₂.<br>
+    <b>Main Gap</b> <span class="status st-thm" data-st="thm"></span> (Shelah, completed 1980s): for countable complete T, either T has the maximum number 2<sup>λ</sup> of models in every uncountable λ, or T is superstable and satisfies further structural conditions (NDOP, NOTOP, shallow) under which every model decomposes along a well-founded tree of countable elementary submodels, and the number of models grows much more slowly.</span>
+    <span class="zh"><b>莫利范畴性定理</b> <span class="status st-thm" data-st="thm"></span>（莫利，1965）。设 T 是可数语言中的完备理论。若 T 在<i>某个</i>不可数基数 κ 上范畴，则 T 在<i>每个</i>不可数基数 κ 上都范畴。<br>
+    <b>分界线</b>（公式 φ(x; y)，a<sub>i</sub>、b<sub>j</sub> 是 T 的某个模型中的元组）：<br>
+    · 若存在 a<sub>i</sub>、b<sub>j</sub>（i, j &lt; ω）使 ⊨ φ(a<sub>i</sub>, b<sub>j</sub>) ⇔ i &lt; j，则称 φ 有<b>序性质</b>。没有公式具有序性质的 T 称为<b>稳定的</b>。<br>
+    · 若存在 a<sub>i</sub>（i &lt; ω）和 b<sub>S</sub>（S ⊆ ω）使 ⊨ φ(a<sub>i</sub>, b<sub>S</sub>) ⇔ i ∈ S，则称 φ 有<b>独立性质</b>。没有公式具有独立性质的 T 称为 <b>NIP</b> 理论。<br>
+    · 没有公式具有树性质的 T 称为<b>简单理论</b>；NTP₂、NSOP₁ 是更弱的“树型”条件。<br>
+    <b>事实</b> <span class="status st-thm" data-st="thm"></span>（谢拉赫；Džamonja–Shelah；Kaplan–Ramsey；最后一条为 Mutchnik：2022 年 arXiv，2026 年发表于 <i>J. Eur. Math. Soc.</i>）：稳定 = NIP ∩ 简单；简单 ∪ NIP ⊆ NTP₂；简单 ⊆ NSOP₁；NTP₂ ∩ NSOP₁ = 简单；NSOP₁ = NSOP₂。<br>
+    <b>主间隙定理</b> <span class="status st-thm" data-st="thm"></span>（谢拉赫，1980 年代完成）：对可数完备理论 T，要么 T 在每个不可数基数 λ 上都有最大可能数目 2<sup>λ</sup> 个模型，要么 T 是超稳定的并满足进一步的结构条件（NDOP、NOTOP、浅），此时每个模型都可以沿一棵由可数初等子模型组成的良基树分解，模型个数的增长要慢得多。</span></div>
+  <div class="why"><span class="en"><b class="h">Why people care / Motivation.</b> “Tameness ⇒ structure”: on the tame side of a line, theories come with a geometry (independence, dimension, ranks), and that geometry is a tool for <i>other</i> mathematics. Hrushovski's proof of the function-field Mordell–Lang conjecture (1996) used stable-theory geometry. NIP connects to learning theory (§5). o-minimality (§3), a tame part of NIP, drives recent results in number theory. Open directions <span class="status st-open" data-st="open"></span>: find the right structure theory for NTP₂ and NSOP₁ theories. Is NSOP₃ = NSOP₂? This was open as of 2025. In August 2026 Chernikov posted a 5-page preprint claiming a proof of SOP₂ = SOP₃ (arXiv:2608.13291), which together with Mutchnik would give NSOP₁ = NSOP₂ = NSOP₃. The paper says the proof was found with the help of ChatGPT <span class="status st-claim" data-st="claim"></span>. Beyond first-order logic there is Shelah's <b>eventual categoricity conjecture</b> for abstract elementary classes <span class="status st-conj" data-st="conj"></span> (as of 2025). Partial results are due to Grossberg–VanDieren, Vasey and others. A claimed ZFC proof by Espíndola (arXiv 2019, revised 2022) has not, to our knowledge, been published or generally accepted. A September 2026 AI-generated manuscript in the OpenAI release also claims a ZFC proof. Its main theorem is not Lean-formalized; only a companion result is (under CH, a counterexample to one proposed value of the threshold) <span class="status st-claim" data-st="claim"></span>.</span>
+    <span class="zh"><b class="h">动机 / 为什么关心。</b>“驯顺 ⇒ 结构”：在分界线驯顺的一侧，理论自带一套几何（独立性、维数、秩），而这套几何又能成为<i>其他</i>数学的工具。赫鲁晓夫斯基对函数域上莫德尔–朗猜想的证明（1996）就用了稳定理论的几何。NIP 与学习理论相连（§5）。o-极小性（§3）是 NIP 中的驯顺部分，推动了近年数论的重要进展。未解决方向 <span class="status st-open" data-st="open"></span>：为 NTP₂ 和 NSOP₁ 理论找到合适的结构理论。NSOP₃ 是否等于 NSOP₂？以 2025 年为准这还未解决。2026 年 8 月，Chernikov 发布了一篇 5 页的预印本，声称证明了 SOP₂ = SOP₃（arXiv:2608.13291）；结合 Mutchnik 的结果，就得到 NSOP₁ = NSOP₂ = NSOP₃。论文说明该证明是借助 ChatGPT 找到的 <span class="status st-claim" data-st="claim"></span>。超出一阶逻辑之外，有谢拉赫关于抽象初等类的<b>最终范畴性猜想</b> <span class="status st-conj" data-st="conj"></span>（以 2025 年为准）。Grossberg–VanDieren、Vasey 等人有部分结果。Espíndola 声称给出了 ZFC 中的证明（arXiv 2019，2022 年修订），但据我们所知尚未发表，也未被普遍接受。2026 年 9 月，OpenAI 公布的一份 AI 生成手稿也声称给出了 ZFC 中的证明。其主定理没有 Lean 形式化；被形式化的只是一个附带结果（在 CH 下，对阈值的某个提议取值给出反例）<span class="status st-claim" data-st="claim"></span>。</span></div>
+  <div class="note pit"><span class="en"><b class="h">⚠ Common pitfall.</b> “Stable” here has nothing to do with stability in dynamics. Also, the map is about <b>complete theories</b>, not structures in isolation: (ℤ, +) is stable, but (ℤ, +, ·) is as wild as possible, even though both have the same universe. Adding one function can push you across every line.</span>
+    <span class="zh"><b class="h">⚠ 常见误区。</b>这里的“稳定”和动力系统里的稳定性毫无关系。另外，地图上的点是<b>完备理论</b>，不是孤立的结构：(ℤ, +) 是稳定的，而 (ℤ, +, ·) 则狂野到了极点，尽管两者的论域相同。多加一个函数，就可能越过所有分界线。</span></div>
+  <div class="cy" id="cy1"></div>
+</section>
+
+<!-- ============ S2 ============ -->
+<section class="card" id="s2">
+  <div class="kicker">§2 · <span class="il"><span class="en">Model theory</span><span class="zh">模型论</span></span></div>
+  <h2><span class="en">Vaught's conjecture: how many countable models?</span><span class="zh">沃特猜想：可数模型有多少个？</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置</span></span>:
+    <a class="chip" href="#s1">§1</a>
+    <a class="chip" href="lesson5.html">L5 · <span class="il"><span class="en">countable models</span><span class="zh">可数模型</span></span></a>
+    <a class="chip" href="lesson9.html">L9 · <span class="il"><span class="en">ℵ₀, ℵ₁, 2^ℵ₀</span><span class="zh">ℵ₀、ℵ₁、2^ℵ₀</span></span></a>
+    <a class="chip" href="lesson16.html">L16 · <span class="il"><span class="en">CH is independent</span><span class="zh">CH 独立</span></span></a>
+    <a class="chip" href="lesson19.html">L19 · <span class="il"><span class="en">perfect sets</span><span class="zh">完美集</span></span></a></div>
+  <div class="idea"><span class="en"><b>One idea.</b> Count the countable models of a complete theory T (up to isomorphism); call the number I(T, ℵ₀). It can be 1, 3, 17, ℵ₀ or 2<sup>ℵ₀</sup>. Vaught conjectured that it can <b>never</b> be strictly between ℵ₀ and 2<sup>ℵ₀</sup>, even when the continuum is huge.</span>
+    <span class="zh"><b>核心思想。</b>数一数完备理论 T 有多少个互不同构的可数模型，记作 I(T, ℵ₀)。它可以是 1、3、17、ℵ₀ 或 2<sup>ℵ₀</sup>。沃特猜想：它<b>永远不会</b>严格介于 ℵ₀ 和 2<sup>ℵ₀</sup> 之间，哪怕连续统非常大。</span></div>
+  <p><span class="en">Drag the slider to choose a size of the continuum (each choice is consistent with ZFC, by forcing). Then drop example theories onto the number line.</span>
+     <span class="zh">拖动滑块选择连续统的大小（由力迫法，每种选择都与 ZFC 一致）。然后把例子理论放到数轴上。</span></p>
+  <div class="toolbar"><span class="m">2<sup>ℵ₀</sup> = ℵ<sub id="vkLab">2</sub></span> <input type="range" id="vk" min="1" max="4" value="2">
+    <span class="seg" id="vBtns"></span></div>
+  <div class="svgbox"><svg id="vSvg" viewBox="0 0 900 250" width="900" height="250"></svg></div>
+  <div class="msg info info" id="vInfo"></div>
+  <div class="def"><span class="en"><b>Vaught's conjecture</b> <span class="status st-open" data-st="open"></span> (Vaught 1961). If T is a complete theory in a countable language, then I(T, ℵ₀) ≤ ℵ₀ or I(T, ℵ₀) = 2<sup>ℵ₀</sup>. The intended, ZFC-robust form: if T has uncountably many countable models, then it has a <b>perfect set</b> of pairwise non-isomorphic countable models.<br>
+    <b>Known</b> <span class="status st-thm" data-st="thm"></span>: I(T, ℵ₀) ≠ 2 (Vaught 1961); I(T, ℵ₀) ∈ {…, ℵ₀, ℵ₁, 2<sup>ℵ₀</sup>} once it is infinite (Morley 1970), so the only possible counterexample has exactly ℵ₁ models and no perfect set of them. The conjecture holds for ω-stable theories (Shelah–Harrington–Makkai 1984), o-minimal theories (Mayer 1988) and superstable theories of finite U-rank (Buechler 2008).<br>
+    <b>Not accepted</b>: Knight announced a first-order counterexample (2002, revised 2007). It was never generally accepted, and the first-order conjecture is still regarded as open.<br>
+    <b>Infinitary version, 2026</b> <span class="status st-claim" data-st="claim"></span>: in October 2026 Ackerman, Freer and Knight posted a sentence of L<sub>ω₁,ω</sub> with exactly ℵ₁ countable models and no perfect set of them (arXiv:2610.15217). The construction follows Knight's framework, and the authors report a complete Lean formalization. It has not yet been refereed. If it holds up, it refutes Vaught's conjecture for L<sub>ω₁,ω</sub> (and hence the topological Vaught conjecture below), but <b>not</b> the first-order conjecture stated above.</span>
+    <span class="zh"><b>沃特猜想</b> <span class="status st-open" data-st="open"></span>（沃特，1961）。若 T 是可数语言中的完备理论，则 I(T, ℵ₀) ≤ ℵ₀ 或 I(T, ℵ₀) = 2<sup>ℵ₀</sup>。它真正想说的、在 ZFC 中稳健的形式是：若 T 有不可数多个可数模型，则 T 有一个由两两不同构的可数模型组成的<b>完美集</b>。<br>
+    <b>已知</b> <span class="status st-thm" data-st="thm"></span>：I(T, ℵ₀) ≠ 2（沃特，1961）；一旦它是无穷的，就只能是 ℵ₀、ℵ₁ 或 2<sup>ℵ₀</sup>（莫利，1970），所以唯一可能的反例恰有 ℵ₁ 个可数模型，并且其中不含完美集。猜想对 ω-稳定理论（Shelah–Harrington–Makkai，1984）、o-极小理论（Mayer，1988）和有限 U-秩的超稳定理论（Buechler，2008）成立。<br>
+    <b>未被接受</b>：Knight 宣布过一个一阶反例（2002，2007 年修订）。它始终未被普遍接受，学界仍视一阶猜想为未解决。<br>
+    <b>无穷逻辑版本，2026</b> <span class="status st-claim" data-st="claim"></span>：2026 年 10 月，Ackerman、Freer 与 Knight 发布了一个 L<sub>ω₁,ω</sub> 句子，它恰有 ℵ₁ 个可数模型，且这些模型中不含完美集（arXiv:2610.15217）。构造沿用 Knight 的框架，作者称已在 Lean 中完整形式化。该文尚未经过审稿。若成立，它推翻 L<sub>ω₁,ω</sub> 的沃特猜想（因而也推翻下文的拓扑沃特猜想），但<b>不</b>推翻上面陈述的一阶猜想。</span></div>
+  <div class="why"><span class="en"><b class="h">Why people care / Motivation.</b> Counting models measures how hard it is to <i>classify</i> them. Below ℵ₀: a list. At 2<sup>ℵ₀</sup> with a perfect set: like classifying all real numbers. ℵ₁ without a perfect set would be a strange intermediate complexity. The question sits exactly where model theory meets descriptive set theory (L19): the isomorphism relation on countable models is an analytic equivalence relation, and the conjecture is a special case of the <b>topological Vaught conjecture</b> about orbits of Polish group actions <span class="status st-open" data-st="open"></span> (as of 2025; the 2026 L<sub>ω₁,ω</sub> claim above would refute it).</span>
+    <span class="zh"><b class="h">动机 / 为什么关心。</b>数模型，其实是在衡量<i>分类</i>它们有多难。不超过 ℵ₀：可以列成一张表。2<sup>ℵ₀</sup> 并含完美集：难度相当于给所有实数分类。恰为 ℵ₁ 却没有完美集，则是一种奇怪的中间复杂度。这个问题正好位于模型论与描述集合论（第 19 课）的交界处：可数模型上的同构关系是一个解析等价关系，而该猜想是关于波兰群作用轨道的<b>拓扑沃特猜想</b> <span class="status st-open" data-st="open"></span>（以 2025 年为准；上述 2026 年关于 L<sub>ω₁,ω</sub> 的声称若成立，将推翻它）的特例。</span></div>
+  <div class="note pit"><span class="en"><b class="h">⚠ Common pitfall.</b> “Under CH the conjecture is trivially true, so it is just a question about ¬CH.” Only the naive cardinal-counting form is trivial under CH. The real question (ℵ₁ models but no perfect set?) is a statement about Σ¹₁ equivalence relations, and it does not depend on CH: nobody knows the answer in any model of ZFC.</span>
+    <span class="zh"><b class="h">⚠ 常见误区。</b>“CH 成立时猜想平凡为真，所以它只是 ¬CH 下的问题。”只有朴素的“数基数”形式在 CH 下才平凡。真正的问题（有 ℵ₁ 个模型却没有完美集？）是关于 Σ¹₁ 等价关系的命题，与 CH 无关：在 ZFC 的任何模型里，都没人知道答案。</span></div>
+  <div class="cy" id="cy2"></div>
+</section>
+
+<!-- ============ S3 ============ -->
+<section class="card" id="s3">
+  <div class="kicker">§3 · <span class="il"><span class="en">Model theory</span><span class="zh">模型论</span></span></div>
+  <h2><span class="en">o-minimality: tame geometry, and rational points</span><span class="zh">o-极小性：驯顺几何与有理点</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置</span></span>:
+    <a class="chip" href="lesson3.html">L3 · <span class="il"><span class="en">definable sets</span><span class="zh">可定义集</span></span></a>
+    <a class="chip" href="lesson7.html">L7 · <span class="il"><span class="en">ℝ, ℚ</span><span class="zh">ℝ、ℚ</span></span></a>
+    <a class="chip" href="lesson13.html">L13 · <span class="il"><span class="en">Tarski</span><span class="zh">塔斯基</span></span></a></div>
+  <div class="idea"><span class="en"><b>One idea.</b> An expansion of (ℝ, &lt;) is <b>o-minimal</b> if every definable subset of the line is a finite union of points and intervals. That single condition on the line forces every definable set in ℝ<sup>n</sup> to have finitely many pieces, with no fractals and no infinite oscillation.</span>
+    <span class="zh"><b>核心思想。</b>若 (ℝ, &lt;) 的一个扩张中，直线上的每个可定义子集都是有限多个点与区间之并，就称它为 <b>o-极小</b>的。这一条只针对直线的条件，就迫使 ℝ<sup>n</sup> 中每个可定义集都只有有限多块：没有分形，没有无穷振荡。</span></div>
+  <h3><span class="en">(a) Is the structure o-minimal? Look at the zero set on the line.</span><span class="zh">(a) 这个结构是 o-极小的吗？看看直线上的零点集。</span></h3>
+  <div class="toolbar"><span class="seg" id="omBtns"></span></div>
+  <div class="svgbox"><svg id="omSvg" viewBox="0 0 900 250" width="900" height="250"></svg></div>
+  <div class="msg info" id="omInfo"></div>
+  <h3><span class="en">(b) The Pila–Wilkie counting theorem, live</span><span class="zh">(b) 现场演示皮拉–威尔基计数定理</span></h3>
+  <p><span class="en">The <b>height</b> of a rational a/b in lowest terms is max(|a|, |b|), and a point's height is the largest height of its coordinates. Count rational points of height ≤ H on two curves: the parabola y = x² (algebraic) and y = 2<sup>x</sup> (transcendental, definable in the o-minimal ℝ<sub>exp</sub>). Move H.</span>
+     <span class="zh">既约分数 a/b 的<b>高度</b>是 max(|a|, |b|)，点的高度取各坐标高度的最大值。分别数一数两条曲线上高度 ≤ H 的有理点：抛物线 y = x²（代数曲线）和 y = 2<sup>x</sup>（超越曲线，可在 o-极小结构 ℝ<sub>exp</sub> 中定义）。拖动 H。</span></p>
+  <div class="toolbar"><span class="m">H = <b id="pwH">100</b></span> <input type="range" id="pwS" min="1" max="40" value="20"></div>
+  <div class="svgbox"><svg id="pwSvg" viewBox="0 0 900 300" width="900" height="300"></svg></div>
+  <div class="def"><span class="en"><b>Wilkie's theorem</b> <span class="status st-thm" data-st="thm"></span> (Wilkie 1996): ℝ<sub>exp</sub> = (ℝ, +, ·, exp) is model complete and o-minimal. (Earlier: semialgebraic sets, Tarski 1930s; ℝ<sub>an</sub>, van den Dries 1986 via Gabrielov; later ℝ<sub>an,exp</sub>, van den Dries–Macintyre–Marker 1994.)<br>
+    <b>Pila–Wilkie counting theorem</b> <span class="status st-thm" data-st="thm"></span> (2006). Let X ⊆ ℝ<sup>n</sup> be definable in an o-minimal expansion of the real field and let X<sup>trans</sup> be X minus the union of all connected infinite semialgebraic subsets of X. For every ε &gt; 0 there is C such that X<sup>trans</sup> has at most C·H<sup>ε</sup> rational points of height ≤ H.<br>
+    <b>André–Oort conjecture</b> <span class="status st-thm" data-st="thm"></span>: a subvariety of a Shimura variety containing a Zariski-dense set of special points is itself special. Proved for ℂ<sup>n</sup> by Pila (2011) and in general by Pila–Shankar–Tsimerman (2021, with an appendix by Esnault–Groechenig), using height bounds of Binyamini–Schmidt–Yafaev; all along the Pila–Zannier strategy built on o-minimal counting.</span>
+    <span class="zh"><b>威尔基定理</b> <span class="status st-thm" data-st="thm"></span>（威尔基，1996）：ℝ<sub>exp</sub> = (ℝ, +, ·, exp) 是模型完全且 o-极小的。（更早的有：半代数集，塔斯基 1930 年代；ℝ<sub>an</sub>，van den Dries 1986，借助 Gabrielov 的结果；之后有 ℝ<sub>an,exp</sub>，van den Dries–Macintyre–Marker 1994。）<br>
+    <b>皮拉–威尔基计数定理</b> <span class="status st-thm" data-st="thm"></span>（2006）。设 X ⊆ ℝ<sup>n</sup> 可在实域的某个 o-极小扩张中定义，X<sup>trans</sup> 为 X 去掉其所有连通的无穷半代数子集之后的部分。则对每个 ε &gt; 0 存在 C，使 X<sup>trans</sup> 中高度 ≤ H 的有理点至多 C·H<sup>ε</sup> 个。<br>
+    <b>安德烈–奥尔特猜想</b> <span class="status st-thm" data-st="thm"></span>：志村簇中包含 Zariski 稠密的特殊点集的子簇本身是特殊子簇。ℂ<sup>n</sup> 的情形由皮拉证明（2011），一般情形由 Pila–Shankar–Tsimerman 证明（2021，附 Esnault–Groechenig 的附录），其中用到 Binyamini–Schmidt–Yafaev 的高度估计；整条路线是建立在 o-极小计数之上的皮拉–扎尼尔策略。</span></div>
+  <div class="why"><span class="en"><b class="h">Why people care / Motivation.</b> Logic as a tool for geometry and number theory. o-minimality was Grothendieck's dream of a “tame topology” come true, and the counting theorem turned it into a machine for unlikely-intersection problems: André–Oort, Manin–Mumford re-proved, and parts of the <b>Zilber–Pink conjecture</b> <span class="status st-conj" data-st="conj"></span>, which is still open in general. Open questions also remain inside the theory, for example which further functions (e.g. Γ, ζ on suitable domains) generate o-minimal structures, and effective versions of Pila–Wilkie <span class="status st-prog" data-st="prog"></span>.</span>
+    <span class="zh"><b class="h">动机 / 为什么关心。</b>逻辑成了几何与数论的工具。o-极小性实现了格罗滕迪克“驯顺拓扑”的梦想，而计数定理又把它变成了处理“不太可能的交”的利器：安德烈–奥尔特、马宁–芒福德的新证明，以及至今一般情形仍未解决的<b>齐尔伯–平克猜想</b> <span class="status st-conj" data-st="conj"></span> 的部分情形。理论内部也还有问题，例如哪些新的函数（如适当区域上的 Γ、ζ）能生成 o-极小结构，以及皮拉–威尔基定理的有效版本 <span class="status st-prog" data-st="prog"></span>。</span></div>
+  <div class="note pit"><span class="en"><b class="h">⚠ Common pitfall.</b> o-minimality is about <b>definable</b> sets, not about the functions you start with. sin restricted to [0, 1] is harmless (it is in ℝ<sub>an</sub>), but sin on all of ℝ defines πℤ, then ℤ, and then all of arithmetic: the structure becomes as wild as (ℤ, +, ·). And the counting theorem says nothing about the algebraic part: the parabola has about H rational points, far more than H<sup>ε</sup>.</span>
+    <span class="zh"><b class="h">⚠ 常见误区。</b>o-极小性说的是<b>可定义集</b>，不是最初给的那几个函数。限制在 [0, 1] 上的 sin 是无害的（它在 ℝ<sub>an</sub> 中），但定义在整个 ℝ 上的 sin 能定义出 πℤ，进而定义 ℤ，进而定义全部算术：结构变得和 (ℤ, +, ·) 一样狂野。另外，计数定理对代数部分不做任何断言：抛物线上大约有 H 个有理点，远多于 H<sup>ε</sup>。</span></div>
+  <div class="cy" id="cy3"></div>
+</section>
+
+<!-- ============ S4 ============ -->
+<section class="card" id="s4">
+  <div class="kicker">§4 · <span class="il"><span class="en">Model theory</span><span class="zh">模型论</span></span></div>
+  <h2><span class="en">Exponentiation: Tarski's problem, Schanuel's conjecture, Zilber's program</span><span class="zh">指数函数：塔斯基问题、沙努埃尔猜想、齐尔伯纲领</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置</span></span>:
+    <a class="chip" href="#s3">§3</a>
+    <a class="chip" href="lesson11.html">L11 · <span class="il"><span class="en">decidability</span><span class="zh">可判定性</span></span></a>
+    <a class="chip" href="lesson12.html">L12 · <span class="il"><span class="en">incompleteness</span><span class="zh">不完全性</span></span></a></div>
+  <div class="idea"><span class="en"><b>One idea.</b> Tarski showed that the theory of (ℝ, +, ·) is decidable (quantifier elimination), and asked: what about (ℝ, +, ·, exp)? The answer hinges on a conjecture from <i>transcendental number theory</i>. Toggle the assumptions and watch which conclusions light up.</span>
+    <span class="zh"><b>核心思想。</b>塔斯基证明了 (ℝ, +, ·) 的理论可判定（量词消去），并问：(ℝ, +, ·, exp) 呢？答案竟取决于<i>超越数论</i>中的一个猜想。切换下面的假设，看看哪些结论会亮起来。</span></div>
+  <div class="toolbar"><span class="seg" id="exBtns"></span></div>
+  <div class="svgbox"><svg id="exSvg" viewBox="0 0 900 400" width="900" height="400"></svg></div>
+  <div class="msg info" id="exInfo"></div>
+  <div class="def"><span class="en"><b>Schanuel's conjecture (SC)</b> <span class="status st-conj" data-st="conj"></span>: if z₁, …, z<sub>n</sub> ∈ ℂ are linearly independent over ℚ, then the field ℚ(z₁, …, z<sub>n</sub>, e<sup>z₁</sup>, …, e<sup>z<sub>n</sub></sup>) has transcendence degree ≥ n over ℚ. (Lindemann–Weierstrass, for algebraic z<sub>i</sub>, is a proved special case.) SC would imply that e and π are algebraically independent; today we do not even know whether e + π is irrational <span class="status st-open" data-st="open"></span>.<br>
+    <b>Tarski's exponential function problem</b> <span class="status st-open" data-st="open"></span>: is Th(ℝ<sub>exp</sub>) decidable? <b>Macintyre–Wilkie 1996</b> <span class="status st-thm" data-st="thm"></span>: yes, if the real version of SC holds.<br>
+    <b>Zilber's quasiminimality conjecture</b> <span class="status st-conj" data-st="conj"></span>: every subset of ℂ definable in ℂ<sub>exp</sub> = (ℂ, +, ·, exp) is countable or co-countable. Zilber (2005) built a quasiminimal “pseudo-exponential” field B<sub>exp</sub> (categorical in every uncountable cardinal, in L<sub>ω₁,ω</sub>(Q)), and conjectured ℂ<sub>exp</sub> ≅ B<sub>exp</sub>; this is equivalent to SC + “strong exponential-algebraic closedness”. <b>Bays–Kirby 2018</b> <span class="status st-thm" data-st="thm"></span>: exponential-algebraic closedness of ℂ<sub>exp</sub> (no SC needed) implies quasiminimality.</span>
+    <span class="zh"><b>沙努埃尔猜想 (SC)</b> <span class="status st-conj" data-st="conj"></span>：若 z₁, …, z<sub>n</sub> ∈ ℂ 在 ℚ 上线性无关，则域 ℚ(z₁, …, z<sub>n</sub>, e<sup>z₁</sup>, …, e<sup>z<sub>n</sub></sup>) 在 ℚ 上的超越次数 ≥ n。（z<sub>i</sub> 为代数数时就是林德曼–魏尔斯特拉斯定理，是已证明的特例。）SC 蕴涵 e 与 π 代数无关；而今天我们连 e + π 是否为无理数都不知道 <span class="status st-open" data-st="open"></span>。<br>
+    <b>塔斯基指数函数问题</b> <span class="status st-open" data-st="open"></span>：Th(ℝ<sub>exp</sub>) 可判定吗？<b>Macintyre–Wilkie 1996</b> <span class="status st-thm" data-st="thm"></span>：若实数版本的 SC 成立，则可判定。<br>
+    <b>齐尔伯拟极小性猜想</b> <span class="status st-conj" data-st="conj"></span>：ℂ<sub>exp</sub> = (ℂ, +, ·, exp) 中每个可定义的 ℂ 的子集都是可数或余可数的。齐尔伯（2005）构造了一个拟极小的“伪指数”域 B<sub>exp</sub>（在 L<sub>ω₁,ω</sub>(Q) 中于每个不可数基数上范畴），并猜想 ℂ<sub>exp</sub> ≅ B<sub>exp</sub>；这等价于 SC 加上“强指数代数闭性”。<b>Bays–Kirby 2018</b> <span class="status st-thm" data-st="thm"></span>：ℂ<sub>exp</sub> 的指数代数闭性（不需要 SC）蕴涵拟极小性。</span></div>
+  <h3><span class="en">Zilber's trichotomy: what can a 1-dimensional geometry look like?</span><span class="zh">齐尔伯三分法：一维几何能长什么样？</span></h3>
+  <p><span class="en">In a <b>strongly minimal</b> set every definable subset is finite or cofinite, and model-theoretic algebraic closure acl gives a matroid (a notion of dimension). Click the cards.</span>
+     <span class="zh">在<b>强极小</b>集中，每个可定义子集都是有限或余有限的，模型论意义下的代数闭包 acl 给出一个拟阵（即一种维数概念）。点开卡片。</span></p>
+  <div class="tiles" id="triTiles"></div>
+  <div class="msg info" id="triInfo"></div>
+  <div class="why"><span class="en"><b class="h">Why people care / Motivation.</b> The exponential function is where analysis, algebra and number theory collide, and model theory tries to show that ℂ<sub>exp</sub> is “as tame as it could possibly be”. Zilber's trichotomy predicted that every non-trivial geometry comes from a group or a field; Hrushovski showed it fails in general, but it holds in <b>Zariski geometries</b> (Hrushovski–Zilber 1996), and that version powered Hrushovski's Mordell–Lang proof. The “restricted trichotomy” for structures interpreted in algebraically closed fields is now a <span class="status st-thm" data-st="thm"></span> in characteristic 0 (Castle, <i>J. Amer. Math. Soc.</i> 2024). For all characteristics there is a proof by Castle–Hasson–Ye (arXiv preprint 2024, not yet published as of 2026) <span class="status st-ann" data-st="ann"></span>.</span>
+    <span class="zh"><b class="h">动机 / 为什么关心。</b>指数函数是分析、代数与数论交汇的地方，模型论试图证明 ℂ<sub>exp</sub>“驯顺到了极致”。齐尔伯三分法预言：每个非平凡的几何都来自群或域；赫鲁晓夫斯基证明它一般不成立，但在 <b>Zariski 几何</b>中成立（Hrushovski–Zilber 1996），而正是这个版本支撑了赫鲁晓夫斯基对莫德尔–朗猜想的证明。对可在代数闭域中解释的结构，“受限三分法”在特征 0 时已是 <span class="status st-thm" data-st="thm"></span>（Castle，<i>J. Amer. Math. Soc.</i> 2024）。对所有特征，Castle–Hasson–Ye 给出了证明（2024 年 arXiv 预印本，截至 2026 年尚未正式发表）<span class="status st-ann" data-st="ann"></span>。</span></div>
+  <div class="note pit"><span class="en"><b class="h">⚠ Common pitfall.</b> ℂ<sub>exp</sub> is <b>not</b> tame in the first-order sense: it defines ℤ as {x : ∀y (e<sup>y</sup> = 1 → e<sup>xy</sup> = 1)}, hence all of arithmetic, so its first-order theory is undecidable and unstable. Quasiminimality is a tameness statement about definable subsets of ℂ <i>in a different sense</i> (countable/co-countable), consistent with that wildness. Conversely ℝ<sub>exp</sub> <i>is</i> o-minimal, yet its decidability is open.</span>
+    <span class="zh"><b class="h">⚠ 常见误区。</b>ℂ<sub>exp</sub> 在一阶意义下<b>并不</b>驯顺：它能定义 ℤ，即 {x : ∀y (e<sup>y</sup> = 1 → e<sup>xy</sup> = 1)}，进而定义全部算术，所以它的一阶理论不可判定，也不稳定。拟极小性说的是 ℂ 的可定义子集在<i>另一种意义</i>下驯顺（可数或余可数），与上述狂野并不矛盾。反过来，ℝ<sub>exp</sub> <i>是</i> o-极小的，但它的可判定性仍未解决。</span></div>
+  <div class="cy" id="cy4"></div>
+</section>
+
+<!-- ============ S5 ============ -->
+<section class="card" id="s5">
+  <div class="kicker">§5 · <span class="il"><span class="en">Model theory ↔ combinatorics</span><span class="zh">模型论 ↔ 组合</span></span></div>
+  <h2><span class="en">NIP = finite VC dimension: shattering, learning, regularity</span><span class="zh">NIP = 有限 VC 维：打散、学习、正则性</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置</span></span>:
+    <a class="chip" href="#s1">§1 · NIP</a>
+    <a class="chip" href="lesson5.html">L5 · <span class="il"><span class="en">compactness</span><span class="zh">紧致性</span></span></a></div>
+  <div class="idea"><span class="en"><b>One idea.</b> A family of sets <b>shatters</b> a finite set A if it can cut out <i>every</i> subset of A. The independence property says exactly that the family {φ(M, b)} shatters arbitrarily large finite sets. So NIP = “every definable family has finite VC dimension”, a notion invented independently in statistical learning theory.</span>
+    <span class="zh"><b>核心思想。</b>若一族集合能从有限集 A 中切出 A 的<i>每一个</i>子集，就说它<b>打散</b>了 A。独立性质恰好是说：集族 {φ(M, b)} 能打散任意大的有限集。所以 NIP =“每个可定义集族的 VC 维都有限”，而 VC 维正是统计学习理论中独立发明的概念。</span></div>
+  <p><span class="en">Click on the canvas to place points (up to 6), choose a family, and see which subsets it can cut out. Hover a subset to see a witness. Can you place 3 points that intervals shatter? 4 points that half-planes shatter?</span>
+     <span class="zh">在画布上点击放置点（最多 6 个），选择一族集合，看它能切出哪些子集。鼠标停在某个子集上可以看见见证。你能放 3 个点让区间族打散吗？放 4 个点让半平面族打散呢？</span></p>
+  <div class="toolbar"><span class="seg" id="vcMode"></span>
+    <button class="btn small ghost" id="vcClear"><span class="en">Clear points</span><span class="zh">清空点</span></button>
+    <button class="btn small ghost" id="vcRand"><span class="en">Random points</span><span class="zh">随机放点</span></button></div>
+  <div class="row">
+    <div class="col" style="flex:0 1 520px"><div class="svgbox"><svg id="vcSvg" viewBox="0 0 500 340" width="500" height="340" style="cursor:crosshair"></svg></div></div>
+    <div class="col"><div id="vcSummary" class="msg info"></div><div class="subsets" id="vcSubs"></div></div>
+  </div>
+  <div class="def"><span class="en"><b>Definition.</b> A family 𝓕 of subsets of X <b>shatters</b> A ⊆ X if {F ∩ A : F ∈ 𝓕} = 𝒫(A). The <b>VC dimension</b> of 𝓕 is the largest size of a shattered finite set (∞ if unbounded).<br>
+    <b>Theorem</b> <span class="status st-thm" data-st="thm"></span> (Laskowski 1992, from Shelah's work): T is NIP ⇔ for every φ(x; y) the family {φ(M, b) : b} has finite VC dimension.<br>
+    <b>Sauer–Shelah lemma</b> <span class="status st-thm" data-st="thm"></span> (Sauer 1972; Shelah 1972; Vapnik–Chervonenkis 1971): if VC dimension is d, then on any n-element set 𝓕 cuts out at most Σ<sub>i≤d</sub> C(n, i) = O(n<sup>d</sup>) subsets, instead of 2<sup>n</sup>.</span>
+    <span class="zh"><b>定义.</b> 设 𝓕 是 X 的子集族。若 {F ∩ A : F ∈ 𝓕} = 𝒫(A)，则称 𝓕 <b>打散</b> A ⊆ X。𝓕 的 <b>VC 维</b>是能被打散的有限集的最大元素个数（无上界则为 ∞）。<br>
+    <b>定理</b> <span class="status st-thm" data-st="thm"></span>（Laskowski 1992，基于谢拉赫的工作）：T 是 NIP ⇔ 对每个 φ(x; y)，集族 {φ(M, b) : b} 的 VC 维有限。<br>
+    <b>Sauer–Shelah 引理</b> <span class="status st-thm" data-st="thm"></span>（Sauer 1972；Shelah 1972；Vapnik–Chervonenkis 1971）：若 VC 维为 d，则在任意 n 元集上 𝓕 至多切出 Σ<sub>i≤d</sub> C(n, i) = O(n<sup>d</sup>) 个子集，而不是 2<sup>n</sup> 个。</span></div>
+  <div class="why"><span class="en"><b class="h">Why people care / Motivation.</b> The same dividing lines appear in three fields. <b>Learning:</b> a class is PAC-learnable ⇔ it has finite VC dimension (Blumer–Ehrenfeucht–Haussler–Warmuth 1989); finite <b>Littlestone dimension</b>, which corresponds to model-theoretic stability (Chase–Freitag 2019), characterizes online learnability and also differentially private learnability (Alon–Bun–Livni–Malliaris–Moran 2019–22). <b>Combinatorics:</b> stable graphs have regularity partitions with no irregular pairs (Malliaris–Shelah 2014), and bounded-VC graphs have near-homogeneous partitions (Alon–Fischer–Newman 2007, Lovász–Szegedy 2010). Ongoing program <span class="status st-prog" data-st="prog"></span>: transfer between “tame theories” and “tame combinatorics”, e.g. Erdős–Hajnal-type results for definable graphs in distal or NIP structures (Erdős–Hajnal in general is <span class="status st-conj" data-st="conj"></span>).</span>
+    <span class="zh"><b class="h">动机 / 为什么关心。</b>同样的分界线出现在三个领域。<b>学习：</b>一个概念类可 PAC 学习 ⇔ 它的 VC 维有限（Blumer–Ehrenfeucht–Haussler–Warmuth 1989）；有限的 <b>Littlestone 维</b>对应模型论中的稳定性（Chase–Freitag 2019），它刻画在线可学习性，也刻画差分隐私可学习性（Alon–Bun–Livni–Malliaris–Moran 2019–22）。<b>组合：</b>稳定图存在没有非正则对的正则划分（Malliaris–Shelah 2014），有界 VC 维的图存在近乎齐次的划分（Alon–Fischer–Newman 2007，Lovász–Szegedy 2010）。进行中的纲领 <span class="status st-prog" data-st="prog"></span>：在“驯顺理论”与“驯顺组合”之间来回迁移，例如 distal 或 NIP 结构中可定义图的 Erdős–Hajnal 型结果（一般情形的 Erdős–Hajnal 猜想仍是 <span class="status st-conj" data-st="conj"></span>）。</span></div>
+  <div class="note pit"><span class="en"><b class="h">⚠ Common pitfall.</b> To show VC dimension ≥ d, you need <b>one</b> d-point set that is shattered. To show VC dimension &lt; d, you must show <b>no</b> d-point set is shattered. Finding one bad 3-point configuration for half-planes (three collinear points) proves nothing; three points in general position <i>are</i> shattered, so half-planes have VC dimension 3, not 2.</span>
+    <span class="zh"><b class="h">⚠ 常见误区。</b>要证明 VC 维 ≥ d，只需找到<b>一个</b>被打散的 d 点集。要证明 VC 维 &lt; d，必须证明<b>没有任何</b> d 点集被打散。对半平面族找到一个打不散的 3 点构型（三点共线）什么也证明不了；处于一般位置的三点<i>是</i>能被打散的，所以半平面族的 VC 维是 3，不是 2。</span></div>
+  <div class="cy" id="cy5"></div>
+</section>
+
+<div class="partban" style="background:#c2255c"><span class="en">Part B · Computability</span><span class="zh">B 部分 · 可计算性</span>
+  <small><span class="en">What can be computed, how hard it is, and what “random” means</span><span class="zh">什么能算、算起来多难，以及“随机”是什么意思</span></small></div>
+
+<!-- ============ S6 ============ -->
+<section class="card" id="s6">
+  <div class="kicker">§6 · <span class="il"><span class="en">Computability</span><span class="zh">可计算性</span></span></div>
+  <h2><span class="en">Hilbert's tenth problem, ring by ring</span><span class="zh">希尔伯特第十问题：一个环一个环地看</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置</span></span>:
+    <a class="chip" href="lesson11.html">L11 · <span class="il"><span class="en">halting problem, c.e. sets</span><span class="zh">停机问题、可计算可枚举集</span></span></a>
+    <a class="chip" href="lesson17.html">L17 · <span class="il"><span class="en">Σ⁰₁</span><span class="zh">Σ⁰₁</span></span></a>
+    <a class="chip" href="lesson13.html">L13 · <span class="il"><span class="en">Tarski: ℝ decidable</span><span class="zh">塔斯基：ℝ 可判定</span></span></a></div>
+  <div class="idea"><span class="en"><b>One idea.</b> “Does this polynomial equation have a solution in R?” is always <b>semi-decidable</b> for a countable computable ring R: search, and stop if you find one. The question is whether you can also <b>always say no</b>. For ℤ the answer is no (MRDP); for other rings it is a live research area.</span>
+    <span class="zh"><b>核心思想。</b>对可数的可计算环 R，“这个多项式方程在 R 中有解吗？”总是<b>半可判定</b>的：去搜，找到就停。问题在于能不能<b>总能回答“无解”</b>。对 ℤ，答案是不能（MRDP 定理）；对其他环，这仍是活跃的研究领域。</span></div>
+  <h3><span class="en">(a) Watch the search: it can only ever say “yes”</span><span class="zh">(a) 看搜索过程：它只能说“有解”</span></h3>
+  <div class="toolbar"><span class="seg" id="h10Eq"></span>
+    <button class="btn primary small" id="h10Go"><span class="en">Search ▶</span><span class="zh">搜索 ▶</span></button></div>
+  <div class="svgbox"><svg id="h10Svg" viewBox="0 0 900 290" width="900" height="290"></svg></div>
+  <div class="msg info" id="h10Info"></div>
+  <h3><span class="en">(b) The status map: click a ring</span><span class="zh">(b) 状态地图：点击一个环</span></h3>
+  <div class="tiles" id="ringTiles"></div>
+  <div class="msg info" id="ringInfo"></div>
+  <div class="def"><span class="en"><b>MRDP theorem</b> <span class="status st-thm" data-st="thm"></span> (Davis, Putnam, Robinson 1961; Matiyasevich 1970): a set S ⊆ ℕ is computably enumerable ⇔ it is Diophantine, i.e. S = {a : ∃x̄ ∈ ℕ<sup>m</sup> p(a, x̄) = 0} for some integer polynomial p. Hence there is no algorithm deciding solvability of Diophantine equations over ℤ.<br>
+    <b>Rings of integers</b> <span class="status st-thm" data-st="thm"></span>: for every number field K, H10 over 𝒪<sub>K</sub> is undecidable. This was proved by Koymans–Pagano (arXiv Dec 2024; <i>J. Amer. Math. Soc.</i>, online Aug 2026), who in fact cover every infinite ring finitely generated over ℤ, and independently by Alpöge–Bhargava–Ho–Shnidman (arXiv Jan 2025; <i>Invent. Math.</i> 2026) by a different method. Earlier: many special cases (Denef, Lipshitz, Pheidas, Shlapentokh, Videla; Mazur–Rubin 2010 conditional on Shafarevich–Tate).<br>
+    <b>H10 over ℚ</b> <span class="status st-open" data-st="open"></span> as of 2025. An AI-generated manuscript in the OpenAI release (dated 24 Sept 2026, revised 6 Oct 2026) claims undecidability <span class="status st-claim" data-st="claim"></span>. It has no Lean formalization and has not been refereed or independently verified, although a follow-up preprint (Z.-W. Sun, Oct 2026) already builds on it. Known: it would follow if ℤ were Diophantine (existentially definable) in ℚ; Mazur's conjecture on real topology of rational points implies ℤ is <b>not</b> Diophantine in ℚ, so a proof must avoid that route.</span>
+    <span class="zh"><b>MRDP 定理</b> <span class="status st-thm" data-st="thm"></span>（Davis、Putnam、Robinson 1961；马季亚谢维奇 1970）：集合 S ⊆ ℕ 可计算枚举 ⇔ 它是丢番图集，即存在整系数多项式 p 使 S = {a : ∃x̄ ∈ ℕ<sup>m</sup> p(a, x̄) = 0}。因此不存在判定 ℤ 上丢番图方程可解性的算法。<br>
+    <b>整数环</b> <span class="status st-thm" data-st="thm"></span>：对每个数域 K，𝒪<sub>K</sub> 上的第十问题都不可判定。这由 Koymans–Pagano 证明（2024 年 12 月 arXiv；<i>J. Amer. Math. Soc.</i>，2026 年 8 月在线发表），他们实际上覆盖了所有在 ℤ 上有限生成的无穷环；Alpöge–Bhargava–Ho–Shnidman 用不同方法独立证明（2025 年 1 月 arXiv；<i>Invent. Math.</i> 2026）。此前已有许多特例（Denef、Lipshitz、Pheidas、Shlapentokh、Videla；Mazur–Rubin 2010 在沙法列维奇–泰特猜想的假设下）。<br>
+    <b>ℚ 上的第十问题</b>：以 2025 年为准是 <span class="status st-open" data-st="open"></span>。OpenAI 公布的一篇 AI 生成手稿（注明日期 2026 年 9 月 24 日，10 月 6 日修订）声称证明了不可判定性 <span class="status st-claim" data-st="claim"></span>。它没有 Lean 形式化，也未经审稿或独立核实，尽管已有一篇后续预印本（孙智伟，2026 年 10 月）以它为基础。已知：若 ℤ 在 ℚ 中是丢番图的（可存在定义），结论立即成立；但马祖尔关于有理点实拓扑的猜想蕴涵 ℤ 在 ℚ 中<b>不是</b>丢番图的，所以证明必须绕开这条路。</span></div>
+  <div class="why"><span class="en"><b class="h">Why people care / Motivation.</b> Hilbert asked for an algorithm in 1900; MRDP showed that number theory contains the halting problem, so “every c.e. set is a polynomial's solution set”. Over ℚ the question is about <b>rational points</b>, the central object of arithmetic geometry: undecidability there would say no algorithm can determine whether an arbitrary variety has a rational point. Over ℚ there is also a geometric reason to expect a hard fight (Mazur, Poonen).</span>
+    <span class="zh"><b class="h">动机 / 为什么关心。</b>希尔伯特在 1900 年要求一个算法；MRDP 定理表明数论里藏着停机问题，即“每个可计算可枚举集都是某个多项式的解集”。在 ℚ 上，问题关乎<b>有理点</b>，这是算术几何的核心对象：若不可判定，就意味着没有算法能判断任意代数簇是否有有理点。在 ℚ 上也有几何上的理由让人预期这是一场硬仗（马祖尔、Poonen）。</span></div>
+  <div class="note pit"><span class="en"><b class="h">⚠ Common pitfall.</b> Undecidability is about a <b>uniform algorithm for all equations</b>. Each single equation either has a solution or not, and many specific equations are solved (x² + y² = 3 has no rational solutions). Also, solvability over ℝ or ℂ is decidable (Tarski), and so is the full theory of ℚ<sub>p</sub> (Ax–Kochen, Ershov 1965), so “undecidable” is not a property of polynomials as such.</span>
+    <span class="zh"><b class="h">⚠ 常见误区。</b>不可判定说的是<b>对所有方程统一适用的算法</b>不存在。每个具体方程要么有解要么无解，而且许多具体方程已经解决了（x² + y² = 3 没有有理解）。另外，在 ℝ 或 ℂ 上的可解性是可判定的（塔斯基），ℚ<sub>p</sub> 的整个理论也可判定（Ax–Kochen、Ershov 1965），所以“不可判定”并不是多项式本身的属性。</span></div>
+  <div class="cy" id="cy6"></div>
+</section>
+
+<!-- ============ S7 ============ -->
+<section class="card" id="s7">
+  <div class="kicker">§7 · <span class="il"><span class="en">Computability</span><span class="zh">可计算性</span></span></div>
+  <h2><span class="en">The Turing degrees: rigidity and Martin's conjecture</span><span class="zh">图灵度：刚性与马丁猜想</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置</span></span>:
+    <a class="chip" href="lesson17.html">L17 · <span class="il"><span class="en">Turing degrees, jump</span><span class="zh">图灵度、图灵跳跃</span></span></a>
+    <a class="chip" href="lesson18.html">L18 · <span class="il"><span class="en">hyperarithmetic</span><span class="zh">超算术</span></span></a>
+    <a class="chip" href="lesson25.html">L25 · <span class="il"><span class="en">determinacy</span><span class="zh">决定性</span></span></a></div>
+  <div class="idea"><span class="en"><b>One idea.</b> The Turing degrees 𝒟 form a huge, messy partial order, yet two conjectures say it is secretly <b>rigid</b>: (1) no non-trivial symmetry of the order exists; (2) every <i>natural</i> operation on degrees is, on a cone, a constant, or the identity, or an iterate of the jump.</span>
+    <span class="zh"><b>核心思想。</b>图灵度 𝒟 是一个庞大而杂乱的偏序，但有两个猜想说它其实是<b>刚性</b>的：(1) 这个偏序没有非平凡的对称；(2) 度上每个<i>自然</i>的运算，在某个锥上要么是常数，要么是恒等，要么是跳跃的迭代。</span></div>
+  <div class="row">
+    <div class="col" style="flex:1 1 420px">
+      <h3><span class="en">(a) Try to build an automorphism</span><span class="zh">(a) 试着造一个自同构</span></h3>
+      <div class="svgbox"><svg id="tdSvg" viewBox="0 0 430 400" width="430" height="400"></svg></div>
+    </div>
+    <div class="col" style="flex:1 1 420px">
+      <h3><span class="en">(b) Martin's conjecture: the natural functions</span><span class="zh">(b) 马丁猜想：自然的函数</span></h3>
+      <div class="toolbar"><span class="seg" id="mcBtns"></span></div>
+      <div class="svgbox"><svg id="mcSvg" viewBox="0 0 430 330" width="430" height="330"></svg></div>
+    </div>
+  </div>
+  <div class="msg info" id="tdInfo"></div>
+  <div class="def"><span class="en"><b>Rigidity problem.</b> Is every automorphism of (𝒟, ≤<sub>T</sub>) the identity? <span class="status st-open" data-st="open"></span> as of 2025. <b>Known</b> <span class="status st-thm" data-st="thm"></span>: the jump is definable in 𝒟 (Shore–Slaman 1999); Aut(𝒟) is countable, every automorphism is induced by an arithmetically definable map and fixes every degree ≥ 0″ (Slaman–Woodin, announced c. 1990); rigidity is equivalent to the bi-interpretability of 𝒟 with second-order arithmetic (Slaman–Woodin). <b>2026</b> <span class="status st-claim" data-st="claim"></span>: an AI-generated manuscript in the OpenAI release, “Rigidity of the Turing degrees” (dated 24 Sept 2026), claims that every automorphism of 𝒟 is the identity. Its proof combines the Slaman–Woodin theorem that every automorphism is induced by an arithmetic function on reals (cited from their unpublished 2005 manuscript) with a new Cohen-forcing coding argument. The repository contains a Lean 4 formalization of the main theorem, which OpenAI's checker configuration allows to use only Lean's standard axioms. We know of no independent audit of it. A. Marks posted an expository note (“Rigidity of the Turing degrees (after OpenAI)”, 7 Oct 2026) presenting the argument as completing the proof. The manuscript has not been refereed. If correct, it also settles the bi-interpretability conjecture.<br>
+    <b>Martin's conjecture</b> <span class="status st-conj" data-st="conj"></span> (ZF + AD + DC). For f : 2<sup>ω</sup> → 2<sup>ω</sup> Turing-invariant (x ≡<sub>T</sub> y ⇒ f(x) ≡<sub>T</sub> f(y)): (I) either f is constant up to ≡<sub>T</sub> on a cone, or f(x) ≥<sub>T</sub> x on a cone; (II) the functions with f(x) ≥<sub>T</sub> x on a cone are prewellordered by “f ≤<sub>T</sub> g on a cone”, and the successor of f is x ↦ f(x)′. <b>Known</b> <span class="status st-thm" data-st="thm"></span>: true for uniformly Turing-invariant functions (Steel 1982; Slaman–Steel 1988); part (I) for all order-preserving functions (Lutz–Siskind, <i>J. Amer. Math. Soc.</i> 38, 2025).</span>
+    <span class="zh"><b>刚性问题.</b> (𝒟, ≤<sub>T</sub>) 的每个自同构都是恒等映射吗？以 2025 年为准是 <span class="status st-open" data-st="open"></span>。<b>已知</b> <span class="status st-thm" data-st="thm"></span>：跳跃在 𝒟 中可定义（Shore–Slaman 1999）；Aut(𝒟) 可数，每个自同构都由一个算术可定义的映射诱导，并固定每个 ≥ 0″ 的度（Slaman–Woodin，约 1990 年宣布）；刚性等价于 𝒟 与二阶算术双向可解释（Slaman–Woodin）。<b>2026 年</b> <span class="status st-claim" data-st="claim"></span>：OpenAI 公布的一篇 AI 生成手稿《Rigidity of the Turing degrees》（注明日期 2026 年 9 月 24 日）声称 𝒟 的每个自同构都是恒等映射。其证明把 Slaman–Woodin 定理（每个自同构都由实数上的某个算术函数诱导，引自二人未发表的 2005 年手稿）与一个新的 Cohen 力迫编码论证结合起来。仓库中有主定理的 Lean 4 形式化，按 OpenAI 的检查配置，它只允许使用 Lean 的标准公理。我们没有看到对它的独立审查。A. Marks 发布了一份阐释性笔记（“Rigidity of the Turing degrees (after OpenAI)”，2026 年 10 月 7 日），认为该论证完成了这一证明。该手稿尚未经过审稿。若正确，它也解决了双向可解释性猜想。<br>
+    <b>马丁猜想</b> <span class="status st-conj" data-st="conj"></span>（ZF + AD + DC）。设 f : 2<sup>ω</sup> → 2<sup>ω</sup> 是图灵不变的（x ≡<sub>T</sub> y ⇒ f(x) ≡<sub>T</sub> f(y)）：(I) 要么 f 在某个锥上（在 ≡<sub>T</sub> 意义下）是常数，要么在某个锥上 f(x) ≥<sub>T</sub> x；(II) 在某个锥上满足 f(x) ≥<sub>T</sub> x 的函数，按“在某个锥上 f ≤<sub>T</sub> g”构成预良序，且 f 的后继是 x ↦ f(x)′。<b>已知</b> <span class="status st-thm" data-st="thm"></span>：对一致图灵不变的函数成立（Steel 1982；Slaman–Steel 1988）；(I) 对所有保序函数成立（Lutz–Siskind，<i>J. Amer. Math. Soc.</i> 38，2025）。</span></div>
+  <div class="why"><span class="en"><b class="h">Why people care / Motivation.</b> Computability theory is full of artificial degrees built by priority arguments, yet every <i>naturally occurring</i> degree seems to be 0, 0′, 0″, … or a transfinite jump. Martin's conjecture would explain this: the “natural” degree-operations form a well-ordered hierarchy generated by the jump. Rigidity would say that the order ≤<sub>T</sub> alone pins down every degree: no two degrees play interchangeable roles.</span>
+    <span class="zh"><b class="h">动机 / 为什么关心。</b>可计算性理论中充满了用优先方法人工构造的度，但每个<i>自然出现</i>的度似乎都是 0、0′、0″……或超限跳跃。马丁猜想将解释这一现象：“自然”的度运算构成一个由跳跃生成的良序层级。刚性则意味着单凭序 ≤<sub>T</sub> 就能确定每个度：没有两个度扮演可以互换的角色。</span></div>
+  <div class="note pit"><span class="en"><b class="h">⚠ Common pitfall.</b> Martin's conjecture is stated under AD, which contradicts the axiom of choice. Under ZFC there <i>are</i> pathological Turing-invariant functions (built from a well-order of the reals), so the ZFC-meaningful versions restrict to Borel (or definable) functions. “On a cone” matters too: x ↦ x ⊕ 0′ is not the identity, but it equals the identity (up to ≡<sub>T</sub>) on the cone above 0′.</span>
+    <span class="zh"><b class="h">⚠ 常见误区。</b>马丁猜想是在 AD 下陈述的，而 AD 与选择公理矛盾。在 ZFC 中<i>确实存在</i>病态的图灵不变函数（用实数的良序构造），所以在 ZFC 中有意义的版本只考虑博雷尔（或可定义）函数。“在某个锥上”也很关键：x ↦ x ⊕ 0′ 不是恒等函数，但在 0′ 以上的锥上它（在 ≡<sub>T</sub> 意义下）等于恒等函数。</span></div>
+  <div class="cy" id="cy7"></div>
+</section>
+
+<!-- ============ S8 ============ -->
+<section class="card" id="s8">
+  <div class="kicker">§8 · <span class="il"><span class="en">Computability ↔ proof theory</span><span class="zh">可计算性 ↔ 证明论</span></span></div>
+  <h2><span class="en">Reverse mathematics: the Big Five and the zoo</span><span class="zh">反推数学：五大系统与“动物园”</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置</span></span>:
+    <a class="chip" href="lesson12.html">L12 · <span class="il"><span class="en">PA, incompleteness</span><span class="zh">PA、不完全性</span></span></a>
+    <a class="chip" href="lesson17.html">L17 · <span class="il"><span class="en">arithmetical sets</span><span class="zh">算术集</span></span></a>
+    <a class="chip" href="lesson18.html">L18 · <span class="il"><span class="en">Π¹₁, hyperarithmetic</span><span class="zh">Π¹₁、超算术</span></span></a>
+    <a class="chip" href="lesson21.html">L21 · <span class="il"><span class="en">ε₀, Γ₀</span><span class="zh">ε₀、Γ₀</span></span></a></div>
+  <div class="idea"><span class="en"><b>One idea.</b> Instead of asking “is this theorem true?”, ask “which <b>set-existence axioms</b> are needed to prove it?” Over a weak base theory RCA₀, a surprising number of classical theorems turn out to be <b>equivalent</b> to one of five systems. Theorems that are not, form the “zoo”.</span>
+    <span class="zh"><b>核心思想。</b>不问“这个定理对不对”，而问“证明它需要哪些<b>集合存在公理</b>”。在弱的基础理论 RCA₀ 上，数量惊人的经典定理恰好<b>等价</b>于五个系统之一。不属于这五类的定理就构成了“动物园”。</span></div>
+  <div class="toolbar"><span class="muted"><span class="il"><span class="en">Click a theorem chip to place it; click a rung or an arrow for details.</span><span class="zh">点击定理标签把它放上梯子；点击梯级或箭头查看详情。</span></span></span></div>
+  <div class="chipbar" id="rmChips"></div>
+  <div class="svgbox"><svg id="rmSvg" viewBox="0 0 900 470" width="900" height="470"></svg></div>
+  <div class="msg info" id="rmInfo"></div>
+  <div class="def"><span class="en"><b>The Big Five</b> <span class="status st-thm" data-st="thm"></span> (Friedman, Simpson and many others, 1970s–): RCA₀ (Δ⁰₁-comprehension + Σ⁰₁-induction) &lt; WKL₀ (+ weak Kőnig's lemma) &lt; ACA₀ (arithmetical comprehension) &lt; ATR₀ (arithmetical transfinite recursion) &lt; Π¹₁-CA₀. Proof-theoretic ordinals: ω<sup>ω</sup>, ω<sup>ω</sup>, ε₀, Γ₀, ψ(Ω<sub>ω</sub>).<br>
+    <b>Ramsey's theorem for pairs</b> RT²₂ (every 2-colouring of pairs of ℕ has an infinite homogeneous set) <span class="status st-thm" data-st="thm"></span>: provable in ACA₀; not provable in WKL₀ (Jockusch 1972); does not imply ACA₀ (Seetapun–Slaman 1995); does not imply WKL₀ (Liu 2012); RT²₂ ↔ SRT²₂ + COH (Cholak–Jockusch–Slaman 2001); SRT²₂ does not imply RT²₂ (Chong–Slaman–Yang 2014, using non-standard models; for ω-models Monin–Patey 2021); RT²₂ does not prove IΣ⁰₂ (Chong–Slaman–Yang 2017). By contrast RT³₂ ↔ ACA₀ (Jockusch, Simpson).<br>
+    <b>Open</b> <span class="status st-open" data-st="open"></span>: the exact first-order part of RT²₂. It lies between BΣ⁰₂ and IΣ⁰₂; it is ∀Π⁰₄-conservative over RCA₀ + BΣ⁰₂ (Le Houérou–Levy Patey–Yokoyama, 2024 preprint, JLMS 2026), and the full Π¹₁-conservativity over BΣ⁰₂ is open as of 2025. Also open: the exact strength of <b>Hindman's theorem</b> (between ACA₀ and ACA₀⁺; Blass–Hirst–Simpson 1987).</span>
+    <span class="zh"><b>五大系统</b> <span class="status st-thm" data-st="thm"></span>（Friedman、Simpson 等人，1970 年代起）：RCA₀（Δ⁰₁-概括 + Σ⁰₁-归纳）&lt; WKL₀（+ 弱柯尼希引理）&lt; ACA₀（算术概括）&lt; ATR₀（算术超限递归）&lt; Π¹₁-CA₀。证明论序数依次为 ω<sup>ω</sup>、ω<sup>ω</sup>、ε₀、Γ₀、ψ(Ω<sub>ω</sub>)。<br>
+    <b>二元拉姆齐定理</b> RT²₂（ℕ 的二元子集的任意 2-染色都有无穷齐次集）<span class="status st-thm" data-st="thm"></span>：在 ACA₀ 中可证；在 WKL₀ 中不可证（Jockusch 1972）；不蕴涵 ACA₀（Seetapun–Slaman 1995）；不蕴涵 WKL₀（刘路 2012）；RT²₂ ↔ SRT²₂ + COH（Cholak–Jockusch–Slaman 2001）；SRT²₂ 不蕴涵 RT²₂（Chong–Slaman–Yang 2014，用非标准模型；ω-模型情形 Monin–Patey 2021）；RT²₂ 不能证明 IΣ⁰₂（Chong–Slaman–Yang 2017）。相比之下，RT³₂ ↔ ACA₀（Jockusch、Simpson）。<br>
+    <b>未解决</b> <span class="status st-open" data-st="open"></span>：RT²₂ 的一阶部分究竟是什么。它介于 BΣ⁰₂ 与 IΣ⁰₂ 之间；它在 RCA₀ + BΣ⁰₂ 上是 ∀Π⁰₄-保守的（Le Houérou–Levy Patey–Yokoyama，2024 年预印本，JLMS 2026），而在 BΣ⁰₂ 上是否完全 Π¹₁-保守，以 2025 年为准仍未解决。另一个未解决问题：<b>Hindman 定理</b>的确切强度（介于 ACA₀ 与 ACA₀⁺ 之间；Blass–Hirst–Simpson 1987）。</span></div>
+  <div class="why"><span class="en"><b class="h">Why people care / Motivation.</b> Reverse mathematics measures the <b>logical cost</b> of ordinary theorems, and tells us how much of mathematics survives in weak, philosophically motivated systems: WKL₀ is Π⁰₂-conservative over PRA, so theorems provable in it are “finitistically reducible” (a partial realization of Hilbert's program, Simpson). Ramsey-type theorems are the main source of exceptions to the Big Five pattern, and studying them has produced new forcing techniques in computability.</span>
+    <span class="zh"><b class="h">动机 / 为什么关心。</b>反推数学衡量普通定理的<b>逻辑成本</b>，并告诉我们有多少数学能在弱的、有哲学动机的系统中存活：WKL₀ 在 PRA 上是 Π⁰₂-保守的，所以其中可证的定理是“可有穷归约的”（Simpson 所说的希尔伯特纲领的部分实现）。拉姆齐型定理是五大格局的主要例外来源，研究它们催生了可计算性中新的力迫技术。</span></div>
+  <div class="note pit"><span class="en"><b class="h">⚠ Common pitfall.</b> “RT²₂ is weaker than ACA₀” does not mean it sits on the ladder between RCA₀ and ACA₀ like a sixth rung. The ladder is linear only for the Big Five; RT²₂ and WKL₀ are <b>incomparable</b> (neither implies the other). Also, the equivalences are proved <i>over RCA₀</i>: “A ↔ ACA₀” means RCA₀ ⊢ A ↔ (arithmetical comprehension).</span>
+    <span class="zh"><b class="h">⚠ 常见误区。</b>“RT²₂ 比 ACA₀ 弱”并不意味着它像第六根梯级一样插在 RCA₀ 和 ACA₀ 之间。只有五大系统是线性排列的；RT²₂ 与 WKL₀ <b>互不可比</b>（谁也推不出谁）。另外，这些等价都是<i>在 RCA₀ 上</i>证明的：“A ↔ ACA₀”的意思是 RCA₀ ⊢ A ↔（算术概括）。</span></div>
+  <div class="cy" id="cy8"></div>
+</section>
+
+<!-- ============ S9 ============ -->
+<section class="card" id="s9">
+  <div class="kicker">§9 · <span class="il"><span class="en">Computability</span><span class="zh">可计算性</span></span></div>
+  <h2><span class="en">Algorithmic randomness: random = incompressible</span><span class="zh">算法随机性：随机 = 不可压缩</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置</span></span>:
+    <a class="chip" href="lesson11.html">L11 · <span class="il"><span class="en">universal machines</span><span class="zh">通用机</span></span></a>
+    <a class="chip" href="lesson17.html">L17 · <span class="il"><span class="en">degrees, Σ⁰₁ classes</span><span class="zh">度、Σ⁰₁ 类</span></span></a></div>
+  <div class="idea"><span class="en"><b>One idea.</b> A finite string is random if it has no description much shorter than itself. An infinite sequence is random if none of its prefixes can be compressed by more than a constant. Counting shows that almost every string is incompressible, yet no algorithm can certify a given string as incompressible.</span>
+    <span class="zh"><b>核心思想。</b>有限串是随机的，如果它没有比自身短很多的描述。无穷序列是随机的，如果它的任何前缀都不能被压缩超过一个常数。计数论证表明几乎所有串都不可压缩，但没有算法能认证某个给定串不可压缩。</span></div>
+  <div class="row">
+    <div class="col">
+      <h3><span class="en">(a) Try to compress</span><span class="zh">(a) 试着压缩</span></h3>
+      <div class="toolbar"><span class="seg" id="krBtns"></span></div>
+      <input class="formula" id="krIn" style="width:100%;font-size:13px" placeholder="0/1 string">
+      <div class="bitrow" id="krBits" style="margin-top:8px"></div>
+      <div id="krBars" style="margin-top:8px"></div>
+      <div class="msg info" id="krInfo"></div>
+    </div>
+    <div class="col">
+      <h3><span class="en">(b) Why most strings are incompressible</span><span class="zh">(b) 为什么大多数串不可压缩</span></h3>
+      <div class="toolbar"><span class="m">n = 20</span> &nbsp; <span class="m">c = <b id="ccV">3</b></span> <input type="range" id="ccS" min="1" max="10" value="3"></div>
+      <div class="svgbox"><svg id="ccSvg" viewBox="0 0 420 240" width="420" height="240"></svg></div>
+    </div>
+  </div>
+  <div class="def"><span class="en"><b>Definitions.</b> K(σ) is the prefix-free Kolmogorov complexity of σ (length of a shortest program for σ on a fixed universal prefix-free machine). X ∈ 2<sup>ω</sup> is <b>Martin-Löf random</b> if it avoids every effectively null G<sub>δ</sub> set given by a uniformly Σ⁰₁ test; equivalently (Levin–Schnorr) ∃c ∀n K(X↾n) ≥ n − c. A is <b>K-trivial</b> if ∃c ∀n K(A↾n) ≤ K(n) + c (“as compressible as possible”).<br>
+    <b>Known</b> <span class="status st-thm" data-st="thm"></span>: K is not computable; K-trivial = low for ML-randomness = low for K (Nies 2005, with Hirschfeldt–Stephan); the <b>covering problem</b>: every K-trivial set is computable from an incomplete ML-random sequence (Bienvenu–Day–Greenberg–Kučera–Miller–Nies–Turetsky 2014).<br>
+    <b>Open</b> <span class="status st-open" data-st="open"></span>: is <b>Kolmogorov–Loveland randomness</b> (no computable non-monotonic betting strategy succeeds) equal to Martin-Löf randomness? Every ML-random is KL-random; the converse has been open since the 1990s (Muchnik–Semenov–Uspensky; Ambos-Spies–Kučera). Most experts expect them to differ, but no separation is known.</span>
+    <span class="zh"><b>定义.</b> K(σ) 表示 σ 的前缀无关柯尔莫哥洛夫复杂度（在固定的通用前缀无关机上输出 σ 的最短程序的长度）。若 X ∈ 2<sup>ω</sup> 能避开每个由一致 Σ⁰₁ 检验给出的有效零测 G<sub>δ</sub> 集，则称 X 是<b>马丁-洛夫随机</b>的；等价地（Levin–Schnorr）∃c ∀n K(X↾n) ≥ n − c。若 ∃c ∀n K(A↾n) ≤ K(n) + c（“压缩到了极致”），则称 A 是 <b>K-平凡</b>的。<br>
+    <b>已知</b> <span class="status st-thm" data-st="thm"></span>：K 不可计算；K-平凡 = 对 ML 随机性低 = 对 K 低（Nies 2005，及 Hirschfeldt–Stephan）；<b>覆盖问题</b>：每个 K-平凡集都可由某个不完全的 ML 随机序列计算（Bienvenu–Day–Greenberg–Kučera–Miller–Nies–Turetsky 2014）。<br>
+    <b>未解决</b> <span class="status st-open" data-st="open"></span>：<b>柯尔莫哥洛夫–洛夫兰随机性</b>（没有可计算的非单调下注策略能赢）是否等于马丁-洛夫随机性？每个 ML 随机序列都是 KL 随机的；反方向自 1990 年代起悬而未决（Muchnik–Semenov–Uspensky；Ambos-Spies–Kučera）。多数专家预期两者不同，但至今找不到分离的例子。</span></div>
+  <div class="why"><span class="en"><b class="h">Why people care / Motivation.</b> It gives a mathematically exact meaning to “this individual sequence is random”, which probability theory alone cannot do. The theory connects to analysis (ML-random points are exactly where certain effective theorems, e.g. versions of Lebesgue differentiation and the ergodic theorem, hold), to effective dimension (used by J. and N. Lutz to prove new results in fractal geometry, 2018), and to the question of which notion of “randomness” is the right one (the KL question).</span>
+    <span class="zh"><b class="h">动机 / 为什么关心。</b>它为“这个具体序列是随机的”给出了精确的数学含义，而单靠概率论做不到这一点。该理论与分析相连（ML 随机点恰好是某些有效定理成立的地方，例如勒贝格微分定理、遍历定理的有效版本），与有效维数相连（J. Lutz 和 N. Lutz 用它在分形几何中证明了新结果，2018），也与“哪种随机性概念才对”的问题（KL 问题）相连。</span></div>
+  <div class="note pit"><span class="en"><b class="h">⚠ Common pitfall.</b> A compressor (zip, LZ) only gives an <b>upper bound</b> on K. The binary digits of √2 look random to LZ, but K(√2↾n) ≤ K(n) + c because a short program computes them. No computable sequence is ML-random, and no algorithm can prove that a long string has high K (this is a form of Gödel incompleteness, due to Chaitin).</span>
+    <span class="zh"><b class="h">⚠ 常见误区。</b>压缩程序（zip、LZ）只能给出 K 的<b>上界</b>。√2 的二进制数字在 LZ 看来很随机，但 K(√2↾n) ≤ K(n) + c，因为有个很短的程序能算出它们。没有可计算序列是 ML 随机的，也没有算法能证明某个长串的 K 很大（这是哥德尔不完全性的一种形式，归功于蔡廷）。</span></div>
+  <div class="cy" id="cy9"></div>
+</section>
+
+<!-- ============ S10 ============ -->
+<section class="card" id="s10">
+  <div class="kicker">§10 · <span class="il"><span class="en">Computability with a budget</span><span class="zh">有预算的可计算性</span></span></div>
+  <h2><span class="en">Complexity as resource-bounded logic: P vs NP, descriptive and proof complexity</span><span class="zh">作为资源受限逻辑的复杂性：P 与 NP、描述复杂性、证明复杂性</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置</span></span>:
+    <a class="chip" href="lesson1.html">L1 · <span class="il"><span class="en">truth tables</span><span class="zh">真值表</span></span></a>
+    <a class="chip" href="lesson2.html">L2 · <span class="il"><span class="en">proof systems</span><span class="zh">证明系统</span></span></a>
+    <a class="chip" href="lesson11.html">L11 · <span class="il"><span class="en">Turing machines</span><span class="zh">图灵机</span></span></a></div>
+  <div class="idea"><span class="en"><b>One idea.</b> In L1 you checked tautologies with a truth table: 2<sup>n</sup> rows. Is there always a <b>much shorter certificate</b> that a formula is a tautology? If yes for some proof system, NP = coNP. If no for all of them, then P ≠ NP. Logic and complexity are two views of the same question.</span>
+    <span class="zh"><b>核心思想。</b>第 1 课里你用真值表检验重言式：2<sup>n</sup> 行。是否总有一个<b>短得多的凭证</b>证明一个公式是重言式？若某个证明系统能做到，则 NP = coNP。若所有证明系统都做不到，则 P ≠ NP。逻辑与复杂性是同一个问题的两个侧面。</span></div>
+  <div class="row">
+    <div class="col">
+      <h3><span class="en">(a) The truth-table wall</span><span class="zh">(a) 真值表之墙</span></h3>
+      <div class="toolbar"><span class="m">n = <b id="ttnV">20</b></span> <input type="range" id="ttn" min="1" max="80" value="20"></div>
+      <div class="svgbox"><svg id="ttnSvg" viewBox="0 0 420 260" width="420" height="260"></svg></div>
+    </div>
+    <div class="col">
+      <h3><span class="en">(b) Logics that capture complexity classes</span><span class="zh">(b) 刻画复杂性类的逻辑</span></h3>
+      <div class="svgbox"><svg id="dcSvg" viewBox="0 0 420 300" width="420" height="300"></svg></div>
+    </div>
+  </div>
+  <div class="msg info" id="dcInfo"></div>
+  <div class="def"><span class="en"><b>Cook–Levin</b> <span class="status st-thm" data-st="thm"></span> (1971/73): SAT is NP-complete; so TAUT is coNP-complete.<br>
+    <b>P vs NP</b> <span class="status st-conj" data-st="conj"></span> (expected: P ≠ NP). <b>NP vs coNP</b> <span class="status st-conj" data-st="conj"></span> (expected: NP ≠ coNP). Note P = NP ⇒ NP = coNP, so NP ≠ coNP ⇒ P ≠ NP.<br>
+    <b>Cook–Reckhow</b> <span class="status st-thm" data-st="thm"></span> (1979): NP = coNP ⇔ there is a propositional proof system in which every tautology has a proof of polynomial size. Lower bounds are known for weak systems (resolution needs exponential size for the pigeonhole principle, Haken 1985) but <b>no super-polynomial lower bound is known for Frege systems</b> (ordinary textbook proof systems, as in L2) <span class="status st-open" data-st="open"></span>.<br>
+    <b>Descriptive complexity</b> <span class="status st-thm" data-st="thm"></span>: NP = existential second-order logic on finite structures (Fagin 1974); on <i>ordered</i> finite structures P = FO(LFP) (Immerman, Vardi 1982). Whether some logic captures P on <i>all</i> finite structures is <span class="status st-open" data-st="open"></span> (Gurevich 1988 conjectured not).</span>
+    <span class="zh"><b>Cook–Levin 定理</b> <span class="status st-thm" data-st="thm"></span>（1971/73）：SAT 是 NP-完全的；因而 TAUT 是 coNP-完全的。<br>
+    <b>P 与 NP</b> <span class="status st-conj" data-st="conj"></span>（预期 P ≠ NP）。<b>NP 与 coNP</b> <span class="status st-conj" data-st="conj"></span>（预期 NP ≠ coNP）。注意 P = NP ⇒ NP = coNP，所以 NP ≠ coNP ⇒ P ≠ NP。<br>
+    <b>Cook–Reckhow 定理</b> <span class="status st-thm" data-st="thm"></span>（1979）：NP = coNP ⇔ 存在一个命题证明系统，使每个重言式都有多项式规模的证明。对弱系统已有下界（归结法证明鸽笼原理需要指数规模，Haken 1985），但<b>对弗雷格系统（即第 2 课那种普通教科书式证明系统）至今连超多项式下界都没有</b> <span class="status st-open" data-st="open"></span>。<br>
+    <b>描述复杂性</b> <span class="status st-thm" data-st="thm"></span>：在有限结构上 NP = 存在二阶逻辑（Fagin 1974）；在<i>有序</i>有限结构上 P = FO(LFP)（Immerman、Vardi 1982）。是否存在一种逻辑能在<i>所有</i>有限结构上刻画 P，仍是 <span class="status st-open" data-st="open"></span>（Gurevich 1988 猜想不存在）。</span></div>
+  <div class="why"><span class="en"><b class="h">Why people care / Motivation.</b> P vs NP asks whether finding is harder than checking: cryptography, optimization and the nature of mathematical creativity hang on it (it is a Clay Millennium problem). Proof complexity is the logician's route: proving lower bounds for stronger and stronger proof systems is a step-by-step attack on NP ≠ coNP, and it also explains why SAT solvers (essentially resolution) fail on some inputs. Known barriers (relativization, Baker–Gill–Solovay 1975; natural proofs, Razborov–Rudich 1997; algebrization, Aaronson–Wigderson 2009) show which techniques cannot work.</span>
+    <span class="zh"><b class="h">动机 / 为什么关心。</b>P 与 NP 问的是“找”是否比“验”难：密码学、优化乃至数学创造的本质都系于此（它是克莱千禧年难题之一）。证明复杂性是逻辑学家的进路：为越来越强的证明系统证明下界，是对 NP ≠ coNP 的逐步进攻；它也解释了为什么 SAT 求解器（本质上是归结法）在某些输入上会失败。已知的障碍（相对化，Baker–Gill–Solovay 1975；自然证明，Razborov–Rudich 1997；代数化，Aaronson–Wigderson 2009）告诉我们哪些技术注定行不通。</span></div>
+  <div class="note pit"><span class="en"><b class="h">⚠ Common pitfall.</b> “P ≠ NP is probably independent of ZFC” is speculation, not a result; there is no evidence of independence, and nothing in L12 implies it. Another one: a short proof <i>existing</i> (proof complexity) is different from <i>finding</i> it quickly (proof search). Both are open in general.</span>
+    <span class="zh"><b class="h">⚠ 常见误区。</b>“P ≠ NP 大概独立于 ZFC”只是猜测，不是结果；没有任何独立性的证据，第 12 课的内容也推不出这一点。另一个误区：短证明<i>存在</i>（证明复杂性）与能<i>快速找到</i>它（证明搜索）是两回事，两者一般都未解决。</span></div>
+  <div class="cy" id="cy10"></div>
+</section>
+
+<div class="partban" style="background:#5f3dc4"><span class="en">Part C · Proof theory &amp; foundations</span><span class="zh">C 部分 · 证明论与基础</span>
+  <small><span class="en">How strong are our theories, and who checks the proofs?</span><span class="zh">我们的理论有多强？证明由谁来检查？</span></small></div>
+
+<!-- ============ S11 ============ -->
+<section class="card" id="s11">
+  <div class="kicker">§11 · <span class="il"><span class="en">Proof theory</span><span class="zh">证明论</span></span></div>
+  <h2><span class="en">The ordinal analysis frontier</span><span class="zh">序数分析的前沿</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置</span></span>:
+    <a class="chip" href="lesson8.html">L8 · <span class="il"><span class="en">ordinals</span><span class="zh">序数</span></span></a>
+    <a class="chip" href="lesson12.html">L12 · <span class="il"><span class="en">Con(PA)</span><span class="zh">Con(PA)</span></span></a>
+    <a class="chip" href="lesson21.html">L21 · <span class="il"><span class="en">ordinal notations</span><span class="zh">序数记号</span></span></a>
+    <a class="chip" href="#s8">§8</a></div>
+  <div class="idea"><span class="en"><b>One idea.</b> Gentzen (1936) measured PA by an ordinal: PA cannot prove the well-foundedness of ε₀ (for its notation system), and a weak base theory plus induction up to ε₀ proves Con(PA). Ordinal analysis does this for stronger and stronger theories. Around the strength of Π¹₂-comprehension the methods hit a wall.</span>
+    <span class="zh"><b>核心思想。</b>根岑（1936）用一个序数度量了 PA：PA 证明不了（其记号系统下）ε₀ 的良基性，而弱的基础理论加上直到 ε₀ 的超限归纳就能证明 Con(PA)。序数分析就是对越来越强的理论做同样的事。到了 Π¹₂-概括这个强度附近，方法撞上了墙。</span></div>
+  <div class="svgbox"><svg id="oaSvg" viewBox="0 0 900 300" width="900" height="300"></svg></div>
+  <div class="msg info" id="oaInfo"></div>
+  <div class="def"><span class="en"><b>Definition (one common version).</b> The proof-theoretic ordinal |T| is the supremum of the order types of the primitive recursive well-orderings whose well-foundedness T proves.<br>
+    <b>Known</b> <span class="status st-thm" data-st="thm"></span>: |PA| = |ACA₀| = ε₀ (Gentzen 1936); |ATR₀| = Γ₀ (Feferman, Schütte 1960s; Friedman–McAloon–Simpson 1982); |KP| = |ID₁| = Bachmann–Howard ordinal; |Π¹₁-CA₀| = ψ(Ω<sub>ω</sub>) (Buchholz, Pohlers, Takeuti and others, 1970s–80s).<br>
+    <b>Frontier</b>: published ordinal analyses reach Δ¹₂-CA + BI and parameter-free Π¹₂-CA (Rathjen, <i>Arch. Math. Logic</i> 2005). An analysis of Π¹₂-CA₀ itself was announced by Rathjen in the 1990s, but to our knowledge it has never been published in full <span class="status st-ann" data-st="ann"></span>. For full second-order arithmetic Z₂, analyses have been claimed by Arai (arXiv 2023) and Towsner (arXiv 2024, which describes itself as work in progress). Neither has been refereed or generally accepted, and later papers refer to them as claims <span class="status st-ann" data-st="ann"></span>. ZF and ZFC: <span class="status st-open" data-st="open"></span>, with no accepted approach.</span>
+    <span class="zh"><b>定义（常见版本之一）.</b> 证明论序数 |T| 是所有“T 能证明其良基性的原始递归良序”的序型的上确界。<br>
+    <b>已知</b> <span class="status st-thm" data-st="thm"></span>：|PA| = |ACA₀| = ε₀（根岑 1936）；|ATR₀| = Γ₀（Feferman、Schütte 1960 年代；Friedman–McAloon–Simpson 1982）；|KP| = |ID₁| = Bachmann–Howard 序数；|Π¹₁-CA₀| = ψ(Ω<sub>ω</sub>)（Buchholz、Pohlers、Takeuti 等，1970–80 年代）。<br>
+    <b>前沿</b>：已发表的序数分析达到 Δ¹₂-CA + BI 及无参数 Π¹₂-CA（Rathjen，<i>Arch. Math. Logic</i> 2005）。Π¹₂-CA₀ 本身的分析由 Rathjen 在 1990 年代宣布，但据我们所知从未完整发表 <span class="status st-ann" data-st="ann"></span>。对完整的二阶算术 Z₂，Arai（2023 年 arXiv）和 Towsner（2024 年 arXiv，自称仍在进行中）声称给出了分析。两者都未经审稿，也未被普遍接受，后来的论文仍称之为“声称” <span class="status st-ann" data-st="ann"></span>。ZF 与 ZFC：<span class="status st-open" data-st="open"></span>，尚无公认的进路。</span></div>
+  <div class="why"><span class="en"><b class="h">Why people care / Motivation.</b> An ordinal analysis is a <b>consistency proof with a precise price tag</b> (“Con(T) follows from the well-foundedness of this explicit ordering”), the closest thing we have to Hilbert's program after Gödel. It also yields concrete information: the provably total functions of T (for PA: those dominated by some f<sub>α</sub>, α &lt; ε₀, from L21) and independence results (§12). The Π¹₂ wall is where the needed ordinal notations must reflect very strong set-theoretic “stability” properties.</span>
+    <span class="zh"><b class="h">动机 / 为什么关心。</b>序数分析是<b>附带精确价签的一致性证明</b>（“Con(T) 可由这个明确序关系的良基性推出”），是哥德尔之后我们离希尔伯特纲领最近的东西。它还给出具体信息：T 的可证全函数（对 PA 而言，就是被第 21 课中某个 f<sub>α</sub>（α &lt; ε₀）控制的函数），以及独立性结果（§12）。Π¹₂ 之墙所在之处，所需的序数记号必须反映极强的集合论“稳定性”性质。</span></div>
+  <div class="note pit"><span class="en"><b class="h">⚠ Common pitfall.</b> “PA cannot prove ε₀ is well-ordered” is about a <b>specific notation system</b> and a specific formalization; ε₀ as a set-theoretic ordinal is of course well-ordered in ZFC. And an ordinal analysis does not make a theory “more certain” by magic: it reduces trust in T to trust in one transparent principle (transfinite induction along one ordering) over a weak base.</span>
+    <span class="zh"><b class="h">⚠ 常见误区。</b>“PA 证明不了 ε₀ 是良序”针对的是一个<b>具体的记号系统</b>和具体的形式化；作为集合论中的序数，ε₀ 在 ZFC 中当然是良序的。序数分析也不会魔术般地让理论“更可靠”：它把对 T 的信任，归约为在弱基础理论上对一条透明原则（沿某个序关系的超限归纳）的信任。</span></div>
+  <div class="cy" id="cy11"></div>
+</section>
+
+<!-- ============ S12 ============ -->
+<section class="card" id="s12">
+  <div class="kicker">§12 · <span class="il"><span class="en">Proof theory</span><span class="zh">证明论</span></span></div>
+  <h2><span class="en">Incompleteness in practice: concrete independent statements</span><span class="zh">实践中的不完全性：具体的独立命题</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置</span></span>:
+    <a class="chip" href="lesson12.html">L12 · <span class="il"><span class="en">Gödel</span><span class="zh">哥德尔</span></span></a>
+    <a class="chip" href="lesson21.html">L21 · <span class="il"><span class="en">fast-growing hierarchy</span><span class="zh">快速增长层级</span></span></a>
+    <a class="chip" href="#s11">§11</a></div>
+  <div class="idea"><span class="en"><b>One idea.</b> Gödel's sentence is true but artificial. The program of <b>concrete incompleteness</b> looks for statements that mathematicians would care about anyway (about numbers, trees, graphs) and that are nonetheless unprovable in a standard theory. The proofs of unprovability go through the ordinals of §11.</span>
+    <span class="zh"><b>核心思想。</b>哥德尔句真而做作。<b>具体不完全性</b>纲领寻找这样的命题：数学家本来就会关心（关于数、树、图），却在某个标准理论中不可证。不可证性的证明要经过 §11 中的序数。</span></div>
+  <h3><span class="en">Goodstein sequences: bump the base, subtract one</span><span class="zh">古德斯坦序列：升底数，减一</span></h3>
+  <p><span class="en">Write m in <b>hereditary</b> base b (exponents also in base b), replace every b by b+1, subtract 1, repeat. The numbers explode, yet the sequence always reaches 0. The ordinal column (replace b by ω) strictly decreases, which is why.</span>
+     <span class="zh">把 m 写成<b>遗传</b> b 进制（指数也写成 b 进制），把每个 b 换成 b+1，再减 1，如此重复。数会爆炸式增长，但序列总会回到 0。原因在于序数一栏（把 b 换成 ω）严格递减。</span></p>
+  <div class="toolbar"><span class="m">G(m), m =</span> <span class="seg" id="gsBtns"></span>
+    <button class="btn small primary" id="gsStep"><span class="en">Next step ▶</span><span class="zh">下一步 ▶</span></button>
+    <button class="btn small" id="gsRun"><span class="en">Run 25 steps</span><span class="zh">连走 25 步</span></button></div>
+  <div class="row">
+    <div class="col" style="flex:1 1 470px"><div class="svgbox" style="max-height:330px;overflow:auto"><table class="mini gstep" id="gsTab"></table></div></div>
+    <div class="col" style="flex:1 1 360px"><div class="svgbox"><svg id="gsSvg" viewBox="0 0 380 300" width="380" height="300"></svg></div></div>
+  </div>
+  <div class="msg info" id="gsInfo"></div>
+  <h3><span class="en">The ladder of concrete independence</span><span class="zh">具体独立性的阶梯</span></h3>
+  <div class="tiles" id="ciTiles"></div>
+  <div class="msg info" id="ciInfo"></div>
+  <div class="def"><span class="en"><b>Goodstein's theorem</b> <span class="status st-thm" data-st="thm"></span> (Goodstein 1944): every Goodstein sequence reaches 0. <span class="status st-ind" data-st="ind"></span> It is not provable in PA (Kirby–Paris 1982).<br>
+    <b>Paris–Harrington</b> <span class="status st-ind" data-st="ind"></span> (1977): the “large homogeneous set” version of the finite Ramsey theorem is true but not provable in PA.<br>
+    <b>Friedman</b> <span class="status st-ind" data-st="ind"></span>: finite forms of Kruskal's tree theorem are not provable in ATR₀ (1980s); the graph minor theorem (Robertson–Seymour) is not provable in Π¹₁-CA₀ (Friedman–Robertson–Seymour 1987).<br>
+    <b>Boolean relation theory</b> <span class="status st-prog" data-st="prog"></span> (Friedman, 1990s–): explicit statements about functions on ℕ provable only with large cardinal hypotheses (Mahlo cardinals of all finite orders), proposed as “concrete mathematics needing large cardinals”.</span>
+    <span class="zh"><b>古德斯坦定理</b> <span class="status st-thm" data-st="thm"></span>（古德斯坦 1944）：每个古德斯坦序列都会到达 0。<span class="status st-ind" data-st="ind"></span> 它在 PA 中不可证（Kirby–Paris 1982）。<br>
+    <b>帕里斯–哈灵顿定理</b> <span class="status st-ind" data-st="ind"></span>（1977）：有限拉姆齐定理的“大齐次集”版本为真，但在 PA 中不可证。<br>
+    <b>弗里德曼</b> <span class="status st-ind" data-st="ind"></span>：克鲁斯卡尔树定理的有限形式在 ATR₀ 中不可证（1980 年代）；图子式定理（Robertson–Seymour）在 Π¹₁-CA₀ 中不可证（Friedman–Robertson–Seymour 1987）。<br>
+    <b>布尔关系理论</b> <span class="status st-prog" data-st="prog"></span>（弗里德曼，1990 年代起）：关于 ℕ 上函数的明确命题，只有借助大基数假设（所有有限阶的马洛基数）才能证明，被提出作为“需要大基数的具体数学”。</span></div>
+  <div class="why"><span class="en"><b class="h">Why people care / Motivation.</b> These results answer the working mathematician's objection “incompleteness never affects real mathematics”. They show that natural combinatorial principles can encode consistency strength, and they connect logic to the question of which axioms (PA? ZFC? large cardinals?) mathematics actually needs. The open frontier <span class="status st-open" data-st="open"></span>: find a <i>widely accepted</i>, natural statement of finite combinatorics that needs large cardinals, or one independent of ZFC itself.</span>
+    <span class="zh"><b class="h">动机 / 为什么关心。</b>这些结果回应了一线数学家的质疑：“不完全性从不影响真正的数学”。它们表明自然的组合原理可以编码一致性强度，并把逻辑与“数学究竟需要哪些公理（PA？ZFC？大基数？）”这个问题联系起来。开放的前沿 <span class="status st-open" data-st="open"></span>：找到一个被<i>广泛接受</i>的、自然的有限组合命题，它需要大基数，或独立于 ZFC 本身。</span></div>
+  <div class="note pit"><span class="en"><b class="h">⚠ Common pitfall.</b> “Independent of PA” does not mean “of unknown truth”. Goodstein's theorem and Paris–Harrington are <b>true</b> (provable in ZFC, even in fairly weak second-order systems); they are just not provable from PA's axioms. Contrast this with CH (L16), whose truth value is not settled by ZFC at all.</span>
+    <span class="zh"><b class="h">⚠ 常见误区。</b>“独立于 PA”不等于“真假未知”。古德斯坦定理与帕里斯–哈灵顿定理都是<b>真的</b>（在 ZFC 中可证，甚至在相当弱的二阶系统中可证）；只是从 PA 的公理出发证不出来。与之对照的是 CH（第 16 课），ZFC 根本不决定它的真假。</span></div>
+  <div class="cy" id="cy12"></div>
+</section>
+
+<!-- ============ S13 ============ -->
+<section class="card" id="s13">
+  <div class="kicker">§13 · <span class="il"><span class="en">Foundations</span><span class="zh">基础</span></span></div>
+  <h2><span class="en">Foundations and machines: formalization, HoTT, automated reasoning</span><span class="zh">基础与机器：形式化、同伦类型论、自动推理</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置</span></span>:
+    <a class="chip" href="lesson2.html">L2 · <span class="il"><span class="en">formal proofs</span><span class="zh">形式证明</span></span></a>
+    <a class="chip" href="lesson4.html">L4 · <span class="il"><span class="en">completeness</span><span class="zh">完备性</span></span></a>
+    <a class="chip" href="lesson6.html">L6 · <span class="il"><span class="en">ZF axioms</span><span class="zh">ZF 公理</span></span></a></div>
+  <div class="idea"><span class="en"><b>One idea.</b> A formal proof (L2) is a finite object that a short program can check. That turns “is this proof correct?” into a mechanical question. Since about 2020 this has moved from a curiosity to a practical tool, and it is changing how new results, including AI-generated ones, get trusted.</span>
+    <span class="zh"><b>核心思想。</b>形式证明（第 2 课）是一个能由短程序检查的有限对象。这就把“这个证明对吗？”变成了机械问题。大约从 2020 年起，这件事从奇谈变成了实用工具，也正在改变新结果（包括 AI 生成的结果）获得信任的方式。</span></div>
+  <h3><span class="en">(a) Timeline (facts only): click an event</span><span class="zh">(a) 时间线（只列事实）：点击事件</span></h3>
+  <div class="svgbox"><svg id="tlSvg" viewBox="0 0 900 230" width="900" height="230"></svg></div>
+  <div class="msg info" id="tlInfo"></div>
+  <h3><span class="en">(b) What exactly does a proof checker certify?</span><span class="zh">(b) 证明检查器到底认证了什么？</span></h3>
+  <div class="svgbox"><svg id="trSvg" viewBox="0 0 900 200" width="900" height="200"></svg></div>
+  <div class="msg info" id="trInfo"></div>
+  <div class="def"><span class="en"><b>Facts</b> <span class="status st-thm" data-st="thm"></span>: Kepler conjecture formally verified (Flyspeck, Hales et al., completed 2014, published 2017); Four Colour Theorem (Gonthier, Coq, 2005) and Feit–Thompson theorem (Gonthier et al., 2012); Scholze's Liquid Tensor Experiment completed in Lean (2022); the polynomial Freiman–Ruzsa conjecture (Gowers–Green–Manners–Tao, Nov 2023) formalized in Lean in about three weeks.<br>
+    <b>HoTT</b> <span class="status st-prog" data-st="prog"></span>: Martin-Löf type theory + Voevodsky's <b>univalence axiom</b> ((A = B) ≃ (A ≃ B)) + higher inductive types; models in simplicial sets (Kapulkin–Lumsdaine–Voevodsky) and in every ∞-topos (Shulman 2019); cubical type theory (Cohen–Coquand–Huber–Mörtberg 2018) makes univalence computational. Example of an open question <span class="status st-open" data-st="open"></span> (to our knowledge): can semi-simplicial types be defined inside book HoTT?<br>
+    <b>Automated / AI-assisted proving</b> <span class="status st-prog" data-st="prog"></span>: AlphaProof (DeepMind) reached IMO silver-medal level with Lean-checked solutions (2024); in 2025 several systems reached gold-medal level in natural language. On 6 Oct 2026 OpenAI released 722 AI-generated manuscripts. Three were withdrawn the next day for an error and 14 were revised. OpenAI reports Lean formalizations for about 42% of the top-line results. Independent review has only just begun.</span>
+    <span class="zh"><b>事实</b> <span class="status st-thm" data-st="thm"></span>：开普勒猜想已被形式化验证（Flyspeck 项目，Hales 等，2014 年完成，2017 年发表）；四色定理（Gonthier，Coq，2005）与 Feit–Thompson 定理（Gonthier 等，2012）；Scholze 的“液态张量实验”在 Lean 中完成（2022）；多项式 Freiman–Ruzsa 猜想（Gowers–Green–Manners–Tao，2023 年 11 月）大约三周内在 Lean 中完成形式化。<br>
+    <b>同伦类型论</b> <span class="status st-prog" data-st="prog"></span>：马丁-洛夫类型论 + 沃耶沃德斯基的<b>泛等公理</b>（(A = B) ≃ (A ≃ B)）+ 高阶归纳类型；在单纯集中有模型（Kapulkin–Lumsdaine–Voevodsky），在每个 ∞-意象中也有模型（Shulman 2019）；立方类型论（Cohen–Coquand–Huber–Mörtberg 2018）让泛等公理具有计算内容。未解决问题举例 <span class="status st-open" data-st="open"></span>（据我们所知）：能否在“书本版” HoTT 内部定义半单纯类型？<br>
+    <b>自动 / AI 辅助证明</b> <span class="status st-prog" data-st="prog"></span>：AlphaProof（DeepMind）以 Lean 校验的解答达到 IMO 银牌水平（2024）；2025 年多个系统以自然语言达到金牌水平。2026 年 10 月 6 日，OpenAI 公布了 722 篇 AI 生成的手稿。次日有三篇因错误被撤回，另有 14 篇被修订。据 OpenAI 称，约 42% 的主要结果附有 Lean 形式化。独立审查才刚刚开始。</span></div>
+  <div class="speculate"><span class="en"><b>Speculation zone (clearly labelled).</b> Opinions differ on whether formal verification will become standard for research papers, whether AI systems will routinely prove research-level theorems, and whether HoTT/univalent foundations will replace set theory as the everyday foundation. None of these is a mathematical statement with a status; they are predictions. What is not speculation: a checked formal proof reduces trust to (i) the small kernel, (ii) the axioms used, and (iii) the faithfulness of the formal statement.</span>
+    <span class="zh"><b>推测区（明确标注）。</b>形式化验证会不会成为研究论文的标配？AI 系统会不会常规地证明研究级定理？HoTT/泛等基础会不会取代集合论成为日常基础？对这些问题看法不一。它们都不是带“状态”的数学命题，而是预测。不属于推测的是：一个通过检查的形式证明，把信任归结为 (i) 小小的内核，(ii) 所用的公理，(iii) 形式陈述是否忠实于原意。</span></div>
+  <div class="why"><span class="en"><b class="h">Why people care / Motivation.</b> Proofs are getting longer and more collaborative, and refereeing cannot keep up; formal checking scales. Foundations matter again: Lean's Mathlib is built on dependent type theory, not ZFC, and how the two relate (they are mutually interpretable up to universe/large-cardinal assumptions) is now a practical question. Univalence makes “isomorphic structures are equal” an axiom, matching how mathematicians actually reason.</span>
+    <span class="zh"><b class="h">动机 / 为什么关心。</b>证明越来越长、越来越依赖合作，审稿已经跟不上；形式检查却可以规模化。基础问题重新变得重要：Lean 的 Mathlib 建立在依赖类型论而非 ZFC 之上，两者如何对应（在宇宙/大基数假设的意义下可以相互解释）如今是一个实际问题。泛等公理把“同构的结构相等”变成了一条公理，与数学家实际的推理方式一致。</span></div>
+  <div class="note pit"><span class="en"><b class="h">⚠ Common pitfall.</b> “Verified in Lean” means: the kernel accepted a proof of <b>the formal statement as written</b>. If the formal statement does not say what the paper claims (missing hypotheses, a different definition), the check does not help. That is exactly why the 2026 AI claims are labelled <span class="status st-claim" data-st="claim"></span> even when they come with Lean code.</span>
+    <span class="zh"><b class="h">⚠ 常见误区。</b>“已在 Lean 中验证”的意思是：内核接受了<b>写下来的那个形式陈述</b>的证明。若形式陈述与论文的声称不符（漏了假设、定义不同），检查就帮不上忙。这正是为什么 2026 年的 AI 声称即使附有 Lean 代码，我们仍标为 <span class="status st-claim" data-st="claim"></span>。</span></div>
+  <div class="cy" id="cy13"></div>
+</section>
+
+<div class="partban" style="background:#1f2430"><span class="en">Synthesis</span><span class="zh">综合</span>
+  <small><span class="en">All the frontiers of Lessons 27 and 28 on one map</span><span class="zh">把第 27、28 课的所有前沿放在一张图上</span></small></div>
+
+<!-- ============ S14 ============ -->
+<section class="card" id="s14">
+  <div class="kicker">§14 · <span class="il"><span class="en">Synthesis</span><span class="zh">综合</span></span></div>
+  <h2><span class="en">The frontier map</span><span class="zh">前沿地图</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites</span><span class="zh">前置</span></span>:
+    <a class="chip" href="lesson26.html">L26 · <span class="il"><span class="en">big picture</span><span class="zh">全景</span></span></a>
+    <a class="chip" href="lesson27.html">L27 · <span class="il"><span class="en">set theory frontiers</span><span class="zh">集合论前沿</span></span></a>
+    <a class="chip" href="#s1">§1–13</a></div>
+  <div class="idea"><span class="en"><b>One idea.</b> Most open problems in logic come in four shapes: <b>classification</b> (how many / what kinds of objects?), <b>independence</b> (is it decided by our axioms?), <b>decidability</b> (is there an algorithm?), and <b>structure</b> (what does this order or hierarchy look like?). Filter by area, by type, or by status.</span>
+    <span class="zh"><b>核心思想。</b>逻辑中的大多数未解决问题有四种形状：<b>分类</b>（有多少、有哪几种对象？）、<b>独立性</b>（我们的公理能否判定它？）、<b>可判定性</b>（有没有算法？）和<b>结构</b>（这个序或层级长什么样？）。可以按领域、类型或状态筛选。</span></div>
+  <div class="chipbar" id="fmArea"></div>
+  <div class="chipbar" id="fmType"></div>
+  <div class="chipbar" id="fmStat"></div>
+  <div class="svgbox"><svg id="fmSvg" viewBox="0 0 900 470" width="900" height="470"></svg></div>
+  <div class="fcards" id="fmCards"></div>
+  <div class="note pit"><span class="en"><b class="h">⚠ Common pitfall.</b> “Open” problems are not all alike. Some are expected to be <i>independent</i> of ZFC in a precise sense (CH already is), others are arithmetical statements and therefore have a definite truth value (P ≠ NP is a Π⁰₂ statement about programs and running times), and some are research programs without a yes/no form. Before working on a problem, find out which kind it is.</span>
+    <span class="zh"><b class="h">⚠ 常见误区。</b>“未解决”的问题并不都一样。有些在精确意义上被预期<i>独立</i>于 ZFC（CH 已经如此），有些是算术命题，因而有确定的真值（P ≠ NP 是一个关于程序与运行时间的 Π⁰₂ 命题），还有些是没有是非形式的研究纲领。动手研究一个问题之前，先弄清它属于哪一种。</span></div>
+  <div class="cy" id="cy14"></div>
+</section>
+
+<!-- ============ EXERCISES ============ -->
+<section class="card" id="exercises">
+  <div class="kicker"><span class="il"><span class="en">Exercises</span><span class="zh">练习</span></span></div>
+  <h2><span class="en">Your turn</span><span class="zh">轮到你了</span></h2>
+  <p class="muted"><span class="en">Progress is saved in your browser. A sidebar ✓ means solved. Every exercise has a “Show answer” button; showing the answer does not mark it solved.</span><span class="zh">进度保存在浏览器中，侧栏出现 ✓ 表示已完成。每道题都有“看答案”按钮；看答案不会记为完成。</span></p>
+
+  <div class="ex" id="e1" data-prog="L28E1">
+    <h3><span class="tag">E1</span><span class="il"><span class="en">Theorem, open, conjecture, or claimed?</span><span class="zh">定理、未解决、猜想还是新近声称？</span></span></h3>
+    <p><span class="en">Give the status <b>as of 2025</b>, except that you should pick “claimed” for results announced in 2026 but not yet checked. (For a conjecture, pick “conjecture” rather than “open”.)</span>
+       <span class="zh">按<b>2025 年</b>的状态作答；但对 2026 年宣布、尚未核查的结果，请选“新近声称”。（对猜想，请选“猜想”而不是“未解决”。）</span></p>
+    <div id="e1List"></div>
+    <div class="toolbar"><button class="btn primary" id="e1Check"><span class="en">Check</span><span class="zh">检查</span></button>
+      <button class="btn ghost" id="e1Show"><span class="en">Show answer</span><span class="zh">看答案</span></button></div>
+    <div class="msg" id="e1Msg"></div>
+  </div>
+
+  <div class="ex" id="e2" data-prog="L28E2">
+    <h3><span class="tag">E2</span><span class="il"><span class="en">Place the theorems on the reverse-math ladder</span><span class="zh">把定理放到反推数学的梯子上</span></span></h3>
+    <p><span class="en">For each theorem, choose the Big Five system it is equivalent to over RCA₀, or “none of the Big Five”.</span>
+       <span class="zh">对每个定理，选出它在 RCA₀ 上等价的五大系统之一，或选“不等价于五大中任何一个”。</span></p>
+    <div id="e2List"></div>
+    <div class="toolbar"><button class="btn primary" id="e2Check"><span class="en">Check</span><span class="zh">检查</span></button>
+      <button class="btn ghost" id="e2Show"><span class="en">Show answer</span><span class="zh">看答案</span></button></div>
+    <div class="msg" id="e2Msg"></div>
+  </div>
+
+  <div class="ex" id="e3" data-prog="L28E3">
+    <h3><span class="tag">E3</span><span class="il"><span class="en">Dividing lines vs example theories</span><span class="zh">分界线与例子理论</span></span></h3>
+    <p><span class="en">Click cells to toggle ✓ / ✗ (blank = not answered). Remember: stable = NIP ∩ simple.</span>
+       <span class="zh">点击格子切换 ✓ / ✗（空白 = 未作答）。提示：稳定 = NIP ∩ 简单。</span></p>
+    <div id="e3Grid"></div>
+    <div class="toolbar"><button class="btn primary" id="e3Check"><span class="en">Check</span><span class="zh">检查</span></button>
+      <button class="btn ghost" id="e3Show"><span class="en">Show answer</span><span class="zh">看答案</span></button></div>
+    <div class="msg" id="e3Msg"></div>
+  </div>
+
+  <div class="ex" id="e4" data-prog="L28E4">
+    <h3><span class="tag">E4</span><span class="il"><span class="en">Shattering puzzle</span><span class="zh">打散谜题</span></span></h3>
+    <p><span class="en">(a) Points on a line, family = intervals. Below are 5 points. Select any 3 of them, then select a subset of those 3 that <b>no interval</b> can cut out (this shows that set of 3 is not shattered). (b) Then enter the VC dimensions.</span>
+       <span class="zh">(a) 直线上的点，集族 = 区间。下面有 5 个点。先任选其中 3 个，再选出这 3 个点的一个子集，使得<b>没有区间</b>能恰好切出它（这说明这 3 点没被打散）。(b) 然后填写 VC 维。</span></p>
+    <div class="toolbar"><span class="seg" id="e4Mode"></span></div>
+    <div class="svgbox"><svg id="e4Svg" viewBox="0 0 700 110" width="700" height="110"></svg></div>
+    <div class="msg" id="e4aMsg"></div>
+    <p><span class="il"><span class="en">VC dimension of intervals on ℝ</span><span class="zh">ℝ 上区间族的 VC 维</span></span> <input class="formula" id="e4i" style="min-width:60px;width:70px">
+      &nbsp; <span class="il"><span class="en">of half-planes in ℝ²</span><span class="zh">ℝ² 中半平面族的 VC 维</span></span> <input class="formula" id="e4h" style="min-width:60px;width:70px">
+      &nbsp; <span class="il"><span class="en">of the edge relation E(x; y) in the random graph</span><span class="zh">随机图中边关系 E(x; y) 的 VC 维</span></span> <input class="formula" id="e4r" style="min-width:60px;width:70px" placeholder="∞ ?"></p>
+    <div class="toolbar"><button class="btn primary" id="e4Check"><span class="en">Check</span><span class="zh">检查</span></button>
+      <button class="btn ghost" id="e4Show"><span class="en">Show answer</span><span class="zh">看答案</span></button></div>
+    <div class="msg" id="e4Msg"></div>
+  </div>
+
+  <div class="ex" id="e5" data-prog="L28E5">
+    <h3><span class="tag">E5</span><span class="il"><span class="en">Match each problem to its main motivation</span><span class="zh">把问题与它的主要动机配对</span></span></h3>
+    <div id="e5List"></div>
+    <div class="toolbar"><button class="btn primary" id="e5Check"><span class="en">Check</span><span class="zh">检查</span></button>
+      <button class="btn ghost" id="e5Show"><span class="en">Show answer</span><span class="zh">看答案</span></button></div>
+    <div class="msg" id="e5Msg"></div>
+  </div>
+
+  <div class="ex" id="e6" data-prog="L28E6">
+    <h3><span class="tag">E6</span><span class="il"><span class="en">What follows from what?</span><span class="zh">谁能推出谁？</span></span></h3>
+    <p><span class="en">For each implication: is it a <b>known theorem</b>, or <b>not known</b> (open or false)? Logic, not guessing: several follow from definitions alone.</span>
+       <span class="zh">对每个蕴涵：它是<b>已知定理</b>，还是<b>未知</b>（未解决或为假）？要靠逻辑而不是猜：有几条单凭定义就能推出。</span></p>
+    <div id="e6List"></div>
+    <div class="toolbar"><button class="btn primary" id="e6Check"><span class="en">Check</span><span class="zh">检查</span></button>
+      <button class="btn ghost" id="e6Show"><span class="en">Show answer</span><span class="zh">看答案</span></button></div>
+    <div class="msg" id="e6Msg"></div>
+  </div>
+</section>
+
+<!-- ============ FIELD MAP ============ -->
+<section class="card" id="fieldmap">
+  <div class="kicker"><span class="il"><span class="en">The end of the course</span><span class="zh">课程结语</span></span></div>
+  <h2><span class="en">The map of the field, with its frontiers</span><span class="zh">全领域地图及其前沿</span></h2>
+  <p><span class="en">Every lesson of the course is a node; the frontier problems of Lessons 27 and 28 hang off the lessons they grow out of. Hover a node to light up its neighbours; click to open the lesson. The four pillars of logic (sets, models, computation, proofs) are not separate subjects: almost every frontier problem sits on an edge between two of them.</span>
+     <span class="zh">课程的每一课都是一个节点；第 27、28 课的前沿问题挂在它们所生长出来的课程旁边。鼠标停在节点上会点亮相邻节点；点击即可打开该课。逻辑的四大支柱（集合、模型、计算、证明）并不是互相隔绝的学科：几乎每个前沿问题都位于其中两根支柱之间的边上。</span></p>
+  <div class="svgbox"><svg id="fieldSvg" viewBox="0 0 960 600" width="960" height="600"></svg></div>
+  <div class="msg info" id="fieldInfo"></div>
+
+  <h2 id="reading"><span class="en">Further reading</span><span class="zh">延伸阅读</span></h2>
+  <p class="muted"><span class="en">Standard textbooks, roughly in the order you might read them. Chinese translations exist for some (e.g. Enderton); check your library.</span>
+     <span class="zh">标准教材，大致按建议的阅读顺序排列。其中一些有中译本（例如恩德滕的书），可以查查图书馆。</span></p>
+  <ul class="readlist">
+    <li><b>Logic, first course · 逻辑入门</b>: H. Enderton, <i>A Mathematical Introduction to Logic</i>. <span class="il"><span class="en">L1–L5, L11–L13.</span><span class="zh">对应第 1–5、11–13 课。</span></span></li>
+    <li><b>Model theory · 模型论</b>: D. Marker, <i>Model Theory: An Introduction</i>; W. Hodges, <i>Model Theory</i> (or <i>A Shorter Model Theory</i>); K. Tent &amp; M. Ziegler, <i>A Course in Model Theory</i>. <span class="il"><span class="en">§1–§5; NIP: P. Simon, <i>A Guide to NIP Theories</i>; o-minimality: L. van den Dries, <i>Tame Topology and O-minimal Structures</i>.</span><span class="zh">§1–§5；NIP 可读 P. Simon《A Guide to NIP Theories》；o-极小性可读 van den Dries《Tame Topology and O-minimal Structures》。</span></span></li>
+    <li><b>Computability · 可计算性</b>: R. Soare, <i>Turing Computability</i> (or <i>Recursively Enumerable Sets and Degrees</i>). <span class="il"><span class="en">§6–§7, L11, L17.</span><span class="zh">§6–§7，第 11、17 课。</span></span></li>
+    <li><b>Reverse mathematics · 反推数学</b>: S. Simpson, <i>Subsystems of Second Order Arithmetic</i> (SOSOA); D. Hirschfeldt, <i>Slicing the Truth</i>; D. Dzhafarov &amp; C. Mummert, <i>Reverse Mathematics</i>. <span class="il"><span class="en">§8.</span><span class="zh">§8。</span></span></li>
+    <li><b>Algorithmic randomness · 算法随机性</b>: R. Downey &amp; D. Hirschfeldt, <i>Algorithmic Randomness and Complexity</i>; A. Nies, <i>Computability and Randomness</i>. <span class="il"><span class="en">§9.</span><span class="zh">§9。</span></span></li>
+    <li><b>Proof theory · 证明论</b>: W. Pohlers, <i>Proof Theory: The First Step into Impredicativity</i>; M. Rathjen, “The art of ordinal analysis” (ICM 2006). <span class="il"><span class="en">§11–§12, L21.</span><span class="zh">§11–§12，第 21 课。</span></span></li>
+    <li><b>Set theory · 集合论</b>: K. Kunen, <i>Set Theory</i>; T. Jech, <i>Set Theory</i> (3rd millennium ed.); A. Kanamori, <i>The Higher Infinite</i>. <span class="il"><span class="en">L6–L10, L14–L16, L20–L27.</span><span class="zh">第 6–10、14–16、20–27 课。</span></span></li>
+    <li><b>Descriptive set theory · 描述集合论</b>: A. Kechris, <i>Classical Descriptive Set Theory</i>; Y. Moschovakis, <i>Descriptive Set Theory</i>. <span class="il"><span class="en">L18–L19, L25, §2, §7.</span><span class="zh">第 18–19、25 课，§2、§7。</span></span></li>
+    <li><b>Complexity · 复杂性</b>: S. Arora &amp; B. Barak, <i>Computational Complexity: A Modern Approach</i>; N. Immerman, <i>Descriptive Complexity</i>; J. Krajíček, <i>Proof Complexity</i>. <span class="il"><span class="en">§10.</span><span class="zh">§10。</span></span></li>
+    <li><b>Foundations &amp; formalization · 基础与形式化</b>: <i>Homotopy Type Theory: Univalent Foundations of Mathematics</i> (the HoTT book, 2013); the Lean community's <i>Mathematics in Lean</i>. <span class="il"><span class="en">§13.</span><span class="zh">§13。</span></span></li>
+    <li><b>Surveys · 综述</b>: Stanford Encyclopedia of Philosophy entries “Model Theory”, “Proof Theory”, “Computability and Complexity”, “Reverse Mathematics”; B. Poonen, “Hilbert's tenth problem over rings of number-theoretic interest”. <span class="il"><span class="en">Free online.</span><span class="zh">均可免费在线阅读。</span></span></li>
+  </ul>
+  <div class="note"><span class="en"><b>Last words.</b> You started with truth tables and ended at problems nobody can solve yet. The common thread is the one from L1: separating the <b>object level</b> (formulas, proofs, programs, models) from the <b>meta level</b> (what we can say and prove about them). Every frontier on this page is a question about that gap. Good luck, and tell me in the chat which frontier you want to explore next.</span>
+    <span class="zh"><b>最后的话。</b>你从真值表出发，走到了至今无人能解的问题面前。贯穿始终的是第 1 课的那条线：把<b>对象层面</b>（公式、证明、程序、模型）与<b>元层面</b>（我们能对它们说什么、证明什么）区分开。本页的每个前沿问题，都是关于这道鸿沟的问题。祝你好运，也欢迎在对话里告诉我你接下来想探索哪个前沿。</span></div>
+</section>
+</main>
+</div>
+
+<script src="assets/logic.js"></script>
+<script src="assets/lesson28.js"></script>
+</body>
+</html>

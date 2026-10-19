@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 1 · Propositional Logic 命题逻辑</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body class="lang-both">
+<header class="top">
+  <a class="home" href="index.html">∀∃ <span class="il"><span class="en">Logic &amp; Sets</span><span class="zh">逻辑与集合</span></span></a>
+  <span class="muted">/ L1</span>
+  <span class="spacer"></span>
+  <div class="lang-switch">
+    <button data-lang="en">EN</button><button data-lang="zh">中文</button><button data-lang="both">EN + 中</button>
+  </div>
+</header>
+
+<div class="layout">
+<nav class="side">
+  <div class="grp">Lesson 1</div>
+  <a href="index.html">← <span class="il"><span class="en">Course map</span><span class="zh">课程地图</span></span></a>
+  <a href="lesson2.html"><span class="il"><span class="en">Next: Lesson 2</span><span class="zh">下一课：第 2 课</span></span> →</a>
+  <a href="#s1">1 · <span class="il"><span class="en">Two levels</span><span class="zh">两个层次</span></span></a>
+  <a href="#s2">2 · <span class="il"><span class="en">Formula factory</span><span class="zh">公式工厂</span></span></a>
+  <a href="#s3">3 · <span class="il"><span class="en">Parse trees</span><span class="zh">语法树</span></span></a>
+  <a href="#s4">4 · <span class="il"><span class="en">Valuations</span><span class="zh">赋值</span></span></a>
+  <a href="#s5">5 · <span class="il"><span class="en">Truth tables</span><span class="zh">真值表</span></span></a>
+  <a href="#s6">6 · <span class="il"><span class="en">Consequence</span><span class="zh">语义后承</span></span></a>
+  <a href="#s7">7 · <span class="il"><span class="en">Implication</span><span class="zh">实质蕴涵</span></span></a>
+  <a href="#s8">8 · <span class="il"><span class="en">Cantor link</span><span class="zh">与康托尔的联系</span></span></a>
+  <div class="grp"><span class="il"><span class="en">Exercises</span><span class="zh">练习</span></span></div>
+  <a href="#e1" data-prog="L1E1">E1 · Peirce</a>
+  <a href="#e2" data-prog="L1E2">E2 · ⊨ ?</a>
+  <a href="#e3" data-prog="L1E3">E3 · ( = )</a>
+  <a href="#e4" data-prog="L1E4">E4 · {¬,→}</a>
+  <a href="#e5" data-prog="L1E5">E5 · 2^2^n</a>
+  <a href="#e6" data-prog="L1E6">E6 · ∧∨</a>
+</nav>
+
+<main>
+<div class="hero">
+  <div class="kicker">Part I · Lesson 1</div>
+  <h1><span class="en">Propositional Logic: Syntax &amp; Semantics</span><span class="zh">命题逻辑：语法与语义</span></h1>
+  <p><span class="en">Everything on this page is something you can click, toggle, or type into. The abstraction becomes concrete once you can see it move.</span>
+     <span class="zh">本页每个图都可以点、可以拨、可以输入。抽象的东西，动起来就具体了。</span></p>
+</div>
+
+<!-- ============ S1 ============ -->
+<section class="card" id="s1">
+  <div class="kicker">§1</div>
+  <h2><span class="en">Two levels: object language vs metalanguage</span><span class="zh">两个层次：对象语言与元语言</span></h2>
+  <p><span class="en">Picture a glass box. Inside it are the <b>formulas</b>: strings of symbols that we study, like a biologist studying specimens. Outside the box is <b>us</b>, talking <i>about</i> those formulas in ordinary mathematical language. Symbols like <span class="m">⊨</span>, <span class="m">φ</span>, and “is a tautology” live outside the box.</span>
+     <span class="zh">想象一个玻璃箱。箱子里装的是<b>公式</b>，也就是我们研究的符号串，好比生物学家研究的标本。箱子外面是<b>我们</b>，用普通的数学语言<i>谈论</i>这些公式。像 <span class="m">⊨</span>、<span class="m">φ</span>、“是重言式”这类说法，都在箱子外面。</span></p>
+  <div class="note"><span class="en"><b>Game:</b> click a card to move it: tray → object (inside the box) → meta (outside) → tray. Then press “Check”.</span>
+    <span class="zh"><b>小游戏：</b>点击卡片移动位置：待分类 → 对象语言（箱内）→ 元语言（箱外）→ 待分类。放好后点“检查”。</span></div>
+  <div class="row">
+    <div class="col zone tray"><h4><span class="il"><span class="en">Tray</span><span class="zh">待分类</span></span></h4><div class="chips" id="tray"></div></div>
+  </div>
+  <div class="zone meta" style="margin-top:14px">
+    <h4 style="color:var(--meta)"><span class="il"><span class="en">Metalanguage: us, talking about formulas</span><span class="zh">元语言：我们在谈论公式</span></span></h4>
+    <div class="chips" id="zmeta"></div>
+    <div class="zone obj" style="margin-top:14px">
+      <h4 style="color:var(--gold)"><span class="il"><span class="en">Object language: the formulas themselves (the glass box)</span><span class="zh">对象语言：公式本身（玻璃箱）</span></span></h4>
+      <div class="chips" id="zobj"></div>
+    </div>
+  </div>
+  <div class="toolbar"><button class="btn primary" id="sortCheck"><span class="en">Check</span><span class="zh">检查</span></button></div>
+  <div class="msg" id="sortMsg"></div>
+</section>
+
+<!-- ============ S2 ============ -->
+<section class="card" id="s2">
+  <div class="kicker">§2</div>
+  <h2><span class="en">The formula factory: an inductive definition</span><span class="zh">公式工厂：归纳定义</span></h2>
+  <div class="def">
+    <span class="en"><b>Definition.</b> <b>Form</b> is the <i>smallest</i> set of strings such that:
+      (1) every atom <span class="m">p, q, r, …</span> is in it;
+      (2) if <span class="m">φ</span> is in it, so is <span class="m">¬φ</span>;
+      (3) if <span class="m">φ, ψ</span> are in it, so are <span class="m">(φ∧ψ), (φ∨ψ), (φ→ψ), (φ↔ψ)</span>.</span>
+    <span class="zh"><b>定义.</b> 合式公式集 <b>Form</b> 是满足下列条件的<i>最小</i>字符串集合：
+      (1) 每个原子命题 <span class="m">p, q, r, …</span> 都属于它；
+      (2) 若 <span class="m">φ</span> 属于它，则 <span class="m">¬φ</span> 也属于它；
+      (3) 若 <span class="m">φ, ψ</span> 属于它，则 <span class="m">(φ∧ψ), (φ∨ψ), (φ→ψ), (φ↔ψ)</span> 也属于它。</span>
+  </div>
+  <p><span class="en">“Smallest” means: start from the atoms and keep applying the rules. Whatever you reach in finitely many steps is a formula, and <b>nothing else</b> is. Each press of the button below runs the factory one more round. Watch the rings grow (atoms <span class="m">{p, q}</span>).</span>
+     <span class="zh">“最小”的意思是：从原子出发，反复使用规则，有限步能造出来的才是公式，<b>其余一概不算</b>。下面每按一次按钮，工厂就多运转一轮。看圆环一圈圈往外长（原子取 <span class="m">{p, q}</span>）。</span></p>
+  <div class="toolbar">
+    <button class="btn primary" id="facNext"><span class="en">Run one round ▶</span><span class="zh">运转一轮 ▶</span></button>
+    <button class="btn ghost" id="facReset"><span class="en">Reset</span><span class="zh">重置</span></button>
+  </div>
+  <div class="stage" style="display:flex;justify-content:center"><svg id="factory" viewBox="0 0 720 520" width="720" height="520"></svg></div>
+  <div class="msg info" id="facInfo"></div>
+
+  <h3><span class="en">Is this string a formula? (strict official rules)</span><span class="zh">这个字符串是公式吗？（严格按官方规则）</span></h3>
+  <p class="muted"><span class="en">Strict mode: every binary connective needs its own parentheses, exactly as in rule (3). If the string passes, you see the <b>formation sequence</b>, the factory's receipt.</span>
+    <span class="zh">严格模式：每个二元联结词都必须自带一对括号，和规则 (3) 一字不差。通过的话会显示<b>构造序列</b>，也就是工厂开出的“出厂证明”。</span></p>
+  <div class="keys" id="strictKeys"></div>
+  <div class="toolbar">
+    <input class="formula" id="strictIn" value="(¬p → (q ∧ p))">
+    <button class="btn small" data-try="p∧q"><span class="m">p∧q</span></button>
+    <button class="btn small" data-try="¬¬p"><span class="m">¬¬p</span></button>
+    <button class="btn small" data-try="(p)"><span class="m">(p)</span></button>
+    <button class="btn small" data-try="((p∨q)↔¬r)"><span class="m">((p∨q)↔¬r)</span></button>
+    <button class="btn small" data-try="(¬p)"><span class="m">(¬p)</span></button>
+  </div>
+  <div id="strictOut"></div>
+</section>
+
+<!-- ============ S3 ============ -->
+<section class="card" id="s3">
+  <div class="kicker">§3</div>
+  <h2><span class="en">Parse trees and unique readability</span><span class="zh">语法树与唯一可读性</span></h2>
+  <p><span class="en">Every formula is secretly a <b>tree</b>. The root is the <b>main connective</b>, the last rule the factory applied. Hover a node to see the subformula it heads.</span>
+     <span class="zh">每个公式背后都藏着一棵<b>树</b>。树根是<b>主联结词</b>，也就是工厂最后一步用的那条规则。鼠标停在节点上，可以看到它统领的子公式。</span></p>
+  <div class="keys" id="treeKeys"></div>
+  <div class="toolbar">
+    <input class="formula" id="treeIn" value="(p → q) ∧ ¬(q ∨ r)">
+    <button class="btn primary" id="treeGo"><span class="en">Grow tree</span><span class="zh">长出语法树</span></button>
+    <span class="muted" style="font-size:13px"><span class="en">(friendly input: outer parentheses optional; ¬ binds tighter than ∧, then ∨, →, ↔; → groups to the right)</span><span class="zh">（宽松输入：最外层括号可省；结合力 ¬ ＞ ∧ ＞ ∨ ＞ → ＞ ↔；→ 向右结合）</span></span>
+  </div>
+  <div class="msg" id="treeErr"></div>
+  <div class="m" id="treeSub" style="min-height:26px;font-size:17px"></div>
+  <div class="stage" id="treeStage"></div>
+
+  <h3><span class="en">The parenthesis mountain: how to find the main connective</span><span class="zh">括号山：怎样找到主联结词</span></h3>
+  <p><span class="en">Scan left to right: <span class="m">(</span> goes up one level, <span class="m">)</span> goes down one. In the official form, the main binary connective is the <b>only</b> binary connective at height 1 (a ¬ may also sit at height 1, but ¬ is unary). That fact is the heart of the unique readability proof.</span>
+     <span class="zh">从左往右扫：遇 <span class="m">(</span> 上一层，遇 <span class="m">)</span> 下一层。在官方写法下，主二元联结词是高度为 1 的<b>唯一</b>二元联结词（高度 1 处也可能有 ¬，但 ¬ 是一元的）。这正是唯一可读性定理证明的核心。</span></p>
+  <div class="toolbar"><button class="btn" id="mtnGo"><span class="en">Climb the mountain ▶</span><span class="zh">开始爬山 ▶</span></button></div>
+  <div class="stage" id="mtnStage"></div>
+
+  <h3><span class="en">Why we need parentheses: <span class="m">p ∧ q ∨ r</span> without rules</span><span class="zh">为什么非要括号：没有约定时的 <span class="m">p ∧ q ∨ r</span></span></h3>
+  <p><span class="en">Drop the parentheses and one string can come out of the factory in two ways. Two trees means two meanings. Flip the switches to find a valuation where the trees disagree.</span>
+     <span class="zh">去掉括号，同一个字符串就可能有两种造法。两棵树，两种意思。拨动开关，找一个让两棵树结果不同的赋值。</span></p>
+  <div class="switches" id="ambSw"></div>
+  <div class="row">
+    <div class="col"><div class="m" style="text-align:center">((p ∧ q) ∨ r)</div><div class="stage" id="amb1"></div></div>
+    <div class="col"><div class="m" style="text-align:center">(p ∧ (q ∨ r))</div><div class="stage" id="amb2"></div></div>
+  </div>
+  <div class="msg" id="ambMsg"></div>
+  <div class="def"><span class="en"><b>Unique Readability Theorem.</b> Every formula is exactly one of: an atom; <span class="m">¬φ</span> for a <i>unique</i> φ; or <span class="m">(φ∘ψ)</span> for a <i>unique</i> triple φ, ∘, ψ. So every formula has exactly one tree, and we may define functions on formulas <b>by recursion on the tree</b>.</span>
+    <span class="zh"><b>唯一可读性定理.</b> 每个公式恰好属于以下一种情形：原子命题；<span class="m">¬φ</span>，且 φ <i>唯一</i>；或 <span class="m">(φ∘ψ)</span>，且 φ、∘、ψ <i>唯一</i>。所以每个公式恰好对应一棵树，我们就可以<b>沿着树递归地</b>定义公式上的函数。</span></div>
+</section>
+
+<!-- ============ S4 ============ -->
+<section class="card" id="s4">
+  <div class="kicker">§4</div>
+  <h2><span class="en">Valuations: truth flows up the tree</span><span class="zh">赋值：真值沿着树往上流</span></h2>
+  <p><span class="en">A <b>valuation</b> <span class="m">v</span> assigns 0 or 1 to each atom, and that is all it does. Recursion along the tree then extends it to every formula: leaves first, root last. Flip the switches and watch the values climb.</span>
+     <span class="zh"><b>赋值</b> <span class="m">v</span> 只做一件事：给每个原子命题指定 0 或 1。然后沿着树递归，就能算出任何公式的值：先算叶子，最后算树根。拨动开关，看真值一层层往上爬。</span></p>
+  <div class="toolbar">
+    <input class="formula" id="valIn" value="(p → q) ↔ (¬q → ¬p)">
+    <button class="btn primary" id="valGo"><span class="en">Load</span><span class="zh">载入</span></button>
+  </div>
+  <div class="msg" id="valErr"></div>
+  <div class="switches" id="valSw"></div>
+  <div class="stage" id="valStage"></div>
+  <div class="msg" id="valOut"></div>
+  <div class="def m" style="font-size:15px">
+    v̄(¬φ) = 1 − v̄(φ) &nbsp;·&nbsp; v̄(φ∧ψ) = min &nbsp;·&nbsp; v̄(φ∨ψ) = max &nbsp;·&nbsp; v̄(φ→ψ) = 0 ⇔ v̄(φ)=1, v̄(ψ)=0 &nbsp;·&nbsp; v̄(φ↔ψ) = 1 ⇔ v̄(φ)=v̄(ψ)
+  </div>
+</section>
+
+<!-- ============ S5 ============ -->
+<section class="card" id="s5">
+  <div class="kicker">§5</div>
+  <h2><span class="en">Truth tables: all valuations at once</span><span class="zh">真值表：一次看遍所有赋值</span></h2>
+  <p><span class="en">With n atoms there are only 2ⁿ relevant valuations, so checking every one of them is a finite job. The colored strip is the formula's “fingerprint”: one square per row.</span>
+     <span class="zh">n 个原子命题只有 2ⁿ 种相关赋值，逐一检查是有限的工作量。下面的彩色条是公式的“指纹”，每格对应一行。</span></p>
+  <div class="toolbar">
+    <input class="formula" id="ttIn" value="(p → q) ∨ (q → p)">
+    <button class="btn primary" id="ttGo"><span class="en">Build table</span><span class="zh">生成真值表</span></button>
+    <button class="btn" id="ttNeg"><span class="en">Negate it: φ ↦ ¬φ</span><span class="zh">取否定：φ ↦ ¬φ</span></button>
+  </div>
+  <div class="toolbar">
+    <button class="btn small" data-tt="p ∨ ¬p">p ∨ ¬p</button>
+    <button class="btn small" data-tt="p ∧ ¬p">p ∧ ¬p</button>
+    <button class="btn small" data-tt="(p → q) → (¬p → ¬q)">(p→q)→(¬p→¬q)</button>
+    <button class="btn small" data-tt="¬(p ∧ q) ↔ (¬p ∨ ¬q)">De Morgan</button>
+    <button class="btn small" data-tt="(p → (q → r)) ↔ ((p ∧ q) → r)">p→(q→r)</button>
+  </div>
+  <div class="msg" id="ttErr"></div>
+  <div id="ttKind" style="margin:8px 0"></div>
+  <div class="strip" id="ttStrip"></div>
+  <div class="stage" id="ttStage"></div>
+  <div class="row" style="margin-top:12px">
+    <div class="col def"><span class="en"><b>Tautology</b> <span class="m">⊨ φ</span>: all green.<br><b>Satisfiable</b>: at least one green.<br><b>Unsatisfiable</b>: all red.</span>
+      <span class="zh"><b>重言式</b> <span class="m">⊨ φ</span>：全绿。<br><b>可满足</b>：至少一格绿。<br><b>不可满足（矛盾式）</b>：全红。</span></div>
+    <div class="col note"><span class="en">Press <b>Negate</b> on a tautology: every square flips, so all green turns into all red. That is the duality <b>φ is a tautology ⇔ ¬φ is unsatisfiable</b>.</span>
+      <span class="zh">对重言式按<b>取否定</b>：每一格翻转，全绿变全红。这就是对偶关系：<b>φ 是重言式 ⇔ ¬φ 不可满足</b>。</span></div>
+  </div>
+</section>
+
+<!-- ============ S6 ============ -->
+<section class="card" id="s6">
+  <div class="kicker">§6</div>
+  <h2><span class="en">Semantic consequence Γ ⊨ φ: a picture of inclusion</span><span class="zh">语义后承 Γ ⊨ φ：一张“包含关系”的图</span></h2>
+  <p><span class="en">Each tile is one valuation, so the grid is the whole “space of possible worlds”. <b>Γ ⊨ φ</b> means: in every world where all premises hold (blue frame), the conclusion also holds (green). In set language, <span class="m">Mod(Γ) ⊆ Mod(φ)</span>. A <b>red</b> tile is a counterexample: premises true, conclusion false.</span>
+     <span class="zh">每块砖代表一个赋值，整张格子就是“所有可能世界”。<b>Γ ⊨ φ</b> 的意思是：凡是前提全真的世界（蓝框），结论也真（绿色）。用集合的话说就是 <span class="m">Mod(Γ) ⊆ Mod(φ)</span>。<b>红砖</b>就是反例：前提都真，结论却假。</span></p>
+  <div class="toolbar">
+    <button class="btn small" data-cq="p ; p → q ⊢ q"><span class="en">Modus ponens</span><span class="zh">肯定前件式</span></button>
+    <button class="btn small" data-cq="q ; p → q ⊢ p"><span class="en">Affirming the consequent</span><span class="zh">肯定后件（谬误）</span></button>
+    <button class="btn small" data-cq="p → q ; q → r ⊢ p → r"><span class="en">Chain rule</span><span class="zh">假言三段论</span></button>
+    <button class="btn small" data-cq="p ; ¬p ⊢ r"><span class="en">Explosion</span><span class="zh">爆炸原理</span></button>
+    <button class="btn small" data-cq=" ⊢ p ∨ ¬p"><span class="en">Empty Γ</span><span class="zh">Γ 为空</span></button>
+  </div>
+  <div class="row">
+    <div class="col" style="flex:0 1 380px">
+      <label><b>Γ</b> <span class="muted" style="font-size:13px">(<span class="il"><span class="en">premises, separated by ;</span><span class="zh">前提，用 ; 隔开</span></span>)</span></label><br>
+      <input class="formula" id="cqG" value="p ; p → q" style="width:100%"><br>
+      <label><b>φ</b> <span class="muted" style="font-size:13px">(<span class="il"><span class="en">conclusion</span><span class="zh">结论</span></span>)</span></label><br>
+      <input class="formula" id="cqF" value="q" style="width:100%">
+      <div class="toolbar"><button class="btn primary" id="cqGo"><span class="en">Draw the worlds</span><span class="zh">画出所有世界</span></button></div>
+      <svg id="venn" viewBox="0 0 360 200" width="360" height="200"></svg>
+    </div>
+    <div class="col">
+      <div class="msg" id="cqErr"></div>
+      <div id="cqStage"></div>
+      <div class="msg" id="cqOut"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ S7 ============ -->
+<section class="card" id="s7">
+  <div class="kicker">§7</div>
+  <h2><span class="en">Material implication: when is a promise broken?</span><span class="zh">实质蕴涵：承诺什么时候算食言？</span></h2>
+  <p><span class="en">A parent says: <b>“If you ace the exam, I'll take you out for dinner.”</b> Click each of the four situations. Was the promise <i>broken</i>?</span>
+     <span class="zh">家长说：<b>“你要是考满分，我就请你吃大餐。”</b>点开四种情形，看看哪种算<i>说话不算数</i>？</span></p>
+  <div class="promise" id="promise"></div>
+  <div class="note" style="margin-top:16px"><span class="en">Only one case breaks the promise: ace and no dinner, which is <span class="m">1 → 0</span>. If you didn't ace the exam, the promise was never put to the test, so it isn't broken and it counts as true. This is called <b>vacuous truth</b>. The connective <span class="m">→</span> knows nothing about cause and effect; it only looks at the two truth values.</span>
+    <span class="zh">只有一种情形算食言：考了满分却没请客，即 <span class="m">1 → 0</span>。没考满分时承诺根本没被“触发”，谈不上违背，所以算真。这叫<b>空真（vacuous truth）</b>。<span class="m">→</span> 不管因果，只看两边的真值。</span></div>
+</section>
+
+<!-- ============ S8 ============ -->
+<section class="card" id="s8">
+  <div class="kicker">§8</div>
+  <h2><span class="en">Connection to Cantor: countably many formulas, uncountably many valuations</span><span class="zh">与康托尔的联系：公式可数，赋值不可数</span></h2>
+  <div class="row">
+    <div class="col" style="flex:0 1 300px">
+      <h3><span class="en">Formulas: a list</span><span class="zh">公式：可以排成一列</span></h3>
+      <p class="muted" style="font-size:14px"><span class="en">Each formula is a finite string. Write the atom pₙ as the letter p followed by the digits of n; then the alphabet is finite, so only finitely many strings have any given length. Sort by length, then alphabetically, and every formula gets a finite place in line. (The demo uses only p₀, p₁.)</span>
+        <span class="zh">每个公式都是有限符号串。把原子 pₙ 写成字母 p 后接 n 的各位数字，字母表就是有限的，于是每种长度的符号串只有有限多个。先按长度、再按字典序排队，每个公式都排在某个有限的位置上。（演示中只用 p₀、p₁。）</span></p>
+      <div class="stage m" id="enumList" style="height:330px;overflow:hidden;font-size:15px"></div>
+    </div>
+    <div class="col">
+      <h3><span class="en">Valuations: no list can catch them all</span><span class="zh">赋值：任何列表都抓不全</span></h3>
+      <p class="muted" style="font-size:14px"><span class="en">A valuation on atoms <span class="m">p₀, p₁, p₂, …</span> is an infinite 0/1 sequence, an element of <span class="m">{0,1}^ℕ</span>. Suppose someone hands you a list of them. Run the diagonal argument:</span>
+        <span class="zh">原子 <span class="m">p₀, p₁, p₂, …</span> 上的赋值就是一个无穷 0/1 序列，即 <span class="m">{0,1}^ℕ</span> 的元素。假设有人给你一份赋值清单，跑一遍对角线论证：</span></p>
+      <div class="toolbar"><button class="btn primary" id="diagGo"><span class="en">Run the diagonal ▶</span><span class="zh">对角线，启动 ▶</span></button>
+        <button class="btn ghost" id="diagNew"><span class="en">New list</span><span class="zh">换一份清单</span></button></div>
+      <div class="stage"><svg id="diag" viewBox="0 0 560 470" width="560" height="470"></svg></div>
+    </div>
+  </div>
+  <div class="note"><span class="en"><b>The tension:</b> there are 2^ℵ₀ valuations, but each formula only “sees” finitely many atoms. Question for later: if every <i>finite</i> part of an infinite set Γ of formulas can be satisfied, can all of Γ be satisfied at once? The answer is the <b>Compactness Theorem</b>, coming in Lesson 2.</span>
+    <span class="zh"><b>矛盾的张力：</b>赋值有 2^ℵ₀ 个，可每个公式只“看得见”有限个原子。留个问题：如果无穷公式集 Γ 的每个<i>有限</i>子集都可满足，Γ 整体能同时满足吗？答案就是第 2 课的<b>紧致性定理</b>。</span></div>
+</section>
+
+<!-- ============ EXERCISES ============ -->
+<section class="card" id="exercises">
+  <div class="kicker"><span class="il"><span class="en">Exercises</span><span class="zh">练习</span></span></div>
+  <h2><span class="en">Your turn</span><span class="zh">轮到你了</span></h2>
+  <p class="muted"><span class="en">Progress is saved in your browser. A sidebar ✓ means solved.</span><span class="zh">进度保存在浏览器中，侧栏出现 ✓ 表示已完成。</span></p>
+
+  <!-- E1 -->
+  <div class="ex" id="e1" data-prog="L1E1">
+    <h3><span class="tag">E1</span><span class="il"><span class="en">Peirce's law</span><span class="zh">皮尔士定律</span></span></h3>
+    <p><span class="en">Is <span class="m">((p → q) → p) → p</span> a tautology? Click the empty cells to fill them in (blank → 1 → 0), then check.</span>
+       <span class="zh"><span class="m">((p → q) → p) → p</span> 是重言式吗？点击空格填写（空 → 1 → 0），然后检查。</span></p>
+    <div id="e1Table"></div>
+    <div class="toolbar">
+      <button class="btn primary" id="e1Check"><span class="en">Check</span><span class="zh">检查</span></button>
+      <button class="btn ghost" id="e1Show"><span class="en">Show answer</span><span class="zh">显示答案</span></button>
+    </div>
+    <div class="msg" id="e1Msg"></div>
+  </div>
+
+  <!-- E2 -->
+  <div class="ex" id="e2" data-prog="L1E2">
+    <h3><span class="tag">E2</span><span class="il"><span class="en">True or false?</span><span class="zh">判断对错</span></span></h3>
+    <p class="muted"><span class="en">Answer each one, and the world-grid appears as justification.</span><span class="zh">每题作答后，会出现对应的“世界格子图”作为依据。</span></p>
+    <div id="e2List"></div>
+  </div>
+
+  <!-- E3 -->
+  <div class="ex" id="e3" data-prog="L1E3">
+    <h3><span class="tag">E3</span><span class="il"><span class="en">Structural induction: balanced parentheses</span><span class="zh">结构归纳：括号配对</span></span></h3>
+    <p><span class="en">Claim: every formula (official form) has as many <span class="m">(</span> as <span class="m">)</span>. First, test it on random formulas.</span>
+       <span class="zh">命题：每个（官方写法的）公式中 <span class="m">(</span> 与 <span class="m">)</span> 个数相等。先拿随机公式试试。</span></p>
+    <div class="toolbar"><button class="btn" id="e3Rand"><span class="en">Random formula 🎲</span><span class="zh">随机公式 🎲</span></button></div>
+    <div class="stage" id="e3Mtn"></div>
+    <p><span class="en">Now try to write the proof yourself before revealing it step by step. <b>Hint:</b> what three things must an inductive proof cover?</span>
+       <span class="zh">先自己试着写出证明，再逐步揭晓。<b>提示：</b>结构归纳要覆盖哪三种情形？</span></p>
+    <div class="steps" id="e3Steps">
+      <div class="step">
+        <h4><span class="il"><span class="en">Step 1 · Base case: atoms</span><span class="zh">第 1 步 · 奠基：原子</span></span></h4>
+        <div class="blocks"><div class="sub">p<small>L=0 · R=0</small></div></div>
+        <p><span class="en">An atom contains no parentheses at all: 0 = 0. ✓</span><span class="zh">原子里一个括号都没有：0 = 0。✓</span></p>
+      </div>
+      <div class="step">
+        <h4><span class="il"><span class="en">Step 2 · Negation</span><span class="zh">第 2 步 · 否定</span></span></h4>
+        <div class="blocks"><div>¬<small>+0 · +0</small></div><div class="sub">φ<small>L(φ) = R(φ)</small></div></div>
+        <p><span class="en">Assume L(φ) = R(φ) (induction hypothesis). Writing ¬ in front adds no parentheses, so L(¬φ) = L(φ) = R(φ) = R(¬φ). ✓</span>
+           <span class="zh">设 L(φ) = R(φ)（归纳假设）。前面加个 ¬ 不增加任何括号，所以 L(¬φ) = L(φ) = R(φ) = R(¬φ)。✓</span></p>
+      </div>
+      <div class="step">
+        <h4><span class="il"><span class="en">Step 3 · Binary connectives</span><span class="zh">第 3 步 · 二元联结词</span></span></h4>
+        <div class="blocks"><div class="p">(<small>L +1</small></div><div class="sub">φ<small>L(φ)=R(φ)</small></div><div>∘<small>+0</small></div><div class="sub">ψ<small>L(ψ)=R(ψ)</small></div><div class="p">)<small>R +1</small></div></div>
+        <p class="m">L((φ∘ψ)) = 1 + L(φ) + L(ψ) = 1 + R(φ) + R(ψ) = R((φ∘ψ)) ✓</p>
+      </div>
+      <div class="step">
+        <h4><span class="il"><span class="en">Step 4 · Conclusion</span><span class="zh">第 4 步 · 结论</span></span></h4>
+        <p><span class="en">The set S = {φ : L(φ) = R(φ)} contains every atom and is closed under all the rules. Form is the <b>smallest</b> such set, so Form ⊆ S. ∎ <br>This is why “smallest” in §2 matters: it is exactly what licenses structural induction.</span>
+           <span class="zh">集合 S = {φ : L(φ) = R(φ)} 包含所有原子，且对各条规则封闭。而 Form 是满足这些条件的<b>最小</b>集合，所以 Form ⊆ S。∎ <br>这正是 §2 里“最小”二字的用处：结构归纳法的合法性就来自它。</span></p>
+      </div>
+    </div>
+    <div class="toolbar"><button class="btn primary" id="e3Next"><span class="en">Reveal next step</span><span class="zh">揭晓下一步</span></button>
+      <button class="btn ghost" id="e3All"><span class="en">Show whole proof</span><span class="zh">显示完整证明</span></button></div>
+  </div>
+
+  <!-- E4 -->
+  <div class="ex" id="e4" data-prog="L1E4">
+    <h3><span class="tag">E4</span><span class="il"><span class="en">Only ¬ and →</span><span class="zh">只准用 ¬ 和 →</span></span></h3>
+    <p><span class="en">Express <span class="m">p ∧ q</span> and <span class="m">p ∨ q</span> using <b>only</b> ¬, →, p, q (and parentheses). The checker compares truth tables.</span>
+       <span class="zh">只用 ¬、→、p、q（和括号）表示 <span class="m">p ∧ q</span> 与 <span class="m">p ∨ q</span>。检查器会对比真值表。</span></p>
+    <div class="toolbar"><button class="btn ghost small" id="e4Show"><span class="en">Show answer</span><span class="zh">看答案</span></button></div>
+    <div class="keys" id="e4Keys"></div>
+    <div class="row">
+      <div class="col">
+        <b class="m">p ∨ q ≡</b> <input class="formula" id="e4Or" placeholder="¬ … → …">
+        <button class="btn small" id="e4OrHint"><span class="en">Hint</span><span class="zh">提示</span></button>
+        <div class="msg" id="e4OrMsg"></div><div id="e4OrTT"></div>
+      </div>
+      <div class="col">
+        <b class="m">p ∧ q ≡</b> <input class="formula" id="e4And" placeholder="¬( … )">
+        <button class="btn small" id="e4AndHint"><span class="en">Hint</span><span class="zh">提示</span></button>
+        <div class="msg" id="e4AndMsg"></div><div id="e4AndTT"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- E5 -->
+  <div class="ex" id="e5" data-prog="L1E5">
+    <h3><span class="tag">E5</span><span class="il"><span class="en">Counting truth functions</span><span class="zh">数一数真值函数</span></span></h3>
+    <p><span class="en">An n-ary truth function is any map <span class="m">{0,1}ⁿ → {0,1}</span>, i.e. any way of filling the output column of an n-variable table. Drag the slider: each strip is one truth function.</span>
+       <span class="zh">n 元真值函数就是任意映射 <span class="m">{0,1}ⁿ → {0,1}</span>，也就是 n 元真值表输出列的任意一种填法。拖动滑块，每一条就是一个真值函数。</span></p>
+    <div class="toolbar">n = <input type="range" id="e5n" min="0" max="3" value="1"> <b id="e5nv" class="m">1</b>
+      <span class="m" id="e5count"></span></div>
+    <div class="stage" id="e5Strips" style="max-height:260px;overflow:auto"></div>
+    <p><b>(a)</b> <span class="il"><span class="en">How many truth functions of n = 4 variables?</span><span class="zh">4 元真值函数有多少个？</span></span>
+      <input class="formula" id="e5a" style="min-width:140px;width:160px"> <button class="btn small" id="e5aGo"><span class="en">Check</span><span class="zh">检查</span></button></p>
+    <div class="msg" id="e5aMsg"></div>
+    <p><b>(b)</b> <span class="en">The set of <i>all</i> finitary truth functions (n ranging over ℕ) is countable, yet <span class="m">{0,1}^ℕ</span> is uncountable. Contradiction?</span>
+      <span class="zh">所有有限元真值函数（n 取遍 ℕ）构成的集合可数，而 <span class="m">{0,1}^ℕ</span> 不可数。这矛盾吗？</span></p>
+    <div id="e5b"></div>
+    <div class="toolbar"><button class="btn ghost small" id="e5Show"><span class="en">Show answers</span><span class="zh">看答案</span></button></div>
+    <div class="msg" id="e5bMsg"></div>
+  </div>
+
+  <!-- E6 -->
+  <div class="ex" id="e6" data-prog="L1E6">
+    <h3><span class="tag">E6</span><span class="il"><span class="en">Challenge: monotone formulas</span><span class="zh">挑战：单调公式</span></span></h3>
+    <p><span class="en">Claim: a formula built using <b>only</b> ∧ and ∨ (no ¬, →, ↔) is never a tautology <b>and</b> never unsatisfiable. True, or is there a flaw? Try to break it: type ∧/∨ formulas below and look for a counterexample.</span>
+       <span class="zh">命题：<b>只</b>用 ∧ 和 ∨ 构造的公式（不含 ¬、→、↔）既不可能是重言式，<b>也</b>不可能不可满足。成立吗，还是有漏洞？试着推翻它：在下面输入 ∧/∨ 公式找反例。</span></p>
+    <div class="toolbar"><input class="formula" id="e6In" value="(p ∨ q) ∧ (p ∨ r)"><button class="btn" id="e6Go"><span class="en">Test</span><span class="zh">测试</span></button></div>
+    <div class="msg" id="e6Out"></div>
+    <div id="e6Choice"></div>
+    <div class="toolbar"><button class="btn ghost small" id="e6Show"><span class="en">Show answer &amp; proof</span><span class="zh">看答案与证明</span></button></div>
+    <div class="msg" id="e6Msg"></div>
+    <div class="steps" id="e6Proof">
+      <div class="step def">
+        <span class="en"><b>Proof.</b> Let <span class="m">𝟙</span> be the all-1 valuation and <span class="m">𝟘</span> the all-0 valuation. By structural induction, every ∧∨-formula φ has v̄<sub>𝟙</sub>(φ)=1 and v̄<sub>𝟘</sub>(φ)=0. Atoms: true by definition. Step: min/max of (1,1) is 1, and min/max of (0,0) is 0. So 𝟙 satisfies φ (φ is not unsatisfiable) and 𝟘 falsifies φ (φ is not a tautology). The claim is <b>true</b>. ∎<br>
+        <b>Take-away:</b> with only ∧ and ∨ you can never express “always true” or “always false”, so {∧, ∨} is not functionally complete; something like ¬ has to be added.</span>
+        <span class="zh"><b>证明.</b> 令 <span class="m">𝟙</span> 为全 1 赋值，<span class="m">𝟘</span> 为全 0 赋值。对公式结构归纳：每个 ∧∨ 公式 φ 都满足 v̄<sub>𝟙</sub>(φ)=1、v̄<sub>𝟘</sub>(φ)=0。原子：按定义成立。归纳步：(1,1) 取 min/max 还是 1，(0,0) 取 min/max 还是 0。所以 𝟙 满足 φ（不是矛盾式），𝟘 弄假 φ（不是重言式）。命题<b>成立</b>。∎<br>
+        <b>启示：</b>只用 ∧ 和 ∨，永远写不出“恒真”或“恒假”，所以 {∧, ∨} 不是功能完备的，必须再添上 ¬ 之类的联结词。</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="card">
+  <div class="kicker"><span class="il"><span class="en">Next</span><span class="zh">下一课</span></span></div>
+  <h2><a href="lesson2.html" style="color:inherit"><span class="en">Lesson 2: proofs, soundness, completeness, compactness →</span><span class="zh">第 2 课：证明、可靠性、完备性、紧致性 →</span></a></h2>
+  <p><span class="en">So far, “truth” means checking every valuation. Next we build a <b>proof machine</b> (⊢) that manipulates symbols blindly, and prove the miracle <b>⊢ = ⊨</b>. Tell me in the chat how you did on the exercises.</span>
+     <span class="zh">到目前为止，“真”靠的是检查所有赋值。下一课我们造一台只会机械摆弄符号的<b>证明机器</b>（⊢），并证明一个奇迹：<b>⊢ = ⊨</b>。欢迎在对话里告诉我练习做得怎么样。</span></p>
+</section>
+</main>
+</div>
+
+<script src="assets/logic.js"></script>
+<script src="assets/lesson1.js"></script>
+</body>
+</html>

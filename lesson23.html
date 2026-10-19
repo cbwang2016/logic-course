@@ -1,0 +1,541 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 23 · Large cardinals I 大基数（一）</title>
+<link rel="stylesheet" href="assets/style.css">
+<style>
+.prereq { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 13px; color: var(--muted); margin: 0 0 12px; }
+.prereq a.chip { padding: 2px 10px; font-size: 13px; text-decoration: none; color: var(--ink); border-radius: 999px; }
+.lang-both .prereq .chip .zh { display: inline; font-size: 12px; }
+.lang-both .prereq .chip .zh::before { content: " · "; color: var(--muted); }
+.core { font-weight: 600; color: var(--accent); margin: 0 0 8px; }
+.pit { border-left: 4px solid var(--false); background: #fff1f1; padding: 10px 14px; border-radius: 0 10px 10px 0; margin: 14px 0; }
+.pit > b:first-child, .pit .hd { color: #a61e1e; }
+.intu { border-left: 4px solid var(--true); background: #eefaf0; padding: 10px 14px; border-radius: 0 10px 10px 0; margin: 14px 0; }
+.cy { border: 2px dashed #9fb0f0; border-radius: 14px; padding: 12px 16px; margin: 18px 0 2px; background: #fbfcff; }
+.cy h4 { margin: 0 0 6px; color: var(--accent); font-size: 15px; }
+.cy .opts { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0; }
+.proofbox { border: 1px solid var(--line); border-radius: 12px; padding: 8px 14px; margin: 12px 0; background: #fffefa; }
+.proofbox > h4 { margin: 6px 0; }
+.proofbox .step { border-left: 3px solid var(--meta); padding: 4px 10px; margin: 8px 0; background: var(--meta-soft); border-radius: 0 8px 8px 0; }
+table.cls { border-collapse: collapse; font-size: 14px; margin: 8px 0; }
+table.cls th, table.cls td { border: 1px solid var(--line); padding: 5px 9px; text-align: center; }
+table.cls th { background: #f1efe7; }
+table.cls td.click { cursor: pointer; min-width: 70px; background: #fffdf3; user-select: none; }
+table.cls td.click:hover { background: var(--gold-soft); }
+table.cls td.right { background: var(--true-soft); }
+table.cls td.wrong { background: var(--false-soft); }
+table.cls td.lbl { text-align: left; font-weight: 700; font-size: 16px; }
+table.rel td { text-align: left; vertical-align: top; }
+table.rel td.m { white-space: nowrap; }
+.yes { color: var(--true); font-weight: 700; }
+.no { color: var(--false); font-weight: 700; }
+.unk { color: var(--gold); font-weight: 700; }
+.ax { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; margin: 8px 0; }
+.ax div { border-radius: 10px; padding: 6px 10px; border: 2px solid var(--line); background: #fff; cursor: pointer; font-size: 14px; transition: all .3s; }
+.ax div.ok { border-color: var(--true); background: var(--true-soft); }
+.ax div.bad { border-color: var(--false); background: var(--false-soft); }
+.ax div.sel { box-shadow: 0 0 0 3px var(--accent-soft); }
+.lang-both .ax .zh { font-size: 12px; }
+.tfrow { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; padding: 10px 0; border-bottom: 1px dashed var(--line); }
+.tfrow .stmt { flex: 1 1 320px; }
+.tfrow .why { flex-basis: 100%; }
+.seq { display: flex; flex-direction: column; gap: 6px; margin: 8px 0; }
+.seq .chip { text-align: left; }
+.seq .chip .num { font-family: var(--mono); font-weight: 800; color: var(--accent); margin-right: 6px; }
+svg .hit { cursor: pointer; }
+svg text.lbl { font-family: var(--sans); }
+.pickrow { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; align-items: center; }
+.pickrow .lab { font-size: 13px; color: var(--muted); margin-right: 4px; }
+.info { min-height: 48px; }
+</style>
+</head>
+<body class="lang-both">
+<header class="top">
+  <a class="home" href="index.html">∀∃ <span class="il"><span class="en">Logic &amp; Sets</span><span class="zh">逻辑与集合</span></span></a>
+  <span class="muted">/ L23</span>
+  <span class="spacer"></span>
+  <div class="lang-switch">
+    <button data-lang="en">EN</button><button data-lang="zh">中文</button><button data-lang="both">EN + 中</button>
+  </div>
+</header>
+
+<div class="layout">
+<nav class="side">
+  <div class="grp">Lesson 23</div>
+  <a href="index.html">← <span class="il"><span class="en">Course map</span><span class="zh">课程地图</span></span></a>
+  <a href="lesson22.html">← <span class="il"><span class="en">Lesson 22</span><span class="zh">第 22 课</span></span></a>
+  <a href="lesson24.html"><span class="il"><span class="en">Lesson 24</span><span class="zh">第 24 课</span></span> →</a>
+  <a href="#s1">1 · <span class="il"><span class="en">What is “large”?</span><span class="zh">何谓“大”</span></span></a>
+  <a href="#s2">2 · <span class="il"><span class="en">Two ladders</span><span class="zh">两架梯子</span></span></a>
+  <a href="#s3">3 · <span class="il"><span class="en">Inaccessible</span><span class="zh">不可达</span></span></a>
+  <a href="#s4">4 · <span class="il"><span class="en">V<sub>κ</sub> ⊨ ZFC</span><span class="zh">V<sub>κ</sub> ⊨ ZFC</span></span></a>
+  <a href="#s5">5 · <span class="il"><span class="en">Down to L</span><span class="zh">下降到 L</span></span></a>
+  <a href="#s6">6 · <span class="il"><span class="en">Club &amp; stationary</span><span class="zh">无界闭集与平稳集</span></span></a>
+  <a href="#s7">7 · <span class="il"><span class="en">Mahlo</span><span class="zh">马洛基数</span></span></a>
+  <a href="#s8">8 · <span class="il"><span class="en">Partitions</span><span class="zh">划分性质</span></span></a>
+  <a href="#s9">9 · <span class="il"><span class="en">Trees</span><span class="zh">树性质</span></span></a>
+  <a href="#s10">10 · <span class="il"><span class="en">Indescribable</span><span class="zh">不可描述</span></span></a>
+  <a href="#s11">11 · <span class="il"><span class="en">The ladder so far</span><span class="zh">目前的梯子</span></span></a>
+  <div class="grp"><span class="il"><span class="en">Exercises</span><span class="zh">练习</span></span></div>
+  <a href="#e1" data-prog="L23E1">E1 · <span class="il"><span class="en">Classify</span><span class="zh">分类</span></span></a>
+  <a href="#e2" data-prog="L23E2">E2 · <span class="il"><span class="en">Club?</span><span class="zh">club？</span></span></a>
+  <a href="#e3" data-prog="L23E3">E3 · <span class="il"><span class="en">Proof order</span><span class="zh">证明排序</span></span></a>
+  <a href="#e4" data-prog="L23E4">E4 · <span class="il"><span class="en">Strength vs size</span><span class="zh">强度与大小</span></span></a>
+  <a href="#e5" data-prog="L23E5">E5 · R(3,3)</a>
+  <a href="#e6" data-prog="L23E6">E6 · <span class="il"><span class="en">Reflect?</span><span class="zh">能反射吗</span></span></a>
+</nav>
+
+<main>
+<div class="hero">
+  <div class="kicker">Part V · Lesson 23</div>
+  <h1><span class="en">Large cardinals I: from inaccessible to weakly compact</span><span class="zh">大基数（一）：从不可达到弱紧</span></h1>
+  <p><span class="en">ZFC can build ℵ₁, ℵ<sub>ω</sub>, ℵ<sub>ℵ<sub>ω</sub></sub>, … but some cardinals are so large that no ZFC operation applied to smaller sets ever reaches them. This lesson climbs the first rungs of that ladder in 11 small steps. Each step has one idea, one picture to play with, one exact definition, and one quick self-check.</span>
+     <span class="zh">ZFC 能造出 ℵ₁、ℵ<sub>ω</sub>、ℵ<sub>ℵ<sub>ω</sub></sub>……但有些基数大到这种程度：对更小的集合施行任何 ZFC 运算，都够不着它们。本课分 11 小步爬上这架梯子的前几级。每一步只讲一个想法，配一张能动手的图、一个精确定义和一道自测题。</span></p>
+</div>
+
+<!-- ============ S1 ============ -->
+<section class="card" id="s1">
+  <div class="kicker">Step 1</div>
+  <h2><span class="en">What is a “large cardinal”?</span><span class="zh">什么是“大基数”？</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites:</span><span class="zh">预备：</span></span>
+    <a class="chip" href="lesson9.html"><span class="en">L9 cardinals, cofinality</span><span class="zh">基数与共尾性</span></a>
+    <a class="chip" href="lesson12.html"><span class="en">L12 Gödel 2</span><span class="zh">哥德尔第二定理</span></a>
+    <a class="chip" href="lesson14.html"><span class="en">L14 V<sub>α</sub></span><span class="zh">累积层级</span></a></div>
+  <p class="core"><span class="en">Core idea: a large cardinal is one you cannot reach from below with ZFC's operations.</span><span class="zh">核心想法：大基数是用 ZFC 的运算从下面够不着的基数。</span></p>
+  <p><span class="en">Start at ℵ₀ and press the buttons. They are the three ways ZFC climbs: take the next cardinal, take the power set, or take the supremum of a shorter sequence. Pick which κ you are trying to reach.</span>
+     <span class="zh">从 ℵ₀ 出发按按钮。这三个按钮就是 ZFC 往上爬的三种方式：取下一个基数、取幂集、取一段较短序列的上确界。先选好你要够的目标 κ。</span></p>
+  <div class="pickrow" id="rkMode"></div>
+  <div class="toolbar" id="rkOps"></div>
+  <div class="stage"><svg id="rocket" viewBox="0 0 860 190" width="860" height="190"></svg></div>
+  <div class="msg info info" id="rkMsg"></div>
+
+  <div class="def"><span class="en"><b>Working criteria (partial definition, following Wikipedia).</b> There is <b>no universally accepted formal definition</b> of “large cardinal property”. A <i>necessary</i> condition for a property P of cardinals to count as one is:
+      <br>(i) the existence of a cardinal with P is <b>not known to be inconsistent</b> with ZF(C); and
+      <br>(ii) (ZFC proves that) any such κ is an <b>uncountable initial ordinal with L<sub>κ</sub> ⊨ ZFC</b>.
+      <br>Consequence (iii): <b>if ZFC is consistent, ZFC does not prove that such a κ exists.</b> Reason: by (ii), ZFC + “∃κ P(κ)” proves “ZFC has a set model”, hence Con(ZFC). If ZFC itself proved ∃κ P(κ), then ZFC ⊢ Con(ZFC), and by Gödel's second incompleteness theorem ZFC would be inconsistent.</span>
+    <span class="zh"><b>工作判据（不完整定义，依维基百科）.</b> “大基数性质”<b>并没有公认的形式定义</b>。一个基数性质 P 要算作大基数性质，<i>必要</i>条件是：
+      <br>(i) “存在具有 P 的基数”<b>目前不知道与 ZF(C) 矛盾</b>；
+      <br>(ii) （ZFC 可证）任何这样的 κ 都是<b>不可数的初始序数，并且 L<sub>κ</sub> ⊨ ZFC</b>。
+      <br>推论 (iii)：<b>若 ZFC 一致，则 ZFC 证明不了这样的 κ 存在。</b>理由：由 (ii)，ZFC + “∃κ P(κ)” 能证明“ZFC 有集合模型”，从而证明 Con(ZFC)。如果 ZFC 自己就能证明 ∃κ P(κ)，那么 ZFC ⊢ Con(ZFC)，由哥德尔第二不完全性定理，ZFC 不一致。</span></div>
+  <div class="note"><span class="en">Why does (ii) say L<sub>κ</sub> and not V<sub>κ</sub>? Because a <i>weakly</i> inaccessible κ (Step 3) always has L<sub>κ</sub> ⊨ ZFC, yet V<sub>κ</sub> ⊨ ZFC can fail for it (Step 4). The L-version covers both.</span>
+    <span class="zh">为什么 (ii) 写的是 L<sub>κ</sub> 而不是 V<sub>κ</sub>？因为<i>弱</i>不可达基数 κ（第 3 步）总有 L<sub>κ</sub> ⊨ ZFC，而 V<sub>κ</sub> ⊨ ZFC 却可能不成立（第 4 步）。用 L 的版本能把两者都包括进来。</span></div>
+  <h3><span class="en">Three stances (philosophy, not mathematics)</span><span class="zh">三种立场（属于哲学，不是数学定理）</span></h3>
+  <div class="row">
+    <div class="col note" style="margin:0"><span class="en"><b>Maximalist / realist.</b> V is built by iterating the full power set; large cardinal axioms say we are looking at <i>all</i> the sets, and their negations are restrictive (cut V off at the first inaccessible, or pass to L). They get a preferred status among extensions of ZFC; hard-core realists simply call them <i>true</i>.</span>
+      <span class="zh"><b>极大主义／实在论.</b> V 由反复取完整幂集生成；大基数公理说的是我们考虑了<i>所有</i>集合，而它们的否定是“限制性的”（在第一个不可达处把 V 截断，或者退到 L）。因此大基数公理在 ZFC 的各种扩张中享有优先地位；坚定的实在论者干脆说它们是<i>真的</i>。</span></div>
+    <div class="col note" style="margin:0"><span class="en"><b>Formalist.</b> Set theory studies what follows from ZFC (and other systems). There is no reason to single out large cardinal axioms as preferred.</span>
+      <span class="zh"><b>形式主义.</b> 集合论研究从 ZFC（及其他系统）能推出什么，没有理由特别偏爱大基数公理。</span></div>
+    <div class="col note" style="margin:0"><span class="en"><b>Dissent.</b> Some realists reject “maximize the universe” as a motive and even think large cardinal axioms are false. Others deny that the negations are restrictive: e.g. a transitive set model inside L can believe a measurable cardinal exists, though L itself does not.</span>
+      <span class="zh"><b>异议.</b> 有的实在论者不接受“让宇宙尽量大”这一动机，甚至认为大基数公理是假的。还有人否认其否定是限制性的：例如 L 内部可以有一个传递集合模型相信存在可测基数，尽管 L 本身并不满足这一点。</span></div>
+  </div>
+  <div class="pit"><b><span class="il"><span class="en">⚠ Common pitfall</span><span class="zh">常见误区</span></span></b><br><span class="en">“ZFC can't prove an inaccessible exists” does <b>not</b> mean “ZFC proves no inaccessible exists”. Both are unprovable (if ZFC is consistent). The first follows from Gödel 2; the second from the fact that cutting V at the least inaccessible gives a model with none (Step 4).</span>
+    <span class="zh">“ZFC 证明不了不可达基数存在”<b>不等于</b>“ZFC 证明了不可达基数不存在”。（若 ZFC 一致）两者都证明不了：前者来自哥德尔第二定理，后者来自“在最小不可达处截断 V，得到一个没有不可达基数的模型”（第 4 步）。</span></div>
+  <div class="cy" id="cy1"></div>
+</section>
+
+<!-- ============ S2 ============ -->
+<section class="card" id="s2">
+  <div class="kicker">Step 2</div>
+  <h2><span class="en">Two ladders: consistency strength vs size</span><span class="zh">两架梯子：一致性强度与大小</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites:</span><span class="zh">预备：</span></span>
+    <a class="chip" href="lesson12.html"><span class="en">L12 Con(T)</span><span class="zh">Con(T)</span></a>
+    <a class="chip" href="#s1"><span class="en">Step 1</span><span class="zh">第 1 步</span></a></div>
+  <p class="core"><span class="en">Core idea: “stronger” (proves more consistency) and “bigger” (least witness is larger) are two different orders.</span><span class="zh">核心想法：“更强”（能证明更多一致性）和“更大”（最小实例更大）是两种不同的序。</span></p>
+  <div class="def"><span class="en"><b>Definitions.</b> Let A, B be large cardinal axioms.
+    <br>• <b>A is consistency-wise stronger than B</b> if ZFC + A ⊢ Con(ZFC + B).
+    <br>• <b>A and B are equiconsistent</b> if Con(ZFC + A) ⇔ Con(ZFC + B) is provable (in a weak base theory such as PA).
+    <br><b>Observation (Wikipedia), not a theorem:</b> for every pair of large cardinal axioms studied so far, exactly one of these holds: equiconsistent; A stronger; B stronger (assuming the theories are consistent). It is not even known in every case which one holds. Without a formal definition of “large cardinal”, this cannot be a theorem; Woodin derives it from his still-open Ω-conjecture.</span>
+    <span class="zh"><b>定义.</b> 设 A、B 是大基数公理。
+    <br>• 若 ZFC + A ⊢ Con(ZFC + B)，称 <b>A 的一致性强度高于 B</b>。
+    <br>• 若 Con(ZFC + A) ⇔ Con(ZFC + B) 可证（在 PA 这类较弱的基础理论中），称 A 与 B <b>等相容</b>。
+    <br><b>这是观察，不是定理（依维基百科）：</b>迄今研究过的任意两条大基数公理，（在理论一致的前提下）都恰好满足三者之一：等相容；A 更强；B 更强。而且并非每一对都已知是哪一种。由于“大基数”本身没有形式定义，这无法成为定理；伍丁从他尚未解决的 Ω 猜想推出了它。</span></div>
+  <p><span class="en">Click a name on either ladder. Left: ordered by consistency strength (higher = stronger). Right: ordered by the size of the <b>least</b> witness, assuming all of them exist.</span>
+     <span class="zh">点击任一架梯子上的名字。左边按一致性强度排（越高越强）；右边按<b>最小</b>实例的大小排（假设它们都存在）。</span></p>
+  <div class="stage" style="display:flex;justify-content:center"><svg id="ladders" viewBox="0 0 760 400" width="760" height="400"></svg></div>
+  <div class="msg info info" id="ladMsg"></div>
+  <h3><span class="en">Five different kinds of claim. Keep them apart.</span><span class="zh">五种不同的断言，务必分清</span></h3>
+  <table class="cls rel">
+    <tr><th><span class="il"><span class="en">Kind</span><span class="zh">类型</span></span></th><th><span class="il"><span class="en">Form</span><span class="zh">形式</span></span></th><th><span class="il"><span class="en">Example from this lesson</span><span class="zh">本课的例子</span></span></th></tr>
+    <tr><td><span class="il"><span class="en">provable in ZFC</span><span class="zh">ZFC 可证</span></span></td><td class="m">ZFC ⊢ φ</td><td><span class="il"><span class="en">every weakly compact is Mahlo</span><span class="zh">每个弱紧基数都是马洛基数</span></span></td></tr>
+    <tr><td><span class="il"><span class="en">implies</span><span class="zh">蕴涵</span></span></td><td class="m">ZFC ⊢ P(κ) → Q(κ)</td><td><span class="il"><span class="en">inaccessible ⇒ κ = ℵ<sub>κ</sub></span><span class="zh">不可达 ⇒ κ = ℵ<sub>κ</sub></span></span></td></tr>
+    <tr><td><span class="il"><span class="en">relative consistency</span><span class="zh">相对一致性</span></span></td><td class="m">Con(T) ⇒ Con(T + φ)</td><td><span class="il"><span class="en">Con(ZFC) ⇒ Con(ZFC + no inaccessibles)</span><span class="zh">Con(ZFC) ⇒ Con(ZFC + 不存在不可达基数)</span></span></td></tr>
+    <tr><td><span class="il"><span class="en">equiconsistent</span><span class="zh">等相容</span></span></td><td class="m">Con(T+A) ⇔ Con(T+B)</td><td><span class="il"><span class="en">weakly inaccessible ~ strongly inaccessible</span><span class="zh">弱不可达 ~ 强不可达</span></span></td></tr>
+    <tr><td><span class="il"><span class="en">open</span><span class="zh">未解决</span></span></td><td>—</td><td><span class="il"><span class="en">is “∃ strongly compact” equiconsistent with “∃ supercompact”? (open)</span><span class="zh">“存在强紧基数”与“存在超紧基数”是否等相容？（未解决）</span></span></td></tr>
+  </table>
+  <div class="pit"><b><span class="il"><span class="en">⚠ Common pitfall</span><span class="zh">常见误区</span></span></b><br><span class="en">“The least huge cardinal is smaller than the least supercompact” does <b>not</b> make “huge” the weaker axiom. In fact huge is much stronger. Size and strength are different orders.</span>
+    <span class="zh">“最小的巨大基数比最小的超紧基数小”<b>并不</b>意味着“巨大基数”是更弱的公理。事实上巨大基数的一致性强度高得多。大小与强度是两种不同的序。</span></div>
+  <div class="cy" id="cy2"></div>
+</section>
+
+<!-- ============ S3 ============ -->
+<section class="card" id="s3">
+  <div class="kicker">Step 3</div>
+  <h2><span class="en">Weakly vs strongly inaccessible</span><span class="zh">弱不可达与强不可达</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites:</span><span class="zh">预备：</span></span>
+    <a class="chip" href="lesson9.html"><span class="en">L9 regular / singular</span><span class="zh">正则／奇异</span></a>
+    <a class="chip" href="#s1"><span class="en">Step 1</span><span class="zh">第 1 步</span></a></div>
+  <p class="core"><span class="en">Core idea: be uncountable, be regular, and be a limit. Each candidate below fails at least one test, except the last.</span><span class="zh">核心想法：不可数、正则、是极限，三关都要过。下面的候选者除最后一个外，每个都至少挂掉一关。</span></p>
+  <div class="def"><span class="en"><b>Definitions</b> (κ an infinite cardinal).
+    <br>• κ is <b>regular</b> if cf(κ) = κ; otherwise <b>singular</b>.
+    <br>• κ is a <b>(weak) limit cardinal</b> if it is not a successor cardinal: λ⁺ &lt; κ for every cardinal λ &lt; κ. (Conventions differ on ℵ₀; here ℵ₀ counts as a limit cardinal.)
+    <br>• κ is a <b>strong limit</b> if 2<sup>λ</sup> &lt; κ for every cardinal λ &lt; κ.
+    <br>• κ is <b>weakly inaccessible</b> if it is uncountable, regular, and a limit cardinal.
+    <br>• κ is <b>(strongly) inaccessible</b> if it is uncountable, regular, and a strong limit.</span>
+    <span class="zh"><b>定义</b>（κ 为无穷基数）。
+    <br>• 若 cf(κ) = κ，称 κ <b>正则</b>；否则称<b>奇异</b>。
+    <br>• 若 κ 不是后继基数，即对每个基数 λ &lt; κ 都有 λ⁺ &lt; κ，称 κ 为<b>（弱）极限基数</b>。（ℵ₀ 算不算有不同约定，这里算。）
+    <br>• 若对每个基数 λ &lt; κ 都有 2<sup>λ</sup> &lt; κ，称 κ 为<b>强极限基数</b>。
+    <br>• 不可数、正则、且是极限基数，称为<b>弱不可达</b>。
+    <br>• 不可数、正则、且是强极限基数，称为<b>（强）不可达</b>。</span></div>
+  <p><span class="en">Click a cardinal on the ladder. The table explains every verdict. A yellow “?” means ZFC cannot decide it.</span>
+     <span class="zh">点击梯子上的基数，表格会解释每一项判定。黄色“?”表示 ZFC 无法判定。</span></p>
+  <div class="stage"><svg id="cladder" viewBox="0 0 860 170" width="860" height="170"></svg></div>
+  <div id="cTable"></div>
+  <div class="toolbar"><button class="btn" id="fpGo"><span class="en">Build the least fixed point κ₀ = ℵ<sub>κ₀</sub> ▶</span><span class="zh">构造最小不动点 κ₀ = ℵ<sub>κ₀</sub> ▶</span></button></div>
+  <div class="msg info" id="fpMsg"></div>
+  <div class="def"><span class="en"><b>Facts.</b> (1) Strong limit ⇒ limit, since λ⁺ ≤ 2<sup>λ</sup>. So strongly inaccessible ⇒ weakly inaccessible. (2) Under GCH, 2<sup>λ</sup> = λ⁺, so the two notions coincide. (3) <b>Theorem.</b> If κ is weakly inaccessible then κ = ℵ<sub>κ</sub>.</span>
+    <span class="zh"><b>事实.</b> (1) 强极限 ⇒ 极限，因为 λ⁺ ≤ 2<sup>λ</sup>。所以强不可达 ⇒ 弱不可达。(2) 在 GCH 下 2<sup>λ</sup> = λ⁺，两个概念重合。(3) <b>定理.</b> 若 κ 弱不可达，则 κ = ℵ<sub>κ</sub>。</span></div>
+  <div class="proofbox" data-proof><h4><span class="il"><span class="en">Proof of (3)</span><span class="zh">(3) 的证明</span></span></h4><div class="steps">
+    <div class="step"><span class="en">Write κ = ℵ<sub>α</sub>. Since κ is a limit cardinal and uncountable, α is a limit ordinal.</span><span class="zh">写 κ = ℵ<sub>α</sub>。κ 不可数且是极限基数，所以 α 是极限序数。</span></div>
+    <div class="step"><span class="en">⟨ℵ<sub>β</sub> : β &lt; α⟩ is cofinal in ℵ<sub>α</sub>, so cf(κ) = cf(α) ≤ α.</span><span class="zh">⟨ℵ<sub>β</sub> : β &lt; α⟩ 在 ℵ<sub>α</sub> 中共尾，所以 cf(κ) = cf(α) ≤ α。</span></div>
+    <div class="step"><span class="en">Regularity gives κ = cf(κ) ≤ α ≤ ℵ<sub>α</sub> = κ. Hence α = κ, i.e. κ = ℵ<sub>κ</sub>. ∎</span><span class="zh">由正则性，κ = cf(κ) ≤ α ≤ ℵ<sub>α</sub> = κ。故 α = κ，即 κ = ℵ<sub>κ</sub>。∎</span></div>
+  </div></div>
+  <div class="pit"><b><span class="il"><span class="en">⚠ Common pitfall</span><span class="zh">常见误区</span></span></b><br><span class="en">The converse is false. The least fixed point κ₀ = ℵ<sub>κ₀</sub> is the limit of ω, ℵ<sub>ω</sub>, ℵ<sub>ℵ<sub>ω</sub></sub>, …, an ω-sequence. So cf(κ₀) = ω and κ₀ is singular. Also, “strong limit” is a statement about the power set function, which ZFC leaves wide open: ℵ<sub>ω</sub> is a strong limit under GCH but not if 2<sup>ℵ₀</sup> = ℵ<sub>ω+1</sub>, and both are consistent with ZFC.</span>
+    <span class="zh">逆命题不成立。最小不动点 κ₀ = ℵ<sub>κ₀</sub> 是 ω、ℵ<sub>ω</sub>、ℵ<sub>ℵ<sub>ω</sub></sub>、…… 这个 ω 序列的极限，所以 cf(κ₀) = ω，κ₀ 是奇异基数。另外，“强极限”涉及幂集函数，而 ZFC 对幂集函数几乎没有约束：在 GCH 下 ℵ<sub>ω</sub> 是强极限，但若 2<sup>ℵ₀</sup> = ℵ<sub>ω+1</sub> 则不是，两种情形都与 ZFC 相容。</span></div>
+  <div class="cy" id="cy3"></div>
+</section>
+
+<!-- ============ S4 ============ -->
+<section class="card" id="s4">
+  <div class="kicker">Step 4</div>
+  <h2><span class="en">κ inaccessible ⇒ V<sub>κ</sub> ⊨ ZFC, so ZFC ⊬ “an inaccessible exists”</span><span class="zh">κ 不可达 ⇒ V<sub>κ</sub> ⊨ ZFC，所以 ZFC ⊬ “存在不可达基数”</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites:</span><span class="zh">预备：</span></span>
+    <a class="chip" href="lesson14.html"><span class="en">L14 V<sub>α</sub> as models</span><span class="zh">V<sub>α</sub> 作为模型</span></a>
+    <a class="chip" href="lesson12.html"><span class="en">L12 Gödel 2</span><span class="zh">哥德尔第二定理</span></a>
+    <a class="chip" href="#s3"><span class="en">Step 3</span><span class="zh">第 3 步</span></a></div>
+  <p class="core"><span class="en">Core idea: cut the universe at height κ. If κ is inaccessible, what remains is a whole universe of ZFC.</span><span class="zh">核心想法：在高度 κ 处把宇宙截断。若 κ 不可达，剩下的部分本身就是一个完整的 ZFC 宇宙。</span></p>
+  <p><span class="en">Choose where to cut. Each axiom tile turns green or red. Click a tile to see why.</span><span class="zh">选择在哪里截断，每条公理会变绿或变红。点击公理查看原因。</span></p>
+  <div class="pickrow" id="cutPick"></div>
+  <div class="row">
+    <div class="col" style="flex:0 1 330px"><div class="stage"><svg id="vcone" viewBox="0 0 310 300" width="310" height="300"></svg></div></div>
+    <div class="col"><div class="ax" id="axGrid"></div><div class="msg info info" id="axMsg"></div></div>
+  </div>
+  <div class="def"><span class="en"><b>Theorem (ZFC).</b> If κ is (strongly) inaccessible, then (V<sub>κ</sub>, ∈) ⊨ ZFC. A cardinal κ with V<sub>κ</sub> ⊨ ZFC is called <b>worldly</b>.</span>
+    <span class="zh"><b>定理（ZFC）.</b> 若 κ（强）不可达，则 (V<sub>κ</sub>, ∈) ⊨ ZFC。满足 V<sub>κ</sub> ⊨ ZFC 的基数 κ 称为 <b>worldly 基数（世俗基数）</b>。</span></div>
+  <div class="proofbox" data-proof><h4><span class="il"><span class="en">Proof sketch</span><span class="zh">证明概要</span></span></h4><div class="steps">
+    <div class="step"><span class="en"><b>Lemma.</b> |V<sub>α</sub>| &lt; κ for all α &lt; κ. Induction: |V<sub>α+1</sub>| = 2<sup>|V<sub>α</sub>|</sup> &lt; κ because κ is a <b>strong limit</b>; at limit λ &lt; κ, |V<sub>λ</sub>| ≤ Σ<sub>β&lt;λ</sub>|V<sub>β</sub>| &lt; κ because κ is <b>regular</b> (fewer than κ cardinals below κ have supremum below κ).</span>
+      <span class="zh"><b>引理.</b> 对所有 α &lt; κ 有 |V<sub>α</sub>| &lt; κ。归纳：|V<sub>α+1</sub>| = 2<sup>|V<sub>α</sub>|</sup> &lt; κ，因为 κ 是<b>强极限</b>；在极限 λ &lt; κ 处，|V<sub>λ</sub>| ≤ Σ<sub>β&lt;λ</sub>|V<sub>β</sub>| &lt; κ，因为 κ <b>正则</b>（少于 κ 个小于 κ 的基数，上确界仍小于 κ）。</span></div>
+    <div class="step"><span class="en"><b>Key closure.</b> For x ⊆ V<sub>κ</sub>: x ∈ V<sub>κ</sub> ⇔ |x| &lt; κ. (⇒ by the lemma. ⇐: the ranks of the &lt; κ elements of x are bounded below κ by regularity, say by β, so x ∈ V<sub>β+1</sub>.)</span>
+      <span class="zh"><b>关键封闭性.</b> 对 x ⊆ V<sub>κ</sub>：x ∈ V<sub>κ</sub> ⇔ |x| &lt; κ。（⇒ 由引理。⇐：x 的少于 κ 个元素的秩，由正则性有一个小于 κ 的上界 β，故 x ∈ V<sub>β+1</sub>。）</span></div>
+    <div class="step"><span class="en"><b>Easy axioms.</b> V<sub>κ</sub> is transitive, so Extensionality and Foundation hold. Since κ is a limit ordinal, Pairing, Union, Power Set hold (P(x) ∈ V<sub>α+2</sub> if x ∈ V<sub>α</sub>). Infinity holds since ω &lt; κ. Separation: a subset of x ∈ V<sub>α</sub> lies in V<sub>α+1</sub>. Choice: a well-order of x ∈ V<sub>α</sub> lies in V<sub>α+3</sub>.</span>
+      <span class="zh"><b>容易的公理.</b> V<sub>κ</sub> 是传递集，所以外延公理、正则（基础）公理成立。κ 是极限序数，所以配对、并集、幂集公理成立（x ∈ V<sub>α</sub> 时 P(x) ∈ V<sub>α+2</sub>）。ω &lt; κ，故无穷公理成立。分离公理：x ∈ V<sub>α</sub> 的子集都在 V<sub>α+1</sub> 中。选择公理：x ∈ V<sub>α</sub> 的良序在 V<sub>α+3</sub> 中。</span></div>
+    <div class="step"><span class="en"><b>Replacement (the heart).</b> Let F be a class function definable over V<sub>κ</sub> (with parameters) and x ∈ V<sub>κ</sub>. Then F[x] ⊆ V<sub>κ</sub> and |F[x]| ≤ |x| &lt; κ, so F[x] ∈ V<sub>κ</sub> by the key closure. Regularity is used here. ∎</span>
+      <span class="zh"><b>替换公理（核心）.</b> 设 F 是在 V<sub>κ</sub> 上（带参数）可定义的类函数，x ∈ V<sub>κ</sub>。则 F[x] ⊆ V<sub>κ</sub> 且 |F[x]| ≤ |x| &lt; κ，由关键封闭性 F[x] ∈ V<sub>κ</sub>。正则性正用在这里。∎</span></div>
+  </div></div>
+  <div class="def"><span class="en"><b>Corollary.</b> If ZFC is consistent, then ZFC ⊬ ∃κ (κ inaccessible).</span><span class="zh"><b>推论.</b> 若 ZFC 一致，则 ZFC ⊬ ∃κ（κ 不可达）。</span></div>
+  <div class="proofbox" data-proof><h4><span class="il"><span class="en">Proof, with the careful Gödel 2 argument</span><span class="zh">证明（仔细使用哥德尔第二定理）</span></span></h4><div class="steps">
+    <div class="step"><span class="en">The theorem above is provable <b>in</b> ZFC: ZFC ⊢ “if κ is inaccessible then V<sub>κ</sub> ⊨ ZFC”. A set model gives consistency (soundness, formalized in ZFC). So ZFC + “∃ inaccessible” ⊢ Con(ZFC).</span>
+      <span class="zh">上面的定理可以<b>在</b> ZFC 内证明：ZFC ⊢ “若 κ 不可达，则 V<sub>κ</sub> ⊨ ZFC”。有集合模型就有一致性（可靠性定理可在 ZFC 中形式化）。所以 ZFC + “存在不可达” ⊢ Con(ZFC)。</span></div>
+    <div class="step"><span class="en">Suppose ZFC ⊢ “∃ inaccessible”. Then ZFC ⊢ Con(ZFC). By Gödel's second incompleteness theorem, ZFC is inconsistent. Contrapositive: if Con(ZFC), then ZFC ⊬ “∃ inaccessible”.</span>
+      <span class="zh">假设 ZFC ⊢ “存在不可达”，则 ZFC ⊢ Con(ZFC)。由哥德尔第二不完全性定理，ZFC 不一致。逆否：若 Con(ZFC)，则 ZFC ⊬ “存在不可达”。</span></div>
+    <div class="step"><span class="en"><b>The other direction: take the least inaccessible.</b> Work in a model of ZFC. If it has no inaccessible, it already satisfies “no inaccessibles”. Otherwise let κ be the <b>least</b> inaccessible. For λ &lt; κ, “λ is inaccessible” means the same in V<sub>κ</sub> as in V, because V<sub>κ</sub> contains every subset of V<sub>λ</sub> and every function from an ordinal &lt; κ into λ. So V<sub>κ</sub> ⊨ ZFC + “there is no inaccessible”. Hence Con(ZFC) ⇒ Con(ZFC + no inaccessibles).</span>
+      <span class="zh"><b>另一方向：取最小的不可达基数.</b> 在 ZFC 的一个模型里讨论。若其中没有不可达基数，它已满足“不存在不可达”。否则取<b>最小</b>的不可达基数 κ。对 λ &lt; κ，“λ 不可达”在 V<sub>κ</sub> 与 V 中意思相同，因为 V<sub>κ</sub> 包含 V<sub>λ</sub> 的所有子集，以及从小于 κ 的序数到 λ 的所有函数。所以 V<sub>κ</sub> ⊨ ZFC + “不存在不可达基数”。因此 Con(ZFC) ⇒ Con(ZFC + 不存在不可达)。</span></div>
+    <div class="step"><span class="en"><b>Upshot.</b> “∃ inaccessible” is independent of ZFC <i>if it is consistent with ZFC</i>. That last condition cannot be proved in ZFC: if ZFC + ∃ inaccessible is consistent, then ZFC cannot prove Con(ZFC) ⇒ Con(ZFC + ∃ inaccessible), because ZFC + ∃ inaccessible (which proves Con(ZFC)) would then prove its own consistency.</span>
+      <span class="zh"><b>结论.</b> <i>若</i> “存在不可达” 与 ZFC 一致，那么它独立于 ZFC。而这个前提本身在 ZFC 里证明不了：若 ZFC + 存在不可达 是一致的，则 ZFC 无法证明 Con(ZFC) ⇒ Con(ZFC + 存在不可达)，否则 ZFC + 存在不可达（它能证明 Con(ZFC)）就能证明自身的一致性。</span></div>
+  </div></div>
+  <div class="pit"><b><span class="il"><span class="en">⚠ Common pitfall</span><span class="zh">常见误区</span></span></b><br><span class="en">Worldly ≠ inaccessible. Every inaccessible is worldly, but the <b>least worldly cardinal has cofinality ω</b> (Kanamori, Lemma 6.1), so it is singular. V<sub>κ</sub> ⊨ ZFC needs only that Replacement holds for <i>definable</i> functions, not for all functions. Conversely a weakly inaccessible κ with 2<sup>ℵ₀</sup> &gt; κ is not worldly.</span>
+    <span class="zh">worldly ≠ 不可达。每个不可达基数都是 worldly 的，但<b>最小的 worldly 基数共尾性为 ω</b>（Kanamori 引理 6.1），是奇异的。V<sub>κ</sub> ⊨ ZFC 只要求替换公理对<i>可定义</i>函数成立，而不是对所有函数。反过来，满足 2<sup>ℵ₀</sup> &gt; κ 的弱不可达 κ 不是 worldly 的。</span></div>
+  <div class="cy" id="cy4"></div>
+</section>
+
+<!-- ============ S5 ============ -->
+<section class="card" id="s5">
+  <div class="kicker">Step 5</div>
+  <h2><span class="en">Inaccessibility goes down to L</span><span class="zh">不可达性下降到 L</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites:</span><span class="zh">预备：</span></span>
+    <a class="chip" href="lesson15.html"><span class="en">L15 L and GCH</span><span class="zh">L 与 GCH</span></a>
+    <a class="chip" href="#s3"><span class="en">Step 3</span><span class="zh">第 3 步</span></a></div>
+  <p class="core"><span class="en">Core idea: L has fewer functions, so it sees fewer ways to reach κ. Being “unreachable” only gets easier inside L.</span><span class="zh">核心想法：L 里的函数更少，能用来够着 κ 的手段也更少。到了 L 里，“够不着”只会更容易成立。</span></p>
+  <p><span class="en">Press the button. Each property of κ travels from V into L. Then switch on the “0<sup>#</sup>” scenario to see that the trip is one-way.</span>
+     <span class="zh">按下按钮，κ 的每条性质会从 V 传到 L。然后打开“0<sup>#</sup>”情景，看看这趟路为什么只能单向走。</span></p>
+  <div class="toolbar"><button class="btn primary" id="vlGo"><span class="en">Send κ's properties down ▶</span><span class="zh">把 κ 的性质传下去 ▶</span></button>
+    <button class="btn" id="vlSharp"><span class="en">Scenario: 0<sup>#</sup> exists</span><span class="zh">情景：0<sup>#</sup> 存在</span></button></div>
+  <div class="stage" style="display:flex;justify-content:center"><svg id="vl" viewBox="0 0 760 290" width="760" height="290"></svg></div>
+  <div class="msg info info" id="vlMsg"></div>
+  <div class="def"><span class="en"><b>Theorem (ZF).</b> If κ is weakly inaccessible, then L ⊨ “κ is strongly inaccessible”, and L<sub>κ</sub> = (V<sub>κ</sub>)<sup>L</sup> ⊨ ZFC. <b>Corollary:</b> ZFC + “∃ weakly inaccessible” and ZFC + “∃ strongly inaccessible” are <b>equiconsistent</b>.</span>
+    <span class="zh"><b>定理（ZF）.</b> 若 κ 弱不可达，则 L ⊨ “κ 强不可达”，且 L<sub>κ</sub> = (V<sub>κ</sub>)<sup>L</sup> ⊨ ZFC。<b>推论：</b>ZFC + “存在弱不可达” 与 ZFC + “存在强不可达” <b>等相容</b>。</span></div>
+  <div class="proofbox" data-proof><h4><span class="il"><span class="en">Proof</span><span class="zh">证明</span></span></h4><div class="steps">
+    <div class="step"><span class="en"><b>Regular goes down.</b> If L had a cofinal map f: β → κ with β &lt; κ, then f ∈ V would witness cf(κ) &lt; κ in V. So κ is regular in L.</span><span class="zh"><b>正则性下传.</b> 若 L 中有共尾映射 f: β → κ（β &lt; κ），那么 f ∈ V 就在 V 中证明了 cf(κ) &lt; κ。所以 κ 在 L 中正则。</span></div>
+    <div class="step"><span class="en"><b>Limit goes down.</b> Every cardinal of V is a cardinal of L (a bijection in L would be one in V). For λ &lt; κ, (λ⁺)<sup>L</sup> ≤ λ⁺ &lt; κ. So κ is a limit cardinal in L.</span><span class="zh"><b>极限性下传.</b> V 的基数都是 L 的基数（L 中的双射也是 V 中的双射）。对 λ &lt; κ，有 (λ⁺)<sup>L</sup> ≤ λ⁺ &lt; κ。所以 κ 在 L 中是极限基数。</span></div>
+    <div class="step"><span class="en"><b>Strong limit in L.</b> L ⊨ GCH, so in L, 2<sup>λ</sup> = (λ⁺)<sup>L</sup> &lt; κ. Hence L ⊨ “κ is strongly inaccessible”, and by Step 4 applied inside L, (V<sub>κ</sub>)<sup>L</sup> = L<sub>κ</sub> ⊨ ZFC. ∎</span><span class="zh"><b>在 L 中是强极限.</b> L ⊨ GCH，所以在 L 中 2<sup>λ</sup> = (λ⁺)<sup>L</sup> &lt; κ。于是 L ⊨ “κ 强不可达”。在 L 内部应用第 4 步，得 (V<sub>κ</sub>)<sup>L</sup> = L<sub>κ</sub> ⊨ ZFC。∎</span></div>
+  </div></div>
+  <div class="pit"><b><span class="il"><span class="en">⚠ Common pitfall</span><span class="zh">常见误区</span></span></b><br><span class="en">The arrow only goes down. If 0<sup>#</sup> exists, every uncountable cardinal of V, for instance ℵ₁, is inaccessible in L (Silver), although ℵ₁ is certainly not inaccessible in V. And not every large cardinal property goes down to L: a measurable cardinal is never measurable in L (Scott; Lesson 24).</span>
+    <span class="zh">箭头只能朝下。若 0<sup>#</sup> 存在，V 的每个不可数基数（例如 ℵ₁）在 L 中都是不可达的（Silver），尽管 ℵ₁ 在 V 中显然不是不可达的。而且并非所有大基数性质都能下传到 L：可测基数在 L 中从来都不是可测的（Scott；见第 24 课）。</span></div>
+  <div class="cy" id="cy5"></div>
+</section>
+
+<!-- ============ S6 ============ -->
+<section class="card" id="s6">
+  <div class="kicker">Step 6</div>
+  <h2><span class="en">Club sets and stationary sets</span><span class="zh">无界闭集（club）与平稳集</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites:</span><span class="zh">预备：</span></span>
+    <a class="chip" href="lesson8.html"><span class="en">L8 limit ordinals</span><span class="zh">极限序数</span></a>
+    <a class="chip" href="lesson9.html"><span class="en">L9 cofinality</span><span class="zh">共尾性</span></a></div>
+  <p class="core"><span class="en">Core idea: a club is a “large” subset of κ. Any two clubs meet, because we can zip between them. A stationary set is one that no club can avoid.</span><span class="zh">核心想法：club 是 κ 的“大”子集。任意两个 club 必相交，因为可以在它们之间来回“拉拉链”。平稳集则是任何 club 都躲不开的集合。</span></p>
+  <div class="def"><span class="en"><b>Definitions</b> (κ regular uncountable). C ⊆ κ is
+    <br>• <b>closed</b> if for every limit α &lt; κ: sup(C ∩ α) = α ⇒ α ∈ C (C contains every limit point below κ of its elements);
+    <br>• <b>unbounded</b> if ∀β &lt; κ ∃γ ∈ C, γ &gt; β;
+    <br>• <b>club</b> if both. S ⊆ κ is <b>stationary</b> if S ∩ C ≠ ∅ for every club C ⊆ κ.
+    <br><b>Facts.</b> The intersection of fewer than κ clubs is club. Every club is stationary; every stationary set is unbounded; stationary ∩ club is stationary. Examples: the limit ordinals below κ form a club; for regular λ &lt; κ, S<sup>κ</sup><sub>λ</sub> = {α &lt; κ : cf α = λ} is stationary.
+    <br><b>Fodor's lemma (pressing-down).</b> If S ⊆ κ is stationary and f: S → κ is regressive (f(α) &lt; α for all α ∈ S, α ≠ 0), then f is constant on some stationary S₀ ⊆ S.</span>
+    <span class="zh"><b>定义</b>（κ 为正则不可数基数）。C ⊆ κ 称为
+    <br>• <b>闭的</b>：对每个极限序数 α &lt; κ，sup(C ∩ α) = α ⇒ α ∈ C（C 包含自身元素在 κ 以下的所有极限点）；
+    <br>• <b>无界的</b>：∀β &lt; κ ∃γ ∈ C，γ &gt; β；
+    <br>• 二者兼备称为<b>无界闭集（club）</b>。若 S ⊆ κ 与每个 club 都相交，称 S 为<b>平稳集</b>。
+    <br><b>事实.</b> 少于 κ 个 club 的交仍是 club。club 都是平稳集；平稳集都无界；平稳集 ∩ club 仍平稳。例子：κ 以下的极限序数构成 club；对正则 λ &lt; κ，S<sup>κ</sup><sub>λ</sub> = {α &lt; κ : cf α = λ} 是平稳集。
+    <br><b>Fodor 引理（压缩引理）.</b> 若 S ⊆ κ 平稳，f: S → κ 是退缩函数（对 α ∈ S、α ≠ 0 有 f(α) &lt; α），则 f 在某个平稳子集 S₀ ⊆ S 上取常值。</span></div>
+  <p><span class="en"><b>The zipper.</b> Blue ticks are a club C (above the line), red ticks a club D (below). Press “Zip”: we alternately pick c₀ &lt; d₀ &lt; c₁ &lt; d₁ &lt; … from C and D. The sequence has length ω &lt; cf κ, so its supremum γ is below κ. γ is a limit point of C and of D, so by closedness γ ∈ C ∩ D. Now flip to κ = ℵ<sub>ω</sub>, where cf κ = ω.</span>
+     <span class="zh"><b>拉拉链.</b> 线上方蓝色刻度是 club C，下方红色刻度是 club D。按“拉链”：轮流从 C、D 中取 c₀ &lt; d₀ &lt; c₁ &lt; d₁ &lt; …。这个序列长度为 ω &lt; cf κ，所以上确界 γ 落在 κ 以下。γ 是 C 的极限点也是 D 的极限点，由闭性 γ ∈ C ∩ D。再切换到 κ = ℵ<sub>ω</sub> 试试，那里 cf κ = ω。</span></p>
+  <div class="toolbar"><button class="btn primary" id="zipGo"><span class="en">Zip ▶</span><span class="zh">拉链 ▶</span></button>
+    <button class="btn" id="zipNew"><span class="en">New clubs</span><span class="zh">换一对 club</span></button>
+    <button class="btn" id="zipMode"><span class="en">Switch to κ = ℵ<sub>ω</sub></span><span class="zh">切换到 κ = ℵ<sub>ω</sub></span></button></div>
+  <div class="stage"><svg id="zip" viewBox="0 0 860 170" width="860" height="170"></svg></div>
+  <div class="msg info info" id="zipMsg"></div>
+  <div class="intu"><span class="en"><b>Intuition.</b> Clubs behave like “measure-one” sets and stationary sets like “positive-measure” sets. This is only an analogy: the club sets generate a filter, but two stationary sets can be disjoint (e.g. S<sup>ω₂</sup><sub>ω</sub> and S<sup>ω₂</sup><sub>ω₁</sub>).</span>
+    <span class="zh"><b>直观.</b> club 像“测度为 1”的集合，平稳集像“测度为正”的集合。这只是类比：club 生成一个滤子，但两个平稳集可以不相交（例如 S<sup>ω₂</sup><sub>ω</sub> 与 S<sup>ω₂</sup><sub>ω₁</sub>）。</span></div>
+  <div class="pit"><b><span class="il"><span class="en">⚠ Common pitfall</span><span class="zh">常见误区</span></span></b><br><span class="en">“Unbounded” is not enough. The successor ordinals below κ are unbounded but <b>not</b> stationary: they miss the club of limit ordinals. Also, everything here needs cf κ &gt; ω. In ℵ<sub>ω</sub>, {ℵ<sub>2n</sub>} and {ℵ<sub>2n+1</sub>} are disjoint clubs.</span>
+    <span class="zh">“无界”还不够。κ 以下的后继序数无界，但<b>不</b>平稳：它们与“极限序数”这个 club 不相交。另外，以上一切都需要 cf κ &gt; ω。在 ℵ<sub>ω</sub> 中，{ℵ<sub>2n</sub>} 与 {ℵ<sub>2n+1</sub>} 是两个不相交的 club。</span></div>
+  <div class="cy" id="cy6"></div>
+</section>
+
+<!-- ============ S7 ============ -->
+<section class="card" id="s7">
+  <div class="kicker">Step 7</div>
+  <h2><span class="en">The inaccessible hierarchy and Mahlo cardinals</span><span class="zh">不可达层级与马洛基数</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites:</span><span class="zh">预备：</span></span>
+    <a class="chip" href="#s3"><span class="en">Step 3</span><span class="zh">第 3 步</span></a>
+    <a class="chip" href="#s6"><span class="en">Step 6</span><span class="zh">第 6 步</span></a></div>
+  <p class="core"><span class="en">Core idea: “unboundedly many inaccessibles below” can be iterated forever. Mahlo means something stronger: the inaccessibles below κ are <i>stationary</i>, so no club can dodge them.</span><span class="zh">核心想法：“下方有无界多个不可达”这件事可以无限迭代下去。马洛要求更多：κ 以下的不可达基数构成<i>平稳集</i>，任何 club 都躲不开它们。</span></p>
+  <div class="def"><span class="en"><b>Definitions.</b>
+    <br>• κ is <b>α-inaccessible</b> if κ is inaccessible and for every β &lt; α the β-inaccessibles below κ are unbounded in κ. (0-inaccessible = inaccessible; 1-inaccessible = inaccessible limit of inaccessibles. Equivalently, letting ψ₀ enumerate the inaccessibles, the 1-inaccessibles are the inaccessible fixed points κ = ψ₀(κ).)
+    <br>• <b>Hyper-inaccessible</b> is used ambiguously: most often for 1-inaccessible, sometimes for κ-inaccessible, occasionally for Mahlo. Always check the author's definition.
+    <br>• κ is <b>(strongly) Mahlo</b> if κ is inaccessible and {λ &lt; κ : λ inaccessible} is <b>stationary</b> in κ. <b>Weakly Mahlo</b>: weakly inaccessible, and the weakly inaccessibles below κ are stationary.</span>
+    <span class="zh"><b>定义.</b>
+    <br>• 若 κ 不可达，且对每个 β &lt; α，κ 以下的 β-不可达基数在 κ 中无界，称 κ 为 <b>α-不可达</b>。（0-不可达 = 不可达；1-不可达 = 不可达基数的不可达极限。等价地，令 ψ₀ 枚举所有不可达基数，则 1-不可达就是满足 κ = ψ₀(κ) 的不可达不动点。）
+    <br>• <b>超不可达</b>（hyper-inaccessible）一词用法不统一：最常指 1-不可达，有时指 κ-不可达，偶尔指马洛。务必看清作者的定义。
+    <br>• 若 κ 不可达，且 {λ &lt; κ : λ 不可达} 在 κ 中<b>平稳</b>，称 κ 为<b>（强）马洛基数</b>。<b>弱马洛</b>：κ 弱不可达，且 κ 以下的弱不可达基数构成平稳集。</span></div>
+  <p><span class="en">Gold diamonds are inaccessibles below κ; blue circles are limits of inaccessibles. Compare the two scenarios.</span><span class="zh">金色菱形是 κ 以下的不可达基数，蓝色圆圈是不可达基数的极限点。对比两种情景。</span></p>
+  <div class="toolbar"><button class="btn sel" id="mhA"><span class="en">A: κ = least 1-inaccessible</span><span class="zh">A：κ = 最小的 1-不可达</span></button>
+    <button class="btn" id="mhB"><span class="en">B: κ Mahlo</span><span class="zh">B：κ 是马洛基数</span></button>
+    <button class="btn primary" id="mhClub"><span class="en">Throw a club ▶</span><span class="zh">扔一个 club ▶</span></button></div>
+  <div class="stage"><svg id="mahlo" viewBox="0 0 860 190" width="860" height="190"></svg></div>
+  <div class="msg info info" id="mhMsg"></div>
+  <p class="muted" style="font-size:13px"><span class="en">The picture is schematic. In reality there are κ many points, and a club has order type κ.</span><span class="zh">图是示意性的：实际上有 κ 个点，club 的序型是 κ。</span></p>
+  <div class="def"><span class="en"><b>Theorem.</b> If κ is Mahlo, then κ is α-inaccessible for every α ≤ κ (so κ is the κ-th inaccessible, the κ-th 1-inaccessible, …), and for each α &lt; κ the α-inaccessibles below κ form a stationary set. Hence the least Mahlo cardinal is far above the least hyper-inaccessible in every sense of that word. Consistency: if κ is Mahlo, V<sub>κ</sub> ⊨ ZFC + “there is a proper class of inaccessibles”, so ZFC + ∃Mahlo ⊢ Con(ZFC + ∃ inaccessible).</span>
+    <span class="zh"><b>定理.</b> 若 κ 是马洛基数，则对每个 α ≤ κ，κ 都是 α-不可达的（所以 κ 是第 κ 个不可达基数、第 κ 个 1-不可达基数……），并且对每个 α &lt; κ，κ 以下的 α-不可达基数构成平稳集。因此，无论“超不可达”取哪种含义，最小马洛基数都远在最小超不可达基数之上。一致性方面：若 κ 是马洛基数，则 V<sub>κ</sub> ⊨ ZFC + “不可达基数构成真类”，所以 ZFC + 存在马洛 ⊢ Con(ZFC + 存在不可达)。</span></div>
+  <div class="proofbox" data-proof><h4><span class="il"><span class="en">Proof sketch (first two levels; the rest iterates)</span><span class="zh">证明概要（前两层，其余同理迭代）</span></span></h4><div class="steps">
+    <div class="step"><span class="en">I = {λ &lt; κ : λ inaccessible} is stationary, hence unbounded. Since κ is regular, I has order type κ: κ is 1-inaccessible and κ = ψ₀(κ).</span><span class="zh">I = {λ &lt; κ : λ 不可达} 平稳，从而无界。κ 正则，所以 I 的序型是 κ：κ 是 1-不可达的，且 κ = ψ₀(κ)。</span></div>
+    <div class="step"><span class="en">L = {λ &lt; κ : λ is a limit of inaccessibles} is club: a limit of limits is a limit (closed), and above any β we can take the sup of ω inaccessibles &gt; β, which stays below κ by regularity (unbounded).</span><span class="zh">L = {λ &lt; κ : λ 是不可达基数的极限} 是 club：极限点的极限仍是极限点（闭）；对任意 β，取 β 以上 ω 个不可达基数的上确界，由正则性仍小于 κ（无界）。</span></div>
+    <div class="step"><span class="en">I ∩ L = the 1-inaccessibles below κ, and stationary ∩ club is stationary. So the 1-inaccessibles below κ are stationary, in particular unbounded: κ is 2-inaccessible. Repeat with “limit of β-inaccessibles” for all β; at limit stages intersect fewer than κ clubs. ∎</span><span class="zh">I ∩ L 恰是 κ 以下的 1-不可达基数，而平稳集 ∩ club 仍平稳。所以 κ 以下的 1-不可达基数平稳，特别地无界：κ 是 2-不可达的。对所有 β 用“β-不可达基数的极限”重复此论证；在极限阶段取少于 κ 个 club 的交。∎</span></div>
+  </div></div>
+  <div class="pit"><b><span class="il"><span class="en">⚠ Common pitfall</span><span class="zh">常见误区</span></span></b><br><span class="en">Mahlo is <b>not</b> “just one more fixed point”. Scenario A shows an inaccessible limit of inaccessibles that is not Mahlo: the club of limits of inaccessibles below it contains no inaccessible at all. Stationarity is a qualitatively stronger demand than unboundedness.</span>
+    <span class="zh">马洛<b>不是</b>“再多一个不动点”而已。情景 A 中的 κ 是不可达基数的不可达极限，却不是马洛基数：它下方“不可达基数的极限点”构成的 club 里一个不可达基数都没有。平稳性比无界性在质上要求更高。</span></div>
+  <div class="cy" id="cy7"></div>
+</section>
+
+<!-- ============ S8 ============ -->
+<section class="card" id="s8">
+  <div class="kicker">Step 8</div>
+  <h2><span class="en">Weakly compact I: the partition property κ → (κ)²₂</span><span class="zh">弱紧（一）：划分性质 κ → (κ)²₂</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites:</span><span class="zh">预备：</span></span>
+    <a class="chip" href="#s3"><span class="en">Step 3</span><span class="zh">第 3 步</span></a>
+    <a class="chip" href="lesson9.html"><span class="en">L9 cardinals</span><span class="zh">基数</span></a></div>
+  <p class="core"><span class="en">Core idea: color every pair. Can you always find a big set whose pairs all have the same color? For finite graphs and for ω, yes (Ramsey). For uncountable κ, only if κ is a large cardinal.</span><span class="zh">核心想法：给每一对元素染色。总能找到一个大集合，使其中所有的对同色吗？对有限图和 ω：能（拉姆齐）。对不可数的 κ：只有 κ 是大基数时才能。</span></p>
+  <p><span class="en">Click an edge to cycle its color (grey → red → blue). Monochromatic triangles light up. On K₆ you can never avoid one. Press “Pigeonhole proof” to see why.</span>
+     <span class="zh">点击边切换颜色（灰 → 红 → 蓝），同色三角形会被点亮。在 K₆ 上你永远避免不了同色三角形。按“鸽笼证明”看原因。</span></p>
+  <div class="pickrow" id="rgN"></div>
+  <div class="toolbar"><button class="btn" id="rgRand"><span class="en">Random coloring</span><span class="zh">随机染色</span></button>
+    <button class="btn ghost" id="rgClear"><span class="en">Clear</span><span class="zh">清空</span></button>
+    <button class="btn primary" id="rgProof"><span class="en">Pigeonhole proof (K₆) ▶</span><span class="zh">鸽笼证明（K₆）▶</span></button></div>
+  <div class="row"><div class="col" style="flex:0 1 400px"><div class="stage"><svg id="rg" viewBox="0 0 380 340" width="380" height="340"></svg></div></div>
+    <div class="col"><div class="msg info info" id="rgMsg"></div></div></div>
+  <div class="def"><span class="en"><b>Notation.</b> [X]² = the set of 2-element subsets of X. κ → (κ)²₂ means: for every f: [κ]² → {0,1} there is H ⊆ κ with |H| = κ such that f is constant on [H]² (H is <b>homogeneous</b>).
+    <br><b>Ramsey's theorem.</b> ω → (ω)²₂. Finite version: R(3,3) = 6.
+    <br><b>Definition.</b> An <b>uncountable</b> cardinal κ is <b>weakly compact</b> if κ → (κ)²₂.
+    <br><b>Facts.</b> (Erdős–Tarski) if κ is uncountable and κ → (κ)²₂, then κ is inaccessible. (Sierpiński, ZFC) 2<sup>ℵ₀</sup> ↛ (ℵ₁)²₂; in particular ω₁ ↛ (ω₁)²₂.</span>
+    <span class="zh"><b>记号.</b> [X]² 表示 X 的所有二元子集。κ → (κ)²₂ 的意思是：对任意 f: [κ]² → {0,1}，存在 H ⊆ κ，|H| = κ，使 f 在 [H]² 上为常值（H 是<b>齐性集</b>）。
+    <br><b>拉姆齐定理.</b> ω → (ω)²₂。有限版本：R(3,3) = 6。
+    <br><b>定义.</b> 满足 κ → (κ)²₂ 的<b>不可数</b>基数 κ 称为<b>弱紧基数</b>。
+    <br><b>事实.</b>（Erdős–Tarski）若 κ 不可数且 κ → (κ)²₂，则 κ 不可达。（Sierpiński，ZFC）2<sup>ℵ₀</sup> ↛ (ℵ₁)²₂，特别地 ω₁ ↛ (ω₁)²₂。</span></div>
+  <div class="proofbox" data-proof><h4><span class="il"><span class="en">Proof of Ramsey's theorem ω → (ω)²₂</span><span class="zh">拉姆齐定理 ω → (ω)²₂ 的证明</span></span></h4><div class="steps">
+    <div class="step"><span class="en">Let A₀ = ω and a₀ = min A₀. Infinitely many b ∈ A₀ ∖ {a₀} share the same color f({a₀, b}) =: c₀ (pigeonhole with 2 colors). Let A₁ be that infinite set.</span><span class="zh">令 A₀ = ω，a₀ = min A₀。A₀ ∖ {a₀} 中有无穷多个 b 使 f({a₀, b}) 取同一颜色 c₀（两色鸽笼原理）。记这个无穷集为 A₁。</span></div>
+    <div class="step"><span class="en">Repeat: a<sub>n</sub> = min A<sub>n</sub>, and A<sub>n+1</sub> ⊆ A<sub>n</sub> ∖ {a<sub>n</sub>} is infinite with f({a<sub>n</sub>, b}) = c<sub>n</sub> for all b ∈ A<sub>n+1</sub>. Then for m &gt; n, f({a<sub>n</sub>, a<sub>m</sub>}) = c<sub>n</sub>: the color depends only on the smaller point.</span><span class="zh">重复：a<sub>n</sub> = min A<sub>n</sub>，取无穷集 A<sub>n+1</sub> ⊆ A<sub>n</sub> ∖ {a<sub>n</sub>}，使对所有 b ∈ A<sub>n+1</sub> 有 f({a<sub>n</sub>, b}) = c<sub>n</sub>。于是对 m &gt; n，f({a<sub>n</sub>, a<sub>m</sub>}) = c<sub>n</sub>：颜色只取决于较小的那个点。</span></div>
+    <div class="step"><span class="en">Some color c occurs as c<sub>n</sub> for infinitely many n. H = {a<sub>n</sub> : c<sub>n</sub> = c} is infinite and homogeneous. ∎ <br>For uncountable κ this cascade breaks at limit stages: a decreasing sequence of large sets A<sub>n</sub> can have empty intersection. At ω₁ the failure is unavoidable (Sierpiński). At a weakly compact κ one repairs it by organizing all the choices into a κ-tree and taking a cofinal branch (the tree property, Step 9).</span><span class="zh">某个颜色 c 作为 c<sub>n</sub> 出现无穷多次。H = {a<sub>n</sub> : c<sub>n</sub> = c} 是无穷齐性集。∎ <br>对不可数的 κ，这个级联会在极限步断掉：一列递减的大集合 A<sub>n</sub> 的交可能是空集。在 ω₁ 处这种失败无法避免（Sierpiński）。在弱紧基数 κ 处，可以把所有选择组织成一棵 κ-树，再取它的共尾枝来补救（树性质，第 9 步）。</span></div>
+  </div></div>
+  <div class="pit"><b><span class="il"><span class="en">⚠ Common pitfall</span><span class="zh">常见误区</span></span></b><br><span class="en">ω → (ω)²₂ does <b>not</b> make ω a “weakly compact cardinal”: the definition requires κ uncountable, exactly as with inaccessibility. And Ramsey's theorem does <b>not</b> generalize to ω₁, despite how natural it looks.</span>
+    <span class="zh">ω → (ω)²₂ <b>并不</b>使 ω 成为“弱紧基数”：和不可达一样，定义要求 κ 不可数。并且拉姆齐定理<b>不能</b>推广到 ω₁，尽管看起来很自然。</span></div>
+  <div class="cy" id="cy8"></div>
+</section>
+
+<!-- ============ S9 ============ -->
+<section class="card" id="s9">
+  <div class="kicker">Step 9</div>
+  <h2><span class="en">Weakly compact II: the tree property and compactness</span><span class="zh">弱紧（二）：树性质与紧致性</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites:</span><span class="zh">预备：</span></span>
+    <a class="chip" href="lesson5.html"><span class="en">L5 compactness</span><span class="zh">紧致性</span></a>
+    <a class="chip" href="#s8"><span class="en">Step 8</span><span class="zh">第 8 步</span></a></div>
+  <p class="core"><span class="en">Core idea: a tall tree with small levels must have a branch all the way up. True at ω (Kőnig), false at ω₁ (Aronszajn), true at weakly compact κ.</span><span class="zh">核心想法：又高、每层又小的树，必定有一条通到顶的枝。在 ω 处成立（柯尼希），在 ω₁ 处不成立（阿龙扎扬），在弱紧基数处成立。</span></p>
+  <div class="def"><span class="en"><b>Definitions.</b> A <b>tree</b> is a partial order (T, &lt;<sub>T</sub>) in which the predecessors of each node are well-ordered. Level α = the nodes whose predecessors have order type α. A <b>κ-tree</b> has height κ and every level of size &lt; κ. A <b>cofinal branch</b> is a linearly ordered subset meeting every level. κ has the <b>tree property</b> if every κ-tree has a cofinal branch. A κ-tree with no cofinal branch is a <b>κ-Aronszajn tree</b>.</span>
+    <span class="zh"><b>定义.</b> <b>树</b>是一个偏序 (T, &lt;<sub>T</sub>)，其中每个节点的前驱集都是良序的。第 α 层 = 前驱序型为 α 的节点。<b>κ-树</b>高度为 κ 且每层大小 &lt; κ。<b>共尾枝</b>是与每一层都相交的线序子集。若每棵 κ-树都有共尾枝，称 κ 具有<b>树性质</b>。没有共尾枝的 κ-树称为 <b>κ-阿龙扎扬树</b>。</span></div>
+  <p><span class="en"><b>Kőnig's walk.</b> In a finite picture, “has infinitely many descendants” is played by “reaches the bottom row”. Click children to walk down from the root. Green nodes are alive, grey ones are dead ends. Kőnig's rule: always step to an alive child. One exists because finitely many children cannot all have finitely many descendants.</span>
+     <span class="zh"><b>柯尼希漫步.</b> 在有限的图里，用“能到达最底层”来扮演“有无穷多个后代”。从根开始点击子节点往下走。绿色节点是活的，灰色节点是死胡同。柯尼希的规则：每一步都走向一个活的子节点。这样的子节点一定存在，因为有限多个子节点不可能每个都只有有限多个后代。</span></p>
+  <div class="toolbar"><button class="btn" id="trNew"><span class="en">New tree</span><span class="zh">换一棵树</span></button>
+    <button class="btn" id="trReset"><span class="en">Restart walk</span><span class="zh">重新开始</span></button>
+    <button class="btn" id="trShow"><span class="en">Show alive / dead</span><span class="zh">显示活／死</span></button>
+    <button class="btn primary" id="trKonig"><span class="en">Kőnig's walk ▶</span><span class="zh">柯尼希漫步 ▶</span></button></div>
+  <div class="stage"><svg id="tree" viewBox="0 0 860 380" width="860" height="380"></svg></div>
+  <div class="msg info info" id="trMsg"></div>
+  <div class="def"><span class="en"><b>Theorem (equivalent definitions).</b> For an uncountable cardinal κ the following are equivalent:
+    <br>(a) κ → (κ)²₂ (Step 8);
+    <br>(b) κ is inaccessible and has the tree property;
+    <br>(c) κ is Π¹₁-indescribable (Step 10);
+    <br>(d) κ is inaccessible and L<sub>κ,κ</sub> satisfies the <b>weak compactness theorem</b>: if Σ is a set of at most κ sentences of L<sub>κ,κ</sub> (conjunctions of &lt; κ formulas, blocks of &lt; κ quantifiers) and every subset of Σ of size &lt; κ has a model, then Σ has a model.
+    <br>Kőnig: ω has the tree property. Aronszajn (ZFC): there is an ω₁-Aronszajn tree, so ω₁ lacks it.</span>
+    <span class="zh"><b>定理（等价定义）.</b> 对不可数基数 κ，以下等价：
+    <br>(a) κ → (κ)²₂（第 8 步）；
+    <br>(b) κ 不可达且具有树性质；
+    <br>(c) κ 是 Π¹₁-不可描述的（第 10 步）；
+    <br>(d) κ 不可达，且 L<sub>κ,κ</sub> 满足<b>弱紧致性定理</b>：若 Σ 是至多 κ 个 L<sub>κ,κ</sub> 语句（允许少于 κ 个公式的合取、少于 κ 个量词的量词块）构成的集合，且 Σ 的每个大小 &lt; κ 的子集都有模型，则 Σ 有模型。
+    <br>柯尼希：ω 有树性质。阿龙扎扬（ZFC）：存在 ω₁-阿龙扎扬树，所以 ω₁ 没有树性质。</span></div>
+  <div class="note"><span class="en"><b>Why “weakly compact”?</b> Property (d) is the infinitary analogue of the compactness theorem from Lesson 5 (where κ = ω and L<sub>ω,ω</sub> is first-order logic). “Weakly” refers to the restriction |Σ| ≤ κ; dropping it gives the much stronger <i>strongly compact</i> cardinals (Lesson 25).</span>
+    <span class="zh"><b>为什么叫“弱紧”？</b> 性质 (d) 是第 5 课紧致性定理的无穷语言版本（那里 κ = ω，L<sub>ω,ω</sub> 就是一阶逻辑）。“弱”指限制 |Σ| ≤ κ；去掉这个限制，就得到强得多的<i>强紧基数</i>（第 25 课）。</span></div>
+  <div class="pit"><b><span class="il"><span class="en">⚠ Common pitfall</span><span class="zh">常见误区</span></span></b><br><span class="en">The tree property <b>alone</b> does not make κ large in size. It is consistent (relative to a weakly compact, Mitchell) that ℵ₂ has the tree property, and ℵ₂ is a successor cardinal. Conversely, if ℵ₂ has the tree property then ℵ₂ is weakly compact in L (Silver). So “ℵ₂ has the tree property” is <b>equiconsistent</b> with “∃ weakly compact”, yet ℵ₂ is not weakly compact. Inaccessibility in (b) cannot be dropped.</span>
+    <span class="zh">树性质<b>本身</b>并不能让 κ 在大小上“大”。（相对于弱紧基数，Mitchell）“ℵ₂ 有树性质”是一致的，而 ℵ₂ 是后继基数。反过来，若 ℵ₂ 有树性质，则 ℵ₂ 在 L 中弱紧（Silver）。所以“ℵ₂ 有树性质”与“存在弱紧基数”<b>等相容</b>，但 ℵ₂ 并不是弱紧基数。(b) 中的不可达条件不能去掉。</span></div>
+  <div class="cy" id="cy9"></div>
+</section>
+
+<!-- ============ S10 ============ -->
+<section class="card" id="s10">
+  <div class="kicker">Step 10</div>
+  <h2><span class="en">Indescribable cardinals: reflection internalized</span><span class="zh">不可描述基数：内化的反射</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites:</span><span class="zh">预备：</span></span>
+    <a class="chip" href="lesson20.html"><span class="en">L20 reflection theorem</span><span class="zh">反射定理</span></a>
+    <a class="chip" href="#s7"><span class="en">Step 7</span><span class="zh">第 7 步</span></a>
+    <a class="chip" href="#s9"><span class="en">Step 9</span><span class="zh">第 9 步</span></a></div>
+  <p class="core"><span class="en">Core idea: whatever V<sub>κ</sub> says about itself (in a given language) is already said by some smaller V<sub>α</sub>. So no sentence of that language can single κ out.</span><span class="zh">核心想法：V<sub>κ</sub> 关于自身说的任何话（在给定语言中），某个更小的 V<sub>α</sub> 早已说过。因此该语言中没有任何语句能把 κ 单独挑出来。</span></p>
+  <div class="def"><span class="en"><b>Definition</b> (Kanamori's convention). Π<sup>m</sup><sub>n</sub> formulas: (m+1)-th-order formulas whose highest-order quantifiers form a Π<sub>n</sub> prefix (n alternating blocks, beginning with ∀). For m = 1 these are second-order: the quantified variables range over subsets of V<sub>κ</sub>. κ is <b>Π<sup>m</sup><sub>n</sub>-indescribable</b> if for every R ⊆ V<sub>κ</sub> and every Π<sup>m</sup><sub>n</sub> sentence φ:
+    <br><span class="m">⟨V<sub>κ</sub>, ∈, R⟩ ⊨ φ ⇒ ∃α &lt; κ ⟨V<sub>α</sub>, ∈, R ∩ V<sub>α</sub>⟩ ⊨ φ.</span>
+    <br><b>Totally indescribable</b>: Π<sup>m</sup><sub>n</sub>-indescribable for all m, n.
+    <br><b>Facts.</b> κ inaccessible ⇔ first-order reflection with a predicate holds at κ (Π<sup>0</sup><sub>n</sub>-indescribable for all n). κ weakly compact ⇔ Π¹₁-indescribable (Hanf–Scott). If κ is Π¹<sub>n+1</sub>-indescribable, the Π¹<sub>n</sub>-indescribables below κ form a stationary set.</span>
+    <span class="zh"><b>定义</b>（采用 Kanamori 的记号）。Π<sup>m</sup><sub>n</sub> 公式：(m+1) 阶公式，其最高阶量词构成 Π<sub>n</sub> 前缀（n 个交替的量词块，以 ∀ 开头）。m = 1 时就是二阶公式：被量化的变元取遍 V<sub>κ</sub> 的子集。若对每个 R ⊆ V<sub>κ</sub> 和每个 Π<sup>m</sup><sub>n</sub> 语句 φ 都有
+    <br><span class="m">⟨V<sub>κ</sub>, ∈, R⟩ ⊨ φ ⇒ ∃α &lt; κ ⟨V<sub>α</sub>, ∈, R ∩ V<sub>α</sub>⟩ ⊨ φ，</span>
+    <br>则称 κ 是 <b>Π<sup>m</sup><sub>n</sub>-不可描述的</b>。对所有 m、n 都成立，称为<b>完全不可描述</b>。
+    <br><b>事实.</b> κ 不可达 ⇔ 带谓词的一阶反射在 κ 处成立（对所有 n 都 Π<sup>0</sup><sub>n</sub>-不可描述）。κ 弱紧 ⇔ Π¹₁-不可描述（Hanf–Scott）。若 κ 是 Π¹<sub>n+1</sub>-不可描述的，则 κ 以下的 Π¹<sub>n</sub>-不可描述基数构成平稳集。</span></div>
+  <p><span class="en"><b>The reflection machine.</b> Pick a cardinal κ and a sentence about “the ordinals” of V<sub>κ</sub> (which are exactly the ordinals below κ). The machine checks whether it holds in V<sub>κ</sub>, then looks for a smaller α that also satisfies it.</span>
+     <span class="zh"><b>反射机.</b> 选一个基数 κ 和一条关于 V<sub>κ</sub> 的“序数”（恰为 κ 以下的序数）的语句。机器先检查它在 V<sub>κ</sub> 中是否成立，再去找一个同样满足它的更小的 α。</span></p>
+  <div class="pickrow" id="rfK"></div>
+  <div class="pickrow" id="rfP"></div>
+  <div class="stage" style="display:flex;justify-content:center"><svg id="refl" viewBox="0 0 760 260" width="760" height="260"></svg></div>
+  <div class="msg info info" id="rfMsg"></div>
+  <div class="intu"><span class="en"><b>Reflection internalized.</b> The ZFC reflection theorem (L20) says: for each <i>first-order</i> φ true in V, there are (club-many) α with V<sub>α</sub> ⊨ φ. It is a schema about the whole universe, with no top. Indescribability moves this to a set-sized level κ and upgrades it to <i>higher-order</i> φ with a predicate R. ZFC proves the first-order schema for V; it cannot prove that some κ has second-order (Π¹₁) reflection, since such a κ is weakly compact, hence inaccessible.</span>
+    <span class="zh"><b>内化的反射.</b> ZFC 的反射定理（第 20 课）说：对每个在 V 中成立的<i>一阶</i>语句 φ，存在（club 多个）α 使 V<sub>α</sub> ⊨ φ。那是关于整个宇宙的定理模式，没有“顶”。不可描述性把它搬到一个集合大小的高度 κ，并升级为带谓词 R 的<i>高阶</i>语句。ZFC 能证明关于 V 的一阶模式，却证明不了存在具有二阶（Π¹₁）反射的 κ，因为这样的 κ 是弱紧的，从而不可达。</span></div>
+  <div class="def"><span class="en"><b>Theorem (ZFC).</b> Every weakly compact cardinal κ is Mahlo, and the Mahlo cardinals below κ form a stationary subset of κ.</span><span class="zh"><b>定理（ZFC）.</b> 每个弱紧基数 κ 都是马洛基数，并且 κ 以下的马洛基数构成 κ 的平稳子集。</span></div>
+  <div class="proofbox" data-proof><h4><span class="il"><span class="en">Proof via Π¹₁ reflection</span><span class="zh">用 Π¹₁ 反射证明</span></span></h4><div class="steps">
+    <div class="step"><span class="en">Let C ⊆ κ be club; we find an inaccessible in C. Use the predicate R = C. In ⟨V<sub>κ</sub>, ∈, C⟩ the sentence φ = “Ord is uncountable and a strong limit, and C is unbounded in Ord, and ∀X (if X is a function from an ordinal into Ord then ran X is bounded)” is true, because κ is inaccessible. Only the ∀X clause is second-order, so φ is Π¹₁.</span><span class="zh">设 C ⊆ κ 是 club，我们要在 C 中找一个不可达基数。取谓词 R = C。在 ⟨V<sub>κ</sub>, ∈, C⟩ 中，语句 φ = “Ord 不可数且是强极限，C 在 Ord 中无界，并且 ∀X（若 X 是从某序数到 Ord 的函数，则 ran X 有界）” 成立，因为 κ 不可达。只有 ∀X 一句是二阶的，所以 φ 是 Π¹₁ 语句。</span></div>
+    <div class="step"><span class="en">By Π¹₁-indescribability there is α &lt; κ with ⟨V<sub>α</sub>, ∈, C ∩ α⟩ ⊨ φ. Second-order quantifiers over V<sub>α</sub> range over <i>all</i> subsets of V<sub>α</sub>, so α really is regular, uncountable, and a strong limit: α is inaccessible.</span><span class="zh">由 Π¹₁-不可描述性，存在 α &lt; κ 使 ⟨V<sub>α</sub>, ∈, C ∩ α⟩ ⊨ φ。V<sub>α</sub> 上的二阶量词取遍 V<sub>α</sub> 的<i>所有</i>子集，所以 α 确实正则、不可数且是强极限：α 不可达。</span></div>
+    <div class="step"><span class="en">Also C ∩ α is unbounded in α, and C is closed, so α ∈ C. Thus every club meets the inaccessibles: κ is Mahlo.</span><span class="zh">并且 C ∩ α 在 α 中无界，而 C 是闭的，所以 α ∈ C。于是每个 club 都碰到不可达基数：κ 是马洛基数。</span></div>
+    <div class="step"><span class="en">Now “Ord is Mahlo” = “… ∧ ∀X (X club in Ord → X contains an inaccessible)” is also Π¹₁ and true in V<sub>κ</sub>. Add “C is unbounded” and reflect again: we get a Mahlo α ∈ C. So the Mahlo cardinals below κ are stationary. ∎</span><span class="zh">而“Ord 是马洛的” = “… ∧ ∀X（X 是 Ord 中的 club → X 含一个不可达基数）” 也是 Π¹₁ 语句，且在 V<sub>κ</sub> 中成立。加上“C 无界”再反射一次，就得到一个马洛基数 α ∈ C。所以 κ 以下的马洛基数平稳。∎</span></div>
+  </div></div>
+  <div class="pit"><b><span class="il"><span class="en">⚠ Common pitfall</span><span class="zh">常见误区</span></span></b><br><span class="en">The parameter R matters, and so does the language. The least weakly compact κ is Π¹₁-indescribable but <b>not</b> Π¹₂-indescribable: “Ord is weakly compact” is a Π¹₂ sentence (∀ tree ∃ branch) true in V<sub>κ</sub> and false in every V<sub>α</sub>, α &lt; κ. Try it in the machine.</span>
+    <span class="zh">参数 R 很重要，语言的复杂度也很重要。最小的弱紧基数 κ 是 Π¹₁-不可描述的，但<b>不是</b> Π¹₂-不可描述的：“Ord 是弱紧的”是一条 Π¹₂ 语句（∀ 树 ∃ 枝），在 V<sub>κ</sub> 中成立，在每个 V<sub>α</sub>（α &lt; κ）中都不成立。在反射机里试一试。</span></div>
+  <div class="cy" id="cy10"></div>
+</section>
+
+<!-- ============ S11 ============ -->
+<section class="card" id="s11">
+  <div class="kicker">Step 11</div>
+  <h2><span class="en">The consistency-strength ladder so far</span><span class="zh">目前为止的一致性强度梯子</span></h2>
+  <div class="prereq"><span class="il"><span class="en">Prerequisites:</span><span class="zh">预备：</span></span>
+    <a class="chip" href="#s2"><span class="en">Step 2</span><span class="zh">第 2 步</span></a>
+    <a class="chip" href="#s10"><span class="en">Steps 3–10</span><span class="zh">第 3–10 步</span></a></div>
+  <p class="core"><span class="en">Core idea: each rung proves the consistency of the rungs below it. Click a rung.</span><span class="zh">核心想法：每一级都能证明下面各级的一致性。点击任一级。</span></p>
+  <div class="row">
+    <div class="col" style="flex:0 1 420px"><div class="stage"><svg id="ladder" viewBox="0 0 400 560" width="400" height="560"></svg></div></div>
+    <div class="col"><div class="msg info info" id="ldMsg"></div>
+      <div class="note"><span class="en"><b>Caveat (from Wikipedia's list).</b> The list is arranged <i>roughly</i> by consistency strength, using the size of the cardinal as a tiebreaker. Many notions sit between these rungs (e.g. reflecting and uplifting cardinals between Mahlo and weakly compact; unfoldable, subtle, ineffable, Ramsey, … between totally indescribable and measurable). In a few cases (such as strongly compact cardinals) the exact consistency strength is unknown and the list uses the current best guess. The linear order itself is an observation, not a theorem.</span>
+        <span class="zh"><b>注意（依维基百科的列表）.</b> 该列表<i>大致</i>按一致性强度排列，强度相同时按基数大小排。各级之间还有许多概念（例如马洛与弱紧之间的反射基数、uplifting 基数；完全不可描述与可测之间的可展开基数、subtle、ineffable、拉姆齐基数等）。少数情形（如强紧基数）的精确一致性强度未知，列表采用目前最好的猜测。这个线序本身是观察，不是定理。</span></div></div>
+  </div>
+  <div class="cy" id="cy11"></div>
+</section>
+
+<!-- ============ EXERCISES ============ -->
+<section class="card" id="exercises">
+  <div class="kicker"><span class="il"><span class="en">Exercises</span><span class="zh">练习</span></span></div>
+  <h2><span class="en">Your turn</span><span class="zh">轮到你了</span></h2>
+  <p class="muted"><span class="en">Progress is saved in your browser. A sidebar ✓ means you solved it yourself. Every exercise has a “Show answer” button.</span><span class="zh">进度保存在浏览器中。侧栏 ✓ 表示你独立完成了。每道题都有“显示答案”按钮。</span></p>
+
+  <div class="ex" id="e1" data-prog="L23E1">
+    <h3><span class="tag">E1</span><span class="il"><span class="en">Classify the cardinals</span><span class="zh">给基数分类</span></span></h3>
+    <p><span class="en">Click each cell to cycle: <b>yes</b> → <b>no</b> → <b>?</b> (= ZFC cannot decide) → blank. κ₀ is the least cardinal with ℵ<sub>κ₀</sub> = κ₀. “Limit” means not a successor cardinal (ℵ₀ counts). “Inaccessible” means strongly inaccessible.</span>
+       <span class="zh">点击单元格切换：<b>是</b> → <b>否</b> → <b>?</b>（= ZFC 无法判定）→ 空。κ₀ 是满足 ℵ<sub>κ₀</sub> = κ₀ 的最小基数。“极限”指不是后继基数（ℵ₀ 也算）。“不可达”指强不可达。</span></p>
+    <div id="e1T"></div>
+    <div class="toolbar"><button class="btn primary" id="e1C"><span class="en">Check</span><span class="zh">检查</span></button><button class="btn ghost" id="e1S"><span class="en">Show answer</span><span class="zh">显示答案</span></button></div>
+    <div class="msg" id="e1M"></div>
+  </div>
+
+  <div class="ex" id="e2" data-prog="L23E2">
+    <h3><span class="tag">E2</span><span class="il"><span class="en">Club or not? Stationary or not?</span><span class="zh">是 club 吗？平稳吗？</span></span></h3>
+    <p class="muted"><span class="en">Unless stated otherwise, κ is a regular uncountable cardinal.</span><span class="zh">除非另有说明，κ 为正则不可数基数。</span></p>
+    <div id="e2L"></div>
+  </div>
+
+  <div class="ex" id="e3" data-prog="L23E3">
+    <h3><span class="tag">E3</span><span class="il"><span class="en">Put the proof in order</span><span class="zh">给证明排序</span></span></h3>
+    <p><span class="en">Goal: “if Con(ZFC) then ZFC ⊬ ∃ inaccessible”. Click the steps in the correct logical order. Click a chosen step again to remove it.</span>
+       <span class="zh">目标：“若 Con(ZFC)，则 ZFC ⊬ 存在不可达”。按正确的逻辑顺序点击各步骤；再次点击已选步骤可将其移除。</span></p>
+    <div class="row"><div class="col"><h4><span class="il"><span class="en">Available</span><span class="zh">待选</span></span></h4><div class="seq" id="e3Pool"></div></div>
+      <div class="col"><h4><span class="il"><span class="en">Your proof</span><span class="zh">你的证明</span></span></h4><div class="seq" id="e3Seq"></div></div></div>
+    <div class="toolbar"><button class="btn primary" id="e3C"><span class="en">Check</span><span class="zh">检查</span></button><button class="btn ghost" id="e3S"><span class="en">Show answer</span><span class="zh">显示答案</span></button></div>
+    <div class="msg" id="e3M"></div>
+  </div>
+
+  <div class="ex" id="e4" data-prog="L23E4">
+    <h3><span class="tag">E4</span><span class="il"><span class="en">Consistency strength vs size</span><span class="zh">一致性强度与大小</span></span></h3>
+    <div id="e4L"></div>
+  </div>
+
+  <div class="ex" id="e5" data-prog="L23E5">
+    <h3><span class="tag">E5</span><span class="il"><span class="en">The R(3,3) = 6 game</span><span class="zh">R(3,3) = 6 小游戏</span></span></h3>
+    <p><span class="en">(a) Color <b>every</b> edge of K₅ red or blue with <b>no</b> monochromatic triangle. (b) Then switch to K₆ and convince yourself it is impossible: the checker always finds a triangle.</span>
+       <span class="zh">(a) 把 K₅ 的<b>每条</b>边染成红或蓝，使<b>没有</b>同色三角形。(b) 再切换到 K₆，体会这是不可能的：检查器总能找到一个同色三角形。</span></p>
+    <div class="toolbar"><button class="btn sel" id="e5n5">K₅</button><button class="btn" id="e5n6">K₆</button>
+      <button class="btn ghost" id="e5Clr"><span class="en">Clear</span><span class="zh">清空</span></button>
+      <button class="btn ghost" id="e5S"><span class="en">Show answer</span><span class="zh">显示答案</span></button></div>
+    <div class="row"><div class="col" style="flex:0 1 400px"><div class="stage"><svg id="e5G" viewBox="0 0 380 340" width="380" height="340"></svg></div></div>
+      <div class="col"><div class="msg" id="e5M"></div></div></div>
+  </div>
+
+  <div class="ex" id="e6" data-prog="L23E6">
+    <h3><span class="tag">E6</span><span class="il"><span class="en">Predict the reflection machine</span><span class="zh">预测反射机的结果</span></span></h3>
+    <p><span class="en">For each pair (κ, φ), does φ hold in V<sub>κ</sub> <b>and</b> reflect to some V<sub>α</sub>, α &lt; κ? Answer “reflects”, “fails to reflect” (true at κ, but at no smaller α), or “not true at κ”.</span>
+       <span class="zh">对每一对 (κ, φ)：φ 是否在 V<sub>κ</sub> 中成立<b>并且</b>能反射到某个 V<sub>α</sub>（α &lt; κ）？回答“能反射”、“反射失败”（在 κ 处成立，但在任何更小的 α 处都不成立）或“在 κ 处不成立”。</span></p>
+    <div id="e6L"></div>
+  </div>
+</section>
+
+<section class="card">
+  <div class="kicker"><span class="il"><span class="en">Next</span><span class="zh">下一课</span></span></div>
+  <h2><a href="lesson24.html" style="color:inherit"><span class="en">Lesson 24: measurable cardinals &amp; elementary embeddings →</span><span class="zh">第 24 课：可测基数与初等嵌入 →</span></a></h2>
+  <p><span class="en">Everything so far lives “below” L: inaccessible, Mahlo and weakly compact cardinals all remain so in L. The next rung, the <b>measurable cardinal</b>, is different: it is witnessed by a nonprincipal κ-complete ultrafilter on κ, equivalently by an elementary embedding j: V → M with critical point κ, and it implies V ≠ L. After that, Lesson 25 climbs to Woodin, supercompact, huge and rank-into-rank cardinals, and their link to determinacy.</span>
+     <span class="zh">目前为止的一切都在 L 的“下面”：不可达、马洛、弱紧基数在 L 中依然保持原样。下一级<b>可测基数</b>则不同：它由 κ 上的一个非主 κ-完全超滤子见证，等价地由一个临界点为 κ 的初等嵌入 j: V → M 见证，并且它蕴涵 V ≠ L。之后第 25 课将继续爬向伍丁基数、超紧基数、巨大基数、秩入秩基数，以及它们与决定性的联系。</span></p>
+</section>
+</main>
+</div>
+
+<script src="assets/logic.js"></script>
+<script src="assets/lesson23.js"></script>
+</body>
+</html>
